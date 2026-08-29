@@ -1,5 +1,5 @@
 ---
-description: 브랜치 전략과 커밋 메시지 형식, 머지 방식, lefthook 훅, 금지 패턴
+description: 브랜치 전략과 커밋 메시지 형식, 머지 방식, lefthook 훅과 CI 머지 조건, 금지 패턴
 ---
 
 # Git 워크플로우
@@ -86,6 +86,12 @@ git status --short     # MM으로 시작하는 줄을 먼저 확인
 ```
 
 MM 파일이 있으면 커밋 전에 정리한다. 커밋 후에는 `git status`를 다시 대조해 의도한 것만 들어갔는지 확인한다.
+
+### PR 머지 조건
+
+CI(`.github/workflows/ci.yaml`)가 PR마다 게이트 넷을 돌린다. `develop`과 `main`은 CI 통과 없이 머지할 수 없다.
+
+훅은 로컬에서 `--no-verify`로 건너뛸 수 있지만 CI는 그럴 수 없다. 그래서 머지 조건은 훅이 아니라 CI에 둔다.
 
 ## 머지 방식
 
