@@ -4,15 +4,33 @@
 
 ## 배포
 
-Vercel에 배포한다(8/26 확정). `main`이 프로덕션이다. `develop`과 `feature` 브랜치의 PR에는 미리보기 URL이 만들어진다. 디자이너와 PM이 PR마다 미리보기 URL로 확인한다.
+Vercel에 배포한다(8/26 확정). `main`이 프로덕션이다. `develop`과 `feature` 브랜치의 PR에는 미리보기 URL이 만들어진다. 디자이너와 PM이 PR마다 미리보기로 확인하게 하려면 아래 인증 보호를 먼저 정해야 한다.
 
-Vercel 프로젝트 연결은 아직 안 됐다. 1주차(8/24~8/30) 목표다. 연결하면 프로젝트 이름과 대시보드 주소, 브랜치별 배포 설정을 여기에 적는다.
+2026-08-29에 첫 배포를 마쳤다.
+
+| 항목             | 값                                                                                                          |
+| ---------------- | ----------------------------------------------------------------------------------------------------------- |
+| Vercel 프로젝트  | `pop-pick-web` (팀 `chan9yus-projects`, Hobby)                                                              |
+| 대시보드         | https://vercel.com/chan9yus-projects/pop-pick-web                                                           |
+| GitHub 연결      | `pop-pick/pop-pick-web`. 푸시마다 자동 배포                                                                 |
+| 프로덕션 브랜치  | `main`                                                                                                      |
+| 프로덕션 URL     | https://pop-pick-web.vercel.app                                                                             |
+| `main` 별칭      | https://pop-pick-web-git-main-chan9yus-projects.vercel.app                                                  |
+| `develop` 별칭   | https://pop-pick-web-git-develop-chan9yus-projects.vercel.app                                               |
+| 브랜치 별칭 규칙 | `pop-pick-web-git-{브랜치 이름}-chan9yus-projects.vercel.app`. 브랜치가 살아 있는 동안 같은 주소를 유지한다 |
+| 빌드             | `pnpm run build`(Turbopack), Node 24.x, 빌드 캐시 사용. 첫 빌드 9초                                         |
+
+배포마다 `pop-pick-{해시}-chan9yus-projects.vercel.app` 형태의 고유 주소도 따로 생긴다. 특정 배포를 가리킬 때만 쓰고 공유에는 브랜치 별칭을 쓴다.
+
+프로젝트가 개인 계정(Hobby)에 있어 대시보드는 계정 주인만 본다.
+
+**미리보기 URL은 지금 Vercel 인증 보호가 걸려 있다.** 프로덕션 URL은 누구나 열리지만 `develop` 별칭과 PR 미리보기는 Vercel 계정으로 로그인한 프로젝트 멤버만 열 수 있고, 그 외에는 Vercel 로그인 화면으로 넘어간다. 디자이너와 PM이 미리보기를 확인하려면 이 보호를 끄거나 공유 링크를 써야 한다. 어느 쪽으로 할지는 정해지지 않았다.
 
 ## 환경 변수
 
 `.env*` 파일은 커밋하지 않는다. `.gitignore`에 있고 예외는 `.env.example` 하나다. 값은 Vercel 프로젝트 설정에 둔다.
 
-Kakao Map JavaScript 키는 카카오 개발자 콘솔에 배포 도메인을 등록해야 동작한다. Vercel 미리보기 도메인도 등록해야 PR 미리보기에서 지도가 뜬다. 미리보기 도메인을 어떻게 등록할지는 첫 배포 때 확인한다.
+Kakao Map JavaScript 키는 카카오 개발자 콘솔에 배포 도메인을 등록해야 동작한다. 프로덕션 URL과 함께 `develop` 브랜치 별칭을 등록하면 통합 브랜치 미리보기에서 지도가 뜬다. 브랜치 별칭은 브랜치가 살아 있는 동안 바뀌지 않는다. 배포마다 생기는 고유 주소는 매번 달라 등록 대상이 아니다. feature 브랜치 미리보기에서도 지도를 봐야 하면 그 브랜치 별칭을 그때 등록한다.
 
 | 변수 | 용도 | 어디서 받는가 |
 | ---- | ---- | ------------- |
