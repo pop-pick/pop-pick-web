@@ -24,10 +24,11 @@ lefthook 훅이 커밋과 푸시 때 같은 검사를 저장소 전체에 돌린
 
 ## 구조
 
-- Feature 기반이다. `src/app`은 라우팅, `src/features`는 기능 단위, `src/shared`는 공용 ui, hooks, lib, api, `src/types`는 공용 타입. 경로 별칭 `@/*`는 `./src/*`
+- Feature 기반이다. `src/app`은 라우팅, `src/features`는 기능 단위, `src/shared`는 공용 ui, hooks, lib, api, providers, styles, `src/types`는 공용 타입. 경로 별칭 `@/*`는 `./src/*`
+- `src/app`에는 Next가 이름을 정하는 라우트 파일(`layout.tsx`, `page.tsx` 등)만 둔다. 전부 소문자다. 컴포넌트와 CSS는 `src/shared`나 `src/features`에 두고 라우트 파일이 import한다
 - `features/` 하위 폴더 이름은 8/30 정기회의에서 기능 범위가 정해진 뒤에 만든다
 - 기성 UI 라이브러리를 쓰지 않는다. 디자이너 시안을 따라 `src/shared/ui`에 직접 만든다
-- Tailwind 클래스에 `p-[18px]` 같은 임의값을 쓰지 않는다. 토큰 정본은 `src/app/globals.css`의 `@theme inline`
+- Tailwind 클래스에 `p-[18px]` 같은 임의값을 쓰지 않는다. 토큰 정본은 `src/shared/styles/globals.css`의 `@theme inline`
 
 ## 하지 않는 것
 

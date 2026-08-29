@@ -18,8 +18,8 @@ description: 기성 UI 라이브러리 없음. 공용 컴포넌트는 src/shared
 
 `src/shared/ui`만이 아니라 저장소의 모든 React 컴포넌트에 적용한다. `src/app`과 `src/features`의 컴포넌트도 같다.
 
-- 컴포넌트 파일은 PascalCase다. `Button.tsx`, `Providers.tsx`. 컴포넌트가 아닌 파일(`cn.ts`, `client.ts`)은 소문자 케밥 케이스다
-- Next가 이름을 정하는 라우트 파일(`page.tsx`, `layout.tsx`, `error.tsx` 등)은 예외다. 프레임워크가 요구하는 이름과 default export를 그대로 쓴다
+- 컴포넌트 파일은 PascalCase다. `Button.tsx`, `QueryProvider.tsx`. 컴포넌트가 아닌 파일(`cn.ts`, `client.ts`, `globals.css`)은 소문자 케밥 케이스다
+- `src/app` 아래에는 Next가 이름을 정하는 라우트 파일(`page.tsx`, `layout.tsx`, `error.tsx` 등)만 둔다. 전부 소문자이고 default export를 그대로 쓴다. 컴포넌트와 CSS는 `src/shared`나 `src/features`에 두고 라우트 파일이 import한다. app 폴더를 열면 라우트 구조만 보이게 한다
 - 컴포넌트는 `export function Button(props: ButtonProps) { ... }` 형태다. 함수 선언식과 named export만 쓴다. 화살표 함수에 대입하거나 `export default`로 내보내지 않는다
 - 파일 하나에 컴포넌트 하나. 파일 이름과 컴포넌트 이름이 같다
 

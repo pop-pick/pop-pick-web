@@ -71,17 +71,19 @@ Feature 기반으로 나눈다.
 
 ```
 src/
-├── app/            Next.js App Router 라우팅. layout.tsx, Providers.tsx, page.tsx, globals.css
+├── app/            Next.js App Router 라우팅. layout.tsx, page.tsx 같은 라우트 파일만 둔다
 ├── features/       비즈니스 기능. 기능 하나가 폴더 하나
 ├── shared/         여러 기능이 함께 쓰는 것
 │   ├── api/        서버 호출 레이어. 화면 코드는 여기를 거쳐 서버를 부른다
 │   ├── ui/         공용 컴포넌트. 디자인 시스템 담당 프론트엔드가 주인이다
 │   ├── hooks/      공용 훅
-│   └── lib/        공용 유틸. 클래스를 합치는 cn()과 Kakao Map SDK 자리(kakao-map/)
+│   ├── lib/        공용 유틸. 클래스를 합치는 cn()과 Kakao Map SDK 자리(kakao-map/)
+│   ├── providers/  루트 레이아웃이 감싸는 프로바이더. QueryProvider
+│   └── styles/     globals.css. Tailwind 진입점과 디자인 토큰 정본
 └── types/          여러 기능이 함께 쓰는 타입
 ```
 
-`features/` 하위 폴더 이름은 8/30 정기회의에서 기능 범위가 확정된 뒤 정한다. `features/`와 `types/`는 지금 `.gitkeep`만 있다.
+`features/` 하위 폴더 이름은 8/30 정기회의에서 기능 범위가 확정된 뒤 정한다. `features/`와 `types/`는 지금 `.gitkeep`만 있다. 정적 파일은 `public/`에 둔다(지금은 `favicon.ico` 하나).
 
 경로 별칭 `@/*`는 `./src/*`다.
 
