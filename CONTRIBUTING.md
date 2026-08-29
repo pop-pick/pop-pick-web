@@ -15,6 +15,7 @@ fix/{슬러그}       고치는 일
 
 - 브랜치 이름은 `feature/planner-form`처럼 영문 케밥 케이스로 짓는다
 - 브랜치는 원격의 최신 `develop`에서 딴다
+- GitHub 기본 브랜치는 `main`이다. 화면에서 PR을 열 때 base를 `develop`으로 바꾼다
 - 한 브랜치는 한 가지 일만 담는다
 
 이 구조는 이 저장소의 규칙이다. 팀 공통 브랜치 전략은 8/30 개발자 논의에서 확정하며 확정되면 이 문서를 그에 맞춘다.
@@ -69,6 +70,8 @@ lefthook이 `pnpm install` 때 설치된다. 설정은 `lefthook.yaml`에 있다
 - `.github/PULL_REQUEST_TEMPLATE.md`를 채운다
 - squash 머지를 쓰지 않는다. merge commit 또는 rebase merge로 머지한다. squash로 압축하면 `main`이 `develop`의 조상 관계를 잃어 다음 PR마다 충돌이 반복된다
 - `gh pr merge`를 쓸 때는 `--merge` 또는 `--rebase`를 명시한다
+- 푸시하면 Vercel가 `https://pop-pick-web-git-{브랜치 이름}-chan9yus-projects.vercel.app`에 미리보기를 만든다. PR 본문에 적는다
+- `develop`에서 `main`으로 올리는 릴리스 PR을 머지한 뒤에는 `develop`을 `main`에 fast-forward로 맞춘다. 절차는 `.agents/rules/git-workflow.md`에 있다
 
 ## 문서
 
