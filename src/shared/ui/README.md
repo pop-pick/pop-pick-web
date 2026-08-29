@@ -6,13 +6,15 @@
 
 ## 토큰
 
-색과 간격, 글자 크기, 반경은 `src/app/globals.css`의 `@theme inline`에 토큰으로 둔다. 클래스에 `p-[18px]` 같은 임의값을 박지 않는다. 규칙과 옮기는 방법은 `.agents/rules/tailwind.md`에 있다.
+색과 간격, 글자 크기, 반경은 `src/shared/styles/globals.css`의 `@theme inline`에 토큰으로 둔다. 클래스에 `p-[18px]` 같은 임의값을 박지 않는다. 규칙과 옮기는 방법은 `.agents/rules/tailwind.md`에 있다.
 
-디자인 토큰은 디자이너에게 받는 대로 넣고 시안의 이름과 토큰 이름을 1:1로 맞춘다. 지금 `@theme inline`에는 `--color-background`와 `--color-foreground`, `--font-sans`, `--font-mono` 넷뿐이고 전부 create-next-app 보일러플레이트 값이다.
+디자인 토큰은 디자이너에게 받는 대로 넣고 시안의 이름과 토큰 이름을 1:1로 맞춘다. 지금 `@theme inline`에는 `--color-background`(흰색)와 `--color-foreground`(진회색) 둘뿐이다. 글꼴은 Tailwind 기본 `font-sans`(시스템 글꼴)이고 강조색은 Tailwind 기본 `blue-600`을 임시로 쓴다.
 
 ## 시안 전에 시작할 수 있는 것
 
 Button, Input, Modal, Toast가 후보다. 시안이 나와도 구조는 크게 바뀌지 않고 토큰만 바뀐다.
+
+`Button.tsx`가 첫 예시로 들어가 있다. `cva`로 variant와 size를 선언하고 `cn()`으로 className을 합치며 `focus-visible`로 키보드 포커스를 보인다. 색은 토큰을 받기 전이라 Tailwind 기본 `blue-600`과 `zinc`를 임시로 쓴다. 홈(`src/app/page.tsx`)에서 쓰는 모습을 볼 수 있다. 구조를 바꾸고 싶으면 주인이 바꾼다.
 
 ## 파일 이름과 선언 형식 (규칙)
 
