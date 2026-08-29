@@ -10,11 +10,11 @@ function getQueryClient() {
 	if (environmentManager.isServer()) {
 		return new QueryClient();
 	}
-	browserQueryClient ??= new QueryClient();
-	return browserQueryClient;
+
+	return (browserQueryClient ??= new QueryClient());
 }
 
-export function Providers({ children }: { children: ReactNode }) {
+export function QueryProvider({ children }: { children: ReactNode }) {
 	const queryClient = getQueryClient();
 
 	return (

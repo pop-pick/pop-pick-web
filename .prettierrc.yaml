@@ -10,4 +10,4 @@ jsxSingleQuote: false
 bracketSameLine: false
 plugins:
   - prettier-plugin-tailwindcss
-tailwindStylesheet: ./src/app/globals.css
+tailwindStylesheet: ./src/shared/styles/globals.css
