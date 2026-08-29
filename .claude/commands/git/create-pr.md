@@ -22,6 +22,6 @@ description: 현재 브랜치의 변경사항으로 Pull Request를 생성해주
 - 본문은 `.github/PULL_REQUEST_TEMPLATE.md`의 절을 채운다
   - 변경 요약. 무엇을 왜 했는지
   - 바꾼 동작이 `docs/`의 어느 문서에 해당하는지 적고 그 문서를 같은 PR에서 고쳤는지 확인한다
-  - 검증 결과. `pnpm type:check`, `pnpm build`, `pnpm lint`, `pnpm format:check`를 로컬에서 돌린 결과. CI가 아직 없어 로컬 결과가 유일한 검증이다
+  - 검증 결과. `pnpm type:check`, `pnpm build`, `pnpm lint`, `pnpm format:check`를 로컬에서 돌린 결과. CI가 같은 넷을 돌리며 통과해야 머지할 수 있다. 로컬 결과를 먼저 적는다
   - 미리보기 URL. `https://pop-pick-web-git-{브랜치 이름}-chan9yus-projects.vercel.app`. 푸시 뒤 Vercel가 만들며 로그인 없이 열린다
 - PR 하나에 작업 단위 하나만 담는다. 무관한 변경이 섞였으면 PR 전에 분리한다
