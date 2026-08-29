@@ -1,0 +1,57 @@
+{
+	"$schema": "https://json.schemastore.org/package.json",
+	"name": "pop-pick",
+	"description": "취향과 시간, 지역에 맞는 서울 팝업을 추천하고 방문 동선까지 짜주는 서비스",
+	"version": "1.0.0",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/pop-pick/pop-pick-web.git"
+	},
+	"license": "MIT",
+	"contributors": [
+		{
+			"name": "여찬규",
+			"email": "dev.cgyeo@gmail.com",
+			"url": "https://github.com/chan9yu"
+		}
+	],
+	"private": true,
+	"packageManager": "pnpm@11.24.0",
+	"engines": {
+		"node": ">=24",
+		"pnpm": ">=11"
+	},
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "eslint",
+		"lint:fix": "eslint --fix",
+		"format": "prettier --write .",
+		"format:check": "prettier --check .",
+		"type:check": "tsc --noEmit",
+		"link:agents": "bash .agents/scripts/link-agents.sh",
+		"prepare": "lefthook install && pnpm link:agents"
+	},
+	"dependencies": {
+		"next": "^16.3.3",
+		"react": "^19.2.8",
+		"react-dom": "^19.2.8"
+	},
+	"devDependencies": {
+		"@tailwindcss/postcss": "^4.3.3",
+		"@types/node": "^24.13.3",
+		"@types/react": "^19.2.18",
+		"@types/react-dom": "^19.2.5",
+		"babel-plugin-react-compiler": "^1.0.0",
+		"eslint": "^9.39.5",
+		"eslint-config-next": "^16.3.3",
+		"eslint-config-prettier": "^10.1.8",
+		"eslint-plugin-simple-import-sort": "^14.0.0",
+		"lefthook": "^2.1.12",
+		"prettier": "^3.9.6",
+		"prettier-plugin-tailwindcss": "^0.8.1",
+		"tailwindcss": "^4.3.3",
+		"typescript": "^6.0.3"
+	}
+}
