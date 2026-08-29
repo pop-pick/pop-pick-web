@@ -36,7 +36,7 @@ UI를 건드렸다면 아래도 확인한다.
 
 ## 미리보기
 
-<!-- Vercel 연결 뒤부터 적는다. PR마다 생기는 미리보기 URL을 남겨 디자이너와 PM이 확인할 수 있게 한다 -->
+<!-- PR마다 생기는 미리보기 URL을 적는다. 형식은 https://pop-pick-web-git-{브랜치 이름}-chan9yus-projects.vercel.app 이고 로그인 없이 열린다. 디자이너와 PM이 이 주소로 확인한다 -->
 
 -
 
