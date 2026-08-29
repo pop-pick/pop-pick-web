@@ -71,7 +71,7 @@ Feature 기반으로 나눈다.
 
 ```
 src/
-├── app/            Next.js App Router 라우팅. layout.tsx, providers.tsx, page.tsx, globals.css
+├── app/            Next.js App Router 라우팅. layout.tsx, Providers.tsx, page.tsx, globals.css
 ├── features/       비즈니스 기능. 기능 하나가 폴더 하나
 ├── shared/         여러 기능이 함께 쓰는 것
 │   ├── api/        서버 호출 레이어. 화면 코드는 여기를 거쳐 서버를 부른다

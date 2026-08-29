@@ -14,19 +14,17 @@
 
 Button, Input, Modal, Toast가 후보다. 시안이 나와도 구조는 크게 바뀌지 않고 토큰만 바뀐다.
 
-## 파일 배치 (제안)
+## 파일 이름과 선언 형식 (규칙)
 
-컴포넌트 하나에 폴더 하나를 두는 방식이다. 파일 이름은 소문자 케밥 케이스, 컴포넌트 이름은 PascalCase다.
+컴포넌트 파일은 PascalCase이고 파일 하나에 컴포넌트 하나다. 파일 이름과 컴포넌트 이름이 같다. 컴포넌트는 함수 선언식으로 쓰고 named export로 내보낸다.
 
 ```
 src/shared/ui/
-  button/
-    button.tsx        export function Button
-  input/
-    input.tsx         export function Input
+  Button.tsx        export function Button(props: ButtonProps) { ... }
+  Input.tsx         export function Input(props: InputProps) { ... }
 ```
 
-파일 하나로 두는 방식(`src/shared/ui/button.tsx`)도 된다. 어느 쪽으로 갈지, 배럴 파일(`index.ts`)을 둘지는 주인이 정한다. 정하면 이 절을 제안에서 규칙으로 바꾼다.
+화살표 함수에 대입하거나 `export default`로 내보내지 않는다. 컴포넌트에 딸린 파일(variant 정의, 하위 부품)이 생겨 폴더가 필요해지면 `Button/Button.tsx`처럼 폴더 이름도 PascalCase로 두고 그 안에서 같은 규칙을 지킨다. 배럴 파일(`index.ts`)을 둘지는 주인이 정한다.
 
 ## variant와 클래스 합치기
 
