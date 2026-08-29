@@ -1,0 +1,13 @@
+printWidth: 120
+tabWidth: 2
+useTabs: true
+singleQuote: false
+semi: true
+bracketSpacing: true
+arrowParens: always
+trailingComma: none
+jsxSingleQuote: false
+bracketSameLine: false
+plugins:
+  - prettier-plugin-tailwindcss
+tailwindStylesheet: ./src/app/globals.css
