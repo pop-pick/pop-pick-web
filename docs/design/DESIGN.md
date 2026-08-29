@@ -2,7 +2,7 @@
 
 서비스가 주는 인상과 그것을 만드는 규칙을 적는다. 화면별 상세는 DESIGN-SPEC.md에 적는다.
 
-디자이너가 로고와 레퍼런스 리서치를 진행 중이다. 디자인 토큰(색, 간격, 타이포그래피)은 아직 받지 못했다. 지금 코드에 있는 값은 전부 create-next-app 보일러플레이트다. 토큰을 받으면 이 문서를 채우고 코드의 토큰 정본인 `src/app/globals.css`의 `@theme inline` 블록을 함께 고친다.
+디자이너가 로고와 레퍼런스 리서치를 진행 중이다. 디자인 토큰(색, 간격, 타이포그래피)은 아직 받지 못했다. 첫 화면은 8/29에 임시 값으로 만들었다. 토큰을 받으면 이 문서를 채우고 코드의 토큰 정본인 `src/shared/styles/globals.css`의 `@theme inline` 블록을 함께 고친다.
 
 ## 인상
 
@@ -17,7 +17,7 @@
 
 ## 색
 
-역할 이름으로 정의하고 코드의 테마 토큰과 이름을 맞춘다. 코드 대응은 `src/app/globals.css`의 `@theme inline` 블록에 `--color-{역할}` 토큰으로 정의한다. 현재는 `--color-background`와 `--color-foreground` 둘만 보일러플레이트 값으로 있다.
+역할 이름으로 정의하고 코드의 테마 토큰과 이름을 맞춘다. 코드 대응은 `src/shared/styles/globals.css`의 `@theme inline` 블록에 `--color-{역할}` 토큰으로 정의한다. 현재는 `--color-background`(흰색)와 `--color-foreground`(진회색) 둘만 있고, 첫 화면과 Button은 강조색으로 Tailwind 기본 `blue-600`을 임시로 쓴다. 토큰을 받으면 `--color-primary`로 옮기고 클래스를 바꾼다.
 
 다크 모드 지원 여부가 미정이라 다크 열은 결정 뒤 채운다.
 
@@ -29,7 +29,7 @@
 
 ## 타이포그래피
 
-현재 `src/app/layout.tsx`의 Geist와 Geist Mono는 create-next-app 기본값이다. `@theme inline`의 `--font-sans`와 `--font-mono`가 이 둘을 가리키지만 `body`에는 Arial이 직접 걸려 있어 토큰이 실제로 쓰이지 않는다. 디자이너가 글꼴을 정하면 교체하고 `body`의 글꼴 선언도 토큰으로 바꾼다.
+글꼴은 정해지지 않았다. 지금은 Tailwind 기본 `font-sans`(시스템 글꼴 스택)를 써서 macOS는 Apple SD Gothic Neo, Windows는 맑은 고딕으로 보인다. create-next-app의 Geist는 라틴 글자만 있어 8/29에 걷어냈다. 디자이너가 글꼴을 정하면 `next/font`로 넣고 `@theme inline`의 `--font-sans`를 그 글꼴로 바꾼다. Pretendard처럼 npm으로 받는 글꼴이면 의존성 추가라 먼저 묻는다.
 
 | 단계 | 크기 | 굵기 | 쓰는 곳 |
 | ---- | ---- | ---- | ------- |
@@ -44,7 +44,7 @@
 
 지원 여부는 미정이다. 지원한다면 시스템 설정을 따르는지 서비스 안에 전환 설정을 두는지도 함께 정한다.
 
-현재 `globals.css`에 `prefers-color-scheme: dark` 블록이 보일러플레이트로 남아 있다. 결정에 따라 지우거나 토큰으로 옮긴다.
+create-next-app의 `prefers-color-scheme: dark` 블록은 8/29에 걷어냈다. 지원하기로 하면 `@theme inline` 토큰에 다크 값을 더하는 방식으로 붙인다.
 
 ## 반응형
 

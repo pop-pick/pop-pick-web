@@ -1,5 +1,5 @@
 ---
-description: X-[value] 임의값을 쓰지 않는다. 값은 globals.css의 @theme inline 토큰과 @utility에서 온다. 어긋난 값을 옮기는 네 갈래
+description: X-[value] 임의값을 쓰지 않는다. 값은 src/shared/styles/globals.css의 @theme inline 토큰과 @utility에서 온다. 어긋난 값을 옮기는 네 갈래
 ---
 
 # Tailwind 클래스
@@ -22,9 +22,9 @@ description: X-[value] 임의값을 쓰지 않는다. 값은 globals.css의 @the
 
 순서대로 본다.
 
-**1. 기존 토큰에 같은 값이 있는지 본다.** `src/app/globals.css`의 `@theme inline`이 정본이다. Tailwind v4에서는 `@theme`에 CSS 변수를 선언하면 그 이름으로 유틸리티가 생성된다. `--color-brand`를 선언하면 `bg-brand`와 `text-brand`가 생기는 식이다. Tailwind 기본 토큰도 저장소가 덮어쓰지 않은 것은 살아 있다. `--tracking-tight`가 `-0.025em`이고 `--leading-relaxed`가 `1.625`인 식이다.
+**1. 기존 토큰에 같은 값이 있는지 본다.** `src/shared/styles/globals.css`의 `@theme inline`이 정본이다. Tailwind v4에서는 `@theme`에 CSS 변수를 선언하면 그 이름으로 유틸리티가 생성된다. `--color-brand`를 선언하면 `bg-brand`와 `text-brand`가 생기는 식이다. Tailwind 기본 토큰도 저장소가 덮어쓰지 않은 것은 살아 있다. `--tracking-tight`가 `-0.025em`이고 `--leading-relaxed`가 `1.625`인 식이다.
 
-지금 `@theme inline`에는 `--color-background`와 `--color-foreground`, `--font-sans`, `--font-mono` 넷뿐이다. create-next-app이 만든 보일러플레이트 값이다. 디자이너에게 디자인 토큰을 받은 뒤 채운다.
+지금 `@theme inline`에는 `--color-background`(흰색)와 `--color-foreground`(진회색) 둘뿐이다. 강조색은 토큰을 받기 전이라 Tailwind 기본 `blue-600`을 임시로 쓴다. 디자이너에게 디자인 토큰을 받은 뒤 채운다.
 
 **2. 두 곳 이상에서 쓰는 값이면 토큰을 만든다.** 색과 반경, 그림자, 간격, 자간, 줄 높이, 글자 크기가 여기 해당한다. `globals.css`의 `@theme inline`에 선언한다.
 

@@ -63,11 +63,14 @@ lefthook이 `pnpm install` 때 설치된다. 설정은 `lefthook.yaml`에 있다
 2. `pnpm build`
 3. `pnpm lint`와 `pnpm format:check`
 
+CI가 PR마다 같은 넷을 돌린다. `develop`과 `main`은 CI 통과 없이 머지할 수 없다.
+
 ## Pull Request
 
 - base는 `develop`이다
 - PR 하나에 작업 단위 하나를 담는다
 - `.github/PULL_REQUEST_TEMPLATE.md`를 채운다
+- CI 초록불이 머지 조건이다
 - squash 머지를 쓰지 않는다. merge commit 또는 rebase merge로 머지한다. squash로 압축하면 `main`이 `develop`의 조상 관계를 잃어 다음 PR마다 충돌이 반복된다
 - `gh pr merge`를 쓸 때는 `--merge` 또는 `--rebase`를 명시한다
 - 푸시하면 Vercel가 `https://pop-pick-web-git-{브랜치 이름}-chan9yus-projects.vercel.app`에 미리보기를 만든다. PR 본문에 적는다

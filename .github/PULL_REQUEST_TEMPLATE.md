@@ -21,7 +21,7 @@
 
 ## 검증
 
-<!-- CI가 아직 없다. 아래를 로컬에서 돌리고 통과한 항목에 표시한다 -->
+<!-- CI(`.github/workflows/ci.yaml`)가 게이트 넷을 돌린다. 로컬에서도 돌렸으면 표시한다 -->
 
 - [ ] `pnpm type:check`
 - [ ] `pnpm build`
