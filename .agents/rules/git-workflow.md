@@ -22,6 +22,7 @@ feature/{슬러그}    작업 단위 브랜치
 - 한 브랜치는 한 가지 일만 담는다. 성격이 다른 작업을 한 브랜치에 몰아넣지 않는다
 - 브랜치를 딸 때는 원격의 최신 `develop`에서 딴다. 뒤처진 로컬에서 따면 나중에 충돌이 쌓인다
 - 작업이 끝나면 `develop`으로 PR을 연다. 머지 후 로컬 브랜치를 지운다
+- GitHub 기본 브랜치는 `main`이다. 화면에서 PR을 열 때는 base가 `main`으로 잡히므로 `develop`으로 바꾼다. `/git:create-pr`는 `--base develop`을 명시한다
 
 ## 커밋 규칙
 
@@ -105,6 +106,17 @@ git push origin develop
 ```
 
 그다음에 PR을 연다. PR 본문에는 squash를 쓰지 말아 달라고 적는다. 저장소의 PR 템플릿에 이미 들어 있다.
+
+릴리스 PR을 머지하면 `main`에 머지 커밋이 하나 생겨 `develop`보다 앞선다. 그대로 두면 다음 릴리스 PR에 그 커밋이 다시 끼어든다. 머지 직후 `develop`을 `main`에 맞춘다.
+
+```bash
+git switch develop
+git fetch origin main
+git merge --ff-only origin/main
+git push origin develop
+```
+
+`main`에 머지되면 Vercel가 프로덕션에 자동 배포한다. 배포 주소는 `docs/release/RUNBOOK.md`에 있다.
 
 ## 금지 패턴
 
