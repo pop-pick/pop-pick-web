@@ -16,17 +16,17 @@ develop    통합. 모든 feature PR의 base
 feature/{슬러그}    작업 단위 브랜치
 ```
 
-이 구조는 프론트엔드 저장소의 규칙이다. 팀 공통 브랜치 전략은 8/30 개발자 논의에서 확정하고 확정되면 이 문서를 그에 맞춘다.
+레포가 프론트와 백엔드로 나뉘어 있어 브랜치 전략은 저장소마다 따로 정한다. 이 구조는 프론트엔드 저장소의 규칙이다. 6주 프로젝트라 hotfix와 release 브랜치는 두지 않는다.
 
 - 브랜치 이름은 `feature/planner-form`처럼 영문 케밥 케이스로 짓는다. 고치는 일이면 `fix/{슬러그}`를 쓴다
 - 한 브랜치는 한 가지 일만 담는다. 성격이 다른 작업을 한 브랜치에 몰아넣지 않는다
 - 브랜치를 딸 때는 원격의 최신 `develop`에서 딴다. 뒤처진 로컬에서 따면 나중에 충돌이 쌓인다
 - 작업이 끝나면 `develop`으로 PR을 연다. 머지 후 로컬 브랜치를 지운다
-- GitHub 기본 브랜치는 `main`이다. 화면에서 PR을 열 때는 base가 `main`으로 잡히므로 `develop`으로 바꾼다. `/git:create-pr`는 `--base develop`을 명시한다
+- GitHub 기본 브랜치는 `main`이다. 화면에서 PR을 열 때는 base가 `main`으로 잡히므로 `develop`으로 바꾼다. `/git:create-pr`은 `--base develop`을 명시한다
 
 ## 커밋 규칙
 
-사용자가 "커밋해" 또는 `/git:commit`을 요청할 때만 커밋한다. 임의로 커밋하지 않는다. 지난번에 커밋을 요청받았다고 해서 이번 작업까지 이어지지 않는다.
+사용자가 "커밋해" 또는 `/git:commit`을 요청할 때만 커밋한다. 지난번에 커밋을 요청받았다고 해서 이번 작업까지 이어지지 않는다.
 
 ### 커밋 메시지 형식
 
@@ -89,7 +89,7 @@ MM 파일이 있으면 커밋 전에 정리한다. 커밋 후에는 `git status`
 
 ### PR 머지 조건
 
-CI(`.github/workflows/ci.yaml`)가 PR마다 게이트 넷을 돌린다. `develop`과 `main`은 CI 통과 없이 머지할 수 없다.
+CI(`.github/workflows/ci.yaml`)가 PR마다 게이트 넷을 돌린다. `develop`과 `main`은 CI 통과 없이 머지할 수 없다. PR 승인 인원은 미정이다.
 
 훅은 로컬에서 `--no-verify`로 건너뛸 수 있지만 CI는 그럴 수 없다. 그래서 머지 조건은 훅이 아니라 CI에 둔다.
 
@@ -122,7 +122,7 @@ git merge --ff-only origin/main
 git push origin develop
 ```
 
-`main`에 머지되면 Vercel가 프로덕션에 자동 배포한다. 배포 주소는 `docs/release/RUNBOOK.md`에 있다.
+`main`에 머지되면 Vercel이 프로덕션에 자동 배포한다. 배포 주소는 `docs/release/RUNBOOK.md`에 있다.
 
 ## 금지 패턴
 
@@ -131,4 +131,4 @@ git push origin develop
 3. **`main`과 `develop` 직접 커밋.** 항상 feature 브랜치를 경유한다
 4. **병합 충돌 `--ours` 일방 해소.** 양쪽 의미를 검토한 뒤 해소한다
 5. **"WIP" 커밋 그대로 병합.** 병합 전에 메시지를 정리한다
-6. **강제 푸시.** 리베이스가 필요하면 `--force-with-lease`만 쓰고, 기본 브랜치에는 쓰지 않는다
+6. **강제 푸시.** 리베이스가 필요하면 `--force-with-lease`만 쓰고 기본 브랜치에는 쓰지 않는다

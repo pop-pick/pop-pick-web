@@ -12,14 +12,14 @@ description: 기성 UI 라이브러리 없음. 공용 컴포넌트는 src/shared
 
 ## 이 규칙이 생긴 이유
 
-디자이너가 Figma로 자체 디자인을 만든다(8/28). 기성 라이브러리를 깔면 라이브러리의 디자인 체계와 시안의 체계가 충돌한다. 시안대로 뜯어고치는 비용이 처음부터 만드는 비용보다 크다.
+디자이너가 Figma로 자체 디자인을 만든다. 기성 라이브러리를 깔면 라이브러리의 디자인 체계와 시안의 체계가 충돌한다. 시안대로 뜯어고치는 비용이 처음부터 만드는 비용보다 크다.
 
 ## 파일 이름과 선언 형식
 
 `src/shared/ui`만이 아니라 저장소의 모든 React 컴포넌트에 적용한다. `src/app`과 `src/features`의 컴포넌트도 같다.
 
-- 컴포넌트 파일은 PascalCase다. `Button.tsx`, `QueryProvider.tsx`. 컴포넌트가 아닌 파일(`cn.ts`, `client.ts`, `globals.css`)은 소문자 케밥 케이스다
-- `src/app` 아래에는 Next가 이름을 정하는 라우트 파일(`page.tsx`, `layout.tsx`, `error.tsx` 등)만 둔다. 전부 소문자이고 default export를 그대로 쓴다. 컴포넌트와 CSS는 `src/shared`나 `src/features`에 두고 라우트 파일이 import한다. app 폴더를 열면 라우트 구조만 보이게 한다
+- 컴포넌트 파일은 PascalCase다. `Button.tsx`, `QueryProvider.tsx`. 컴포넌트가 아닌 파일(`cn.ts`, `client.ts`, `globals.css`)은 소문자 케밥 케이스다. 훅 파일은 예외로 훅 이름을 그대로 파일 이름으로 쓴다. `useKakaoMapSdk.ts`
+- `src/app` 아래에는 Next가 이름을 정하는 라우트 파일(`page.tsx`, `layout.tsx`, `error.tsx` 등)만 둔다. 전부 소문자이고 default export를 그대로 쓴다. 컴포넌트와 CSS는 `src/shared`나 `src/features`에 두고 라우트 파일이 import한다. app 폴더를 열면 라우트 구조만 보여야 한다
 - 컴포넌트는 `export function Button(props: ButtonProps) { ... }` 형태다. 함수 선언식과 named export만 쓴다. 화살표 함수에 대입하거나 `export default`로 내보내지 않는다
 - 파일 하나에 컴포넌트 하나. 파일 이름과 컴포넌트 이름이 같다
 
@@ -30,9 +30,13 @@ description: 기성 UI 라이브러리 없음. 공용 컴포넌트는 src/shared
 - 키보드만으로 조작할 수 있고 포커스 표시가 보인다
 - 클래스 합치기는 `src/shared/lib/cn.ts`의 `cn()`을 쓴다
 
+## 디자인 토큰
+
+간격과 타이포가 먼저 온다. 간격은 4px 그리드다. 타이포는 정리해서 받기로 했고 컬러는 미정이다. 컴포넌트 시안은 화면 디자인과 함께 나오고 CTA 버튼 하나를 먼저 받는다.
+
 ## 미정
 
-디자인 토큰을 아직 받지 못했다. 다크 모드 지원 여부와 기준 폭도 정해지지 않았다. 정해지면 이 룰을 고친다. 자세한 안내는 `src/shared/ui/README.md`에 있다.
+다크 모드 지원 여부와 기준 폭, PC 대응 범위는 미정이다. 자세한 안내는 `src/shared/ui/README.md`에 있다.
 
 ## 리뷰에서 볼 것
 
