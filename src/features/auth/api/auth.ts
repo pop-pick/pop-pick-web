@@ -9,7 +9,7 @@ export function loginWithKakao(authToken: string, redirectUri: string) {
 	return api.post<AuthTokens>("/api/v1/auth/login", {
 		authToken,
 		redirectUri,
-		oauthProvider: "KAKAO"
+		oAuthProvider: "KAKAO"
 	});
 }
 

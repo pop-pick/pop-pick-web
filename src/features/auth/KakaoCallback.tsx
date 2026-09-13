@@ -1,40 +1,38 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { redirect, useSearchParams } from "next/navigation";
 
-import { loginWithKakao } from "./api/auth";
-import { getKakaoRedirectUri } from "./lib/kakao-oauth";
-import { useAuthStore } from "./store/auth-store";
+import { useKakaoLogin } from "./hooks/useKakaoLogin";
+import {
+	describeKakaoDenial,
+	describeLoginFailure,
+	LOGIN_PENDING_MESSAGE,
+	MISSING_CODE_MESSAGE
+} from "./lib/login-messages";
+import { LoginStatus } from "./LoginStatus";
 
 export function KakaoCallback() {
-	const router = useRouter();
 	const searchParams = useSearchParams();
-	const setTokens = useAuthStore((state) => state.setTokens);
 	const code = searchParams.get("code");
+	const state = searchParams.get("state");
+	const denial = searchParams.get("error");
+	const login = useKakaoLogin({ code, state });
 
-	const { mutate, error } = useMutation({
-		mutationFn: (authCode: string) => loginWithKakao(authCode, getKakaoRedirectUri()),
-		onSuccess: (tokens) => {
-			setTokens(tokens);
-			router.replace("/");
-		}
-	});
-
-	useEffect(() => {
-		if (code) {
-			mutate(code);
-		}
-	}, [code, mutate]);
-
-	if (!code) {
-		return <p>인가 코드가 없습니다.</p>;
+	if (denial !== null) {
+		return <LoginStatus showHomeLink>{describeKakaoDenial(denial)}</LoginStatus>;
 	}
 
-	if (error) {
-		return <p>로그인에 실패했습니다. {error.message}</p>;
+	if (code === null) {
+		return <LoginStatus showHomeLink>{MISSING_CODE_MESSAGE}</LoginStatus>;
 	}
 
-	return <p>로그인 처리 중입니다...</p>;
+	if (login.isError) {
+		return <LoginStatus showHomeLink>{describeLoginFailure(login.error)}</LoginStatus>;
+	}
+
+	if (login.isSuccess) {
+		redirect("/");
+	}
+
+	return <LoginStatus>{LOGIN_PENDING_MESSAGE}</LoginStatus>;
 }

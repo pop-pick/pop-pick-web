@@ -1,10 +1,12 @@
 import { Suspense } from "react";
 
 import { KakaoCallback } from "@/features/auth/KakaoCallback";
+import { LOGIN_PENDING_MESSAGE } from "@/features/auth/lib/login-messages";
+import { LoginStatus } from "@/features/auth/LoginStatus";
 
 export default function KakaoCallbackPage() {
 	return (
-		<Suspense fallback={<p>로그인 처리 중입니다...</p>}>
+		<Suspense fallback={<LoginStatus>{LOGIN_PENDING_MESSAGE}</LoginStatus>}>
 			<KakaoCallback />
 		</Suspense>
 	);
