@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 
-import { KakaoCallback } from "@/features/social-login/KakaoCallback";
+import { KakaoCallback } from "@/features/auth/KakaoCallback";
 
 export default function KakaoCallbackPage() {
 	return (
