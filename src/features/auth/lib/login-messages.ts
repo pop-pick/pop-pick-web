@@ -7,12 +7,11 @@ export const MISSING_CODE_MESSAGE = "잘못된 접근입니다. 로그인을 처
 
 const KAKAO_AUTH_FAILURE_CODES = new Set(["E1001", "E1009"]);
 
-/** 카카오 인가 화면이 redirect_uri에 error 파라미터를 붙여 돌려보낸 경우. 취소는 access_denied다 */
-export function describeKakaoDenial(error: string) {
+export function getKakaoDenialMessage(error: string) {
 	return error === "access_denied" ? "로그인을 취소했습니다." : "카카오 로그인에 실패했습니다. 다시 시도해 주세요.";
 }
 
-export function describeLoginFailure(error: unknown) {
+export function getLoginFailureMessage(error: unknown) {
 	if (error instanceof OAuthStateMismatchError) {
 		return "로그인 요청을 확인할 수 없습니다. 처음부터 다시 로그인해 주세요.";
 	}

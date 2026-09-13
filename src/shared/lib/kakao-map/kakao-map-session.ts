@@ -10,7 +10,6 @@ export type KakaoMarkerData = {
 };
 
 export type KakaoMapViewOptions = {
-	/** 지도를 만들 때 한 번만 쓰는 시점. 이후 변경은 moveTo 와 setLevel 로 한다 */
 	center: KakaoLatLngLiteral;
 	level: number;
 };
@@ -74,7 +73,7 @@ export class KakaoMapSession {
 				}
 			};
 
-			const failOn = (element: HTMLElement) => () => {
+			const rejectOnError = (element: HTMLElement) => () => {
 				element.dataset.loadFailed = "true";
 				reject(new KakaoMapError("script-load-failed"));
 			};
@@ -93,7 +92,7 @@ export class KakaoMapSession {
 				}
 
 				existing.addEventListener("load", finish, { once: true });
-				existing.addEventListener("error", failOn(existing), { once: true });
+				existing.addEventListener("error", rejectOnError(existing), { once: true });
 				return;
 			}
 
@@ -103,7 +102,7 @@ export class KakaoMapSession {
 			script.src = buildKakaoMapSdkUrl(appkey);
 			script.async = true;
 			script.addEventListener("load", finish, { once: true });
-			script.addEventListener("error", failOn(script), { once: true });
+			script.addEventListener("error", rejectOnError(script), { once: true });
 
 			document.head.appendChild(script);
 		});

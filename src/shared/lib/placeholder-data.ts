@@ -1,9 +1,5 @@
 import type { PopupCardItem } from "@/shared/types/popup";
 
-/**
- * 화면 뼈대를 눈으로 확인하려고 둔 임시 값이다.
- * 백엔드 팝업 API가 붙으면 이 파일을 지우고 쿼리 결과로 바꾼다
- */
 export const PLACEHOLDER_POPUPS: PopupCardItem[] = [
 	{
 		id: 1,

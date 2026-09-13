@@ -8,7 +8,6 @@ type QueryValue = string | number | boolean | null | undefined;
 export interface RequestOptions extends Omit<RequestInit, "body"> {
 	query?: Record<string, QueryValue> | URLSearchParams;
 	json?: unknown;
-	/** 기본 10초. 호출자가 넘긴 signal과 함께 걸린다 */
 	timeoutMs?: number;
 }
 
@@ -73,7 +72,7 @@ function isTimedOut(cause: unknown) {
 	return cause instanceof Error && cause.name === "TimeoutError";
 }
 
-async function fetchText(url: URL, init: RequestInit) {
+async function fetchResponse(url: URL, init: RequestInit) {
 	try {
 		const response = await fetch(url, init);
 		return { response, text: await response.text() };
@@ -109,14 +108,14 @@ function parseBody(text: string, contentType: string | null) {
 	}
 }
 
-function findErrorCode(body: unknown) {
+function readErrorCode(body: unknown) {
 	return isApiResponse(body) && body.error !== null ? body.error.errorCode : null;
 }
 
 export async function request<T>(path: string, options: RequestOptions = {}) {
 	const { query, json, headers, signal, timeoutMs = DEFAULT_TIMEOUT_MS, ...init } = options;
 	const url = resolveUrl(path, query);
-	const { response, text } = await fetchText(url, {
+	const { response, text } = await fetchResponse(url, {
 		...init,
 		headers: buildHeaders(headers, json !== undefined),
 		body: json !== undefined ? JSON.stringify(json) : undefined,
@@ -125,7 +124,7 @@ export async function request<T>(path: string, options: RequestOptions = {}) {
 	const body = parseBody(text, response.headers.get("content-type"));
 
 	if (!response.ok) {
-		throw new ApiError({ kind: "http", status: response.status, url: url.href, body, errorCode: findErrorCode(body) });
+		throw new ApiError({ kind: "http", status: response.status, url: url.href, body, errorCode: readErrorCode(body) });
 	}
 
 	if (body === null) {
@@ -137,7 +136,7 @@ export async function request<T>(path: string, options: RequestOptions = {}) {
 	}
 
 	if (body.resultType === "ERROR") {
-		throw new ApiError({ kind: "http", status: response.status, url: url.href, body, errorCode: findErrorCode(body) });
+		throw new ApiError({ kind: "http", status: response.status, url: url.href, body, errorCode: readErrorCode(body) });
 	}
 
 	return body.data as T;

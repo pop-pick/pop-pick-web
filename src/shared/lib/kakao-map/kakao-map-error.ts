@@ -1,6 +1,6 @@
 export type KakaoMapErrorReason = "missing-key" | "script-load-failed" | "not-in-browser";
 
-const MESSAGE: Record<KakaoMapErrorReason, string> = {
+const MESSAGES: Record<KakaoMapErrorReason, string> = {
 	"missing-key":
 		"카카오맵 JavaScript 키가 없습니다. NEXT_PUBLIC_KAKAO_MAP_KEY 를 .env.local 에 넣고 개발 서버를 다시 띄우세요. NEXT_PUBLIC_ 환경 변수는 빌드 시점에 번들에 박히므로 서버를 다시 띄우지 않으면 값이 반영되지 않습니다.",
 	"script-load-failed":
@@ -13,7 +13,7 @@ export class KakaoMapError extends Error {
 	readonly reason: KakaoMapErrorReason;
 
 	constructor(reason: KakaoMapErrorReason) {
-		super(MESSAGE[reason]);
+		super(MESSAGES[reason]);
 		this.name = "KakaoMapError";
 		this.reason = reason;
 	}
