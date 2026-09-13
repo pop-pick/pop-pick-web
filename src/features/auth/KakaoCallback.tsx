@@ -7,7 +7,8 @@ import { useKakaoLogin } from "./hooks/useKakaoLogin";
 export function KakaoCallback() {
 	const searchParams = useSearchParams();
 	const code = searchParams.get("code");
-	const login = useKakaoLogin(code);
+	const state = searchParams.get("state");
+	const login = useKakaoLogin({ code, state });
 
 	if (code === null) {
 		return <p>인가 코드가 없습니다.</p>;
