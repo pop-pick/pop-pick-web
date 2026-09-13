@@ -1,105 +1,155 @@
 import { ApiError } from "./errors";
+import { isApiResponse } from "./types";
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+const DEFAULT_TIMEOUT_MS = 10_000;
 
 type QueryValue = string | number | boolean | null | undefined;
 
 export interface RequestOptions extends Omit<RequestInit, "body"> {
 	query?: Record<string, QueryValue> | URLSearchParams;
 	json?: unknown;
+	/** 기본 10초. 호출자가 넘긴 signal과 함께 걸린다 */
+	timeoutMs?: number;
 }
 
-function resolveUrl(path: string, query: RequestOptions["query"]): string {
-	if (!baseUrl) {
-		throw new Error("NEXT_PUBLIC_API_BASE_URL이 비어 있다. .env.example을 참고해 채운다");
+function resolveBaseUrl() {
+	if (typeof window !== "undefined") {
+		return window.location.origin;
 	}
 
-	const url = new URL(`${baseUrl.replace(/\/+$/, "")}/${path.replace(/^\/+/, "")}`);
+	const apiBaseUrl = process.env.API_BASE_URL;
+	if (!apiBaseUrl) {
+		throw new Error("API_BASE_URL이 비어 있다. 로컬은 .env.local에, 배포는 Vercel 환경 변수에 백엔드 주소를 채운다");
+	}
 
-	if (query instanceof URLSearchParams) {
-		url.search = query.toString();
-	} else if (query) {
-		for (const [key, value] of Object.entries(query)) {
-			if (value !== null && value !== undefined) {
-				url.searchParams.set(key, String(value));
-			}
+	return apiBaseUrl;
+}
+
+function appendQuery(url: URL, query: RequestOptions["query"]) {
+	if (query === undefined) {
+		return;
+	}
+
+	const entries = query instanceof URLSearchParams ? query.entries() : Object.entries(query);
+	for (const [key, value] of entries) {
+		if (value !== null && value !== undefined) {
+			url.searchParams.set(key, String(value));
 		}
 	}
-
-	return url.toString();
 }
 
-function buildHeaders(headers: HeadersInit | undefined, hasJsonBody: boolean): Headers {
+function resolveUrl(path: string, query: RequestOptions["query"]) {
+	const isBackendPath = path.startsWith("/") && !path.startsWith("//");
+	if (!isBackendPath) {
+		throw new Error(`path는 /로 시작하는 백엔드 경로여야 한다: ${path}`);
+	}
+
+	const url = new URL(path, resolveBaseUrl());
+	appendQuery(url, query);
+	return url;
+}
+
+function buildHeaders(headers: HeadersInit | undefined, hasJsonBody: boolean) {
 	const result = new Headers(headers);
+	if (!result.has("accept")) {
+		result.set("accept", "application/json");
+	}
 	if (hasJsonBody && !result.has("content-type")) {
 		result.set("content-type", "application/json");
 	}
 	return result;
 }
 
-async function readBody(response: Response): Promise<unknown> {
-	if (response.status === 204) {
-		return null;
-	}
+function buildSignal(signal: RequestInit["signal"], timeoutMs: number) {
+	const timeout = AbortSignal.timeout(timeoutMs);
+	return signal ? AbortSignal.any([signal, timeout]) : timeout;
+}
 
-	const text = await response.text();
-	if (text === "") {
-		return null;
-	}
+function isAbortedByCaller(cause: unknown) {
+	return cause instanceof Error && cause.name === "AbortError";
+}
 
-	if (!(response.headers.get("content-type") ?? "").includes("json")) {
-		return text;
-	}
+function isTimedOut(cause: unknown) {
+	return cause instanceof Error && cause.name === "TimeoutError";
+}
 
+async function fetchText(url: URL, init: RequestInit) {
 	try {
-		return JSON.parse(text) as unknown;
+		const response = await fetch(url, init);
+		return { response, text: await response.text() };
 	} catch (cause) {
+		if (isAbortedByCaller(cause)) {
+			throw cause;
+		}
 		throw new ApiError({
-			status: response.status,
-			statusText: "응답 본문을 JSON으로 읽지 못함",
-			url: response.url,
-			body: text,
+			kind: isTimedOut(cause) ? "timeout" : "network",
+			status: 0,
+			url: url.href,
+			body: null,
+			errorCode: null,
 			cause
 		});
 	}
 }
 
-export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
-	const { query, json, headers, ...init } = options;
-	const url = resolveUrl(path, query);
-
-	let response: Response;
-	try {
-		response = await fetch(url, {
-			...init,
-			headers: buildHeaders(headers, json !== undefined),
-			body: json !== undefined ? JSON.stringify(json) : undefined
-		});
-	} catch (cause) {
-		throw new ApiError({ status: 0, statusText: "", url, body: null, cause });
+function parseBody(text: string, contentType: string | null) {
+	if (text === "") {
+		return null;
 	}
 
-	const body = await readBody(response);
+	const isJson = contentType !== null && contentType.includes("json");
+	if (!isJson) {
+		return text;
+	}
+
+	try {
+		return JSON.parse(text) as unknown;
+	} catch {
+		return text;
+	}
+}
+
+function findErrorCode(body: unknown) {
+	return isApiResponse(body) && body.error !== null ? body.error.errorCode : null;
+}
+
+export async function request<T>(path: string, options: RequestOptions = {}) {
+	const { query, json, headers, signal, timeoutMs = DEFAULT_TIMEOUT_MS, ...init } = options;
+	const url = resolveUrl(path, query);
+	const { response, text } = await fetchText(url, {
+		...init,
+		headers: buildHeaders(headers, json !== undefined),
+		body: json !== undefined ? JSON.stringify(json) : undefined,
+		signal: buildSignal(signal, timeoutMs)
+	});
+	const body = parseBody(text, response.headers.get("content-type"));
 
 	if (!response.ok) {
-		throw new ApiError({
-			status: response.status,
-			statusText: response.statusText,
-			url,
-			body
-		});
+		throw new ApiError({ kind: "http", status: response.status, url: url.href, body, errorCode: findErrorCode(body) });
 	}
 
-	return body as T;
+	if (body === null) {
+		return null as T;
+	}
+
+	if (!isApiResponse(body)) {
+		throw new ApiError({ kind: "invalid-body", status: response.status, url: url.href, body, errorCode: null });
+	}
+
+	if (body.resultType === "ERROR") {
+		throw new ApiError({ kind: "http", status: response.status, url: url.href, body, errorCode: findErrorCode(body) });
+	}
+
+	return body.data as T;
 }
 
 export const api = {
-	get: <T>(path: string, options?: RequestOptions): Promise<T> => request<T>(path, { ...options, method: "GET" }),
-	post: <T>(path: string, json?: unknown, options?: RequestOptions): Promise<T> =>
+	get: <T>(path: string, options?: RequestOptions) => request<T>(path, { ...options, method: "GET" }),
+	post: <T>(path: string, json?: unknown, options?: RequestOptions) =>
 		request<T>(path, { ...options, method: "POST", json }),
-	put: <T>(path: string, json?: unknown, options?: RequestOptions): Promise<T> =>
+	put: <T>(path: string, json?: unknown, options?: RequestOptions) =>
 		request<T>(path, { ...options, method: "PUT", json }),
-	patch: <T>(path: string, json?: unknown, options?: RequestOptions): Promise<T> =>
+	patch: <T>(path: string, json?: unknown, options?: RequestOptions) =>
 		request<T>(path, { ...options, method: "PATCH", json }),
-	delete: <T>(path: string, options?: RequestOptions): Promise<T> => request<T>(path, { ...options, method: "DELETE" })
+	delete: <T>(path: string, options?: RequestOptions) => request<T>(path, { ...options, method: "DELETE" })
 };
