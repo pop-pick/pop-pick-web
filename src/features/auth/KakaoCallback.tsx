@@ -6,7 +6,7 @@ import { useEffect } from "react";
 
 import { loginWithKakao } from "./api/auth";
 import { getKakaoRedirectUri } from "./lib/kakao-oauth";
-import { useAuthStore } from "./store/auth-store";
+import { useAuthStore } from "./store/useAuthStore";
 
 export function KakaoCallback() {
 	const router = useRouter();
