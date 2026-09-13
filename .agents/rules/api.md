@@ -55,7 +55,7 @@ Next는 요청을 headers, redirects, proxy, beforeFiles rewrites, 파일시스�
 
 ## 정해진 것과 미정
 
-응답 공통 구조와 에러 코드 체계, 커서 기반 페이지네이션, camelCase 필드 이름, 스펙 문서 위치는 백엔드가 정했다. 상세는 `src/shared/api/README.md`에 있다.
+응답 공통 구조와 에러 코드 체계, 커서 기반 페이지네이션, camelCase 필드 이름, 스펙 문서 위치는 백엔드가 정했다. 상세는 백엔드 Swagger(https://prod.poppick.shop/swagger-ui/index.html)와 백엔드 저장소의 `global/response`, `global/exception` 패키지에 있다. 프론트 쪽 구현은 `src/shared/api/types.ts`와 `errors.ts`다.
 
 날짜와 시간 포맷은 미정이다. 지금 스펙에 날짜 필드가 없다. 정해지기 전에는 그럴듯한 기본값을 채우지 않는다.
 
