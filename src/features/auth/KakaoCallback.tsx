@@ -3,24 +3,36 @@
 import { redirect, useSearchParams } from "next/navigation";
 
 import { useKakaoLogin } from "./hooks/useKakaoLogin";
+import {
+	describeKakaoDenial,
+	describeLoginFailure,
+	LOGIN_PENDING_MESSAGE,
+	MISSING_CODE_MESSAGE
+} from "./lib/login-messages";
+import { LoginStatus } from "./LoginStatus";
 
 export function KakaoCallback() {
 	const searchParams = useSearchParams();
 	const code = searchParams.get("code");
 	const state = searchParams.get("state");
+	const denial = searchParams.get("error");
 	const login = useKakaoLogin({ code, state });
 
+	if (denial !== null) {
+		return <LoginStatus showHomeLink>{describeKakaoDenial(denial)}</LoginStatus>;
+	}
+
 	if (code === null) {
-		return <p>인가 코드가 없습니다.</p>;
+		return <LoginStatus showHomeLink>{MISSING_CODE_MESSAGE}</LoginStatus>;
 	}
 
 	if (login.isError) {
-		return <p>로그인에 실패했습니다. {login.error.message}</p>;
+		return <LoginStatus showHomeLink>{describeLoginFailure(login.error)}</LoginStatus>;
 	}
 
 	if (login.isSuccess) {
 		redirect("/");
 	}
 
-	return <p>로그인 처리 중입니다...</p>;
+	return <LoginStatus>{LOGIN_PENDING_MESSAGE}</LoginStatus>;
 }

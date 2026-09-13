@@ -11,10 +11,15 @@ interface KakaoCallbackParams {
 }
 
 async function exchangeCodeForTokens(code: string, state: string | null) {
-	verifyOAuthState(state);
-	const tokens = await loginWithKakao(code, getKakaoRedirectUri());
-	useAuthStore.getState().setTokens(tokens);
-	return tokens;
+	try {
+		verifyOAuthState(state);
+		const tokens = await loginWithKakao(code, getKakaoRedirectUri());
+		useAuthStore.getState().setTokens(tokens);
+		return tokens;
+	} catch (error) {
+		console.error("[auth] 카카오 로그인 실패", error);
+		throw error;
+	}
 }
 
 /**
