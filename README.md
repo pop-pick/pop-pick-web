@@ -47,24 +47,24 @@ pnpm dev
 
 `pnpm install`이 끝나면 `prepare` 스크립트가 lefthook 훅을 설치하고 `.agents/` 본문을 `.claude/rules`와 `.claude/skills`에 심볼릭 링크로 잇는다. 따로 할 일은 없다.
 
-`.env.local`을 비워 둔 채 시작해도 개발 서버는 뜬다. 지도를 보려면 카카오맵 JavaScript 키가 필요하고 백엔드 주소는 미정이다. 변수 이름과 키 발급, 도메인 등록은 `docs/release/RUNBOOK.md`에 있다.
+`.env.local`에 `API_BASE_URL`이 있어야 개발 서버가 뜬다. `.env.example`의 값을 그대로 쓰면 된다. 지도를 보려면 카카오맵 JavaScript 키가 더 필요하다. 변수 이름과 키 발급, 도메인 등록은 `docs/release/RUNBOOK.md`에 있다.
 
 `pnpm dev`를 실행하면 http://localhost:3000 에서 개발 서버가 열린다.
 
 ## 스크립트
 
-| 명령                | 하는 일                                                         |
-| ------------------- | --------------------------------------------------------------- |
-| `pnpm dev`          | 개발 서버를 연다                                                |
-| `pnpm build`        | 프로덕션 빌드를 만든다                                          |
-| `pnpm start`        | 빌드 결과를 실행한다                                            |
-| `pnpm lint`         | ESLint로 저장소 전체를 검사한다                                 |
-| `pnpm lint:fix`     | ESLint가 자동으로 고칠 수 있는 것을 고친다. import 정렬 등      |
-| `pnpm format`       | Prettier로 저장소 전체를 고쳐 쓴다                              |
-| `pnpm format:check` | Prettier 검사만 한다                                            |
-| `pnpm type:check`   | `tsc --noEmit`                                                  |
-| `pnpm link:agents`  | `.agents/` 본문을 `.claude/rules`와 `.claude/skills`에 링크한다 |
-| `pnpm prepare`      | lefthook 설치와 `link:agents`. `pnpm install` 때 자동으로 돈다  |
+| 명령                | 하는 일                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------- |
+| `pnpm dev`          | 개발 서버를 연다                                                                            |
+| `pnpm build`        | 프로덕션 빌드를 만든다                                                                      |
+| `pnpm start`        | 빌드 결과를 실행한다                                                                        |
+| `pnpm lint`         | ESLint로 저장소 전체를 검사한다                                                             |
+| `pnpm lint:fix`     | ESLint가 자동으로 고칠 수 있는 것을 고친다. import 정렬 등                                  |
+| `pnpm format`       | Prettier로 저장소 전체를 고쳐 쓴다                                                          |
+| `pnpm format:check` | Prettier 검사만 한다                                                                        |
+| `pnpm type:check`   | `next typegen`과 `tsc --noEmit`. `next.config.ts`를 로드하므로 `API_BASE_URL`이 있어야 돈다 |
+| `pnpm link:agents`  | `.agents/` 본문을 `.claude/rules`와 `.claude/skills`에 링크한다                             |
+| `pnpm prepare`      | lefthook 설치와 `link:agents`. `pnpm install` 때 자동으로 돈다                              |
 
 ## 폴더 구조
 
@@ -74,19 +74,29 @@ Feature 기반으로 나눈다.
 src/
 ├── app/            Next.js App Router 라우팅. layout.tsx, page.tsx 같은 라우트 파일만 둔다. poc/는 임시 검증 페이지
 ├── features/       비즈니스 기능. 기능 하나가 폴더 하나
-├── shared/         여러 기능이 함께 쓰는 것
-│   ├── api/        서버 호출 레이어. 화면 코드는 여기를 거쳐 서버를 부른다
-│   ├── ui/         공용 컴포넌트. 디자인 시스템 담당 프론트엔드가 주인이다
-│   ├── hooks/      공용 훅
-│   ├── lib/        공용 유틸. 클래스를 합치는 cn()과 카카오맵 코어 모듈(kakao-map/)
-│   ├── providers/  루트 레이아웃이 감싸는 프로바이더. QueryProvider
-│   └── styles/     globals.css. Tailwind 진입점과 디자인 토큰 정본
-└── types/          여러 기능이 함께 쓰는 타입
+└── shared/         여러 기능이 함께 쓰는 것
+    ├── api/        서버 호출 레이어. 화면 코드는 여기를 거쳐 서버를 부른다
+    ├── ui/         공용 컴포넌트. 디자인 시스템 담당 프론트엔드가 주인이다
+    ├── hooks/      공용 훅
+    ├── lib/        공용 유틸. 클래스를 합치는 cn()과 카카오맵 코어 모듈(kakao-map/)
+    ├── providers/  루트 레이아웃이 감싸는 프로바이더. QueryProvider
+    └── styles/     globals.css. Tailwind 진입점과 디자인 토큰 정본
 ```
 
-`features/` 하위 폴더 이름은 미정이다. `features/`와 `types/`는 지금 `.gitkeep`만 있다. 정적 파일은 `public/`에 둔다(지금은 `favicon.ico` 하나).
+`features/` 하위 폴더는 기능 하나에 하나이고 이름은 백엔드 feature 패키지와 맞춘다. 지금은 `auth`(소셜 로그인과 토큰) 하나다. 공용 타입은 소유 모듈 옆에 둔다. 정적 파일은 `public/`에 둔다(지금은 `favicon.ico` 하나).
 
 경로 별칭 `@/*`는 `./src/*`다.
+
+## API 주소
+
+백엔드에 닿는 길이 둘이다. 어느 쪽이든 호출자는 백엔드 경로 `/api/v1/...`를 그대로 넘기고 주소를 가르는 것은 `src/shared/api`의 래퍼가 한다.
+
+| 부르는 곳                                          | 주소                           | 경유                                          |
+| -------------------------------------------------- | ------------------------------ | --------------------------------------------- |
+| 브라우저                                           | 같은 출처 상대 경로 `/api/...` | `next.config.ts`의 rewrites가 백엔드로 넘긴다 |
+| 서버. 서버 컴포넌트와 Route Handler, Server Action | `API_BASE_URL` 절대 주소       | 백엔드를 직접 부른다                          |
+
+브라우저가 같은 출처만 부르면 리프레시 토큰을 httpOnly 쿠키로 받을 때 크로스 사이트 쿠키 설정을 맞출 일이 없다. 같은 출처 요청에는 CORS preflight가 없다. 백엔드 주소가 클라이언트 번들에 들어가지 않으므로 환경 변수 이름에 `NEXT_PUBLIC_`을 붙이지 않는다. 자세한 규칙은 `.agents/rules/api.md`에 있다.
 
 ## 문서
 
