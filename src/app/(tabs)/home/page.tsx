@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { SessionPanel } from "@/features/auth/SessionPanel";
 import { PLACEHOLDER_POPUPS } from "@/shared/lib/placeholder-data";
-import { REGION_LABEL, REGIONS } from "@/shared/types/region";
+import { REGION_LABELS, REGIONS } from "@/shared/types/region";
 import { PlaceholderBox } from "@/shared/ui/PlaceholderBox";
 import { PopupCard } from "@/shared/ui/PopupCard";
 import { SectionHeader } from "@/shared/ui/SectionHeader";
@@ -47,7 +47,7 @@ export default function HomePage() {
 								href={`/explore?region=${region}`}
 								className="inline-flex rounded-xl border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
 							>
-								{REGION_LABEL[region]}
+								{REGION_LABELS[region]}
 							</Link>
 						</li>
 					))}

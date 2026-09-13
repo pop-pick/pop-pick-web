@@ -4,7 +4,7 @@ import { Button } from "@/shared/ui/Button";
 
 import { buildKakaoAuthorizeUrl, getKakaoRedirectUri } from "./lib/kakao-oauth";
 import { storeNextPath } from "./lib/next-path";
-import { issueOAuthState } from "./lib/oauth-state";
+import { createOAuthState } from "./lib/oauth-state";
 
 interface KakaoLoginButtonProps {
 	next: string | null;
@@ -16,7 +16,7 @@ export function KakaoLoginButton({ next }: KakaoLoginButtonProps) {
 			size="lg"
 			onClick={() => {
 				storeNextPath(next);
-				window.location.href = buildKakaoAuthorizeUrl(getKakaoRedirectUri(), issueOAuthState());
+				window.location.href = buildKakaoAuthorizeUrl(getKakaoRedirectUri(), createOAuthState());
 			}}
 		>
 			카카오로 계속하기
