@@ -1,5 +1,17 @@
 import type { NextConfig } from "next";
 
+function resolveApiBaseUrl(value: string | undefined) {
+	if (!value) {
+		throw new Error(
+			"API_BASE_URL이 비어 있다. 백엔드 API 주소를 로컬은 .env.local에, 배포는 Vercel 프로젝트 환경 변수에 넣는다"
+		);
+	}
+	new URL(value);
+	return value.replace(/\/+$/, "");
+}
+
+const apiBaseUrl = resolveApiBaseUrl(process.env.API_BASE_URL);
+
 const nextConfig: NextConfig = {
 	cacheComponents: false,
 	reactCompiler: true,
@@ -17,6 +29,9 @@ const nextConfig: NextConfig = {
 				]
 			}
 		];
+	},
+	rewrites() {
+		return [{ source: "/api/:path*", destination: `${apiBaseUrl}/api/:path*` }];
 	}
 };
 
