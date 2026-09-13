@@ -14,25 +14,25 @@
 
 결정된 도구와 그 상태다. 쓰지 않기로 한 것과 이유는 `docs/product/ROADMAP.md`의 하지 않기로 한 것 표에 있다.
 
-| 영역            | 도구                                                                                           | 상태             |
-| --------------- | ---------------------------------------------------------------------------------------------- | ---------------- |
-| 언어            | TypeScript                                                                                     | 설치됨           |
-| 프레임워크      | Next.js (App Router), React                                                                    | 설치됨           |
-| 스타일          | Tailwind CSS v4                                                                                | 설치됨           |
-| 클래스 합치기   | clsx, tailwind-merge, class-variance-authority                                                 | 설치됨           |
-| 컴파일러        | React Compiler (babel-plugin-react-compiler)                                                   | 설치됨           |
-| 코드 품질       | ESLint, Prettier, lefthook                                                                     | 설치됨           |
-| 서버 상태       | TanStack Query                                                                                 | 설치됨           |
-| 클라이언트 상태 | Zustand. 조건 필터와 플래너에 담은 팝업 정도로 최소                                            | 설치됨           |
-| 지도            | Kakao Map JavaScript SDK. `src/shared/lib/kakao-map`이 script를 직접 주입한다. npm 패키지 없음 | 코어 모듈 있음   |
-| 도보 소요시간   | 카카오맵 REST API 도보 경로 조회. REST 키가 있는 서버에서 부른다                               | 부르는 서버 미정 |
-| 폼              | react-hook-form, zod, @hookform/resolvers                                                      | 설치됨           |
-| 날짜            | date-fns                                                                                       | 설치됨           |
-| HTTP            | Next.js fetch를 얇게 감싼 래퍼. 별도 라이브러리 없음                                           | 결정됨           |
-| UI 라이브러리   | 쓰지 않는다. 디자이너 시안 기반 자체 컴포넌트                                                  | 결정됨           |
-| 배포            | Vercel. PR마다 미리보기 URL                                                                    | 배포됨           |
-| 아이콘          | 미정                                                                                           |                  |
-| 테스트          | 미정                                                                                           |                  |
+| 영역            | 도구                                                                                           | 상태           |
+| --------------- | ---------------------------------------------------------------------------------------------- | -------------- |
+| 언어            | TypeScript                                                                                     | 설치됨         |
+| 프레임워크      | Next.js (App Router), React                                                                    | 설치됨         |
+| 스타일          | Tailwind CSS v4                                                                                | 설치됨         |
+| 클래스 합치기   | clsx, tailwind-merge, class-variance-authority                                                 | 설치됨         |
+| 컴파일러        | React Compiler (babel-plugin-react-compiler)                                                   | 설치됨         |
+| 코드 품질       | ESLint, Prettier, lefthook                                                                     | 설치됨         |
+| 서버 상태       | TanStack Query                                                                                 | 설치됨         |
+| 클라이언트 상태 | Zustand. 조건 필터와 플래너에 담은 팝업 정도로 최소                                            | 설치됨         |
+| 지도            | Kakao Map JavaScript SDK. `src/shared/lib/kakao-map`이 script를 직접 주입한다. npm 패키지 없음 | 코어 모듈 있음 |
+| 도보 소요시간   | 카카오맵 REST API 도보 경로 조회. 코스 순서를 아는 백엔드가 부르고 프론트는 코스 조회로 받는다 | 결정됨         |
+| 폼              | react-hook-form, zod, @hookform/resolvers                                                      | 설치됨         |
+| 날짜            | date-fns                                                                                       | 설치됨         |
+| HTTP            | Next.js fetch를 얇게 감싼 래퍼. 별도 라이브러리 없음                                           | 결정됨         |
+| UI 라이브러리   | 쓰지 않는다. 디자이너 시안 기반 자체 컴포넌트                                                  | 결정됨         |
+| 배포            | Vercel. PR마다 미리보기 URL                                                                    | 배포됨         |
+| 아이콘          | 미정                                                                                           |                |
+| 테스트          | 미정                                                                                           |                |
 
 ## 시작하기
 
@@ -101,16 +101,18 @@ src/
 
 ## 문서
 
-| 문서                         | 답하는 질문                                 |
-| ---------------------------- | ------------------------------------------- |
-| `docs/product/PRD.md`        | 누구의 어떤 문제를 왜 푸는가                |
-| `docs/product/SPEC.md`       | 각 기능이 정확히 어떻게 동작하는가          |
-| `docs/product/ROADMAP.md`    | 무엇을 어떤 순서로 만드는가                 |
-| `docs/design/DESIGN.md`      | 서비스가 어떤 인상을 주는가                 |
-| `docs/design/DESIGN-SPEC.md` | 각 화면에 무엇이 어떻게 놓이는가            |
-| `docs/release/RUNBOOK.md`    | 배포와 장애 대응을 어떻게 하는가            |
-| `docs/release/SEO.md`        | 코드로 할 수 없는 검색 유입 작업은 무엇인가 |
-| `docs/release/PRIVACY.md`    | 어떤 정보를 모으고 어떻게 다루는가          |
+| 문서                                | 답하는 질문                                                                                                                     |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `docs/product/PRD.md`               | 누구의 어떤 문제를 왜 푸는가                                                                                                    |
+| `docs/product/SPEC.md`              | 각 기능이 정확히 어떻게 동작하는가                                                                                              |
+| `docs/product/ROADMAP.md`           | 무엇을 어떤 순서로 만드는가                                                                                                     |
+| `docs/design/DESIGN.md`             | 서비스가 어떤 인상을 주는가                                                                                                     |
+| `docs/design/DESIGN-SPEC.md`        | 각 화면에 무엇이 어떻게 놓이는가                                                                                                |
+| `docs/architecture/ARCHITECTURE.md` | 라우트와 상태의 원천, 데이터 흐름, 폴더는 어떻게 잡았고 백엔드에 무엇을 요구하는가                                              |
+| `docs/architecture/{기능}.md`       | 기능 하나가 무엇을 보장하고 어떤 타입과 계약으로 움직이는가. auth, onboarding, recommendation, popup, bookmark, planner, course |
+| `docs/release/RUNBOOK.md`           | 배포와 장애 대응을 어떻게 하는가                                                                                                |
+| `docs/release/SEO.md`               | 코드로 할 수 없는 검색 유입 작업은 무엇인가                                                                                     |
+| `docs/release/PRIVACY.md`           | 어떤 정보를 모으고 어떻게 다루는가                                                                                              |
 
 문서 배치 기준과 문서마다 무엇이 채워졌고 무엇이 비었는지는 `docs/CLAUDE.md`에 있다. 에이전트가 늘 지켜야 하는 것은 `AGENTS.md`에, 자세한 규칙은 `.agents/rules/`에 있다. 기여 방법은 `CONTRIBUTING.md`를 본다.
 
