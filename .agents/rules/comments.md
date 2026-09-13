@@ -54,6 +54,7 @@ grep -rnE "eslint-disable|@vitest-environment|@jsxImportSource|@ts-nocheck|@ts-e
 
 ## 쓸 때 지킬 것
 
+- 함수 본문 안에는 쓰지 않는다. 선언부 위 JSDoc으로 올리거나 커밋 메시지에 적는다. 이유는 `typescript.md`에 있다
 - 무엇을 하는지는 코드에 있다. 왜 그렇게 했는지를 적는다
 - 한국어로 쓴다. 코드 식별자는 영어 그대로 둔다
 - 설명할 코드 바로 위에 붙인다. 멀어지면 따로 논다
