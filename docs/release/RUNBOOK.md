@@ -58,6 +58,18 @@ JavaScript 키는 등록한 도메인에서만 동작한다. 등록 위치는 �
 
 배포마다 생기는 고유 주소는 매번 달라 등록 대상이 아니다. feature 브랜치 미리보기에서도 지도를 봐야 하면 그 브랜치 별칭을 그때 등록한다.
 
+### 카카오 로그인 Redirect URI
+
+카카오 로그인은 인가 요청의 `redirect_uri`가 콘솔에 등록된 주소와 글자 단위로 같아야 인가 코드를 돌려준다. 프론트는 `redirect_uri`를 접속한 출처(`window.location.origin`)에 `/auth/kakao/callback`을 붙여 만들므로 사용자가 접속하는 주소마다 등록해야 한다. 등록 위치는 앱의 제품 설정 아래 카카오 로그인 화면의 Redirect URI 항목이다.
+
+등록할 주소는 셋이다.
+
+- `https://pop-pick-web.vercel.app/auth/kakao/callback`
+- `https://pop-pick-web-git-develop-chan9yus-projects.vercel.app/auth/kakao/callback`
+- `http://localhost:3000/auth/kakao/callback`
+
+배포마다 생기는 고유 주소와 feature 브랜치 별칭은 등록 대상이 아니다. 등록되지 않은 주소에서 로그인을 시작하면 카카오 인가 화면이 KOE006 오류를 내고 콜백으로 돌아오지 않는다. feature 브랜치 미리보기에서 로그인을 확인해야 하면 그 브랜치 별칭을 그때 등록한다. 로컬에서 3000이 아닌 포트를 쓸 때도 그 포트 주소를 따로 등록한다.
+
 ### 쿼터
 
 | 대상           | 하루 무료 한도 |
