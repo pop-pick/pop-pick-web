@@ -80,10 +80,11 @@ src/
     ├── hooks/      공용 훅
     ├── lib/        공용 유틸. 클래스를 합치는 cn()과 카카오맵 코어 모듈(kakao-map/)
     ├── providers/  루트 레이아웃이 감싸는 프로바이더. QueryProvider
-    └── styles/     globals.css. Tailwind 진입점과 디자인 토큰 정본
+    ├── styles/     globals.css. Tailwind 진입점과 디자인 토큰 정본
+    └── types/      여러 모듈이 함께 쓰는 공용 타입. 한 모듈에 속하는 타입은 그 모듈 옆에 둔다
 ```
 
-`features/` 하위 폴더는 기능 하나에 하나이고 이름은 백엔드 feature 패키지와 맞춘다. 지금은 `auth`(소셜 로그인과 토큰) 하나다. 공용 타입은 소유 모듈 옆에 둔다. 정적 파일은 `public/`에 둔다(지금은 `favicon.ico` 하나).
+`features/` 하위 폴더는 기능 하나에 하나이고 이름은 백엔드 feature 패키지와 맞춘다. 지금은 `auth`(소셜 로그인과 토큰) 하나다. 여러 모듈이 함께 쓰는 타입은 `shared/types/`에, 한 모듈에 속하는 타입은 그 모듈 옆(`shared/api/types.ts`)에 둔다. 정적 파일은 `public/`에 둔다(지금은 `favicon.ico` 하나).
 
 경로 별칭 `@/*`는 `./src/*`다.
 
