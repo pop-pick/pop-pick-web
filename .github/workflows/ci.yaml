@@ -14,6 +14,8 @@ jobs:
   gates:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    env:
+      API_BASE_URL: https://prod.poppick.shop
     steps:
       - name: 체크아웃
         uses: actions/checkout@v4

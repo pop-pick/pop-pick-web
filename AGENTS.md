@@ -24,9 +24,9 @@ lefthook 훅이 커밋과 푸시 때 같은 검사를 저장소 전체에 돌린
 
 ## 구조
 
-- Feature 기반이다. `src/app`은 라우팅, `src/features`는 기능 단위, `src/shared`는 공용 ui, hooks, lib, api, providers, styles, `src/types`는 공용 타입. 경로 별칭 `@/*`는 `./src/*`
+- Feature 기반이다. `src/app`은 라우팅, `src/features`는 기능 단위, `src/shared`는 공용 ui, hooks, lib, api, providers, styles, types. 여러 모듈이 함께 쓰는 타입은 `src/shared/types`에, 한 모듈에 속하는 타입은 그 모듈 옆(`src/shared/api/types.ts`)에 둔다. 경로 별칭 `@/*`는 `./src/*`
 - `src/app`에는 Next가 이름을 정하는 라우트 파일(`layout.tsx`, `page.tsx` 등)만 둔다. 전부 소문자다. 컴포넌트와 CSS는 `src/shared`나 `src/features`에 두고 라우트 파일이 import한다
-- `features/` 하위 폴더 이름은 미정이다. 정해지기 전에는 만들지 않는다
+- `features/` 하위 폴더는 기능 하나에 하나다. 이름은 백엔드 `feature/{이름}` 패키지와 맞춘다. 지금은 `auth`(소셜 로그인과 토큰) 하나다. 새 기능 폴더는 FE 둘이 이름을 정한 뒤 만든다
 - 기성 UI 라이브러리를 쓰지 않는다. 디자이너 시안을 따라 `src/shared/ui`에 직접 만든다
 - Tailwind 클래스에 `p-[18px]` 같은 임의값을 쓰지 않는다. 토큰 정본은 `src/shared/styles/globals.css`의 `@theme inline`
 
@@ -50,6 +50,7 @@ lefthook 훅이 커밋과 푸시 때 같은 검사를 저장소 전체에 돌린
 | `state.md`        | 서버 상태는 TanStack Query, 클라이언트 상태는 Zustand 최소. 서버 데이터를 스토어에 복제하지 않는다                                                     |
 | `tailwind.md`     | 임의값 금지. 값은 `@theme inline` 토큰과 `@utility`에서 온다                                                                                           |
 | `testing.md`      | 테스팅 트로피. 기본 동작은 삭제이고 추가는 예외. 도구는 미정                                                                                           |
+| `typescript.md`   | 추론되는 반환 타입을 적지 않는다. 함수 본문 주석 없음. 훅 파일은 훅 이름                                                                               |
 | `ui.md`           | 기성 UI 라이브러리 없음. 공용 컴포넌트는 src/shared/ui가 주인. 파일은 PascalCase, export function 선언. 모바일 퍼스트, 키보드로 조작 가능, 토큰만 쓴다 |
 
 ## 스킬

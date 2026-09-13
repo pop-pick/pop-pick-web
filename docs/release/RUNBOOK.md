@@ -28,14 +28,19 @@ PR은 CI(`.github/workflows/ci.yaml`) 통과 뒤에만 머지된다. Vercel 배�
 
 ## 환경 변수
 
-`.env*` 파일은 커밋하지 않는다. `.gitignore`에 있고 예외는 `.env.example` 하나다. `.env.example`에 같은 이름이 비어 있다. 로컬은 `.env.local`에, 배포는 Vercel 프로젝트 설정에 값을 둔다.
+`.env*` 파일은 커밋하지 않는다. `.gitignore`에 있고 예외는 `.env.example` 하나다. `.env.example`에 같은 이름과 설명이 있다. 로컬은 `.env.local`에, 배포는 Vercel 프로젝트 설정에 값을 둔다.
 
-| 변수                        | 용도                     | 어디서 받는가                           |
-| --------------------------- | ------------------------ | --------------------------------------- |
-| `NEXT_PUBLIC_API_BASE_URL`  | 백엔드 API 주소. 값 미정 | 백엔드 셋에게 받는다                    |
-| `NEXT_PUBLIC_KAKAO_MAP_KEY` | 카카오맵 JavaScript 키   | 카카오 개발자 콘솔의 팝픽 앱에서 받는다 |
+| 변수                          | 용도                                                                                                                                            | 값과 받는 곳                                                 |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `API_BASE_URL`                | 백엔드 API 주소. `next.config.ts`의 `/api` rewrite 목적지와 서버 컴포넌트의 직접 호출에 쓴다. 서버와 빌드에서만 읽히고 브라우저에는 가지 않는다 | `https://prod.poppick.shop`. Vercel 프로젝트 설정에 등록한다 |
+| `NEXT_PUBLIC_KAKAO_MAP_KEY`   | 카카오맵 JavaScript 키                                                                                                                          | 카카오 개발자 콘솔의 팝픽 앱에서 받는다                      |
+| `NEXT_PUBLIC_KAKAO_CLIENT_ID` | 카카오 로그인 REST API 키. redirect_uri는 `{배포 도메인}/auth/kakao/callback`으로 콘솔에 등록한다                                               | 카카오 개발자 콘솔의 팝픽 앱에서 받는다                      |
 
-`NEXT_PUBLIC_` 변수는 빌드 시점에 번들에 박힌다. 로컬에서 값을 바꾸면 개발 서버를 다시 띄워야 반영된다.
+`API_BASE_URL`은 Vercel 대시보드의 Settings 아래 Environment Variables에 등록한다. Production과 Preview 둘 다에 넣어야 미리보기 배포도 빌드된다. 등록 전에 rewrites 변경이 머지되면 `next.config.ts`가 로드되는 시점에 던져 Vercel 빌드가 실패한다.
+
+`NEXT_PUBLIC_` 변수는 빌드 시점에 번들에 박힌다. 로컬에서 값을 바꾸면 개발 서버를 다시 띄워야 반영된다. `API_BASE_URL`도 빌드 시점 변수다. 이름에 `NEXT_PUBLIC_`이 없지만 `next.config.ts`가 로드될 때 읽히므로 값을 바꾸면 다시 빌드해야 하고 개발 서버도 다시 띄워야 한다.
+
+`pnpm type:check`의 `next typegen`도 `next.config.ts`를 로드한다. 그래서 lefthook pre-push 훅은 `.env.local`에 `API_BASE_URL`이 없으면 실패한다. CI는 워크플로의 `env`에서 같은 값을 받는다.
 
 도보 경로 조회에 쓰는 REST API 키는 브라우저에 노출하면 안 되므로 `NEXT_PUBLIC_` 접두사 없이 서버에만 둔다. 경로 조회를 Next 서버 라우트가 부를지 백엔드가 부를지 정해진 뒤 변수 이름을 정하므로 지금은 표에 없다.
 
@@ -70,7 +75,7 @@ JavaScript 키는 등록한 도메인에서만 동작한다. 등록 위치는 �
 
 ## 백엔드 API 주소
 
-미정이다. 백엔드 클라우드와 배포 방식이 정해지지 않았다.
+운영 주소는 https://prod.poppick.shop 이다. Swagger UI는 https://prod.poppick.shop/swagger-ui/index.html 에, OpenAPI JSON은 https://prod.poppick.shop/v3/api-docs 에 있다. 브라우저는 이 주소를 직접 부르지 않고 같은 출처 `/api` 경로를 부르며 `next.config.ts`의 rewrite가 이 주소로 넘긴다. 두 경로의 규칙은 `.agents/rules/api.md`에 있다.
 
 ## 롤백
 
@@ -80,7 +85,7 @@ Vercel 대시보드의 Deployments 목록에서 이전 배포를 프로덕션으
 
 1. Vercel 배포 로그. 빌드가 실패했는지, 어느 커밋이 배포됐는지
 2. 브라우저 콘솔. 클라이언트 오류와 실패한 요청
-3. 백엔드 상태. API 응답이 오는지
+3. 백엔드 상태. API 응답이 오는지. `curl -i https://prod.poppick.shop/actuator/health`가 200을 돌려주는지 먼저 본다. 인증이 필요한 경로에 토큰 없이 가면 401과 `E1000`이 오는 것이 정상 응답이다
 4. 카카오맵 SDK. `NEXT_PUBLIC_KAKAO_MAP_KEY`가 비었는지, 접속한 도메인이 콘솔에 등록됐는지. 개발자 도구 네트워크 탭에서 `sdk.js` 응답 본문의 `errorType`과 `message`를 보면 원인이 나온다
 
 ## 데이터 운영
