@@ -6,7 +6,7 @@ description: 서버 호출은 src/shared/api를 거친다. 브라우저는 같�
 
 ## 규칙
 
-**서버 호출은 `src/shared/api`를 거친다.** 컴포넌트와 훅에서 `fetch`를 직접 부르지 않는다. 기능별 엔드포인트 호출은 `src/features/{기능}/api`에 두고 그 안에서 `shared/api`의 래퍼를 쓴다.
+**서버 호출은 `src/shared/api`를 거친다.** 컴포넌트와 훅에서 `fetch`를 직접 부르지 않는다. 기능별 엔드포인트 호출은 `src/features/{기능}/api`에 두고 그 안에서 `shared/api`의 래퍼를 쓴다. 기능 폴더를 어떻게 나누는지는 `structure.md`에 있다.
 
 ## 이 규칙이 생긴 이유
 
@@ -51,13 +51,53 @@ Next는 요청을 headers, redirects, proxy, beforeFiles rewrites, 파일시스�
 - fetch 래퍼는 하나다. Next.js `fetch`를 얇게 감싸고 별도 HTTP 라이브러리를 쓰지 않는다
 - 서버 응답의 공통 타입은 `shared/api`에 모아 둔다. 화면 파일에서 응답 타입을 새로 정의하지 않는다
 - 실패는 TanStack Query의 `error` 상태로 드러낸다. 빈 배열이나 기본값으로 바꾸지 않는다. 기준은 `no-fallback.md`
-- 백엔드 주소는 위의 두 경로 표를 따른다. 브라우저 코드가 `API_BASE_URL`을 읽지 않고 서버 코드가 상대 경로를 쓰지 않는다
+- 백엔드 주소는 위의 두 경로 표를 따른다
+
+## 기능의 api 폴더
+
+**엔드포인트 하나에 파일 하나다.** 파일 이름은 그 동작을 그대로 적은 케밥 케이스다. `login-with-kakao.ts`, `get-popups.ts`, `create-course.ts`처럼 쓴다. 한 파일에 여러 엔드포인트를 모으면 어느 화면이 무엇을 부르는지 import만 보고 알 수 없다.
+
+**파일 하나가 담는 것은 셋이다.** 요청과 응답 타입, `shared/api`의 래퍼를 부르는 함수, 그리고 조회면 `queryOptions`다. 셋을 한 파일에 두면 키와 함수가 갈라지지 않는다.
+
+```ts
+import { queryOptions } from "@tanstack/react-query";
+
+import { api } from "@/shared/api/client";
+
+export interface PopupListFilters {
+	region: Region | null;
+	category: PopupCategory | null;
+}
+
+export function getPopups(filters: PopupListFilters) {
+	return api.get<PageResponse<PopupSummary>>("/api/v1/popups", { query: filters });
+}
+
+export function popupListQuery(filters: PopupListFilters) {
+	return queryOptions({
+		queryKey: ["popups", "list", filters],
+		queryFn: () => getPopups(filters)
+	});
+}
+```
+
+`queryOptions`를 쓰는 이유는 타입 때문이다. 옵션 객체를 그냥 상수로 빼면 TypeScript가 `staleTime` 오타를 잡지 못하고 `getQueryData`의 반환 타입도 `unknown`이 된다. `queryOptions`로 감싸면 키에 반환 타입이 붙어 `useQuery`와 `prefetchQuery`, `useSuspenseQuery`, `getQueryData`가 전부 같은 타입을 본다.
+
+**쿼리 키를 모으는 공용 파일을 만들지 않는다.** 키는 그 키를 쓰는 `queryOptions` 옆에 있다. 키만 따로 모으면 키를 고칠 때 함수를 같이 고쳐야 하는지 알 수 없다. 무효화는 앞 조각을 그대로 적는다. `queryClient.invalidateQueries({ queryKey: ["popups"] })`처럼 쓴다.
+
+**키의 첫 조각은 기능 이름, 둘째는 종류, 셋째부터 식별자와 필터다.** `["popups", "list", filters]`와 `["popups", "detail", popupId]` 형태다.
+
+**변경은 `queryOptions`가 아니라 훅으로 낸다.** `useMutation`을 감싼 훅을 `hooks/use{동작}.ts`에 두고 성공했을 때 무효화할 키를 그 안에 적는다.
+
+**서버 컴포넌트는 미리 받아 두는 자리다.** 서버 컴포넌트에서 데이터를 받아 화면에 바로 쓰지 않고 `prefetchQuery`로 받아 `HydrationBoundary`로 넘긴다. 그래야 같은 데이터를 클라이언트가 다시 받지 않는다. 이때 `staleTime`이 0이면 마운트 직후 다시 조회하므로 0보다 커야 한다. 저장소 기본값은 `QueryProvider`의 30초다.
+
+**서버 컴포넌트가 Route Handler를 부르지 않는다.** 빌드 시점에는 듣는 서버가 없어 실패하고 런타임에도 왕복이 하나 늘 뿐이다. 원천을 직접 부른다.
 
 ## 정해진 것과 미정
 
 응답 공통 구조와 에러 코드 체계, 커서 기반 페이지네이션, camelCase 필드 이름, 스펙 문서 위치는 백엔드가 정했다. 상세는 백엔드 Swagger(https://prod.poppick.shop/swagger-ui/index.html)와 백엔드 저장소의 `global/response`, `global/exception` 패키지에 있다. 프론트 쪽 구현은 `src/shared/api/types.ts`와 `errors.ts`다.
 
-날짜와 시간 포맷은 미정이다. 지금 스펙에 날짜 필드가 없다. 정해지기 전에는 그럴듯한 기본값을 채우지 않는다.
+아직 정해지지 않은 것은 날짜와 시간 포맷이다. 지금 스펙에 날짜 필드가 없다. 미결정 항목은 `docs/product/ROADMAP.md`의 미결정 절이 갖는다.
 
 ## 리뷰에서 볼 것
 

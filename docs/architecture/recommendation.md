@@ -25,14 +25,14 @@
 
 ## A. Architecture
 
-| 상태                  | 원천                                                            | 비고                                                   |
-| --------------------- | --------------------------------------------------------------- | ------------------------------------------------------ |
-| 추천 결과             | Server. `queryKeys.recommendations.home()`                      | 로그인 상태일 때만                                     |
-| 인기 팝업             | Server. `queryKeys.popups.list({ sort: "popular", limit: 10 })` | 공개. 비회원 홈과 축소 동작 둘이 같은 캐시를 쓴다      |
-| 지역 요약             | Server. `queryKeys.regions.summary()`                           | 공개                                                   |
-| 내 정보               | Server. `queryKeys.me()`                                        | `auth.md`                                              |
-| 어느 홈을 그리나      | Derived. 인증 상태                                              | `authenticated`면 회원 홈                              |
-| 추천 섹션의 표시 모드 | Derived. 추천 쿼리 상태와 `status`                              | `recommended`, `fallback-preparing`, `fallback-failed` |
+| 상태                  | 원천                                                         | 비고                                                   |
+| --------------------- | ------------------------------------------------------------ | ------------------------------------------------------ |
+| 추천 결과             | Server. `["recommendations", "home"]`                        | 로그인 상태일 때만                                     |
+| 인기 팝업             | Server. `["popups", "list", { sort: "popular", limit: 10 }]` | 공개. 비회원 홈과 축소 동작 둘이 같은 캐시를 쓴다      |
+| 지역 요약             | Server. `["regions", "summary"]`                             | 공개                                                   |
+| 내 정보               | Server. `["me"]`                                             | `auth.md`                                              |
+| 어느 홈을 그리나      | Derived. 인증 상태                                           | `authenticated`면 회원 홈                              |
+| 추천 섹션의 표시 모드 | Derived. 추천 쿼리 상태와 `status`                           | `recommended`, `fallback-preparing`, `fallback-failed` |
 
 통신은 요청 응답 셋이다.
 
@@ -51,7 +51,7 @@
 ## D. Data Model
 
 ```typescript
-// features/recommendation/model/recommendation.ts. 백엔드 요구
+// features/recommendation/types/recommendation.ts. 백엔드 요구
 interface RecommendedPopup {
 	popup: PopupSummary;
 	/** 두 줄 이내. 글자 수 상한은 백엔드와 맞춘다 */
@@ -72,10 +72,11 @@ interface RegionSummary {
 
 type RecommendationSectionMode = "skeleton" | "recommended" | "fallback-preparing" | "fallback-failed";
 
+// features/recommendation/lib/section-mode.ts
 function resolveSectionMode(query: UseQueryResult<RecommendationResult, ApiError>): RecommendationSectionMode;
 ```
 
-`resolveSectionMode`는 분기 있는 순수 함수라 `testing.md`의 값이 나는 자리다. `PopupSummary`는 `shared/types/popup.ts`에 있다.
+`resolveSectionMode`는 분기 있는 순수 함수라 `testing.md`의 값이 나는 자리다. `PopupSummary`는 서버 응답 모양이고 `popup.md`가 갖는다. 지금 `shared/types/popup.ts`에 있는 것은 카드가 그리는 화면용 타입 `PopupCardItem`이다.
 
 ## I. Interface
 
@@ -108,7 +109,7 @@ export function useRegionSummary(): UseQueryResult<RegionSummary[], ApiError>;
 
 **로그.** `[recommendation]` 접두사. `fallback-preparing`과 `fallback-failed`로 들어갈 때 각각 한 줄. 실패는 `errorCode`를 함께 남긴다.
 
-**접근성.** 섹션마다 `<section aria-labelledby>`와 `<h2>`다. 축소 동작의 라벨 문구는 `<h2>` 아래 `<p>`로 두어 스크린리더가 제목 다음에 읽는다. 카드 목록은 `<ul>`이고 카드는 `<li>` 안 `<article>`이다. 추천 이유는 카드 본문 텍스트라 별도 속성이 없다. 검색바는 `<form role="search">`다.
+**접근성.** 섹션마다 `<section aria-labelledby>`와 `<h2>`다. 축소 동작의 라벨 문구는 `<h2>` 아래 `<p>`로 두어 스크린리더가 제목 다음에 읽는다. 카드 목록은 `<ul>`이고 카드는 `<li>` 안 `<article>`이다. 추천 이유는 카드 본문 텍스트라 별도 속성이 없다.
 
 ## O. Optimization과 운영
 
@@ -116,8 +117,8 @@ export function useRegionSummary(): UseQueryResult<RegionSummary[], ApiError>;
 
 **장애.** 위의 결정표대로다. 인기 지역이 실패하면 칩 줄만 사라지고 로그를 남긴다. 배너는 정적이라 실패가 없다.
 
-**재시도.** 기본을 따른다. 추천 쿼리는 `staleTime`을 5분으로 올린다. 취향이 바뀌지 않는 한 결과가 같고 홈을 오갈 때마다 AI 호출이 나가면 비용이 든다.
+**재시도.** 추천 쿼리만 `staleTime`을 5분으로 올린다. 취향이 바뀌지 않는 한 결과가 같고 홈을 오갈 때마다 AI 호출이 나가면 비용이 든다.
 
-**지표.** 체감 지표는 홈 LCP다. 시스템 지표는 축소 동작 발생 비율이다. 0이 목표는 아니고 배포 초기에 높다가 데이터가 쌓이며 내려가야 한다. 내려가지 않으면 임베딩 파이프라인을 본다.
+**지표.** 축소 동작 발생 비율을 센다. 0이 목표는 아니고 배포 초기에 높다가 데이터가 쌓이며 내려가야 한다. 내려가지 않으면 임베딩 파이프라인을 본다.
 
 **운영.** 추천 이유의 글자 수 상한을 백엔드와 정하면 `PopupCard`의 줄 수 제한은 그대로 두고 상한만 문서에 적는다. 두 줄 말줄임은 상한과 무관하게 남는다.

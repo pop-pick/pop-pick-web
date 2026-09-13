@@ -24,12 +24,12 @@
 
 ## A. Architecture
 
-| 상태             | 원천                                           | 비고                                        |
-| ---------------- | ---------------------------------------------- | ------------------------------------------- |
-| 팝업의 찜 여부   | Server. 각 팝업 응답의 `isBookmarked`          | 홈과 탐색, 상세, 찜 목록 캐시에 사본이 있다 |
-| 찜 목록          | Server. `queryKeys.bookmarks.list()` 무한 쿼리 | `PageResponse<PopupSummary>`                |
-| 누른 직후의 상태 | Optimistic. 캐시를 먼저 바꾼다                 | 실패 시 스냅샷으로 되돌린다                 |
-| 진행 중인 토글   | 뮤테이션 상태. `mutationKey`에 `popupId`       | 같은 팝업의 이전 뮤테이션을 취소한다        |
+| 상태             | 원천                                      | 비고                                        |
+| ---------------- | ----------------------------------------- | ------------------------------------------- |
+| 팝업의 찜 여부   | Server. 각 팝업 응답의 `isBookmarked`     | 홈과 탐색, 상세, 찜 목록 캐시에 사본이 있다 |
+| 찜 목록          | Server. `["bookmarks", "list"]` 무한 쿼리 | `PageResponse<PopupSummary>`                |
+| 누른 직후의 상태 | Optimistic. 캐시를 먼저 바꾼다            | 실패 시 스냅샷으로 되돌린다                 |
+| 진행 중인 토글   | 뮤테이션 상태. `mutationKey`에 `popupId`  | 같은 팝업의 이전 뮤테이션을 취소한다        |
 
 **흐름.**
 
@@ -49,7 +49,7 @@
 ## D. Data Model
 
 ```typescript
-// features/bookmark/model/bookmark.ts
+// features/bookmark/types/bookmark.ts
 interface BookmarkToggleInput {
 	popupId: number;
 	next: boolean;
@@ -60,6 +60,7 @@ interface BookmarkSnapshot {
 	data: unknown;
 }
 
+// features/bookmark/lib/patch-bookmark-in-caches.ts
 /** 캐시 안 모든 PopupSummary 사본을 찾아 isBookmarked를 바꾸고 이전 값 스냅샷을 돌려준다 */
 function patchBookmarkInCaches(queryClient: QueryClient, popupId: number, isBookmarked: boolean): BookmarkSnapshot[];
 function restoreSnapshots(queryClient: QueryClient, snapshots: BookmarkSnapshot[]): void;
@@ -99,7 +100,7 @@ export function useBookmarkList(): UseInfiniteQueryResult<InfiniteData<PageRespo
 
 **로그.** `[bookmark]` 접두사. 되돌림이 일어날 때 `popupId`와 `errorCode`.
 
-**접근성.** `<button aria-pressed={isBookmarked}>`이고 `aria-label`은 "{팝업명} 찜" 하나로 고정한다. 눌림 상태는 `aria-pressed`가 전달하므로 라벨을 "찜 해제"로 바꾸지 않는다. 아이콘만 있는 버튼이라 라벨이 필수다. 되돌림 토스트는 `role="status"` 영역에 들어간다. 찜 목록의 종료 항목은 흐림 처리와 함께 "종료" 텍스트 배지를 가진다.
+**접근성.** `<button aria-pressed={isBookmarked}>`이고 `aria-label`은 "{팝업명} 찜" 하나로 고정한다. 눌림 상태는 `aria-pressed`가 전달하므로 라벨을 "찜 해제"로 바꾸지 않는다. 아이콘만 있는 버튼이라 라벨이 필수다. 되돌림 토스트는 `role="status"` 영역에 들어간다. 찜 목록의 종료 항목은 흐림 처리와 함께 "종료" 텍스트 배지를 가진다. 색만으로 구분하지 않는다.
 
 ## O. Optimization과 운영
 
@@ -107,7 +108,7 @@ export function useBookmarkList(): UseInfiniteQueryResult<InfiniteData<PageRespo
 
 **장애.** 서버가 죽으면 모든 토글이 되돌아가고 토스트가 뜬다. 목록은 `ErrorState`다.
 
-**재시도.** 토글 뮤테이션은 재시도하지 않는다. 사용자가 다시 누르는 것이 재시도다. 목록 쿼리는 기본을 따른다.
+**재시도.** 토글 뮤테이션은 재시도하지 않는다. 사용자가 다시 누르는 것이 재시도다.
 
 **지표.** 되돌림 횟수가 0이어야 한다. 0이 아닌데 네트워크 오류가 아니면 멱등이 깨졌거나 권한 문제다.
 

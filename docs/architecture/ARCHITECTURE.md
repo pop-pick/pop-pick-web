@@ -32,7 +32,7 @@ Design width 375px, 대상은 모바일 웹이고 반응형 범위는 375px에�
 
 ```
 src/app/
-├── layout.tsx                          루트. QueryProvider, AuthProvider, 고정 폭 컬럼
+├── layout.tsx                          루트. QueryProvider와 고정 폭 컬럼. AuthProvider는 설계
 ├── page.tsx                            /                         랜딩(메인)
 ├── error.tsx                           라우트 오류 경계
 ├── not-found.tsx
@@ -50,10 +50,11 @@ src/app/
 │   ├── explore/page.tsx                /explore?view=&region=&category=&reservation=&ending=&q=&sort=
 │   ├── planner/page.tsx                /planner?anchor=          플래너 조건 입력
 │   └── my/page.tsx                     /my?tab=popups|courses    내 팝업
-├── auth/kakao/callback/page.tsx        (기존)
-├── auth/google/callback/page.tsx
-└── poc/kakao-map/page.tsx              (기존 PoC. 릴리스 전에 지운다)
+├── auth/kakao/callback/page.tsx
+└── auth/google/callback/page.tsx        설계. 구글 클라이언트 ID가 오면 만든다
 ```
+
+구글 콜백 말고는 다 있다. 랜딩과 로그인, 홈은 내용을 채웠고 나머지 아홉은 `ScreenPlaceholder`로 자리만 있다.
 
 | 경로                          | 화면             | 로그인    | 데이터를 받는 곳                                                | 기능 문서                  |
 | ----------------------------- | ---------------- | --------- | --------------------------------------------------------------- | -------------------------- |
@@ -111,6 +112,8 @@ src/app/
 
 `features/` 하위 폴더는 기능 하나에 하나이고 이름은 백엔드 `feature/{이름}` 패키지와 맞춘다. 지금 백엔드에는 `auth`와 `member`, `collection`(수집 파이프라인)만 있어 나머지 이름은 FE가 제안하고 백엔드가 사용자향 API 패키지를 만들 때 같은 이름을 쓰도록 요구 목록에 올린다.
 
+일곱 중 `auth`만 내용이 있고 나머지 여섯은 폴더만 있다.
+
 | 폴더                      | 담는 것                                                                  | 쓰는 화면                         |
 | ------------------------- | ------------------------------------------------------------------------ | --------------------------------- |
 | `features/auth`           | 소셜 로그인 둘, 토큰 스토어, 재발급, 내 정보, 로그인 가드                | 로그인, 콜백, 모든 보호 화면      |
@@ -123,64 +126,55 @@ src/app/
 
 홈과 내 팝업처럼 여러 기능이 한 화면에 놓이는 자리는 `src/app`의 라우트 파일이 조립한다. 홈은 recommendation과 popup과 bookmark를, 내 팝업은 bookmark와 course를 가져다 놓는다. 라우트 파일은 조립만 하고 로직을 갖지 않는다.
 
-기능 폴더 안은 이렇게 나눈다. 저장소에 아직 규칙이 없어 이 문서가 제안한다. `auth` 보강 작업이 배치 결과를 보고하면 그때 둘을 맞춰 `.agents/rules/`에 올린다.
+기능 폴더 안은 `api`와 `ui`, `hooks`, `store`, `lib`, `types`로 나누고 필요한 것만 만든다. 루트에 파일을 두지 않으므로 타입도 `types/{이름}.ts`다. 각 폴더가 무엇을 담는지와 그 이유, 배럴을 만들지 않는 이유는 `.agents/rules/structure.md`에 있다. MSW를 도입하면 기능마다 `api/handlers.ts`가 하나씩 더 생긴다.
 
-```
-features/{기능}/
-├── api/            엔드포인트 함수와 queryOptions, MSW handlers.ts
-├── model/          이 기능 안에서만 쓰는 타입과 순수 함수(파생값 계산, 검증 스키마)
-├── use{이름}.ts    훅과 Zustand 스토어. 파일 이름은 훅 이름
-└── {이름}.tsx      컴포넌트. PascalCase, export function
-```
+여러 기능이 함께 쓰는 것은 `src/shared`에 둔다. `shared/types`와 `shared/lib/kakao-map`, `shared/ui`는 있고 나머지 넷은 이 설계로 새로 생긴다.
 
-여러 기능이 함께 쓰는 것은 `src/shared`에 둔다. 이번 설계로 새로 생기는 것이다.
+| 위치                             | 담는 것                                                                                              |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `shared/types/region.ts`         | `Region` 다섯과 라벨 대응표. 온보딩과 탐색, 플래너, 팝업 필드가 같은 타입을 쓴다                     |
+| `shared/types/popup.ts`          | 카테고리와 예약 유형, 라벨 대응표, 카드가 그리는 값 `PopupCardItem`. 카드가 있는 모든 기능이 쓴다    |
+| `shared/api/auth-token.ts`       | 액세스 토큰 소스 등록과 만료 이벤트. auth 기능이 등록하고 `request`가 읽는다                         |
+| `shared/api/schema.d.ts`         | Swagger `/v3/api-docs`에서 생성한 타입. 손으로 고치지 않는다                                         |
+| `shared/api/mocks/`              | MSW 브라우저 워커와 노드 서버 설정. 핸들러는 각 기능의 `api/handlers.ts`에서 모은다                  |
+| `shared/hooks/useCursorQuery.ts` | `PageResponse<T>`를 받는 무한 스크롤 쿼리. 마지막 항목에서 커서를 뽑는 규칙을 한 곳에 둔다           |
+| `shared/lib/kakao-map`           | 폴리라인과 번호 마커(CustomOverlay), 경로 좌표를 SDK 좌표로 옮기는 함수, 마커 전체가 보이게 맞추기   |
+| `shared/ui`                      | 화면 뼈대가 쓰는 열한 개가 있다. 이 설계가 더 요구하는 것은 BottomSheet와 Tabs, Skeleton, ErrorState |
 
-| 위치                             | 담는 것                                                                                            |
-| -------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `shared/types/region.ts`         | `Region` 다섯과 라벨 대응표. 온보딩과 탐색, 플래너, 팝업 필드가 같은 타입을 쓴다                   |
-| `shared/types/popup.ts`          | `PopupSummary`와 카테고리, 예약 유형, 확인 상태. 카드가 있는 모든 기능이 쓴다                      |
-| `shared/api/query-keys.ts`       | 쿼리 키 규칙                                                                                       |
-| `shared/api/auth-token.ts`       | 액세스 토큰 소스 등록과 만료 이벤트. auth 기능이 등록하고 `request`가 읽는다                       |
-| `shared/api/schema.d.ts`         | Swagger `/v3/api-docs`에서 생성한 타입. 손으로 고치지 않는다                                       |
-| `shared/api/mocks/`              | MSW 브라우저 워커와 노드 서버 설정. 핸들러는 각 기능의 `api/handlers.ts`에서 모은다                |
-| `shared/hooks/useCursorQuery.ts` | `PageResponse<T>`를 받는 무한 스크롤 쿼리. 마지막 항목에서 커서를 뽑는 규칙을 한 곳에 둔다         |
-| `shared/lib/kakao-map`           | 폴리라인과 번호 마커(CustomOverlay), 경로 좌표를 SDK 좌표로 옮기는 함수, 마커 전체가 보이게 맞추기 |
-| `shared/ui`                      | BottomTabBar, PopupCard, Chip, BottomSheet, Tabs, Skeleton, Badge, EmptyState, ErrorState          |
-
-`shared/ui`의 목록은 후보다. 두 화면 이상에서 쓰임이 확인된 것만 올리고 주인은 디자인 시스템 담당이다.
+`shared/ui`에 무엇을 올릴지는 후보로 둔다. 두 화면 이상에서 쓰임이 확인된 것만 올리고 주인은 디자인 시스템 담당이다.
 
 ## 공통 계약
 
-### 쿼리 키
+### 쿼리 키와 queryOptions
 
-첫 조각은 기능 이름, 둘째는 종류, 셋째부터 식별자와 필터다. 무효화는 앞 조각으로 한다.
+키는 그것을 쓰는 `queryOptions` 옆에 둔다. 키만 모으는 공용 파일을 만들지 않는다. 규칙과 그 이유는 `.agents/rules/api.md`의 기능의 api 폴더 절에 있다.
 
-```typescript
-export const queryKeys = {
-	me: () => ["me"] as const,
-	popups: {
-		list: (filters: PopupListFilters) => ["popups", "list", filters] as const,
-		detail: (popupId: number) => ["popups", "detail", popupId] as const,
-		countByRegion: (filters: PopupCountFilters) => ["popups", "count-by-region", filters] as const
-	},
-	recommendations: {
-		home: () => ["recommendations", "home"] as const,
-		preview: (answers: OnboardingAnswers) => ["recommendations", "preview", answers] as const
-	},
-	regions: { summary: () => ["regions", "summary"] as const },
-	bookmarks: { list: () => ["bookmarks", "list"] as const },
-	courses: {
-		detail: (courseId: number) => ["courses", "detail", courseId] as const,
-		walks: (courseId: number) => ["courses", "walks", courseId] as const,
-		job: (jobId: string) => ["courses", "job", jobId] as const,
-		list: () => ["courses", "list"] as const
-	}
-};
-```
+첫 조각은 기능 이름, 둘째는 종류, 셋째부터 식별자와 필터다. 무효화는 앞 조각을 그대로 적는다.
+
+| 조회           | 키                                        | 두는 곳                                                   |
+| -------------- | ----------------------------------------- | --------------------------------------------------------- |
+| 내 정보        | `["me"]`                                  | `features/auth/api/get-me.ts`                             |
+| 팝업 목록      | `["popups", "list", filters]`             | `features/popup/api/get-popups.ts`                        |
+| 팝업 상세      | `["popups", "detail", popupId]`           | `features/popup/api/get-popup.ts`                         |
+| 지역별 건수    | `["popups", "count-by-region", filters]`  | `features/popup/api/get-popup-counts.ts`                  |
+| 홈 추천        | `["recommendations", "home"]`             | `features/recommendation/api/get-home-recommendations.ts` |
+| 미리보기 추천  | `["recommendations", "preview", answers]` | `features/onboarding/api/get-preview.ts`                  |
+| 지역 요약      | `["regions", "summary"]`                  | `features/recommendation/api/get-region-summary.ts`       |
+| 찜 목록        | `["bookmarks", "list"]`                   | `features/bookmark/api/get-bookmarks.ts`                  |
+| 코스 상세      | `["courses", "detail", courseId]`         | `features/course/api/get-course.ts`                       |
+| 구간 소요시간  | `["courses", "walks", courseId]`          | `features/course/api/get-course-walks.ts`                 |
+| 코스 작업 상태 | `["courses", "job", jobId]`               | `features/planner/api/get-course-job.ts`                  |
+| 저장한 코스    | `["courses", "list"]`                     | `features/course/api/get-courses.ts`                      |
+
+지금 코드에 있는 쿼리는 인가 코드 교환 하나다. 키는 `["auth", "kakao-login", code, state]`이고 `features/auth/hooks/useKakaoLogin.ts`에 있다. 조회가 아니라 일회용 코드를 한 번만 쓰기 위한 쿼리라 위 표에 넣지 않는다.
 
 ### 커서 페이지네이션
 
 백엔드 `PageResponse<T>`는 `content`와 `hasNext`만 있고 다음 커서 값이 없다. `useCursorQuery`가 마지막 항목의 `id`를 다음 요청의 `cursor`로 쓴다. 한 페이지는 10건이고 백엔드 상한은 50건이다. 응답에 `nextCursor`를 실어 달라고 요구 목록에 올렸고 실리면 그 값을 우선한다.
+
+### 재시도와 캐시 기본값
+
+`QueryProvider`가 정한다. 4xx는 재시도하지 않고 브라우저에서 2회까지이며 `staleTime`은 30초다. 기능 문서는 이 기본과 다르게 두는 자리만 적는다.
 
 ### 실패의 표면
 

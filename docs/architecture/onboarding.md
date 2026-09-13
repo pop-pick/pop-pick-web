@@ -25,13 +25,13 @@
 
 ## A. Architecture
 
-| 상태             | 원천                                                 | 비고                                                |
-| ---------------- | ---------------------------------------------------- | --------------------------------------------------- |
-| 온보딩 답        | Zustand persist(`localStorage`)                      | 키 `pop-pick-onboarding`. 서버 저장 뒤 지운다       |
-| 온보딩 완료 여부 | 같은 스토어와 쿠키 `pp_onboarded`                    | 쿠키는 `proxy.ts`가 랜딩 노출을 판단할 때 쓴다(D44) |
-| 현재 단계        | URL `/onboarding/[step]`                             | 뒤로가기가 이전 단계다                              |
-| 미리보기 결과    | Server. `queryKeys.recommendations.preview(answers)` | 답이 키라 답이 바뀌면 다른 캐시                     |
-| 입력 중인 폼 값  | react-hook-form                                      | 단계를 떠날 때 스토어에 쓴다                        |
+| 상태             | 원천                                              | 비고                                                |
+| ---------------- | ------------------------------------------------- | --------------------------------------------------- |
+| 온보딩 답        | Zustand persist(`localStorage`)                   | 키 `pop-pick-onboarding`. 서버 저장 뒤 지운다       |
+| 온보딩 완료 여부 | 같은 스토어와 쿠키 `pp_onboarded`                 | 쿠키는 `proxy.ts`가 랜딩 노출을 판단할 때 쓴다(D44) |
+| 현재 단계        | URL `/onboarding/[step]`                          | 뒤로가기가 이전 단계다                              |
+| 미리보기 결과    | Server. `["recommendations", "preview", answers]` | 답이 키라 답이 바뀌면 다른 캐시                     |
+| 입력 중인 폼 값  | react-hook-form                                   | 단계를 떠날 때 스토어에 쓴다                        |
 
 통신은 요청 응답 둘이다. 미리보기(비인증)와 취향 저장(인증).
 
@@ -54,18 +54,7 @@
 ## D. Data Model
 
 ```typescript
-// shared/types/region.ts
-export type Region = "SEONGSU" | "YEOUIDO" | "HONGDAE" | "SINCHON" | "YONGSAN";
-export const REGIONS: readonly Region[] = ["SEONGSU", "YEOUIDO", "HONGDAE", "SINCHON", "YONGSAN"];
-export const REGION_LABEL: Record<Region, string> = {
-	SEONGSU: "성수",
-	YEOUIDO: "여의도",
-	HONGDAE: "홍대",
-	SINCHON: "신촌",
-	YONGSAN: "용산"
-};
-
-// features/onboarding/model/answers.ts
+// features/onboarding/types/answers.ts
 type CompanionType = "ALONE" | "FRIEND" | "COUPLE" | "FAMILY";
 /** 4는 4명 이상 */
 type PartySize = 1 | 2 | 3 | 4;
@@ -81,27 +70,13 @@ interface OnboardingAnswers {
 	freeText: string;
 }
 
-const EMPTY_ANSWERS: OnboardingAnswers = {
-	companionType: null,
-	partySize: null,
-	categories: [],
-	regions: [],
-	activities: [],
-	freeText: ""
-};
+// features/onboarding/lib/answers.ts
+/** 모든 필드가 빈 값인 OnboardingAnswers */
+const EMPTY_ANSWERS: OnboardingAnswers;
+/** 여섯 필드 중 하나라도 EMPTY_ANSWERS와 다르면 true. freeText는 공백을 지우고 본다 */
+function hasAnySignal(answers: OnboardingAnswers): boolean;
 
-function hasAnySignal(answers: OnboardingAnswers) {
-	return (
-		answers.companionType !== null ||
-		answers.partySize !== null ||
-		answers.categories.length > 0 ||
-		answers.regions.length > 0 ||
-		answers.activities.length > 0 ||
-		answers.freeText.trim().length > 0
-	);
-}
-
-// features/onboarding/model/preview.ts. 백엔드 요구
+// features/onboarding/types/preview.ts. 백엔드 요구
 interface PreviewScore {
 	/** 축 이름은 서버가 정한다(D56). FE는 받은 순서대로 그린다 */
 	axis: string;
@@ -118,7 +93,7 @@ interface PreviewResult {
 }
 ```
 
-`PopupCategory`는 `shared/types/popup.ts`에 있고 `RecommendedPopup`은 `recommendation.md`에 있다. 단계별 zod 스키마는 위 타입을 그대로 좁힌 것이고 `freeText`에 `max(200)`이 붙는다.
+`Region`과 `PopupCategory`는 `shared/types/region.ts`와 `shared/types/popup.ts`에 있다. 값은 `seongsu`와 `character`처럼 소문자이고 라벨 대응표가 같은 파일에 있다. `RecommendedPopup`은 `recommendation.md`에 있다. 단계별 zod 스키마는 위 타입을 그대로 좁힌 것이고 `freeText`에 `max(200)`이 붙는다.
 
 ## I. Interface
 
@@ -155,11 +130,11 @@ export function useSavePreferences(): UseMutationResult<null, ApiError, Onboardi
 | `POST /api/v1/recommendations/preview` | 없음 | `OnboardingAnswers` | `PreviewResult` |
 | `PUT /api/v1/me/preferences`           | 필요 | `OnboardingAnswers` | `null`          |
 
-미리보기는 `POST`지만 읽기다. 답이 바디에 실리는 조회라 `useQuery`로 다루고 키에 답을 넣는다. 재시도는 기본을 따른다.
+미리보기는 `POST`지만 읽기다. 답이 바디에 실리는 조회라 `useQuery`로 다루고 키에 답을 넣는다.
 
 **로그.** `[onboarding]` 접두사. 미리보기 실패, 취향 저장 실패와 재시도 결과.
 
-**접근성.** 단일 선택 묶음은 `role="radiogroup"`과 `role="radio"`, 다중 선택 묶음은 `<button aria-pressed>`다. 묶음마다 `<fieldset>`과 `<legend>`가 질문 문구를 담는다. 진행 표시는 `role="progressbar"`에 `aria-valuenow`와 `aria-valuemax`다. 글자 수 카운터는 `aria-live="polite"`이고 상한에 닿으면 문구가 바뀐다. 비활성 추천받기 버튼의 이유 문구는 `aria-describedby`로 버튼에 묶는다. 미리보기 스코어의 별은 장식이고 `matchPercent`가 텍스트로 함께 있다.
+**접근성.** 단일 선택 묶음은 라디오, 다중 선택 묶음은 `<button aria-pressed>`다. 묶음마다 `<fieldset>`과 `<legend>`가 질문 문구를 담는다. 글자 수 카운터는 `aria-live="polite"`이고 상한에 닿으면 문구가 바뀐다. 비활성 추천받기 버튼의 이유 문구는 `aria-describedby`로 버튼에 묶는다. 미리보기 스코어의 별은 장식이고 `matchPercent`가 텍스트로 함께 있다.
 
 ## O. Optimization과 운영
 
@@ -169,6 +144,6 @@ export function useSavePreferences(): UseMutationResult<null, ApiError, Onboardi
 
 **재시도와 몰림.** 취향 저장은 콜백에서 한 번, 앱 시작 때 한 번이다. 네트워크 오류만 자동 재시도한다.
 
-**지표.** 체감 지표는 "추천받기부터 첫 스코어까지"다. 시스템 지표는 취향 저장 실패 횟수와 스토어에 답이 남은 채 로그인 상태인 세션 수다. 둘째가 0이 아니면 재전송이 돌지 않는 것이다.
+**지표.** 취향 저장 실패 횟수와 스토어에 답이 남은 채 로그인 상태인 세션 수를 센다. 둘째가 0이 아니면 재전송이 돌지 않는 것이다.
 
 **운영.** 랜딩 노출 조건(D44)이 "최초 1회"로 정해지면 `proxy.ts`가 `pp_onboarded` 쿠키를 보고 `/`를 `/home`으로 보낸다. "매번"이면 그 조건을 두지 않는다. 쿠키는 `markCompleted`가 `document.cookie`로 쓰고 값은 날짜 문자열이다.

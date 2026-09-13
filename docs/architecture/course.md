@@ -26,17 +26,17 @@
 
 ## A. Architecture
 
-| 상태                  | 원천                                         | 비고                                                       |
-| --------------------- | -------------------------------------------- | ---------------------------------------------------------- |
-| 코스                  | Server. `queryKeys.courses.detail(courseId)` | 기본 `staleTime`                                           |
-| 구간 소요시간과 경로  | Server. `queryKeys.courses.walks(courseId)`  | `staleTime` 0, `gcTime` 0. 화면을 떠나면 버린다            |
-| 저장한 코스 목록      | Server. `queryKeys.courses.list()` 무한 쿼리 |                                                            |
-| 코스 식별자           | URL `/courses/[courseId]`                    |                                                            |
-| 총 도보 시간과 거리   | Derived. 구간 중 `OK`인 것의 합              | `UNKNOWN`이 하나라도 있으면 "일부 구간 제외" 문구를 붙인다 |
-| 도착 시각의 예상 라벨 | Derived. 앞 구간 중 `UNKNOWN`이 있는가       |                                                            |
-| 삭제 확인 열림        | 컴포넌트 `useState`                          | native `<dialog>`                                          |
+| 상태                  | 원천                                      | 비고                                                       |
+| --------------------- | ----------------------------------------- | ---------------------------------------------------------- |
+| 코스                  | Server. `["courses", "detail", courseId]` | 기본 `staleTime`                                           |
+| 구간 소요시간과 경로  | Server. `["courses", "walks", courseId]`  | `staleTime` 0, `gcTime` 0. 화면을 떠나면 버린다            |
+| 저장한 코스 목록      | Server. `["courses", "list"]` 무한 쿼리   |                                                            |
+| 코스 식별자           | URL `/courses/[courseId]`                 |                                                            |
+| 총 도보 시간과 거리   | Derived. 구간 중 `OK`인 것의 합           | `UNKNOWN`이 하나라도 있으면 "일부 구간 제외" 문구를 붙인다 |
+| 도착 시각의 예상 라벨 | Derived. 앞 구간 중 `UNKNOWN`이 있는가    |                                                            |
+| 삭제 확인 열림        | 컴포넌트 `useState`                       | native `<dialog>`                                          |
 
-통신은 요청 응답이다. 코스와 구간, 목록, 삭제, 캘린더 표시 넷다섯이다.
+통신은 요청 응답이다. 코스와 구간, 목록, 삭제, 캘린더 표시 다섯이다.
 
 **흐름.**
 
@@ -55,7 +55,7 @@
 ## D. Data Model
 
 ```typescript
-// features/course/model/course.ts. 백엔드 요구
+// features/course/types/course.ts. 백엔드 요구
 type CourseItemKind = "POPUP" | "PLACE";
 
 interface CourseItem {
@@ -93,7 +93,7 @@ interface CourseSummary {
 	calendarSentAt: string | null;
 }
 
-// features/course/model/walk.ts. 백엔드 요구
+// features/course/types/walk.ts. 백엔드 요구
 type WalkSegment =
 	| {
 			fromOrder: number;
@@ -114,12 +114,13 @@ type WalkSegment =
 			reason: string;
 	  };
 
+// features/course/lib/walk.ts
 function toMinutes(seconds: number): number; // Math.round(seconds / 60). 1분 미만은 1
 function totalWalk(segments: WalkSegment[]): { minutes: number; distanceM: number; hasUnknown: boolean };
 function isArrivalEstimated(itemOrder: number, segments: WalkSegment[]): boolean;
 function assertContiguousOrders(items: CourseItem[]): void; // 어긋나면 던진다
 
-// features/course/model/calendar.ts
+// features/course/lib/calendar.ts. CalendarEvent는 types/calendar.ts
 interface CalendarEvent {
 	title: string;
 	startAt: Date;
@@ -210,9 +211,8 @@ function fromRestPoint(point: [number, number]): KakaoLatLngLiteral;
 | 구간 줄      | 텍스트로 "다음 장소까지 도보 5분, 340m". 모름이면 "다음 장소까지 도보 시간을 알 수 없습니다". 스켈레톤은 `aria-busy` |
 | 지도         | `aria-label`에 "코스 지도, 장소 3곳". 마커 번호가 타임라인 순서와 같다. 지도 조작 없이도 타임라인이 전체 정보다      |
 | 총 도보 요약 | `role="status"`. 구간이 채워지면 한 번 갱신                                                                          |
-| 캘린더 버튼  | 새 탭 링크는 `<a target="_blank" rel="noopener">`와 "새 탭에서 열림" 텍스트. 내려받기는 `<a download>`               |
+| 캘린더 버튼  | 새 탭 링크에 "새 탭에서 열림" 텍스트가 함께 있다                                                                     |
 | 삭제 확인    | native `<dialog>`. 확인 버튼에 초기 포커스, 취소가 기본 동작                                                         |
-| 저장 완료    | `<h1>`에 완료 문구. 다음 동작 링크 둘                                                                                |
 
 ## O. Optimization과 운영
 
@@ -222,6 +222,6 @@ function fromRestPoint(point: [number, number]): KakaoLatLngLiteral;
 
 **재시도와 몰림.** 구간 쿼리는 네트워크 오류에만 1회 재시도한다. 4xx는 재시도하지 않는다. 구간 하나의 `UNKNOWN`은 재시도 대상이 아니다. 카카오가 같은 답을 돌려준다. 코스를 여는 횟수가 곧 카카오 호출 횟수이므로 뒤로가기로 다시 열 때도 다시 부른다. 한도는 `planner.md`의 운영 절과 같다.
 
-**지표.** 체감 지표는 "코스 화면 진입부터 타임라인 표시까지"와 "구간 채워지기까지" 둘이다. 시스템 지표는 `order` 불연속 횟수(0이어야 한다)와 구간 모름 비율, 캘린더 버튼 종류별 클릭 수다. 모름 비율이 특정 지역에서 높으면 그 지역 팝업의 좌표 품질을 본다.
+**지표.** `order` 불연속 횟수는 0이어야 한다. 구간 모름 비율이 특정 지역에서 높으면 그 지역 팝업의 좌표 품질을 본다. 캘린더 버튼은 종류별 클릭 수를 센다.
 
 **운영.** 구글 캘린더 URL은 길이 제한이 있어 `details`는 방문 순서 한 줄씩과 서비스 주소만 넣는다. `.ics`는 `VEVENT` 하나이고 `UID`에 코스 id를 넣어 다시 내려받아도 캘린더가 같은 일정으로 본다. 타임존은 `Asia/Seoul`을 명시한다.
