@@ -93,7 +93,7 @@ src/app/
 
 ## 데이터 흐름
 
-브라우저에서 나가는 요청은 전부 같은 출처 `/api/...`로 가고 `next.config.ts`의 rewrites가 백엔드로 넘긴다. 서버 컴포넌트는 `API_BASE_URL`로 백엔드를 직접 부른다. 어느 쪽이든 `src/shared/api`의 `request<T>`를 거치고 화면 코드는 응답 공통 구조를 모른다. 이 계약은 `.agents/rules/api.md`와 `src/shared/api/README.md`가 정본이다.
+브라우저에서 나가는 요청은 전부 같은 출처 `/api/...`로 가고 `next.config.ts`의 rewrites가 백엔드로 넘긴다. 서버 컴포넌트는 `API_BASE_URL`로 백엔드를 직접 부른다. 어느 쪽이든 `src/shared/api`의 `request<T>`를 거치고 화면 코드는 응답 공통 구조를 모른다. 이 계약은 `.agents/rules/api.md`가 정본이고 프론트 쪽 구현은 `src/shared/api/types.ts`와 `errors.ts`다.
 
 ```
 화면(클라이언트 컴포넌트)

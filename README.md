@@ -118,7 +118,6 @@ src/
 
 공통 레이어 안내는 코드 옆에 둔다.
 
-- `src/shared/api/README.md` API 레이어. 서버 호출을 어디서 어떻게 하는가
 - `src/shared/ui/README.md` 디자인 시스템. 공용 컴포넌트를 어떻게 만드는가
 
 ## 팀
