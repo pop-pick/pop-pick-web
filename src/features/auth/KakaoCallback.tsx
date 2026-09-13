@@ -31,7 +31,7 @@ export function KakaoCallback() {
 	}
 
 	if (login.isSuccess) {
-		redirect("/");
+		redirect(login.data.nextPath);
 	}
 
 	return <LoginStatus>{LOGIN_PENDING_MESSAGE}</LoginStatus>;
