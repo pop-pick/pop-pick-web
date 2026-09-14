@@ -1,0 +1,26 @@
+{
+	"description": "팝픽 공용 훅. .agents/scripts/agents-sync.mjs 가 .claude/settings.json 의 hooks 키에 넣는다",
+	"hooks": {
+		"PreToolUse": [
+			{
+				"matcher": "Bash",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bash \"$CLAUDE_PROJECT_DIR\"/.agents/hooks/guard-git.sh"
+					}
+				]
+			}
+		],
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bash \"$CLAUDE_PROJECT_DIR\"/.agents/hooks/check-on-stop.sh"
+					}
+				]
+			}
+		]
+	}
+}

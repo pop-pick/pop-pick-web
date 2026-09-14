@@ -35,8 +35,9 @@
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",
 		"type:check": "next typegen && tsc --noEmit",
-		"link:agents": "bash .agents/scripts/link-agents.sh",
-		"prepare": "lefthook install && pnpm link:agents"
+		"harness:sync": "node .agents/scripts/agents-sync.mjs",
+		"harness:check": "bash .agents/scripts/harness-check.sh",
+		"prepare": "lefthook install && pnpm harness:sync"
 	},
 	"dependencies": {
 		"@hookform/resolvers": "^5.9.1",

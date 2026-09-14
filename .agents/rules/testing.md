@@ -1,5 +1,12 @@
 ---
 description: 테스팅 트로피가 전략이다. 기본 동작은 삭제이고 추가는 예외다. 도구는 미정. 층마다 소유하는 것과 지우는 기준
+paths:
+  - "**/*.test.*"
+  - "**/*.spec.*"
+  - "e2e/**"
+  - "tests/**"
+  - "vitest.config.*"
+  - "playwright.config.*"
 ---
 
 # 테스트

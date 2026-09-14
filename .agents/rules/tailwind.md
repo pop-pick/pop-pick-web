@@ -1,5 +1,8 @@
 ---
 description: X-[value] 임의값을 쓰지 않는다. 값은 src/shared/styles/globals.css의 @theme inline 토큰과 @utility에서 온다. 어긋난 값을 옮기는 네 갈래
+paths:
+  - "src/**/*.tsx"
+  - "src/**/*.css"
 ---
 
 # Tailwind 클래스

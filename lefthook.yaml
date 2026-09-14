@@ -15,6 +15,8 @@ pre-commit:
     - name: format
       glob: "*.{js,cjs,mjs,jsx,ts,tsx,mts,cts,json,jsonc,yml,yaml,md,css,html}"
       run: pnpm run format:check
+    - name: harness
+      run: pnpm run harness:check
 
 pre-push:
   jobs:

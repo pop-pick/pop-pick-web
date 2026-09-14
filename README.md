@@ -23,12 +23,12 @@
 | 컴파일러        | React Compiler (babel-plugin-react-compiler)                                                   | 설치됨         |
 | 코드 품질       | ESLint, Prettier, lefthook                                                                     | 설치됨         |
 | 서버 상태       | TanStack Query                                                                                 | 설치됨         |
-| 클라이언트 상태 | Zustand. 조건 필터와 플래너에 담은 팝업 정도로 최소                                            | 설치됨         |
+| 클라이언트 상태 | Zustand. 인증 토큰과 온보딩 입력 중인 답 정도로 최소                                           | 설치됨         |
 | 지도            | Kakao Map JavaScript SDK. `src/shared/lib/kakao-map`이 script를 직접 주입한다. npm 패키지 없음 | 코어 모듈 있음 |
 | 도보 소요시간   | 카카오맵 REST API 도보 경로 조회. 코스 순서를 아는 백엔드가 부르고 프론트는 코스 조회로 받는다 | 결정됨         |
 | 폼              | react-hook-form, zod, @hookform/resolvers                                                      | 설치됨         |
 | 날짜            | date-fns                                                                                       | 설치됨         |
-| HTTP            | Next.js fetch를 얇게 감싼 래퍼. 별도 라이브러리 없음                                           | 결정됨         |
+| HTTP            | `fetch`를 감싼 `src/shared/api` 래퍼. 별도 라이브러리 없음                                     | 결정됨         |
 | UI 라이브러리   | 쓰지 않는다. 디자이너 시안 기반 자체 컴포넌트                                                  | 결정됨         |
 | 배포            | Vercel. PR마다 미리보기 URL                                                                    | 배포됨         |
 | 아이콘          | 미정                                                                                           |                |
@@ -45,7 +45,7 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-`pnpm install`이 끝나면 `prepare` 스크립트가 lefthook 훅을 설치하고 `.agents/` 본문을 `.claude/rules`와 `.claude/skills`에 심볼릭 링크로 잇는다. 따로 할 일은 없다.
+`pnpm install`이 끝나면 `prepare` 스크립트가 lefthook 훅을 설치하고 `.agents/` 원본을 `.claude`와 `.codex` 자리에 복사한다. 따로 할 일은 없다.
 
 `.env.local`에 `API_BASE_URL`이 없으면 개발 서버와 `pnpm type:check`, push가 전부 멈춘다. `next.config.ts`가 로드될 때 이 값을 읽고 비어 있으면 그 자리에서 던지기 때문이다. `.env.example`의 값을 그대로 쓰면 된다. 지도를 보려면 카카오맵 JavaScript 키가 더 필요하다. 변수 이름과 키 발급, 도메인 등록은 `docs/release/RUNBOOK.md`에 있다.
 
@@ -53,18 +53,19 @@ pnpm dev
 
 ## 스크립트
 
-| 명령                | 하는 일                                                         |
-| ------------------- | --------------------------------------------------------------- |
-| `pnpm dev`          | 개발 서버를 연다                                                |
-| `pnpm build`        | 프로덕션 빌드를 만든다                                          |
-| `pnpm start`        | 빌드 결과를 실행한다                                            |
-| `pnpm lint`         | ESLint로 저장소 전체를 검사한다                                 |
-| `pnpm lint:fix`     | ESLint가 자동으로 고칠 수 있는 것을 고친다. import 정렬 등      |
-| `pnpm format`       | Prettier로 저장소 전체를 고쳐 쓴다                              |
-| `pnpm format:check` | Prettier 검사만 한다                                            |
-| `pnpm type:check`   | `next typegen`과 `tsc --noEmit`                                 |
-| `pnpm link:agents`  | `.agents/` 본문을 `.claude/rules`와 `.claude/skills`에 링크한다 |
-| `pnpm prepare`      | lefthook 설치와 `link:agents`. `pnpm install` 때 자동으로 돈다  |
+| 명령                 | 하는 일                                                                                |
+| -------------------- | -------------------------------------------------------------------------------------- |
+| `pnpm dev`           | 개발 서버를 연다                                                                       |
+| `pnpm build`         | 프로덕션 빌드를 만든다                                                                 |
+| `pnpm start`         | 빌드 결과를 실행한다                                                                   |
+| `pnpm lint`          | ESLint로 저장소 전체를 검사한다                                                        |
+| `pnpm lint:fix`      | ESLint가 자동으로 고칠 수 있는 것을 고친다. import 정렬 등                             |
+| `pnpm format`        | Prettier로 저장소 전체를 고쳐 쓴다                                                     |
+| `pnpm format:check`  | Prettier 검사만 한다                                                                   |
+| `pnpm type:check`    | `next typegen`과 `tsc --noEmit`                                                        |
+| `pnpm harness:sync`  | `.agents/` 원본을 `.claude`와 `.codex` 자리에 복사하고 변환한다. 원본을 고친 뒤 돌린다 |
+| `pnpm harness:check` | 컨벤션 검사와 생성물 대조, 회귀 테스트를 한 번에 돌린다. lefthook과 CI가 돌린다        |
+| `pnpm prepare`       | lefthook 설치와 `harness:sync`. `pnpm install` 때 자동으로 돈다                        |
 
 ## 폴더 구조
 
@@ -84,18 +85,14 @@ src/
     ├── lib/        공용 유틸. 클래스를 합치는 cn()과 카카오맵 코어 모듈(kakao-map/)
     ├── providers/  루트 레이아웃이 감싸는 프로바이더. QueryProvider
     ├── styles/     globals.css. Tailwind 진입점과 디자인 토큰 정본
-    └── types/      여러 모듈이 함께 쓰는 공용 타입
+    └── model/      여러 기능이 함께 쓰는 값과 타입, 라벨
 ```
 
-라우트 그룹 `(flow)`와 `(tabs)`가 하단 탭바 노출을 가른다. `(tabs)/layout.tsx`만 `BottomTabBar`를 두르고 괄호로 감싼 이름은 URL에 드러나지 않는다. 어떤 라우트가 있는지는 `docs/architecture/ARCHITECTURE.md`에 있다.
-
-`features/` 하위 폴더는 기능 하나에 하나이고 이름은 백엔드 feature 패키지와 맞춘다. 폴더 안은 `api`와 `ui`, `hooks`, `store`, `lib`으로 나눈다. 지금 내용이 있는 것은 `auth`(소셜 로그인과 토큰) 하나이고 나머지 여섯은 자리만 잡아 뒀다. 한 모듈에 속하는 타입은 그 모듈 옆(`shared/api/types.ts`)에 두고 정적 파일은 `public/`에 둔다.
+라우트 그룹 `(flow)`와 `(tabs)`가 하단 탭바 노출을 가른다. 어떤 라우트가 있는지는 `docs/architecture/ARCHITECTURE.md`에, 기능 폴더 안을 어떻게 나누는지는 `.agents/rules/structure.md`에 있다.
 
 ## API 주소
 
-백엔드에 닿는 길이 둘이다. 브라우저는 같은 출처 상대 경로 `/api/...`를 부르고 `next.config.ts`의 rewrites가 백엔드로 넘긴다. 서버 컴포넌트와 Route Handler는 `API_BASE_URL` 절대 주소로 백엔드를 직접 부른다. 어느 쪽이든 호출자는 백엔드 경로 `/api/v1/...`를 그대로 넘기고 주소를 가르는 것은 `src/shared/api`의 래퍼가 한다.
-
-브라우저가 백엔드 주소를 알 필요가 없으므로 환경 변수 이름에 `NEXT_PUBLIC_`을 붙이지 않는다. 그렇게 정한 이유와 자세한 규칙은 `.agents/rules/api.md`에 있다.
+브라우저는 같은 출처 `/api/...`를 부르고 `next.config.ts`의 rewrites가 백엔드로 넘긴다. 서버는 `API_BASE_URL`로 백엔드를 직접 부른다. 주소를 가르는 것은 `src/shared/api`의 래퍼이고 그 이유와 규칙은 `.agents/rules/api.md`에 있다.
 
 ## 문서
 

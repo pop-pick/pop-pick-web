@@ -1,5 +1,9 @@
 ---
 description: 서버 상태는 TanStack Query, 공유할 조건값은 URL, 나머지 클라이언트 상태만 Zustand. 서버 데이터를 스토어에 복제하지 않는다
+paths:
+  - "src/**/model/**"
+  - "src/**/hooks/**"
+  - "src/**/api/**"
 ---
 
 # 상태 관리

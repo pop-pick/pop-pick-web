@@ -43,3 +43,6 @@ jobs:
 
       - name: 포맷 검사
         run: pnpm format:check
+
+      - name: 하네스 검사
+        run: pnpm harness:check
