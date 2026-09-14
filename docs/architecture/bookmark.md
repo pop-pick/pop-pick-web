@@ -1,10 +1,10 @@
 # 찜 설계
 
-`features/bookmark`. 카드와 상세, 마커 카드에 붙는 찜 버튼과 내 팝업의 찜 목록을 다룬다. 찜은 서버가 로그인 사용자별로 저장하는 서버 상태다(9/3 결정). 스토어에 복제하지 않는다.
+`features/bookmark`. 카드와 상세, 마커 카드에 붙는 찜 버튼과 내 팝업의 찜 목록을 다룬다. 찜은 서버가 로그인 사용자별로 저장하는 서버 상태다. 스토어에 복제하지 않는다.
 
 ## R. Requirements
 
-**기능.** 팝업 카드와 상세 하단, 마커 미리보기 카드의 하트를 눌러 찜하고 다시 눌러 해제한다. 내 팝업의 찜한 팝업 탭에서 찜 목록을 본다. 종료된 팝업은 지우지 않고 흐리게 보이고 종료 임박 배지가 붙는다. 탭 옆에 개수가 붙는다.
+**기능.** 카드와 상세, 마커 카드의 하트로 찜하고 해제하며 내 팝업의 찜한 팝업 탭에서 목록을 본다. 동작 규칙은 `docs/product/SPEC.md`의 관심 팝업 저장 절이 정본이다.
 
 **보장.**
 
@@ -12,7 +12,7 @@
 - 서버가 실패하면 1초 안에 하트가 되돌아가고 토스트가 이유를 보인다
 - 같은 팝업이 홈과 탐색 목록, 상세, 찜 목록에 동시에 보여도 하트 상태가 전부 같다. 캐시에 있는 그 팝업의 모든 사본을 한 번에 갱신한다
 - 빠르게 여러 번 눌러도 마지막 의도가 남는다. 응답 순서가 뒤바뀌어도 화면이 뒤집히지 않는다
-- 비로그인 사용자가 누르면 `/login?next={현재 경로}`로 간다(D45). 로그인 뒤 돌아왔을 때 찜이 되어 있지 않다. 누른 의도까지 넘기지 않는다
+- 비로그인 사용자가 누르면 `/login?next={현재 경로}`로 간다. 로그인 뒤 돌아왔을 때 찜이 되어 있지 않다. 누른 의도까지 넘기지 않는다
 
 **설계를 가르는 질문.**
 
@@ -49,7 +49,7 @@
 ## D. Data Model
 
 ```typescript
-// features/bookmark/types/bookmark.ts
+// features/bookmark/model/bookmark.ts
 interface BookmarkToggleInput {
 	popupId: number;
 	next: boolean;
@@ -60,7 +60,7 @@ interface BookmarkSnapshot {
 	data: unknown;
 }
 
-// features/bookmark/lib/patch-bookmark-in-caches.ts
+// features/bookmark/model/patch-bookmark-in-caches.ts
 /** 캐시 안 모든 PopupSummary 사본을 찾아 isBookmarked를 바꾸고 이전 값 스냅샷을 돌려준다 */
 function patchBookmarkInCaches(queryClient: QueryClient, popupId: number, isBookmarked: boolean): BookmarkSnapshot[];
 function restoreSnapshots(queryClient: QueryClient, snapshots: BookmarkSnapshot[]): void;

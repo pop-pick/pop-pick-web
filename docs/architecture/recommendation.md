@@ -4,24 +4,24 @@
 
 ## R. Requirements
 
-**기능.** 로그인 사용자에게 취향 기반 추천 팝업 카드를 보인다. 카드에는 대표 이미지와 찜 버튼, 예약 배지와 카테고리 배지, 팝업명, 지역과 종료일, AI 추천 이유가 있다. 비로그인 사용자에게는 취향 입력을 권하는 배너와 인기 팝업 목록을 보인다. 둘 다 검색바(탐색으로 이동)와 인기 지역 칩, 플래너로 가는 배너가 있다. 회원 홈 헤더는 닉네임으로 인사한다.
+**기능.** 회원 홈은 취향 기반 추천 카드와 닉네임 인사, 비회원 홈은 취향 입력 배너와 인기 팝업이다. 둘 다 검색바와 인기 지역 칩, 플래너 배너가 있다. 카드에 무엇이 놓이는지는 `docs/product/SPEC.md`의 AI 개인화 추천 코스 절이 정본이다.
 
 **보장.**
 
 - 홈 LCP는 p75 2.5초 이하다. 첫 카드 이미지가 LCP 요소다
 - 추천이 준비되지 않았거나 실패해도 홈이 비지 않는다. 그 섹션이 인기 팝업으로 채워지고 제목과 한 줄 문구가 바뀌어 사용자가 추천이 아님을 안다
-- 추천 이유는 두 줄을 넘지 않는다(9/10 결정). 넘치면 두 줄에서 말줄임한다. 글자 수 상한은 백엔드와 맞춘다
+- 추천 이유는 두 줄을 넘지 않는다. 넘치면 두 줄에서 말줄임한다. 글자 수 상한은 백엔드와 맞춘다
 - 섹션 셋(추천 또는 인기, 인기 지역, 배너)이 각자 로딩되고 하나의 실패가 다른 섹션을 막지 않는다
 - 홈에서 찜을 누르면 100ms 안에 하트가 바뀐다(`bookmark.md`)
 
 **설계를 가르는 질문.**
 
 - 주도권은 클라이언트다. 요청 응답이다
-- 추천 생성과 이유 문구는 백엔드 몫이다. 추천 기준은 PM이 정했고 AI가 그 위에서 돈다(9/3). FE는 결과를 그리기만 한다
+- 추천 생성과 이유 문구는 백엔드 몫이다. 추천 기준은 PM이 정했고 AI가 그 위에서 돈다. FE는 결과를 그리기만 한다
 - "준비 중"은 실패가 아니라 상태다. 온보딩 답이 아직 없거나 임베딩이 끝나지 않은 사용자에게 서버가 `PREPARING`을 값으로 낸다. 실패(`ApiError`)와 준비 중을 화면은 같은 축소 동작으로 다루지만 로그는 다르게 남긴다
 - 축소 동작은 `no-fallback.md`의 조건 셋을 채운다. `docs/product/SPEC.md`에 적혀 있고 화면에서 라벨로 구분되고 `[recommendation]` 로그가 남는다
 
-**범위 밖.** 추천 새로 고침 버튼, 추천 결과 저장, 카드 단위 "관심 없음" 피드백, 평점과 리뷰 수(D51. 피그마 비회원 카드에 있지만 `null`이면 그리지 않는다).
+**범위 밖.** 추천 새로 고침 버튼, 추천 결과 저장, 카드 단위 "관심 없음" 피드백, 평점과 리뷰 수(피그마 비회원 카드에 있지만 출처가 미정이라 `null`이면 그리지 않는다).
 
 ## A. Architecture
 
@@ -51,7 +51,7 @@
 ## D. Data Model
 
 ```typescript
-// features/recommendation/types/recommendation.ts. 백엔드 요구
+// features/recommendation/model/recommendation.ts. 백엔드 요구
 interface RecommendedPopup {
 	popup: PopupSummary;
 	/** 두 줄 이내. 글자 수 상한은 백엔드와 맞춘다 */
@@ -72,21 +72,21 @@ interface RegionSummary {
 
 type RecommendationSectionMode = "skeleton" | "recommended" | "fallback-preparing" | "fallback-failed";
 
-// features/recommendation/lib/section-mode.ts
+// features/recommendation/model/section-mode.ts
 function resolveSectionMode(query: UseQueryResult<RecommendationResult, ApiError>): RecommendationSectionMode;
 ```
 
-`resolveSectionMode`는 분기 있는 순수 함수라 `testing.md`의 값이 나는 자리다. `PopupSummary`는 서버 응답 모양이고 `popup.md`가 갖는다. 지금 `shared/types/popup.ts`에 있는 것은 카드가 그리는 화면용 타입 `PopupCardItem`이다.
+`resolveSectionMode`는 분기 있는 순수 함수라 `testing.md`의 값이 나는 자리다. `PopupSummary`는 서버 응답 모양이고 `popup.md`가 갖는다. 지금 `shared/model/popup.ts`에 있는 것은 카드가 그리는 화면용 타입 `PopupCardItem`이다.
 
 ## I. Interface
 
 **컴포넌트와 훅.**
 
 ```typescript
-export function HomeHeader(); // 회원이면 닉네임 인사, 비회원이면 고정 문구. 알림 벨 자리는 비활성(D50)
+export function HomeHeader(); // 회원이면 닉네임 인사, 비회원이면 고정 문구
 export function RecommendationSection(); // 모드에 따라 카드 목록과 라벨. 카드는 shared/ui/PopupCard
 export function PopularSection({ title }: { title: string }); // 비회원 홈의 인기 팝업
-export function OnboardingBanner(); // 비회원 홈. "취향 입력하기"가 /onboarding/1로
+export function OnboardingBanner(); // 비회원 홈. "취향 입력하기"가 /login?next=/onboarding/1로
 export function PlannerBanner(); // "AI 코스 생성기"가 /planner로
 export function RegionChips(); // 지역 요약. 칩이 /explore?region=으로
 export function HomeSearchBar(); // 제출하면 /explore?q=
@@ -113,7 +113,7 @@ export function useRegionSummary(): UseQueryResult<RegionSummary[], ApiError>;
 
 ## O. Optimization과 운영
 
-**렌더링.** 첫 카드 이미지에 `priority`를 주고 나머지는 지연 로드한다. 카드 이미지는 `next/image`에 고정 비율 컨테이너를 두어 CLS를 막는다. 대표 이미지가 없으면 카테고리별 대체 이미지를 쓴다(9/10 결정). 대체 이미지는 `public/`의 정적 파일이다.
+**렌더링.** 첫 카드 이미지에 `priority`를 주고 나머지는 지연 로드한다. 카드 이미지는 `next/image`에 고정 비율 컨테이너를 두어 CLS를 막는다. 대표 이미지가 없으면 카테고리별 대체 이미지를 쓴다. 대체 이미지는 `public/`의 정적 파일이다.
 
 **장애.** 위의 결정표대로다. 인기 지역이 실패하면 칩 줄만 사라지고 로그를 남긴다. 배너는 정적이라 실패가 없다.
 

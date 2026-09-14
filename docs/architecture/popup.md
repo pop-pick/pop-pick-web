@@ -4,7 +4,7 @@
 
 ## R. Requirements
 
-**기능.** 검색창과 뷰 전환(지도, 목록), 필터 칩(지역, 카테고리, 예약 없이 입장, 이번 주 종료)이 두 뷰에 공통이다. 지도 뷰는 번호 마커와 마커를 누르면 뜨는 바텀 카드다. 목록 뷰는 "총 N곳"과 정렬, 카드 목록, 열 개 단위 무한 스크롤이다. 결과가 없으면 적용된 필터를 칩으로 보이고 필터 초기화 버튼과 가까운 지역의 건수를 제안한다. 상세는 전체 화면이고 이미지 갤러리, 배지, 팝업명, 운영 기간, 운영 시간 한 줄, 주소와 복사 버튼, 길찾기, 예상 체류시간 범위, 소개, 신뢰도 안내 배너, 정보 출처, 공식 채널 링크, 탭 셋(상세 정보, 방문 후기, 위치와 주차), 하단에 찜과 "이 팝업으로 AI 코스 추천받기"다.
+**기능.** 탐색은 지도 뷰와 목록 뷰, 둘에 공통인 필터와 검색, 결과 0건의 인접 지역 제안이다. 상세는 전체 화면에 탭 셋과 하단 액션 둘이다. 각 화면에 무엇이 놓이고 어떻게 동작하는지는 `docs/product/SPEC.md`의 팝업 탐색과 지도 절과 팝업 상세 정보 절이 정본이다.
 
 **보장.**
 
@@ -12,7 +12,7 @@
 - 지도와 목록을 오가도 필터와 검색어, 정렬이 그대로다. 새로고침과 공유 링크에서도 같다. 원천이 URL이다
 - 늦게 도착한 응답이 현재 필터의 화면을 덮지 않는다. 쿼리 키에 필터가 들어가므로 다른 필터의 응답은 다른 캐시에 들어간다. 검색어는 입력이 멈춘 뒤 300ms에 한 번만 URL에 쓴다
 - 목록에서 상세로 갔다가 뒤로 오면 스크롤 위치와 불러온 페이지가 남아 있다
-- 지도 마커는 50개를 넘지 않는다. 백엔드 페이지 상한이 50이고 지도 뷰는 한 페이지만 받는다(D38)
+- 지도 마커는 50개를 넘지 않는다. 백엔드 페이지 상한이 50이고 지도 뷰는 한 페이지만 받는다
 - 상세 공유 링크를 열면 제목과 대표 이미지, 기간이 메타 태그에 들어 있다
 - 대표 이미지가 없는 팝업은 카테고리별 대체 이미지로 보인다. 회색 자리 표시가 없다
 
@@ -22,24 +22,24 @@
 - 필터의 원천은 URL이다. 스토어에 두지 않는다. `state.md`가 공유와 새로고침 복원이 필요한 값은 URL을 먼저 보라고 한다
 - 지도 뷰와 목록 뷰는 같은 필터로 다른 쿼리를 쓴다. 목록은 열 개씩 무한 스크롤, 지도는 최대 50건 한 페이지다. 마커가 목록의 불러온 만큼만 보이면 지도가 필터 결과를 대표하지 못한다
 - 상세의 첫 데이터는 서버 컴포넌트가 받는다. 메타 태그를 위해서다. 찜 상태처럼 사용자에 묶인 값은 클라이언트 쿼리가 덮어쓴다
-- 신뢰도가 낮은 데이터는 감추지 않고 "정보 확인 중" 배지로 보인다(9/10 결정). 배지를 켜는 필드 `verification`을 백엔드에 요구한다
+- 신뢰도가 낮은 데이터는 감추지 않고 "정보 확인 중" 배지로 보인다. 배지를 켜는 필드 `verification`을 백엔드에 요구한다
 
-**범위 밖.** 마커 클러스터링, 지도 영역 드래그로 재검색, 현재 위치 기준 도보 시간(D53. `walkFromLandmark`가 `null`이면 그리지 않는다), 방문 후기 본문과 평점과 조회수(D51. `null`이면 탭 안에 "후기 준비 중" 상태만), 주차 정보(위치와 주차 탭에는 지도와 주소만).
+**범위 밖.** 마커 클러스터링, 지도 영역 드래그로 재검색, 현재 위치 기준 도보 시간(`walkFromLandmark`가 `null`이면 그리지 않는다), 방문 후기 본문과 평점과 조회수(`null`이면 탭 안에 "후기 준비 중" 상태만), 주차 정보(위치와 주차 탭에는 지도와 주소만).
 
 ## A. Architecture
 
-| 상태                                              | 원천                                                    | 비고                                        |
-| ------------------------------------------------- | ------------------------------------------------------- | ------------------------------------------- |
-| 뷰, 지역, 카테고리, 예약, 종료 임박, 검색어, 정렬 | URL `/explore?...`                                      | `parseFilters`와 `serializeFilters`가 한 쌍 |
-| 목록                                              | Server. `["popups", "list", filters]` 무한 쿼리         | 열 개씩. `useCursorQuery`                   |
-| 지도용 목록                                       | Server. `["popups", "list", { ...filters, limit: 50 }]` | 한 페이지                                   |
-| 지역별 건수(0건 때)                               | Server. `["popups", "count-by-region", filters]`        | 결과가 0건일 때만 `enabled`                 |
-| 상세                                              | Server. `["popups", "detail", popupId]`                 | 서버 컴포넌트가 prefetch해 hydrate          |
-| 상세 탭                                           | URL `?tab=info`                                         | 기본 `info`                                 |
-| 선택된 마커, 바텀 카드 열림                       | 컴포넌트 `useState`                                     | 뷰를 바꾸면 초기화                          |
-| 갤러리 현재 장                                    | 컴포넌트 `useState`                                     |                                             |
-| 입력 중인 검색어                                  | 컴포넌트 `useState`                                     | 300ms 뒤 URL에 쓴다                         |
-| 팝업 상태(진행, 종료 임박, 종료)                  | Derived. 시작일과 종료일, 오늘                          | `getPopupStatus`                            |
+| 상태                                              | 원천                                                    | 비고                                                  |
+| ------------------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------- |
+| 뷰, 지역, 카테고리, 예약, 종료 임박, 검색어, 정렬 | URL `/explore?...`                                      | `parseExploreState`와 `serializeExploreState`가 한 쌍 |
+| 목록                                              | Server. `["popups", "list", filters]` 무한 쿼리         | 열 개씩. `useCursorQuery`                             |
+| 지도용 목록                                       | Server. `["popups", "list", { ...filters, limit: 50 }]` | 한 페이지                                             |
+| 지역별 건수(0건 때)                               | Server. `["popups", "count-by-region", filters]`        | 결과가 0건일 때만 `enabled`                           |
+| 상세                                              | Server. `["popups", "detail", popupId]`                 | 서버 컴포넌트가 prefetch해 hydrate                    |
+| 상세 탭                                           | URL `?tab=info`                                         | 기본 `info`                                           |
+| 선택된 마커, 바텀 카드 열림                       | 컴포넌트 `useState`                                     | 뷰를 바꾸면 초기화                                    |
+| 갤러리 현재 장                                    | 컴포넌트 `useState`                                     |                                                       |
+| 입력 중인 검색어                                  | 컴포넌트 `useState`                                     | 300ms 뒤 URL에 쓴다                                   |
+| 팝업 상태(진행, 종료 임박, 종료)                  | Derived. 시작일과 종료일, 오늘                          | `getPopupStatus`                                      |
 
 **흐름.** 필터 칩이나 검색어 입력은 URL을 `replace`로 바꾼다. 화면은 URL을 읽어 `filters`를 만들고 쿼리 키로 쓴다. 뷰 전환도 URL의 `view`만 바꾼다. 상세는 `push`다. 뒤로 오면 목록 쿼리가 캐시에 있어 다시 그려지고 스크롤은 브라우저가 복원한다. 무한 쿼리의 페이지들이 캐시에 남아 있으므로 불러온 만큼이 그대로 보인다.
 
@@ -48,7 +48,7 @@
 ## D. Data Model
 
 ```typescript
-// 설계. 서버 응답 모양이다. 백엔드가 필드를 확정하면 shared/types/popup.ts에 더한다
+// 설계. 서버 응답 모양이다. 백엔드가 필드를 확정하면 shared/model/popup.ts에 더한다
 type PopupCategory = "CHARACTER_IP" | "FASHION" | "FNB" | "ART" | "BEAUTY" | "ANIME_GAME" | "ETC";
 type ReservationType = "NONE" | "RESERVATION" | "WAITING" | "BOTH" | "UNKNOWN";
 type Verification = "VERIFIED" | "PENDING";
@@ -69,7 +69,7 @@ interface PopupSummary {
 	isBookmarked: boolean;
 }
 
-// features/popup/types/explore.ts
+// features/popup/model/explore.ts
 type ReservationFilter = "any" | "none";
 type PopupSort = "endingSoon" | "newest" | "popular";
 type ExploreView = "map" | "list";
@@ -88,11 +88,11 @@ interface ExploreState extends PopupListFilters {
 	view: ExploreView;
 }
 
-// features/popup/lib/explore-state.ts
+// features/popup/model/explore-state.ts
 function parseExploreState(searchParams: URLSearchParams): ExploreState;
 function serializeExploreState(state: ExploreState): URLSearchParams;
 
-// 설계. features/popup/types/popup.ts
+// 설계. features/popup/model/popup.ts
 interface PopupDetail extends PopupSummary {
 	brand: string | null;
 	description: string | null;
@@ -112,11 +112,11 @@ interface PopupDetail extends PopupSummary {
 	/** 백엔드 요구. 없으면 체류시간 줄을 그리지 않는다 */
 	expectedStay: { minMinutes: number; maxMinutes: number } | null;
 	source: { type: "KAKAO_MAP" | "SEOUL_OPEN" | "PERPLEXITY"; collectedAt: string };
-	/** D51. null이면 후기 탭에 준비 중 상태 */
+	/** 후기 출처가 미정이다. null이면 후기 탭에 준비 중 상태 */
 	reviewSummary: { rating: number; count: number } | null;
-	/** D51 */
+	/** 후기 출처가 미정이라 null일 수 있다 */
 	viewCount: number | null;
-	/** D53 */
+	/** 도보 시간 기준점이 미정이라 null일 수 있다 */
 	walkFromLandmark: { landmark: string; minutes: number } | null;
 }
 
@@ -125,7 +125,7 @@ interface RegionCount {
 	count: number;
 }
 
-// features/popup/lib/popup-status.ts. PopupStatus는 types/popup.ts
+// features/popup/model/popup-status.ts
 type PopupStatus = "upcoming" | "ongoing" | "endingSoon" | "ended";
 function getPopupStatus(popup: Pick<PopupSummary, "startDate" | "endDate">, today: Date): PopupStatus;
 function formatPeriod(startDate: string | null, endDate: string | null): string;
@@ -133,7 +133,7 @@ function formatPeriod(startDate: string | null, endDate: string | null): string;
 function formatOpeningHours(hours: Record<string, string>): string;
 ```
 
-지금 `shared/types/popup.ts`에 있는 것은 카드가 그리는 값만 담은 화면용 타입 `PopupCardItem`과 `PopupCategory` 일곱, `ReservationType` 셋, 둘의 라벨 대응표다. 값은 `character`와 `free`처럼 소문자라 위 블록의 서버 값과 이름은 같고 값이 다르다. 어느 쪽으로 맞출지는 백엔드가 응답 필드를 확정할 때 정한다. `PopupSummary`와 `PopupDetail`, `Verification`도 그때 만든다.
+지금 `shared/model/popup.ts`에 있는 것은 카드가 그리는 값만 담은 화면용 타입 `PopupCardItem`과 `PopupCategory` 일곱, `ReservationType` 셋, 둘의 라벨 대응표다. 값은 `character`와 `free`처럼 소문자라 위 블록의 서버 값과 이름은 같고 값이 다르다. 어느 쪽으로 맞출지는 백엔드가 응답 필드를 확정할 때 정한다. `PopupSummary`와 `PopupDetail`, `Verification`도 그때 만든다.
 
 `PopupCategory`는 피그마의 일곱을 따른다. 백엔드 enum(TECH와 LIFESTYLE이 있고 ANIME_GAME이 없다)과 다르며 백엔드가 피그마 쪽으로 맞추는 것을 요구 목록에 올렸다. 맞춰지기 전까지 생성 타입과 이 타입이 어긋나 타입 검사가 그 자리를 잡아 준다.
 
@@ -224,4 +224,4 @@ export function usePopupDetail(popupId: number, initial?: PopupDetail): UseQuery
 
 **지표.** 결과 0건 비율이 높으면 데이터가 비었거나 필터 조합이 과하다. 대체 이미지 비율이 높으면 수집 파이프라인의 이미지가 비었다.
 
-**운영.** 지역별 중심 좌표와 기본 확대 수준은 `features/popup/lib/region-center.ts`에 상수로 둔다. 다섯 지역이라 손으로 넣는다. D47로 지역이 늘면 여기와 `shared/types/region.ts` 둘을 고친다.
+**운영.** 지역별 중심 좌표는 지금 `features/popup/model/placeholder-markers.ts`에 임시 마커용으로 있다. 백엔드가 좌표를 내려주면 그 파일을 지우고 마커에 맞추는 `fitTo`가 지도 범위를 정한다. 지역이 늘면 `shared/model/region.ts`를 고친다.

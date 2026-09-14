@@ -4,13 +4,13 @@
 
 ## R. Requirements
 
-**기능.** 헤더에 날짜와 지역 요약과 다시 만들기 버튼이 있다. AI 추천 이유 두 줄, 카카오맵 위 순서 마커와 도보 경로선, 총 도보 시간과 거리 요약, 타임라인(도착 시각, 이미지, 팝업명, 예상 체류시간, 예약 여부, 다음 장소까지 도보 시간과 거리)이 있다. 하단에 "이 일정 내 캘린더에 저장하기"가 있고 누르면 캘린더로 보낸 뒤 저장 완료 화면으로 간다. 내 팝업의 저장한 코스 탭에서 날짜와 지역, 소요 시간, 방문지 수, 총 도보 시간, 캘린더에 보냄 배지, 삭제 버튼을 본다.
+**기능.** 코스 결과는 지도 위 순서 마커와 경로선, 총 도보 요약, 타임라인, 캘린더 저장 버튼이고 내 팝업의 저장한 코스 탭에서 코스를 다시 열고 지운다. 화면에 무엇이 놓이는지는 `docs/product/SPEC.md`의 원데이 플래너 절과 `docs/design/DESIGN-SPEC.md`의 코스 결과 절이 정본이다.
 
 **보장.**
 
 - 코스의 팝업과 순서, 도착 시각은 p75 1초 안에 그려진다. 구간 소요시간은 별도 요청이라 구간마다 스켈레톤을 먼저 보이고 도착하면 채운다
 - 소요시간을 못 받은 구간은 "소요시간 모름"으로 보인다. 0분이나 빈 값으로 바꾸지 않는다. 그 구간 뒤의 도착 시각에는 "예상" 라벨이 붙는다(SPEC)
-- 경로 응답을 저장하지 않는다. 코스를 다시 열면 다시 조회한다. 캐시 수명 0이다(9/1 결정, R16)
+- 경로 응답을 저장하지 않는다. 코스를 다시 열면 다시 조회한다. 캐시 수명 0이다
 - 지도는 코스의 모든 마커가 보이게 맞춰진다
 - 캘린더 링크의 시작 시각은 첫 도착 시각, 종료 시각은 마지막 도착 시각에 예상 체류 최대를 더한 것이다. 본문에 방문 순서가 들어간다
 - 삭제는 확인을 거치고 확인 뒤 목록에서 바로 사라진다
@@ -19,10 +19,10 @@
 **설계를 가르는 질문.**
 
 - 코스와 구간은 다른 수명이다. 코스는 저장된 서버 상태라 캐시해도 되고 구간 소요시간은 카카오 응답이라 저장할 수 없다. 그래서 요청이 둘이다. 하나로 합치면 빠른 것이 느린 것을 기다리고 캐시 규칙도 하나로 묶인다
-- 캘린더는 구글 URL 템플릿과 .ics 내려받기다(FE 제안, D34). 인증과 백엔드 작업이 없고 카카오 로그인 사용자도 된다. 등록 여부를 우리가 알 수 없어 완료 화면 문구는 "캘린더로 보냈습니다"이고 배지도 "캘린더에 보냄"이다. 피그마의 "등록 완료"와 다르므로 PM 확인 항목이다
+- 캘린더는 구글 URL 템플릿과 .ics 내려받기다(FE 제안). 인증과 백엔드 작업이 없고 카카오 로그인 사용자도 된다. 등록 여부를 우리가 알 수 없어 완료 화면 문구는 "캘린더로 보냈습니다"이고 배지도 "캘린더에 보냄"이다. 피그마의 "등록 완료"와 다르므로 PM 확인 항목이다
 - 생성이 곧 저장이라 저장 버튼이 없다. 다시 만들기는 새 코스를 만들고 이전 코스는 목록에 남는다. 지우는 것은 사용자다
 
-**범위 밖.** 코스 편집(팝업 교체, 순서 변경), 코스 공유 링크의 비로그인 열람(코스가 사용자에 귀속이라 로그인 필요), 연계 카페(D49. `kind`가 `PLACE`인 항목이 오면 그리는 자리만 둔다), 대기시간 예상(D52. `waitEstimateMinutes`가 `null`이면 그리지 않는다), 방문 전 알림(D50. 저장 완료의 자리만).
+**범위 밖.** 코스 편집(팝업 교체, 순서 변경), 코스 공유 링크의 비로그인 열람(코스가 사용자에 귀속이라 로그인 필요), 연계 카페(`kind`가 `PLACE`인 항목이 오면 그리는 자리만 둔다), 대기시간 예상(`waitEstimateMinutes`가 `null`이면 그리지 않는다), 방문 전 알림(저장 완료의 자리만).
 
 ## A. Architecture
 
@@ -55,20 +55,20 @@
 ## D. Data Model
 
 ```typescript
-// features/course/types/course.ts. 백엔드 요구
+// features/course/model/course.ts. 백엔드 요구
 type CourseItemKind = "POPUP" | "PLACE";
 
 interface CourseItem {
 	/** 1부터 연속 */
 	order: number;
-	/** PLACE는 D49가 정해질 때까지 오지 않는다 */
+	/** PLACE는 연계 카페 여부가 정해질 때까지 오지 않는다 */
 	kind: CourseItemKind;
 	popup: PopupSummary & { lat: number; lng: number; addressRoad: string | null };
 	/** 날짜와 시각. 포맷은 미정(ROADMAP) */
 	arriveAt: string;
 	/** 없으면 체류시간 줄을 그리지 않는다 */
 	stay: { minMinutes: number; maxMinutes: number } | null;
-	/** D52 */
+	/** 대기시간 출처가 미정이라 null일 수 있다 */
 	waitEstimateMinutes: number | null;
 }
 
@@ -93,7 +93,7 @@ interface CourseSummary {
 	calendarSentAt: string | null;
 }
 
-// features/course/types/walk.ts. 백엔드 요구
+// features/course/model/walk.ts. 백엔드 요구
 type WalkSegment =
 	| {
 			fromOrder: number;
@@ -114,13 +114,13 @@ type WalkSegment =
 			reason: string;
 	  };
 
-// features/course/lib/walk.ts
+// features/course/model/walk.ts
 function toMinutes(seconds: number): number; // Math.round(seconds / 60). 1분 미만은 1
 function totalWalk(segments: WalkSegment[]): { minutes: number; distanceM: number; hasUnknown: boolean };
 function isArrivalEstimated(itemOrder: number, segments: WalkSegment[]): boolean;
 function assertContiguousOrders(items: CourseItem[]): void; // 어긋나면 던진다
 
-// features/course/lib/calendar.ts. CalendarEvent는 types/calendar.ts
+// features/course/model/calendar.ts
 interface CalendarEvent {
 	title: string;
 	startAt: Date;
@@ -133,7 +133,7 @@ function buildGoogleCalendarUrl(event: CalendarEvent): string; // calendar.googl
 function buildIcs(event: CalendarEvent): string;
 ```
 
-`totalWalkMinutesAtCreation`은 생성 시점의 합계를 백엔드가 저장한 값이다. 카카오 응답을 저장하는 것이 아니라 우리가 계산한 합계 숫자 하나라 저장할 수 있다고 본다. 카카오 데브톡 답변(Q18)에 따라 이 판단이 바뀌면 이 필드를 빼고 목록에서 총 도보 시간을 그리지 않는다.
+`totalWalkMinutesAtCreation`은 생성 시점의 합계를 백엔드가 저장한 값이다. 카카오 응답을 저장하는 것이 아니라 우리가 계산한 합계 숫자 하나라 저장할 수 있다고 본다. 카카오 데브톡 답변에 따라 이 판단이 바뀌면 이 필드를 빼고 목록에서 총 도보 시간을 그리지 않는다.
 
 `toMinutes`, `totalWalk`, `isArrivalEstimated`, `toCalendarEvent`, `buildIcs`는 분기 있는 순수 함수라 `testing.md`의 값이 나는 자리다.
 
@@ -160,20 +160,14 @@ export function useDeleteCourse(): UseMutationResult<null, ApiError, number>;
 export function useMarkCalendarSent(): UseMutationResult<Course, ApiError, number>;
 ```
 
-**`shared/lib/kakao-map`에 더하는 것.**
+**`shared/lib/kakao-map`에 더하는 것.** `markers`와 `onMarkerClick`, 마커 전체가 보이게 맞추는 `fitTo`는 있다. 아래 셋을 더한다.
 
 ```typescript
 interface KakaoMapProps {
-	markers?: readonly KakaoMarkerData[];
 	polylines?: readonly KakaoPolylineData[];
-	/** true면 마커와 폴리라인이 모두 보이게 중심과 확대 수준을 맞춘다 */
-	fitToContent?: boolean;
 }
 
 interface KakaoMarkerData {
-	id: string;
-	position: KakaoLatLngLiteral;
-	title?: string;
 	/** 있으면 기본 마커 대신 번호가 있는 CustomOverlay */
 	label?: string;
 }
@@ -197,7 +191,7 @@ function fromRestPoint(point: [number, number]): KakaoLatLngLiteral;
 | `DELETE /api/v1/courses/{courseId}`    | 필요 |                      | `null`                                      |
 | `PATCH /api/v1/courses/{courseId}`     | 필요 | `{ calendarSentAt }` | `Course`                                    |
 
-구간 조회는 백엔드가 카카오 경로 조회를 구간마다 한 번씩 부르고 응답을 저장하지 않는다(9/3 결정, 프록시로만 쓰는 Next는 이 조합을 갖지 않는다). 실패한 구간은 HTTP 200 안의 `status`로 판정해 `UNKNOWN`으로 낸다. 응답 전체가 실패하는 것과 구간 하나가 실패하는 것을 가른다.
+구간 조회는 백엔드가 카카오 경로 조회를 구간마다 한 번씩 부르고 응답을 저장하지 않는다. 프록시로만 쓰는 Next는 이 조합을 갖지 않는다. 실패한 구간은 HTTP 200 안의 `status`로 판정해 `UNKNOWN`으로 낸다. 응답 전체가 실패하는 것과 구간 하나가 실패하는 것을 가른다.
 
 **캘린더.** 구글은 `https://calendar.google.com/calendar/render?action=TEMPLATE&text=&dates=&details=&location=`을 새 탭으로 연다. 그 외는 `buildIcs`의 문자열을 `Blob`으로 만들어 `<a download>`로 내려준다. 어느 쪽을 쓸지는 버튼 둘로 사용자가 고른다. 링크를 열거나 파일을 내려준 직후 `PATCH`로 시각을 기록하고 저장 완료 화면으로 간다. `PATCH`가 실패해도 캘린더 동작은 이미 끝났으므로 완료 화면으로 가고 배지가 안 붙는 것만 로그로 남긴다.
 
@@ -216,7 +210,7 @@ function fromRestPoint(point: [number, number]): KakaoLatLngLiteral;
 
 ## O. Optimization과 운영
 
-**렌더링.** 코스 쿼리와 구간 쿼리가 따로라 지도와 타임라인이 먼저 나온다. 폴리라인 좌표는 구간마다 수십에서 수백이라 코스 하나에 수백 점이고 SDK가 감당한다. 지도는 코스가 오면 `fitToContent`로 한 번 맞추고 이후 사용자 조작을 덮지 않는다.
+**렌더링.** 코스 쿼리와 구간 쿼리가 따로라 지도와 타임라인이 먼저 나온다. 폴리라인 좌표는 구간마다 수십에서 수백이라 코스 하나에 수백 점이고 SDK가 감당한다. 지도는 코스가 오면 `fitTo`로 한 번 맞추고 이후 사용자 조작을 덮지 않는다.
 
 **장애.** 구간 응답 전체가 실패하면 모든 구간이 모름으로 보이고 요약 자리에 다시 시도 버튼이 있다. 코스 조회가 실패하면 그 화면의 `error.tsx`가 받는다. 코스가 없거나 남의 코스면 `404`와 `403`을 구분해 "삭제되었거나 볼 수 없는 코스입니다"로 보인다.
 

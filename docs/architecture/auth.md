@@ -18,23 +18,22 @@
 
 **설계를 가르는 질문.**
 
-- 주도권은 클라이언트에 있다. 프론트가 공급자에서 인가 코드를 받아 백엔드에 넘기고 백엔드가 교환한다(9/3 결정). 지속 연결이 없다
+- 주도권은 클라이언트에 있다. 프론트가 공급자에서 인가 코드를 받아 백엔드에 넘기고 백엔드가 교환한다. 지속 연결이 없다
 - 실패는 종류마다 다른 문구로 드러낸다. 공급자 화면에서 취소하면 `error=access_denied`로 돌아오고 백엔드 실패는 `errorCode`로 갈린다. 원문 메시지를 화면에 내지 않는다
 - 새로고침하면 로그아웃 상태다. 토큰이 메모리에만 있어서다. 쿠키가 오면 앱 시작 때 재발급 한 번으로 세션을 되살린다. 이 차이가 `AuthProvider`의 시작 단계 하나로 격리된다
 - 서버 컴포넌트는 인증이 필요한 요청을 보내지 않는다. 토큰이 서버에 없다
 
-**범위 밖.** 네이버 로그인, 로컬 회원가입, 프로필 편집, 회원 탈퇴, 약관 동의 화면. 약관은 로그인 버튼 아래 고지문으로 갈음한다(9/12 피그마).
+**범위 밖.** 네이버 로그인, 로컬 회원가입, 프로필 편집, 회원 탈퇴, 약관 동의 화면. 약관은 로그인 버튼 아래 고지문으로 갈음한다.
 
 ## A. Architecture
 
-| 상태                           | 원천                                           | 비고                                                                                  |
-| ------------------------------ | ---------------------------------------------- | ------------------------------------------------------------------------------------- |
-| 액세스 토큰과 리프레시 토큰    | Zustand 메모리 스토어                          | persist 없음. 쿠키가 오면 리프레시 토큰 필드를 뺀다                                   |
-| 인가 코드 교환                 | Server. `["auth", "kakao-login", code, state]` | `hooks/useKakaoLogin.ts`. 코드가 키라 코드 하나에 요청이 한 번만 나간다               |
-| 내 정보(닉네임, 프로필 이미지) | Server. `["me"]`                               | 설계. 로그인 상태일 때만 조회                                                         |
-| 돌아갈 경로 `next`             | URL `/login?next=`와 `sessionStorage`          | 같은 출처 경로만 허용하고 절대 주소와 `//`로 시작하는 값은 버린다. `lib/next-path.ts` |
-| OAuth `state`                  | `sessionStorage`                               | 인가 흐름 동안만 산다. `lib/oauth-state.ts`                                           |
-| 로그인 뒤 보낼 온보딩 답       | onboarding 스토어(persist)                     | `onboarding.md`                                                                       |
+| 상태                           | 원천                                           | 비고                                                                                    |
+| ------------------------------ | ---------------------------------------------- | --------------------------------------------------------------------------------------- |
+| 액세스 토큰과 리프레시 토큰    | Zustand 메모리 스토어                          | persist 없음. 쿠키가 오면 리프레시 토큰 필드를 뺀다                                     |
+| 인가 코드 교환                 | Server. `["auth", "kakao-login", code, state]` | `hooks/useKakaoLogin.ts`. 코드가 키라 코드 하나에 요청이 한 번만 나간다                 |
+| 내 정보(닉네임, 프로필 이미지) | Server. `["me"]`                               | 설계. 로그인 상태일 때만 조회                                                           |
+| 돌아갈 경로 `next`             | URL `/login?next=`와 `sessionStorage`          | 같은 출처 경로만 허용하고 절대 주소와 `//`로 시작하는 값은 버린다. `model/next-path.ts` |
+| OAuth `state`                  | `sessionStorage`                               | 인가 흐름 동안만 산다. `model/oauth-state.ts`                                           |
 
 통신은 요청 응답이다. 로그인과 재발급, 로그아웃, 내 정보 넷이다.
 
@@ -43,7 +42,7 @@
 1. `/login?next=`에서 공급자 버튼을 누른다. `state`를 만들고 `next`를 각각 `sessionStorage`에 둔 뒤 공급자 인가 주소로 이동한다
 2. 공급자가 `/auth/{provider}/callback?code=&state=`로 돌려보낸다. `state`를 대조하고 다르면 교환하지 않는다
 3. 교환은 `code`를 키로 하는 쿼리로 부른다. 같은 키는 한 번만 실행되고 StrictMode 재마운트가 캐시를 다시 쓴다. 재시도는 없다. 인가 코드는 일회용이다
-4. 토큰을 스토어에 넣는다. onboarding 스토어에 답이 있으면 취향 저장을 부르고 성공하면 로컬을 지운다
+4. 토큰을 스토어에 넣는다
 5. `sessionStorage`에서 꺼낸 `next`로 `redirect`한다. 없거나 같은 출처가 아니면 `/home`이다
 
 **재발급 흐름(설계).** `request`가 `auth: true`인 요청에 Bearer를 붙인다. 응답이 `E1004`(만료)면 재발급을 한 번 부르고 같은 요청을 다시 보낸다. 재발급이 동시에 여러 요청에서 필요해지면 진행 중인 재발급 Promise 하나를 공유해 요청은 한 번만 나간다. 재발급이 `E1011`(무효나 재사용된 리프레시 토큰)이나 다른 실패로 끝나면 스토어를 비우고 만료 이벤트를 낸다. `AuthProvider`가 그 이벤트를 받아 현재 경로를 `next`에 실어 `/login`으로 보낸다.
@@ -55,7 +54,7 @@
 ## D. Data Model
 
 ```typescript
-// features/auth/store/useAuthStore.ts
+// features/auth/model/useAuthStore.ts
 interface AuthState {
 	accessToken: string | null;
 	/** 리프레시 토큰이 httpOnly 쿠키로 오면 이 필드를 없앤다 */
@@ -64,7 +63,7 @@ interface AuthState {
 	clear: () => void;
 }
 
-// features/auth/types/auth.ts
+// features/auth/model/auth.ts
 interface AuthTokens {
 	accessToken: string;
 	refreshToken: string;
@@ -84,7 +83,7 @@ interface Me {
 type AuthStatus = "anonymous" | "authenticated";
 ```
 
-콜백이 받는 `code`와 `state`, `error`는 `useSearchParams`로 읽고 실패를 문구로 가르는 것은 `lib/login-messages.ts`다. 어떤 코드가 어떤 문구가 되는지는 아래 에러 코드 표에 있다.
+콜백이 받는 `code`와 `state`, `error`는 `useSearchParams`로 읽고 실패를 문구로 가르는 것은 `model/login-messages.ts`다. 어떤 코드가 어떤 문구가 되는지는 아래 에러 코드 표에 있다.
 
 `nickname`이 `null`이면 홈 인사 헤더는 닉네임 없는 문구를 쓴다. 백엔드 엔티티에 닉네임이 아직 없어 `null`이 정상 상태일 수 있다.
 
@@ -112,7 +111,7 @@ export function useAuthStore(): AuthState;
 **설계.** 아래는 아직 코드에 없다. 공급자가 둘이 되고 재발급이 붙을 때 위의 카카오 전용 이름이 공급자를 받는 이름으로 바뀐다.
 
 ```typescript
-// 루트 레이아웃이 감싼다. 토큰 소스를 shared/api에 등록하고 만료 이벤트를 구독한다
+// 루트 레이아웃이 감싼다. 만료 이벤트를 구독해 로그인 화면으로 보낸다
 export function AuthProvider({ children }: { children: ReactNode });
 
 export function SocialLoginButton({ provider, next }: { provider: OAuthProvider; next: string | null });
@@ -128,19 +127,12 @@ export function useRequireAuth(): { ensure: (next: string) => boolean };
 export function RequireAuth({ children, next }: { children: ReactNode; next: string });
 ```
 
-**`shared/api`에 더하는 계약(설계).** 지금은 로그아웃이 `Authorization` 헤더를 직접 넘겨 붙인다.
+**`shared/api`의 계약.** `setAccessTokenSource`와 `RequestOptions.auth`는 있다. `auth`는 기본 `true`이고 `false`면 Bearer를 붙이지 않는다. 아래 둘은 재발급이 붙을 때 더한다.
 
 ```typescript
-// shared/api/auth-token.ts
-export function setAccessTokenSource(source: () => string | null): void;
+// shared/api/auth-token.ts. 설계
 export function setRefreshHandler(handler: () => Promise<boolean>): void;
 export function subscribeAuthExpired(listener: () => void): () => void;
-
-// shared/api/client.ts의 RequestOptions에 더한다
-interface RequestOptions {
-	/** true면 Bearer를 붙이고 E1004에 재발급 한 번 뒤 재요청한다. 기본 false */
-	auth?: boolean;
-}
 ```
 
 `request`가 `auth: true`인데 토큰 소스가 `null`을 돌려주면 요청을 보내지 않고 `ApiError`(`kind` http, `status` 401, `errorCode` `E1000`)를 던진다. 화면이 비로그인 상태에서 인증 요청을 보내는 실수를 서버까지 가지 않고 잡는다.
@@ -165,6 +157,8 @@ interface RequestOptions {
 | `E1001` 인증 실패                | 콜백 실패 화면 문구. 다시 로그인 링크                                  |
 | `access_denied`                  | "로그인을 취소했습니다". 홈과 로그인 링크                              |
 | `network`, `timeout`             | "연결이 불안정합니다". 다시 로그인 링크. 같은 코드로 재시도하지 않는다 |
+
+지금은 `E1001`이 오지 않는다. 백엔드 `KakaoAuthenticator`가 카카오 토큰 교환 실패까지 `E1009`로 감싸서 프론트는 둘을 가르지 못한다. 백엔드 쪽 수정이 필요하다.
 
 **이벤트.** 모듈 수준 이벤트 하나다. `auth:expired`. 페이로드 없음. `AuthProvider`만 구독한다.
 
