@@ -19,7 +19,7 @@ export default function LandingPage() {
 			<PlaceholderBox label="대표 이미지" className="h-48" />
 
 			<section className="flex flex-col gap-3">
-				<LinkButton href="/onboarding/1" size="lg">
+				<LinkButton href={`/login?next=${encodeURIComponent("/onboarding/1")}`} size="lg">
 					나에게 맞는 팝업 찾기
 				</LinkButton>
 				<LinkButton href="/home" variant="secondary" size="lg">
