@@ -139,6 +139,26 @@ export class KakaoMapSession {
 		this.map.setLevel(level);
 	}
 
+	/** 넘긴 좌표가 전부 보이도록 중심과 배율을 한 번에 맞춘다. 좌표가 하나면 배율은 그대로 두고 중심만 옮긴다 */
+	public fitToPositions(positions: readonly KakaoLatLngLiteral[], paddingPx: number) {
+		const first = positions[0];
+		if (first === undefined) {
+			return;
+		}
+
+		if (positions.length === 1) {
+			this.moveTo(first);
+			return;
+		}
+
+		const bounds = new this.sdk.maps.LatLngBounds();
+		for (const position of positions) {
+			bounds.extend(toLatLng(this.sdk, position));
+		}
+
+		this.map.setBounds(bounds, paddingPx, paddingPx, paddingPx, paddingPx);
+	}
+
 	public setMarkerClickHandler(handler: MarkerClickHandler | undefined) {
 		this.onMarkerClick = handler;
 	}
@@ -179,6 +199,7 @@ export class KakaoMapSession {
 
 		this.observer?.disconnect();
 		this.observer = null;
+		KakaoMapSession.attached.delete(this.container);
 	}
 
 	private createMarker(marker: KakaoMarkerData) {
@@ -190,8 +211,9 @@ export class KakaoMapSession {
 			clickable: true
 		});
 
+		const markerId = marker.id;
 		const listener = () => {
-			this.onMarkerClick?.(marker.id);
+			this.onMarkerClick?.(markerId);
 		};
 
 		this.sdk.maps.event.addListener(instance, "click", listener);
