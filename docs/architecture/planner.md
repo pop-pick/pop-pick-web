@@ -4,7 +4,7 @@
 
 ## R. Requirements
 
-**기능.** 지역(단일), 방문 날짜, 시작 시각, 머무는 시간(간편 2시간, 반나절 4시간에서 5시간), 동행(혼자, 연인, 친구, 가족), 동선 세부 옵션 토글 둘(체험형 액티비티 포함, 식사와 카페 동선 포함)을 입력하고 "AI 맞춤 동선 설계하기"를 누른다. 생성 중 화면이 단계별 체크리스트(취향에 맞는 팝업 고르기, 도보 동선 계산하기, 시간표 맞추기)와 취소 버튼을 보이고 끝나면 코스 결과로 넘어간다. 상세에서 "이 팝업으로 AI 코스 추천받기"로 들어오면 그 팝업의 지역이 미리 선택되고 코스에 그 팝업이 들어간다.
+**기능.** 조건을 입력해 "AI 맞춤 동선 설계하기"를 누르면 생성 중 화면이 단계별 체크리스트와 취소 버튼을 보이고 끝나면 코스 결과로 넘어간다. 상세에서 들어오면 그 팝업의 지역이 미리 선택되고 코스에 그 팝업이 들어간다. 조건 항목과 시간 규칙은 `docs/product/SPEC.md`의 원데이 플래너 절이 정본이다.
 
 **보장.**
 
@@ -20,19 +20,19 @@
 - 통신 성질은 비동기 작업과 폴링이다. LLM 호출이 10초를 넘을 수 있고 요청이 rewrites 프록시를 지나므로 요청 하나를 오래 열어 두지 않는다. IA가 적은 `jobStatus`와 `progress`가 이 구조다
 - 실패는 화면에 남기고 사용자가 정한다. 다시 시도는 같은 조건으로 새 작업이다
 - 코스는 만들어지는 순간 저장된다. 임시 상태가 없다. 작업이 `DONE`이면 `courseId`가 있고 `/courses/{id}`가 곧 저장된 코스다
-- 날짜와 시작 시각을 받는다. 피그마에는 없지만 9/6 제출문과 IA에 있고 팝업의 운영 기간을 걸러야 한다(D48). PM 확인 항목이다
+- 날짜와 시작 시각을 받는다. 피그마에는 없지만 9/6 제출문과 IA에 있고 팝업의 운영 기간을 걸러야 한다. PM 확인 항목이다
 
-**범위 밖.** 요청사항 자유 입력(IA에는 있고 피그마에는 없다), 여러 지역 코스(9/10 결정으로 단일 지역), 방문 순서 최적화(9/3 결정), 코스 안 팝업 교체와 순서 편집.
+**범위 밖.** 요청사항 자유 입력(IA에는 있고 피그마에는 없다), 여러 지역 코스(단일 지역으로 정했다), 방문 순서 최적화, 코스 안 팝업 교체와 순서 편집.
 
 ## A. Architecture
 
-| 상태           | 원천                                   | 비고                                                   |
-| -------------- | -------------------------------------- | ------------------------------------------------------ |
-| 입력 중인 조건 | react-hook-form                        | zod 스키마로 검증                                      |
-| 미리 채울 팝업 | URL `/planner?anchor={popupId}`        | 팝업 조회로 지역을 읽어 폼 기본값에 넣는다             |
-| 작업 식별자    | URL `/planner/generating/[jobId]`      | 새로고침에도 이어 본다                                 |
-| 작업 상태      | Server. `queryKeys.courses.job(jobId)` | `refetchInterval`로 폴링. `DONE`이나 `FAILED`면 멈춘다 |
-| 진행 단계 표시 | Derived. 작업 상태의 `step`            | 체크리스트의 완료와 진행 중, 대기                      |
+| 상태           | 원천                                | 비고                                                   |
+| -------------- | ----------------------------------- | ------------------------------------------------------ |
+| 입력 중인 조건 | react-hook-form                     | zod 스키마로 검증                                      |
+| 미리 채울 팝업 | URL `/planner?anchor={popupId}`     | 팝업 조회로 지역을 읽어 폼 기본값에 넣는다             |
+| 작업 식별자    | URL `/planner/generating/[jobId]`   | 새로고침에도 이어 본다                                 |
+| 작업 상태      | Server. `["courses", "job", jobId]` | `refetchInterval`로 폴링. `DONE`이나 `FAILED`면 멈춘다 |
+| 진행 단계 표시 | Derived. 작업 상태의 `step`         | 체크리스트의 완료와 진행 중, 대기                      |
 
 **흐름.**
 
@@ -53,7 +53,7 @@
 ## D. Data Model
 
 ```typescript
-// features/planner/model/request.ts
+// features/planner/model/course-request.ts
 type Companion = "ALONE" | "COUPLE" | "FRIEND" | "FAMILY";
 /** SHORT는 약 2시간, HALF_DAY는 4시간에서 5시간. 분으로 바꾸는 것은 백엔드 몫 */
 type Duration = "SHORT" | "HALF_DAY";
@@ -72,9 +72,10 @@ interface CourseRequest {
 	anchorPopupId: number | null;
 }
 
+// features/planner/model/course-request-schema.ts
 const courseRequestSchema: z.ZodType<CourseRequest>; // date는 오늘 이후, startAt은 시각 형식
 
-// features/planner/model/job.ts. 백엔드 요구
+// features/planner/model/course-job.ts. 백엔드 요구
 type CourseJobStatus = "QUEUED" | "RUNNING" | "DONE" | "FAILED";
 type CourseJobStep = "PICKING" | "ROUTING" | "SCHEDULING";
 
@@ -90,6 +91,7 @@ interface CourseJob {
 	request: CourseRequest;
 }
 
+// features/planner/model/job-progress.ts
 type ChecklistState = Record<CourseJobStep, "done" | "active" | "pending">;
 function toChecklist(job: CourseJob): ChecklistState;
 function shouldKeepPolling(job: CourseJob | undefined, elapsedMs: number): boolean;
@@ -97,7 +99,7 @@ function shouldKeepPolling(job: CourseJob | undefined, elapsedMs: number): boole
 
 `toChecklist`와 `shouldKeepPolling`은 분기 있는 순수 함수다. 상한 60초는 `shouldKeepPolling`의 상수다.
 
-`includeFood`가 켜져도 코스에 카페가 들어가는지는 D49에 걸린다. 요청은 토글 값을 그대로 보내고 결과에 `PLACE` 항목이 없으면 그리지 않는다. 토글이 화면에 있는데 아무 효과가 없으면 사용자를 속이는 것이므로 D49가 "넣지 않는다"로 정해지면 토글 둘을 뺀다.
+`includeFood`가 켜져도 코스에 카페가 들어가는지는 연계 카페 결정에 걸린다. 요청은 토글 값을 그대로 보내고 결과에 `PLACE` 항목이 없으면 그리지 않는다. 토글이 화면에 있는데 아무 효과가 없으면 사용자를 속이는 것이므로 연계 카페를 넣지 않기로 정해지면 토글 둘을 뺀다.
 
 ## I. Interface
 
@@ -131,7 +133,7 @@ export function useCancelCourseJob(): UseMutationResult<null, ApiError, string>;
 
 **로그.** `[planner]` 접두사. 작업 `FAILED`와 그 코드, 폴링 상한 초과, 시작 요청 실패.
 
-**접근성.** 폼은 항목마다 `<fieldset>`과 `<legend>`다. 단일 선택은 `role="radiogroup"`, 토글은 `<button role="switch" aria-checked>`다. 날짜는 `<input type="date">`를 기본으로 두고 퀵 선택 버튼이 그 값을 채운다. 시각은 `<select>`다. 생성 중 화면의 문구는 `role="status"`와 `aria-live="polite"`이고 체크리스트는 `<ol>`이며 진행 중 항목에 `aria-current="step"`이다. 실패 문구는 `role="alert"`다. 취소 버튼은 화면에 들어올 때 포커스를 받지 않는다. 폴링 중 사용자가 실수로 누르지 않게 하기 위해서다.
+**접근성.** 폼은 항목마다 `<fieldset>`과 `<legend>`다. 토글은 `<button role="switch" aria-checked>`다. 날짜는 `<input type="date">`를 기본으로 두고 퀵 선택 버튼이 그 값을 채운다. 생성 중 화면의 문구는 `role="status"`이고 체크리스트는 `<ol>`이며 진행 중 항목에 `aria-current="step"`이다. 취소 버튼은 화면에 들어올 때 포커스를 받지 않는다. 폴링 중 사용자가 실수로 누르지 않게 하기 위해서다.
 
 ## O. Optimization과 운영
 
@@ -141,6 +143,6 @@ export function useCancelCourseJob(): UseMutationResult<null, ApiError, string>;
 
 **재시도와 몰림.** 폴링은 1초 고정이고 오류가 나면 2초, 4초, 5초 상한으로 늘린다. 클라이언트 하나의 폴링이라 무작위 지연은 필요 없다. 다시 시도는 사용자가 누를 때만이다. 자동으로 새 작업을 만들지 않는다. 작업 하나가 카카오 경로 조회를 구간 수만큼 쓰므로 자동 재시도가 쿼터를 깎는다.
 
-**지표.** 체감 지표는 "설계하기부터 코스 결과까지"다. 시스템 지표는 폴링 상한 초과 횟수(0이어야 한다)와 작업 `FAILED` 비율, 취소 비율이다. 취소가 높으면 생성이 너무 느리다.
+**지표.** 폴링 상한 초과 횟수는 0이어야 한다. 작업 `FAILED` 비율과 취소 비율도 센다. 취소가 높으면 생성이 너무 느리다.
 
 **운영.** 하루 경로 조회 무료 한도가 1,000건이다. 팝업 셋 코스가 둘이라 하루 500코스다. 작업 하나에 구간 수만큼 쓰이고 코스를 다시 열 때 `course.md`의 구간 조회가 또 쓴다. 한도에 닿으면 구간이 "소요시간 모름"으로 보이고 코스 자체는 만들어진다. 백엔드가 남은 한도를 로그로 남기는 것을 요구한다.

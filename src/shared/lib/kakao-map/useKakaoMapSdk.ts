@@ -19,7 +19,7 @@ const LOADING_STATE: KakaoMapSdkState = {
 
 export function useKakaoMapSdk() {
 	const [state, setState] = useState<KakaoMapSdkState>(LOADING_STATE);
-	const [brokenContract, setBrokenContract] = useState<Error | null>(null);
+	const [unexpectedError, setUnexpectedError] = useState<Error | null>(null);
 
 	useEffect(() => {
 		let active = true;
@@ -42,8 +42,10 @@ export function useKakaoMapSdk() {
 
 				console.error("[kakao-map] KakaoMapSession.load 가 KakaoMapError 가 아닌 값으로 거절했습니다", error);
 
-				const broken = new Error("카카오맵 SDK 로더가 KakaoMapError 가 아닌 값으로 거절했습니다.", { cause: error });
-				setBrokenContract(broken);
+				const unexpected = new Error("카카오맵 SDK 로더가 KakaoMapError 가 아닌 값으로 거절했습니다.", {
+					cause: error
+				});
+				setUnexpectedError(unexpected);
 			}
 		);
 
@@ -52,8 +54,8 @@ export function useKakaoMapSdk() {
 		};
 	}, []);
 
-	if (brokenContract !== null) {
-		throw brokenContract;
+	if (unexpectedError !== null) {
+		throw unexpectedError;
 	}
 
 	return state;

@@ -9,12 +9,12 @@ import { ApiError } from "@/shared/api/errors";
 const STALE_TIME_MS = 30_000;
 const MAX_RETRY_COUNT = 2;
 
-function isClientFault(error: unknown) {
+function isClientError(error: unknown) {
 	return error instanceof ApiError && error.kind === "http" && error.status >= 400 && error.status < 500;
 }
 
 function shouldRetry(failureCount: number, error: unknown) {
-	if (isClientFault(error) || environmentManager.isServer()) {
+	if (isClientError(error) || environmentManager.isServer()) {
 		return false;
 	}
 	return failureCount < MAX_RETRY_COUNT;
@@ -41,7 +41,11 @@ function getQueryClient() {
 	return (browserQueryClient ??= makeQueryClient());
 }
 
-export function QueryProvider({ children }: { children: ReactNode }) {
+interface QueryProviderProps {
+	children: ReactNode;
+}
+
+export function QueryProvider({ children }: QueryProviderProps) {
 	const queryClient = getQueryClient();
 
 	return (

@@ -17,8 +17,6 @@ description: PR을 머지하고 브랜치를 정리해주세요.
 5. `git branch -d feature/{slug}`로 브랜치를 지운다. 원격 브랜치가 있으면 원격도 지운다
 6. `git log --oneline -5`로 결과를 확인한다
 
-**squash 머지를 쓰지 않는다.** `--squash`를 붙이면 `main`이 `develop`의 조상 관계를 잃어 다음 PR마다 충돌이 생기고 커밋 단위 이력도 사라진다.
-
 ## 규칙
 
-`.agents/rules/git-workflow.md`의 브랜치 전략과 금지 패턴을 따른다.
+`.agents/skills/pop-pick-git/SKILL.md`의 머지 방식과 `.agents/rules/git-workflow.md`의 금지 패턴을 따른다. squash를 쓰지 않는 이유는 그 스킬에 있다.

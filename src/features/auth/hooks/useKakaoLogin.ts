@@ -1,9 +1,10 @@
 import { skipToken, useQuery } from "@tanstack/react-query";
 
-import { loginWithKakao } from "../api/auth";
-import { getKakaoRedirectUri } from "../lib/kakao-oauth";
-import { verifyOAuthState } from "../lib/oauth-state";
-import { useAuthStore } from "../store/useAuthStore";
+import { loginWithKakao } from "../api/login-with-kakao";
+import { getKakaoRedirectUri } from "../model/kakao-oauth";
+import { consumeNextPath } from "../model/next-path";
+import { verifyOAuthState } from "../model/oauth-state";
+import { useAuthStore } from "../model/useAuthStore";
 
 interface KakaoCallbackParams {
 	code: string | null;
@@ -15,19 +16,14 @@ async function exchangeCodeForTokens(code: string, state: string | null) {
 		verifyOAuthState(state);
 		const tokens = await loginWithKakao(code, getKakaoRedirectUri());
 		useAuthStore.getState().setTokens(tokens);
-		return tokens;
+		return { tokens, nextPath: consumeNextPath() };
 	} catch (error) {
 		console.error("[auth] 카카오 로그인 실패", error);
 		throw error;
 	}
 }
 
-/**
- * 인가 코드 교환을 mutation이 아니라 코드를 키로 하는 query로 다룬다.
- * 같은 키의 쿼리는 진행 중인 요청을 공유하므로 StrictMode가 마운트를 두 번 돌려도
- * POST는 한 번만 나간다. 카카오 인가 코드는 한 번만 교환할 수 있어 재시도하지 않고
- * 결과를 다시 조회하지도 않는다. useEffect에서 mutate를 부르면 두 번 나가는 문제가 돌아온다
- */
+/** useEffect 안에서 mutate를 부르면 StrictMode가 일회용 인가 코드로 교환을 두 번 보낸다 */
 export function useKakaoLogin({ code, state }: KakaoCallbackParams) {
 	return useQuery({
 		queryKey: ["auth", "kakao-login", code, state],

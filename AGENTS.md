@@ -2,7 +2,7 @@
 
 팝픽(POP PICK) 프론트엔드. 온보딩에서 받은 취향으로 서울 팝업을 AI가 추천하고 방문 동선까지 짜주는 웹 서비스다. Next.js App Router로 만들어 Vercel에 배포한다. 백엔드는 같은 Organization의 `pop-pick-server`다.
 
-이 파일은 세션마다 읽힌다. 지워도 실수가 생기지 않는 줄은 두지 않는다. 자세한 규칙은 `.agents/rules/`, 절차는 `.agents/skills/`, 제품과 화면은 `docs/`에 있다.
+이 파일은 세션마다 읽힌다. 지워도 실수가 생기지 않는 줄은 두지 않는다. 자세한 규칙은 `.agents/rules/`, 절차는 `.agents/skills/`, 제품과 화면은 `docs/`에 있고 어느 문서가 무엇을 답하는지는 `docs/README.md`가 안내한다.
 
 ## 명령과 게이트
 
@@ -14,9 +14,9 @@
 
 완료 보고에는 게이트 명령의 출력 결과를 함께 적는다. 통과했다는 말만 적지 않는다.
 
-lefthook 훅이 커밋과 푸시 때 같은 검사를 저장소 전체에 돌린다. 내가 건드리지 않은 파일 때문에 커밋이 막히면 그 파일을 고치는 커밋을 따로 만든다. `--no-verify`로 건너뛰지 않는다.
+lefthook 훅이 커밋과 푸시 때 같은 검사를 저장소 전체에 돌린다. 커밋 때는 하네스 검사 `pnpm harness:check`도 함께 돈다. 내가 건드리지 않은 파일 때문에 커밋이 막히면 그 파일을 고치는 커밋을 따로 만든다. `--no-verify`로 건너뛰지 않는다.
 
-같은 넷을 CI가 PR마다 돌린다. CI가 빨간불이면 머지하지 않는다.
+이 넷과 `pnpm harness:check`를 CI가 PR마다 돌린다. CI가 빨간불이면 머지하지 않는다.
 
 ## 언어
 
@@ -24,11 +24,10 @@ lefthook 훅이 커밋과 푸시 때 같은 검사를 저장소 전체에 돌린
 
 ## 구조
 
-- Feature 기반이다. `src/app`은 라우팅, `src/features`는 기능 단위, `src/shared`는 공용 ui, hooks, lib, api, providers, styles, types. 여러 모듈이 함께 쓰는 타입은 `src/shared/types`에, 한 모듈에 속하는 타입은 그 모듈 옆(`src/shared/api/types.ts`)에 둔다. 경로 별칭 `@/*`는 `./src/*`
-- `src/app`에는 Next가 이름을 정하는 라우트 파일(`layout.tsx`, `page.tsx` 등)만 둔다. 전부 소문자다. 컴포넌트와 CSS는 `src/shared`나 `src/features`에 두고 라우트 파일이 import한다
-- `features/` 하위 폴더는 기능 하나에 하나다. 이름은 백엔드 `feature/{이름}` 패키지와 맞춘다. 지금은 `auth`(소셜 로그인과 토큰) 하나다. 새 기능 폴더는 FE 둘이 이름을 정한 뒤 만든다
-- 기성 UI 라이브러리를 쓰지 않는다. 디자이너 시안을 따라 `src/shared/ui`에 직접 만든다
-- Tailwind 클래스에 `p-[18px]` 같은 임의값을 쓰지 않는다. 토큰 정본은 `src/shared/styles/globals.css`의 `@theme inline`
+- Feature 기반이다. `src/app`은 라우팅, `src/features`는 기능 단위, `src/shared`는 공용이다. 의존은 shared에서 features로, features에서 app으로 한 방향이고 기능끼리 부르지 않는다. 경로 별칭 `@/*`는 `./src/*`
+- `src/app`에는 Next가 이름을 정하는 라우트 파일(`layout.tsx`, `page.tsx` 등)만 둔다. 전부 소문자다. 컴포넌트와 CSS는 `src/shared`나 `src/features`에 두고 라우트 파일이 import한다. 라우트 그룹 `(flow)`와 `(tabs)`가 하단 탭바 노출을 가른다
+- `features/` 하위 폴더는 기능 하나에 하나다. 이름은 백엔드 `feature/{이름}` 패키지와 맞춘다. 기능 폴더 안은 `api`와 `ui`, `hooks`, `model` 넷으로 나누고 루트에 파일을 두지 않는다. `lib`은 `src/shared`에만 둔다
+- 토큰 정본은 `src/shared/styles/globals.css`의 `@theme inline`이다
 
 ## 하지 않는 것
 
@@ -39,20 +38,41 @@ lefthook 훅이 커밋과 푸시 때 같은 검사를 저장소 전체에 돌린
 
 ## 룰
 
-`.agents/rules/`가 본문이다. Claude Code는 `.claude/rules/` 링크로 자동으로 읽는다. 자동으로 읽지 않는 도구는 작업 전에 해당 파일을 직접 연다.
+`.agents/rules/`가 본문이다. `paths`가 있는 룰은 그 패턴의 파일을 읽을 때 실리고 없는 룰은 세션 시작 때 실린다. 룰을 자동으로 읽지 않는 도구는 작업 전에 해당 파일을 직접 연다. 아래 목록은 각 룰의 `description`에서 생성된다.
 
-| 파일              | 한 줄                                                                                                                                                  |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `api.md`          | 서버 호출은 src/shared/api를 거친다. 응답 형식은 백엔드가 정한 것을 그대로 쓴다. fetch 래퍼 하나로, 실패는 쿼리 에러 상태로 드러낸다                   |
-| `comments.md`     | 기본은 주석 없음. 코드가 표현하지 못하는 넷만 적고 지시문 주석은 지우지 않는다                                                                         |
-| `git-workflow.md` | main, develop, feature 3단 브랜치. `<타입>: <한국어 제목>` 커밋. squash 머지 금지                                                                      |
-| `no-fallback.md`  | 오류를 감싸 빈 값을 돌려주지 않는다. 실패를 드러내거나 실패할 수 없는 설계로 바꾼다                                                                    |
-| `state.md`        | 서버 상태는 TanStack Query, 클라이언트 상태는 Zustand 최소. 서버 데이터를 스토어에 복제하지 않는다                                                     |
-| `tailwind.md`     | 임의값 금지. 값은 `@theme inline` 토큰과 `@utility`에서 온다                                                                                           |
-| `testing.md`      | 테스팅 트로피. 기본 동작은 삭제이고 추가는 예외. 도구는 미정                                                                                           |
-| `typescript.md`   | 추론되는 반환 타입을 적지 않는다. 함수 본문 주석 없음. 훅 파일은 훅 이름                                                                               |
-| `ui.md`           | 기성 UI 라이브러리 없음. 공용 컴포넌트는 src/shared/ui가 주인. 파일은 PascalCase, export function 선언. 모바일 퍼스트, 키보드로 조작 가능, 토큰만 쓴다 |
+<!-- agents-sync:rules:begin -->
 
-## 스킬
+<!-- 이 표식 사이는 .agents/scripts/agents-sync.mjs 가 .agents/rules/ 의 description 에서 만든다. 손으로 고치지 않는다 -->
 
-`.agents/skills/`에 `pop-pick-harness` 하나가 있다. 작업을 시작할 때 읽는 순서와 미결정 항목을 만났을 때 묻는 절차, 끝낼 때 게이트를 돌리는 순서를 담는다. 어떤 스킬이 있고 언제 쓰는지는 이 절이 정본이다.
+- `api.md`. 층이 넷이다. shared/api는 HTTP만 알고 features/{기능}/api는 엔드포인트를, hooks는 변경을, ui는 화면을 안다. 브라우저는 같은 출처 /api를, 서버는 API_BASE_URL을 부른다
+- `comments.md`. 기본은 주석을 쓰지 않는 것. 코드가 표현하지 못하는 넷만 적고 지시문 주석은 절대 지우지 않는다
+- `git-workflow.md`. main과 develop, feature 세 브랜치. 커밋 메시지는 <타입>: <한국어 제목>. 금지 패턴 다섯. 브랜치와 커밋, PR, 머지 절차는 pop-pick-git 스킬에 있다
+- `no-fallback.md`. 오류를 감싸 빈 값을 돌려주는 코드를 금지한다. 실패를 드러내거나 실패할 수 없는 설계로 바꾼다
+- `state.md`. 서버 상태는 TanStack Query, 공유할 조건값은 URL, 나머지 클라이언트 상태만 Zustand. 서버 데이터를 스토어에 복제하지 않는다
+- `structure.md`. src/app은 라우팅, src/features는 기능, src/shared는 공용. 기능 폴더 안은 api와 ui, hooks, model 넷이다. 의존은 한 방향이고 배럴 파일을 만들지 않는다
+- `tailwind.md`. X-[value] 임의값을 쓰지 않는다. 값은 src/shared/styles/globals.css의 @theme inline 토큰과 @utility에서 온다. 어긋난 값을 옮기는 네 갈래
+- `testing.md`. 테스팅 트로피가 전략이다. 기본 동작은 삭제이고 추가는 예외다. 도구는 미정. 층마다 소유하는 것과 지우는 기준
+- `typescript.md`. 추론되는 반환 타입을 적지 않는다. 반환 타입을 적는 예외 둘. 이름은 흔한 동사와 목적어로 짓는다. 리뷰에서 쓰는 grep
+- `ui.md`. 기성 UI 라이브러리 없음. 공용 컴포넌트는 src/shared/ui가 주인. 파일 이름과 선언 형식의 정본. 모바일 퍼스트, 키보드로 조작 가능, 토큰만 쓴다
+
+<!-- agents-sync:rules:end -->
+
+## 하네스
+
+둘이다. 개발은 `.agents/skills/pop-pick-dev`, QA는 `.agents/skills/pop-pick-qa`다. 기능이나 화면을 만들기 전에 dev를 읽는다. qa는 QA 테스트 케이스가 오기 전까지 스켈레톤이다. git 절차는 `.agents/skills/pop-pick-git`, `review-protocol`은 리뷰어에 미리 실리는 공통 규약이라 사용자가 꺼내지 않는다. 스킬은 이 넷이고 어떤 스킬이 있는지는 이 절이 정본이다.
+
+<!-- agents-sync:agents:begin -->
+
+<!-- 이 표식 사이는 .agents/scripts/agents-sync.mjs 가 .agents/agents/ 에서 만든다. 손으로 고치지 않는다 -->
+
+에이전트 10개의 원본이 `.agents/agents/` 아래 폴더 3개에 있다. `build/`에 `feature-builder`, `plan-architect`, `ui-builder`, `qa/`에 `qa-verifier`, `review/`에 `review-data`, `review-nextjs`, `review-screen`, `review-structure`, `review-tailwind`, `review-typescript`다.
+
+<!-- agents-sync:agents:end -->
+
+`build/`는 계획과 구현, `review/`는 룰을 하나씩 소유하는 리뷰어, `qa/`는 검증이다. 도구가 읽는 형식은 여기서 생성된다. **전부 부르지 않는다.** 바뀐 파일이 리뷰어를 정하고 한두 파일 고치는 일에는 아무도 부르지 않는다. 리뷰어는 만들기 전에 자문으로도 부른다.
+
+```bash
+bash .agents/scripts/check-conventions.sh
+```
+
+룰에 적힌 grep 검사를 한 번에 돌린다. `pnpm harness:check`가 이것과 생성물 대조, 회귀 테스트를 함께 돌리고 걸리면 커밋과 CI가 막는다. 원본과 생성물의 관계는 `.agents/README.md`에 있다.

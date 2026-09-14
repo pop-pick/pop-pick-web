@@ -1,0 +1,42 @@
+import Link from "next/link";
+
+import { cn } from "@/shared/lib/cn";
+import type { PopupCardItem } from "@/shared/model/popup";
+import { POPUP_CATEGORY_LABELS, RESERVATION_TYPE_LABELS } from "@/shared/model/popup";
+import { REGION_LABELS } from "@/shared/model/region";
+import { Badge } from "@/shared/ui/Badge";
+import { PlaceholderBox } from "@/shared/ui/PlaceholderBox";
+
+interface PopupCardProps {
+	popup: PopupCardItem;
+	showReason?: boolean;
+	className?: string;
+}
+
+export function PopupCard({ popup, showReason = false, className }: PopupCardProps) {
+	return (
+		<Link
+			href={`/popups/${String(popup.id)}`}
+			className={cn(
+				"flex gap-4 rounded-2xl border border-zinc-100 bg-white p-4 transition-colors hover:bg-zinc-50",
+				"focus-ring",
+				className
+			)}
+		>
+			<PlaceholderBox label="이미지" className="size-20 shrink-0" />
+			<div className="flex min-w-0 flex-col gap-2">
+				<div className="flex flex-wrap gap-1">
+					<Badge tone="accent">{POPUP_CATEGORY_LABELS[popup.category]}</Badge>
+					<Badge>{RESERVATION_TYPE_LABELS[popup.reservation]}</Badge>
+				</div>
+				<p className="truncate font-semibold text-zinc-900">{popup.name}</p>
+				<p className="text-sm text-zinc-500">
+					{REGION_LABELS[popup.region]}, {popup.endsOn} 종료
+				</p>
+				{showReason && popup.reason !== undefined ? (
+					<p className="line-clamp-2 text-sm text-blue-700">{popup.reason}</p>
+				) : null}
+			</div>
+		</Link>
+	);
+}

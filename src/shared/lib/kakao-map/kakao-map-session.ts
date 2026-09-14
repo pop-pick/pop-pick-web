@@ -10,7 +10,6 @@ export type KakaoMarkerData = {
 };
 
 export type KakaoMapViewOptions = {
-	/** 지도를 만들 때 한 번만 쓰는 시점. 이후 변경은 moveTo 와 setLevel 로 한다 */
 	center: KakaoLatLngLiteral;
 	level: number;
 };
@@ -74,7 +73,7 @@ export class KakaoMapSession {
 				}
 			};
 
-			const failOn = (element: HTMLElement) => () => {
+			const rejectOnError = (element: HTMLElement) => () => {
 				element.dataset.loadFailed = "true";
 				reject(new KakaoMapError("script-load-failed"));
 			};
@@ -93,7 +92,7 @@ export class KakaoMapSession {
 				}
 
 				existing.addEventListener("load", finish, { once: true });
-				existing.addEventListener("error", failOn(existing), { once: true });
+				existing.addEventListener("error", rejectOnError(existing), { once: true });
 				return;
 			}
 
@@ -103,7 +102,7 @@ export class KakaoMapSession {
 			script.src = buildKakaoMapSdkUrl(appkey);
 			script.async = true;
 			script.addEventListener("load", finish, { once: true });
-			script.addEventListener("error", failOn(script), { once: true });
+			script.addEventListener("error", rejectOnError(script), { once: true });
 
 			document.head.appendChild(script);
 		});
@@ -138,6 +137,26 @@ export class KakaoMapSession {
 
 	public setLevel(level: number) {
 		this.map.setLevel(level);
+	}
+
+	/** 넘긴 좌표가 전부 보이도록 중심과 배율을 한 번에 맞춘다. 좌표가 하나면 배율은 그대로 두고 중심만 옮긴다 */
+	public fitToPositions(positions: readonly KakaoLatLngLiteral[], paddingPx: number) {
+		const first = positions[0];
+		if (first === undefined) {
+			return;
+		}
+
+		if (positions.length === 1) {
+			this.moveTo(first);
+			return;
+		}
+
+		const bounds = new this.sdk.maps.LatLngBounds();
+		for (const position of positions) {
+			bounds.extend(toLatLng(this.sdk, position));
+		}
+
+		this.map.setBounds(bounds, paddingPx, paddingPx, paddingPx, paddingPx);
 	}
 
 	public setMarkerClickHandler(handler: MarkerClickHandler | undefined) {
@@ -180,6 +199,7 @@ export class KakaoMapSession {
 
 		this.observer?.disconnect();
 		this.observer = null;
+		KakaoMapSession.attached.delete(this.container);
 	}
 
 	private createMarker(marker: KakaoMarkerData) {
@@ -191,8 +211,9 @@ export class KakaoMapSession {
 			clickable: true
 		});
 
+		const markerId = marker.id;
 		const listener = () => {
-			this.onMarkerClick?.(marker.id);
+			this.onMarkerClick?.(markerId);
 		};
 
 		this.sdk.maps.event.addListener(instance, "click", listener);

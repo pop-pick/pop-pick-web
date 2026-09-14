@@ -12,8 +12,10 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
 	return (
 		<html lang="ko" className="h-full antialiased">
-			<body className="flex min-h-full flex-col bg-background font-sans text-foreground">
-				<QueryProvider>{children}</QueryProvider>
+			<body className="bg-zinc-100 font-sans text-foreground">
+				<div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-background">
+					<QueryProvider>{children}</QueryProvider>
+				</div>
 			</body>
 		</html>
 	);

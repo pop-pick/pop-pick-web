@@ -9,11 +9,23 @@ export type KakaoMapOptions = {
 	keyboardShortcuts?: boolean;
 };
 
+export type KakaoLatLngBounds = {
+	extend(latlng: KakaoLatLng): void;
+	isEmpty(): boolean;
+};
+
 export type KakaoMapInstance = {
 	setCenter(latlng: KakaoLatLng): void;
 	getCenter(): KakaoLatLng;
 	setLevel(level: number): void;
 	getLevel(): number;
+	setBounds(
+		bounds: KakaoLatLngBounds,
+		paddingTop?: number,
+		paddingRight?: number,
+		paddingBottom?: number,
+		paddingLeft?: number
+	): void;
 	relayout(): void;
 };
 
@@ -60,6 +72,7 @@ export type KakaoMapsEventNamespace = {
 export type KakaoMapsNamespace = {
 	load(callback: () => void): void;
 	LatLng: new (lat: number, lng: number) => KakaoLatLng;
+	LatLngBounds: new () => KakaoLatLngBounds;
 	Map: new (container: HTMLElement, options: KakaoMapOptions) => KakaoMapInstance;
 	Marker: new (options: KakaoMarkerOptions) => KakaoMarkerInstance;
 	event: KakaoMapsEventNamespace;
