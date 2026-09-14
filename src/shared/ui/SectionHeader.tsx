@@ -14,10 +14,7 @@ export function SectionHeader({ title, description, moreHref }: SectionHeaderPro
 				{description === undefined ? null : <p className="text-sm text-zinc-500">{description}</p>}
 			</div>
 			{moreHref === undefined ? null : (
-				<Link
-					href={moreHref}
-					className="shrink-0 rounded-md text-sm font-semibold text-blue-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-				>
+				<Link href={moreHref} className="shrink-0 rounded-md text-sm font-semibold text-blue-600 focus-ring">
 					전체보기
 				</Link>
 			)}

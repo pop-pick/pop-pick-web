@@ -28,7 +28,7 @@ export function BottomTabBar() {
 								aria-current={isCurrent ? "page" : undefined}
 								className={cn(
 									"flex flex-col items-center gap-1 py-2 text-xs font-medium",
-									"focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600",
+									"focus-ring",
 									isCurrent ? "text-blue-600" : "text-zinc-400"
 								)}
 							>

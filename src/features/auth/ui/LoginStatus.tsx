@@ -15,7 +15,7 @@ export function LoginStatus({ children, showHomeLink = false }: LoginStatusProps
 			{showHomeLink && (
 				<Link
 					href="/"
-					className="rounded-md font-semibold text-blue-600 underline underline-offset-4 hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+					className="rounded-md font-semibold text-blue-600 underline underline-offset-4 focus-ring hover:text-blue-700"
 				>
 					홈으로 돌아가기
 				</Link>
