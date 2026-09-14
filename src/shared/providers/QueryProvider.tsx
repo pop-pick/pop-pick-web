@@ -41,7 +41,11 @@ function getQueryClient() {
 	return (browserQueryClient ??= makeQueryClient());
 }
 
-export function QueryProvider({ children }: { children: ReactNode }) {
+interface QueryProviderProps {
+	children: ReactNode;
+}
+
+export function QueryProvider({ children }: QueryProviderProps) {
 	const queryClient = getQueryClient();
 
 	return (

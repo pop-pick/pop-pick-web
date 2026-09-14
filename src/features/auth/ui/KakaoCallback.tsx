@@ -4,8 +4,8 @@ import { redirect, useSearchParams } from "next/navigation";
 
 import { useKakaoLogin } from "../hooks/useKakaoLogin";
 import {
-	getKakaoDenialMessage,
 	getLoginFailureMessage,
+	getProviderErrorMessage,
 	LOGIN_PENDING_MESSAGE,
 	MISSING_CODE_MESSAGE
 } from "../model/login-messages";
@@ -19,7 +19,7 @@ export function KakaoCallback() {
 	const loginQuery = useKakaoLogin({ code, state });
 
 	if (providerError !== null) {
-		return <LoginStatus showHomeLink>{getKakaoDenialMessage(providerError)}</LoginStatus>;
+		return <LoginStatus showHomeLink>{getProviderErrorMessage(providerError)}</LoginStatus>;
 	}
 
 	if (code === null) {

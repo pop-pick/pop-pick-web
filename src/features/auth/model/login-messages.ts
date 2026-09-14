@@ -7,8 +7,10 @@ export const MISSING_CODE_MESSAGE = "잘못된 접근입니다. 로그인을 처
 
 const KAKAO_AUTH_FAILURE_CODES = new Set(["E1001", "E1009"]);
 
-export function getKakaoDenialMessage(error: string) {
-	return error === "access_denied" ? "로그인을 취소했습니다." : "카카오 로그인에 실패했습니다. 다시 시도해 주세요.";
+export function getProviderErrorMessage(providerError: string) {
+	return providerError === "access_denied"
+		? "로그인을 취소했습니다."
+		: "카카오 로그인에 실패했습니다. 다시 시도해 주세요.";
 }
 
 export function getLoginFailureMessage(error: unknown) {

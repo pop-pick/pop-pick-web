@@ -27,7 +27,7 @@ function resolveBaseUrl() {
 	return apiBaseUrl;
 }
 
-function appendQuery(url: URL, query: RequestOptions["query"]) {
+function setQuery(url: URL, query: RequestOptions["query"]) {
 	if (query === undefined) {
 		return;
 	}
@@ -47,7 +47,7 @@ function resolveUrl(path: string, query: RequestOptions["query"]) {
 	}
 
 	const url = new URL(path, resolveBaseUrl());
-	appendQuery(url, query);
+	setQuery(url, query);
 
 	return url;
 }
