@@ -12,7 +12,7 @@
 
 ## 검증
 
-<!-- CI(`.github/workflows/ci.yaml`)가 게이트 넷을 돌린다. 로컬에서도 돌렸으면 표시한다 -->
+<!-- CI가 아래 넷과 하네스 검사 `pnpm harness:check`를 돌린다. 로컬에서도 돌렸으면 표시한다 -->
 
 - [ ] `pnpm type:check`
 - [ ] `pnpm build`
