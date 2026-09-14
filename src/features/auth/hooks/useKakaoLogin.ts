@@ -1,10 +1,10 @@
 import { skipToken, useQuery } from "@tanstack/react-query";
 
-import { loginWithKakao } from "../api/auth";
-import { getKakaoRedirectUri } from "../lib/kakao-oauth";
-import { consumeNextPath } from "../lib/next-path";
-import { verifyOAuthState } from "../lib/oauth-state";
-import { useAuthStore } from "../store/useAuthStore";
+import { loginWithKakao } from "../api/login-with-kakao";
+import { getKakaoRedirectUri } from "../model/kakao-oauth";
+import { consumeNextPath } from "../model/next-path";
+import { verifyOAuthState } from "../model/oauth-state";
+import { useAuthStore } from "../model/useAuthStore";
 
 interface KakaoCallbackParams {
 	code: string | null;

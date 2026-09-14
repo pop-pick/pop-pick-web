@@ -2,9 +2,9 @@
 
 import { Button } from "@/shared/ui/Button";
 
-import { buildKakaoAuthorizeUrl, getKakaoRedirectUri } from "./lib/kakao-oauth";
-import { storeNextPath } from "./lib/next-path";
-import { createOAuthState } from "./lib/oauth-state";
+import { buildKakaoAuthorizeUrl, getKakaoRedirectUri } from "../model/kakao-oauth";
+import { storeNextPath } from "../model/next-path";
+import { createOAuthState } from "../model/oauth-state";
 
 interface KakaoLoginButtonProps {
 	next: string | null;
@@ -13,6 +13,7 @@ interface KakaoLoginButtonProps {
 export function KakaoLoginButton({ next }: KakaoLoginButtonProps) {
 	return (
 		<Button
+			variant="kakao"
 			size="lg"
 			onClick={() => {
 				storeNextPath(next);

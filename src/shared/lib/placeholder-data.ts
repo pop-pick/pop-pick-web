@@ -1,4 +1,4 @@
-import type { PopupCardItem } from "@/shared/types/popup";
+import type { PopupCardItem } from "@/shared/model/popup";
 
 export const PLACEHOLDER_POPUPS: PopupCardItem[] = [
 	{

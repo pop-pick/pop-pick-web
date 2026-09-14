@@ -1,3 +1,4 @@
+import { getAccessToken } from "./auth-token";
 import { ApiError } from "./errors";
 import { isApiResponse } from "./types";
 
@@ -9,6 +10,8 @@ export interface RequestOptions extends Omit<RequestInit, "body"> {
 	query?: Record<string, QueryValue> | URLSearchParams;
 	json?: unknown;
 	timeoutMs?: number;
+	/** Bearer를 붙일지. 기본은 붙인다. 백엔드가 `/api/v1/auth/**`만 열어 두고 나머지는 인증을 요구한다 */
+	auth?: boolean;
 }
 
 function resolveBaseUrl() {
@@ -45,17 +48,27 @@ function resolveUrl(path: string, query: RequestOptions["query"]) {
 
 	const url = new URL(path, resolveBaseUrl());
 	appendQuery(url, query);
+
 	return url;
 }
 
-function buildHeaders(headers: HeadersInit | undefined, hasJsonBody: boolean) {
+function buildHeaders(headers: HeadersInit | undefined, hasJsonBody: boolean, auth: boolean) {
 	const result = new Headers(headers);
 	if (!result.has("accept")) {
 		result.set("accept", "application/json");
 	}
+
 	if (hasJsonBody && !result.has("content-type")) {
 		result.set("content-type", "application/json");
 	}
+
+	if (auth && !result.has("authorization")) {
+		const token = getAccessToken();
+		if (token !== null) {
+			result.set("authorization", `Bearer ${token}`);
+		}
+	}
+
 	return result;
 }
 
@@ -75,11 +88,16 @@ function isTimedOut(cause: unknown) {
 async function fetchResponse(url: URL, init: RequestInit) {
 	try {
 		const response = await fetch(url, init);
-		return { response, text: await response.text() };
+
+		return {
+			response,
+			text: await response.text()
+		};
 	} catch (cause) {
 		if (isAbortedByCaller(cause)) {
 			throw cause;
 		}
+
 		throw new ApiError({
 			kind: isTimedOut(cause) ? "timeout" : "network",
 			status: 0,
@@ -113,11 +131,12 @@ function readErrorCode(body: unknown) {
 }
 
 export async function request<T>(path: string, options: RequestOptions = {}) {
-	const { query, json, headers, signal, timeoutMs = DEFAULT_TIMEOUT_MS, ...init } = options;
+	const { query, json, headers, signal, timeoutMs = DEFAULT_TIMEOUT_MS, auth = true, ...init } = options;
 	const url = resolveUrl(path, query);
+
 	const { response, text } = await fetchResponse(url, {
 		...init,
-		headers: buildHeaders(headers, json !== undefined),
+		headers: buildHeaders(headers, json !== undefined, auth),
 		body: json !== undefined ? JSON.stringify(json) : undefined,
 		signal: buildSignal(signal, timeoutMs)
 	});
@@ -144,11 +163,8 @@ export async function request<T>(path: string, options: RequestOptions = {}) {
 
 export const api = {
 	get: <T>(path: string, options?: RequestOptions) => request<T>(path, { ...options, method: "GET" }),
-	post: <T>(path: string, json?: unknown, options?: RequestOptions) =>
-		request<T>(path, { ...options, method: "POST", json }),
-	put: <T>(path: string, json?: unknown, options?: RequestOptions) =>
-		request<T>(path, { ...options, method: "PUT", json }),
-	patch: <T>(path: string, json?: unknown, options?: RequestOptions) =>
-		request<T>(path, { ...options, method: "PATCH", json }),
+	post: <T>(path: string, options?: RequestOptions) => request<T>(path, { ...options, method: "POST" }),
+	put: <T>(path: string, options?: RequestOptions) => request<T>(path, { ...options, method: "PUT" }),
+	patch: <T>(path: string, options?: RequestOptions) => request<T>(path, { ...options, method: "PATCH" }),
 	delete: <T>(path: string, options?: RequestOptions) => request<T>(path, { ...options, method: "DELETE" })
 };

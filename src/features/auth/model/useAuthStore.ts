@@ -1,6 +1,8 @@
 import { create } from "zustand";
 
-import type { AuthTokens } from "../api/auth";
+import { setAccessTokenSource } from "@/shared/api/auth-token";
+
+import type { AuthTokens } from "./auth";
 
 interface AuthState {
 	accessToken: string | null;
@@ -19,3 +21,5 @@ export const useAuthStore = create<AuthState>()((set) => ({
 		set({ accessToken: null, refreshToken: null });
 	}
 }));
+
+setAccessTokenSource(() => useAuthStore.getState().accessToken);

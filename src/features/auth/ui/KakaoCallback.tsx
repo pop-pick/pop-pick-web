@@ -2,13 +2,13 @@
 
 import { redirect, useSearchParams } from "next/navigation";
 
-import { useKakaoLogin } from "./hooks/useKakaoLogin";
+import { useKakaoLogin } from "../hooks/useKakaoLogin";
 import {
 	getKakaoDenialMessage,
 	getLoginFailureMessage,
 	LOGIN_PENDING_MESSAGE,
 	MISSING_CODE_MESSAGE
-} from "./lib/login-messages";
+} from "../model/login-messages";
 import { LoginStatus } from "./LoginStatus";
 
 export function KakaoCallback() {

@@ -3,10 +3,14 @@
 import { Button } from "@/shared/ui/Button";
 import { LinkButton } from "@/shared/ui/LinkButton";
 
-import { useLogout } from "./hooks/useLogout";
-import { useAuthStore } from "./store/useAuthStore";
+import { useLogout } from "../hooks/useLogout";
+import { useAuthStore } from "../model/useAuthStore";
 
-export function SessionPanel() {
+interface SessionPanelProps {
+	next: string;
+}
+
+export function SessionPanel({ next }: SessionPanelProps) {
 	const accessToken = useAuthStore((state) => state.accessToken);
 	const { mutate: signOut, isPending } = useLogout();
 
@@ -17,7 +21,7 @@ export function SessionPanel() {
 					<p className="font-semibold text-zinc-900">로그인하고 추천을 받아보세요</p>
 					<p className="text-sm text-zinc-500">취향을 저장하면 다음에도 같은 추천을 볼 수 있어요.</p>
 				</div>
-				<LinkButton href="/login?next=/home">로그인하기</LinkButton>
+				<LinkButton href={`/login?next=${encodeURIComponent(next)}`}>로그인하기</LinkButton>
 			</section>
 		);
 	}

@@ -2,18 +2,18 @@
 
 import { useMutation } from "@tanstack/react-query";
 
-import { logout } from "../api/auth";
-import { useAuthStore } from "../store/useAuthStore";
+import { logout } from "../api/logout";
+import { useAuthStore } from "../model/useAuthStore";
 
 export function useLogout() {
 	return useMutation({
 		mutationFn: async () => {
-			const { accessToken, refreshToken } = useAuthStore.getState();
-			if (accessToken === null || refreshToken === null) {
+			const { refreshToken } = useAuthStore.getState();
+			if (refreshToken === null) {
 				return;
 			}
 
-			await logout(accessToken, refreshToken);
+			await logout(refreshToken);
 		},
 		onError: (error) => {
 			console.warn("[auth] 로그아웃 요청이 실패했습니다", error);

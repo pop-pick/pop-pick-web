@@ -1,9 +1,9 @@
 import Link from "next/link";
 
 import { cn } from "@/shared/lib/cn";
-import type { PopupCardItem } from "@/shared/types/popup";
-import { POPUP_CATEGORY_LABELS, RESERVATION_TYPE_LABELS } from "@/shared/types/popup";
-import { REGION_LABELS } from "@/shared/types/region";
+import type { PopupCardItem } from "@/shared/model/popup";
+import { POPUP_CATEGORY_LABELS, RESERVATION_TYPE_LABELS } from "@/shared/model/popup";
+import { REGION_LABELS } from "@/shared/model/region";
 import { Badge } from "@/shared/ui/Badge";
 import { PlaceholderBox } from "@/shared/ui/PlaceholderBox";
 
@@ -19,7 +19,7 @@ export function PopupCard({ popup, showReason = false, className }: PopupCardPro
 			href={`/popups/${String(popup.id)}`}
 			className={cn(
 				"flex gap-4 rounded-2xl border border-zinc-100 bg-white p-4 transition-colors hover:bg-zinc-50",
-				"focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600",
+				"focus-ring",
 				className
 			)}
 		>
@@ -31,7 +31,7 @@ export function PopupCard({ popup, showReason = false, className }: PopupCardPro
 				</div>
 				<p className="truncate font-semibold text-zinc-900">{popup.name}</p>
 				<p className="text-sm text-zinc-500">
-					{REGION_LABELS[popup.region]} · {popup.endsOn} 종료
+					{REGION_LABELS[popup.region]}, {popup.endsOn} 종료
 				</p>
 				{showReason && popup.reason !== undefined ? (
 					<p className="line-clamp-2 text-sm text-blue-700">{popup.reason}</p>
