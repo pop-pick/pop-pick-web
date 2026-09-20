@@ -23,7 +23,7 @@ developer_instructions = """
 | --------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------ |
 | 응답 모양 | `../pop-pick-server/`의 DTO 또는 Swagger              | `src/features/*/api/*.ts`의 타입. 필드 이름을 한 글자씩                                    |
 | 에러 코드 | 백엔드 `global/exception`의 목록                      | `errorCode`로 분기하는 자리. 프론트에만 있으면 죽은 분기, 백엔드에만 있으면 안내 없는 화면 |
-| 라우트    | `src/app/**/page.tsx` 경로                            | 모든 `href`와 `router.push`, `redirect`. `(flow)`와 `(tabs)`는 URL에서 사라진다            |
+| 라우트    | `src/app/**/page.tsx` 경로                            | 모든 `href`와 `router.push`, `redirect`. 라우트 그룹은 URL에서 사라진다                    |
 | 설계      | `docs/architecture/{기능}.md`, `docs/product/SPEC.md` | 그 기능의 코드                                                                             |
 
 확인할 수 없으면 확인 못 했다고 적는다. 맞을 것 같다고 적지 않는다.

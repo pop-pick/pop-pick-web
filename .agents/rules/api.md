@@ -115,7 +115,7 @@ export function useCreateCourse() {
 
 **Server Action을 쓰지 않는다.** Next 문서는 변경을 Server Action으로 내고 `useMutation`의 `mutationFn`에 그 액션을 넘기는 흐름을 보여준다. 우리는 `mutationFn`이 브라우저에서 백엔드를 직접 부른다. 이유는 셋이다.
 
-- 액세스 토큰이 Zustand 메모리에 있어 Next 서버가 읽을 수 없다. 인자로 넘기면 토큰이 액션 페이로드에 실린다. 리프레시 토큰을 httpOnly 쿠키로 받는 결정이 나면 다시 본다
+- 액세스 토큰이 Zustand 메모리에 있어 Next 서버가 읽을 수 없다. 인자로 넘기면 토큰이 액션 페이로드에 실린다. 쿠키에 있는 것은 리프레시 토큰뿐이고 그것을 읽는 자리는 `/api/auth` Route Handler 셋으로 한정한다
 - Next 서버는 프록시로만 쓰기로 했다
 - Server Action의 값은 `updateTag`로 서버 캐시를 비우는 데서 나오는데 우리는 서버 캐시가 없다. 문서도 캐시되지 않은 읽기에는 비울 태그가 없다고 적는다
 
@@ -127,14 +127,14 @@ export function useCreateCourse() {
 
 | 부르는 곳                                    | 주소                       | 경유                        |
 | -------------------------------------------- | -------------------------- | --------------------------- |
-| 브라우저                                     | 같은 출처 `/api/...`       | `next.config.ts`의 rewrites |
+| 브라우저                                     | 같은 출처 `/api/v1/...`    | `next.config.ts`의 rewrites |
 | 서버 컴포넌트와 Route Handler, Server Action | `process.env.API_BASE_URL` | 백엔드 직접                 |
 
 서버에서 상대 경로를 쓰면 Next가 자기 자신을 부르게 되고 빌드 시점에는 듣는 서버가 없어 실패한다.
 
 환경 변수 이름은 `API_BASE_URL`이고 `NEXT_PUBLIC_` 접두사를 붙이지 않는다. 이유는 셋이다.
 
-- 리프레시 토큰을 httpOnly 쿠키로 받을 때 요청이 같은 출처여야 일이 쉽다
+- 리프레시 토큰이 httpOnly 쿠키에 있고 요청이 같은 출처라야 쿠키가 자연스럽게 붙는다
 - 같은 출처 요청에는 CORS preflight가 없다
 - 백엔드 주소가 클라이언트 번들에 들어가지 않는다
 
@@ -146,11 +146,13 @@ export function useCreateCourse() {
 
 ## Route Handler와 rewrite의 순서
 
-Next는 요청을 headers, redirects, proxy, beforeFiles rewrites, 파일시스템 라우트, afterFiles rewrites, 동적 라우트, fallback rewrites 순서로 본다. `rewrites()`가 배열을 돌려주면 afterFiles다. 그래서 `app/api/auth/callback/route.ts` 같은 정적 경로 Route Handler는 `/api/:path*` rewrite보다 먼저 잡히고, `app/api/[...slug]/route.ts` 같은 동적 세그먼트는 rewrite에 밀려 닿지 않는다.
+Next는 요청을 headers, redirects, proxy, beforeFiles rewrites, 파일시스템 라우트, afterFiles rewrites, 동적 라우트, fallback rewrites 순서로 본다. `rewrites()`가 배열을 돌려주면 afterFiles다. 그래서 `app/api/auth/session/route.ts` 같은 정적 경로 Route Handler는 rewrite보다 먼저 잡히고, `app/api/[...slug]/route.ts` 같은 동적 세그먼트는 rewrite에 밀려 닿지 않는다.
 
 **`/api` 아래 Route Handler는 정적 경로로만 만든다.** 출처는 https://nextjs.org/docs/app/api-reference/config/next-config-js/rewrites 와 https://nextjs.org/docs/app/api-reference/file-conventions/proxy 의 Execution order 절이다.
 
-Next 서버는 프록시로만 쓴다. Route Handler로 프록시를 손으로 짜지 않고 비즈니스 로직을 두지 않는다.
+rewrite 경로는 `/api/v1/:path*`이고 Route Handler는 `/api/auth/**`다. 백엔드 API가 전부 `/api/v1/**`이라 좁혀도 닿지 못하는 엔드포인트가 없고 두 경로가 겹치지 않는다.
+
+Next 서버는 프록시로만 쓴다. Route Handler로 프록시를 손으로 짜지 않고 비즈니스 로직을 두지 않는다. `/api/auth` 셋만 예외이고 그것도 세션 쿠키를 심고 지우는 전달 계층 일이다. 추천 계산이나 코스 순서 같은 것이 그 폴더로 들어오면 원칙이 깨진 것이다. 흐름은 `docs/architecture/auth.md`에 있다.
 
 ## 응답 형식은 백엔드가 정한다
 
@@ -171,7 +173,7 @@ Next 서버는 프록시로만 쓴다. Route Handler로 프록시를 손으로 �
 
 응답 공통 구조와 에러 코드 체계, 커서 기반 페이지네이션, camelCase 필드 이름은 백엔드가 정했다. 상세는 백엔드 Swagger(https://prod.poppick.shop/swagger-ui/index.html)와 백엔드 저장소의 `global/response`, `global/exception` 패키지에 있다.
 
-아직 정해지지 않은 것은 날짜와 시간 포맷, 그리고 리프레시 토큰을 httpOnly 쿠키로 받는지다. 미결정 항목은 `docs/product/ROADMAP.md`의 미결정 절이 갖는다.
+토큰 보관도 정해졌다. 액세스 토큰은 Zustand 메모리, 리프레시 토큰은 httpOnly 쿠키이고 쿠키는 백엔드가 아니라 Next Route Handler가 심는다. 아직 정해지지 않은 것은 날짜와 시간 포맷, 쿠키 수명이다. 미결정 항목은 `docs/product/ROADMAP.md`의 미결정 절이 갖는다.
 
 ## 리뷰에서 볼 것
 
