@@ -1,7 +1,8 @@
 import { api } from "@/shared/api/client";
 
-import type { AuthTokens } from "../model/auth";
+import type { SessionResult } from "../model/auth";
 
-export function refreshAuthTokens(refreshToken: string) {
-	return api.post<AuthTokens>("/api/v1/auth/refresh", { json: { refreshToken }, auth: false });
+/** 쿠키의 리프레시 토큰으로 액세스 토큰을 다시 받는다. 요청 본문이 없다 */
+export function refreshAuthTokens() {
+	return api.post<SessionResult>("/api/auth/refresh", { auth: false });
 }
