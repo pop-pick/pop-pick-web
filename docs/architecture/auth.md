@@ -2,7 +2,7 @@
 
 `features/auth`. 카카오와 구글 소셜 로그인, 토큰 보관과 재발급, 내 정보, 로그인 필요 동작의 가드를 다룬다.
 
-카카오 로그인은 만들어져 있다. 인가 요청의 `state` 대조와 콜백 이중 실행 방지, 토큰 메모리 보관, `next` 경로 복귀, 로그아웃이 코드에 있다. **토큰 보관 방식은 정해졌고 아직 코드에 들어가지 않았다.** 액세스 토큰은 메모리에 두고 리프레시 토큰만 httpOnly 쿠키로 옮기며 쿠키는 Next Route Handler가 심는다. 재발급과 내 정보, 로그인 가드, 로그인 완료 화면, 구글 로그인도 아직 설계다. 아래에서 설계라고 표시한 것이 그것이다.
+카카오 로그인과 토큰 보관은 코드에 있다. 액세스 토큰은 Zustand 메모리, 리프레시 토큰은 httpOnly 쿠키이고 쿠키는 Next Route Handler가 심는다. 인가 요청의 `state` 대조와 콜백 이중 실행 방지, 앱 시작 재발급, 만료 뒤 재발급과 재요청, `next` 경로 복귀, 로그인 완료 화면, 로그아웃이 선다. 백엔드 토큰 교환은 카카오 앱 키가 갈려 있어 끝까지 통과하지 못한다. 내 정보와 로그인 가드, 구글 로그인은 아직 설계다. 아래에서 설계라고 표시한 것이 그것이다.
 
 ## R. Requirements
 
@@ -41,7 +41,7 @@
 
 통신은 요청 응답이다. 브라우저가 부르는 자리는 셋으로 나뉜다. 인가 코드 교환과 재발급, 로그아웃은 같은 출처 Route Handler를 부르고 내 정보는 rewrite를 지나 백엔드로 간다.
 
-### Route Handler 셋(설계)
+### Route Handler 셋
 
 쿠키를 심고 지우는 자리다. `src/app/api/auth/` 아래 정적 경로로 셋을 만든다. 로그인이 `POST /api/auth/session`, 재발급이 `POST /api/auth/refresh`, 로그아웃이 `DELETE /api/auth/session`이다. 로그인과 로그아웃이 같은 자원이라 경로 하나에 메서드 둘로 묶었다. 쿠키를 심는 자리와 지우는 자리가 갈리지 않는다. 각각의 요청과 응답은 아래 Interface 절의 계약 표에 있다.
 
@@ -51,7 +51,7 @@
 
 ### rewrite 경로
 
-`next.config.ts`의 rewrite는 `/api/v1/:path*`로 좁힌다. 백엔드 API가 전부 `/api/v1/**`이라 좁혀도 닿지 못하는 엔드포인트가 없고, `/api/auth/**` Route Handler와 경로가 겹치지 않는다. **지금 코드의 rewrite는 아직 `/api/:path*`다.** Route Handler를 만들 때 함께 좁힌다.
+`next.config.ts`의 rewrite는 `/api/v1/:path*`다. 백엔드 API가 전부 `/api/v1/**`이라 좁혀도 닿지 못하는 엔드포인트가 없고, `/api/auth/**` Route Handler와 경로가 겹치지 않는다.
 
 ### 흐름
 
@@ -63,9 +63,9 @@
 4. Route Handler가 리프레시 토큰을 쿠키로 굽고 액세스 토큰만 돌려준다. 액세스 토큰을 스토어에 넣는다
 5. 로그인 완료 화면을 지나 `sessionStorage`에서 꺼낸 `next`로 이동한다. 없거나 같은 출처가 아니면 `/home`이다
 
-**앱 시작과 새로고침(설계).** `AuthProvider`가 `POST /api/auth/refresh`를 한 번 부른다. 쿠키가 있으면 액세스 토큰을 받아 스토어에 넣고, 없거나 만료면 비로그인으로 시작한다. 이 동안 `restoring` 상태이고 보호 화면은 스켈레톤을 보인다. 이 한 번의 호출이 새로고침에서 로그아웃되지 않게 하는 전부다.
+**앱 시작과 새로고침.** `AuthProvider`가 `POST /api/auth/refresh`를 한 번 부른다. 쿠키가 있으면 액세스 토큰을 받아 스토어에 넣고, 없거나 만료면 비로그인으로 시작한다. 이 동안 `restoring` 상태이고 보호 화면은 스켈레톤을 보인다. 이 한 번의 호출이 새로고침에서 로그아웃되지 않게 하는 전부다.
 
-**재발급(설계).** `request`가 `auth: true`인 요청에 Bearer를 붙인다. 응답이 `E1004`(만료)면 `POST /api/auth/refresh`를 한 번 부르고 같은 요청을 다시 보낸다. 재발급이 동시에 여러 요청에서 필요해지면 진행 중인 재발급 Promise 하나를 공유해 요청은 한 번만 나간다. 재발급이 `E1011`(무효나 재사용된 리프레시 토큰)이나 다른 실패로 끝나면 스토어를 비우고 만료 이벤트를 낸다. `AuthProvider`가 그 이벤트를 받아 현재 경로를 `next`에 실어 `/login`으로 보낸다.
+**재발급.** 브라우저에서만 돈다. Route Handler가 백엔드를 부를 때는 타지 않는다. `request`가 `auth: true`인 요청에 Bearer를 붙인다. 응답이 `E1004`(만료)면 `POST /api/auth/refresh`를 한 번 부르고 같은 요청을 다시 보낸다. 재발급이 동시에 여러 요청에서 필요해지면 진행 중인 재발급 Promise 하나를 공유해 요청은 한 번만 나간다. 재발급이 `E1011`(무효나 재사용된 리프레시 토큰)이나 다른 실패로 끝나면 스토어를 비우고 만료 이벤트를 낸다. 쿠키를 지우는 것은 토큰이 거절된 경우(401이나 `E1011`, `E1000`)뿐이다. 백엔드 장애로 실패했을 때 멀쩡한 쿠키를 지우면 서버가 돌아온 뒤에도 다시 로그인해야 한다. `AuthProvider`가 그 이벤트를 받아 현재 경로를 `next`에 실어 `/login`으로 보낸다.
 
 **로그아웃.** `DELETE /api/auth/session`을 부르고 응답과 무관하게 스토어를 비운다. Route Handler는 쿠키를 먼저 지우고 백엔드 로그아웃을 부른다. 백엔드 호출이 실패해도 쿠키는 이미 지워졌다. 서버의 블랙리스트 등록이 안 됐을 수 있지만 사용자의 로그아웃 의도를 되돌리지 않는다. 실패는 `[auth]`로 로그를 남긴다. 이 축소 동작은 로그가 있고 화면 상태(비로그인)가 의도와 같다.
 
@@ -131,27 +131,27 @@ export function KakaoLoginButton({ next }: { next: string | null });
 // ui/KakaoCallback.tsx. 교환 중이면 role=status, 실패면 role=alert
 export function KakaoCallback();
 
+// ui/AuthProvider.tsx. 루트 레이아웃이 감싼다. 시작 재발급과 만료 이벤트 구독
+export function AuthProvider({ children }: { children: ReactNode });
+
+// ui/LoginComplete.tsx. /login/complete. 완료 문구를 보이고 next로 넘긴다
+export function LoginComplete({ next }: { next: string | null });
+
 // hooks/useKakaoLogin.ts. code를 키로 하는 쿼리. retry 없음, staleTime Infinity
 export function useKakaoLogin(params: {
 	code: string | null;
 	state: string | null;
-}): UseQueryResult<{ tokens: AuthTokens; nextPath: string }, Error>;
+}): UseQueryResult<{ nextPath: string }, Error>;
 
 export function useLogout(): UseMutationResult<void, Error, void>;
 export function useAuthStore(): AuthState;
 ```
 
-**설계.** 아래는 아직 코드에 없다. 공급자가 둘이 되고 재발급이 붙을 때 위의 카카오 전용 이름이 공급자를 받는 이름으로 바뀐다.
+**설계.** 아래는 아직 코드에 없다. 공급자가 둘이 될 때 위의 카카오 전용 이름이 공급자를 받는 이름으로 바뀐다.
 
 ```typescript
-// 루트 레이아웃이 감싼다. 시작 재발급을 부르고 만료 이벤트를 구독해 로그인 화면으로 보낸다
-export function AuthProvider({ children }: { children: ReactNode });
-
 export function SocialLoginButton({ provider, next }: { provider: OAuthProvider; next: string | null });
 export function OAuthCallback({ provider }: { provider: OAuthProvider });
-
-// /login/complete. 완료 문구를 보이고 next로 넘긴다
-export function LoginComplete({ next }: { next: string | null });
 
 // 로그인 상태일 때만 조회한다. 비로그인이면 data는 undefined이고 요청이 나가지 않는다
 export function useMe(): UseQueryResult<Me, ApiError>;
@@ -163,17 +163,27 @@ export function useRequireAuth(): { ensure: (next: string) => boolean };
 export function RequireAuth({ children, next }: { children: ReactNode; next: string });
 ```
 
-**`shared/api`의 계약.** `setAccessTokenSource`와 `RequestOptions.auth`는 있다. `auth`는 기본 `true`이고 `false`면 Bearer를 붙이지 않는다. 아래 둘은 재발급이 붙을 때 더한다.
+**`shared/api`의 계약.** `auth`는 기본 `true`이고 `false`면 Bearer를 붙이지 않는다. `accessToken`을 넘기면 그 값으로 Bearer를 만든다. 서버에는 토큰 소스가 없어 Route Handler가 브라우저에서 받은 토큰을 이 옵션으로 넘긴다.
 
 ```typescript
-// shared/api/auth-token.ts. 설계
-export function setRefreshHandler(handler: () => Promise<boolean>): void;
+// shared/api/auth-token.ts
+export function setAccessTokenSource(next: AccessTokenSource | null): void;
+export function setRefreshHandler(handler: RefreshHandler | null): void;
+/** 진행 중인 재발급이 있으면 그 결과를 함께 기다린다 */
+export function refreshAccessToken(): Promise<boolean>;
 export function subscribeAuthExpired(listener: () => void): () => void;
+export function notifyAuthExpired(): void;
+
+// shared/api/route-handler.ts. Route Handler가 쓴다
+export function toSuccessResponse<T>(data: T): NextResponse;
+export function toErrorResponse(params: { status: number; errorCode: string; message: string }): NextResponse;
+export function toBackendErrorResponse(error: unknown): NextResponse;
+export function readBearerToken(request: Request): string | null;
 ```
 
 `request`가 `auth: true`인데 토큰 소스가 `null`을 돌려주면 요청을 보내지 않고 `ApiError`(`kind` http, `status` 401, `errorCode` `E1000`)를 던진다. 화면이 비로그인 상태에서 인증 요청을 보내는 실수를 서버까지 가지 않고 잡는다.
 
-**Route Handler 계약(설계).**
+**Route Handler 계약.**
 
 | 메서드와 경로              | 요청                                        | 응답            | 쿠키                   |
 | -------------------------- | ------------------------------------------- | --------------- | ---------------------- |

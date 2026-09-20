@@ -101,6 +101,4 @@ Vercel 대시보드의 Deployments 목록에서 이전 배포를 프로덕션으
 
 ## 보안 헤더
 
-`next.config.ts`에서 설정한다. X-Content-Type-Options, Referrer-Policy, X-Frame-Options, Permissions-Policy 넷이다. Permissions-Policy로 카메라와 마이크, 위치 권한을 막는다.
-
-**탐색 지도가 위치 권한을 쓰기로 하면서 이 헤더를 고쳐야 한다.** 지금은 `geolocation=()`이라 브라우저가 권한을 묻지 못한다. 같은 출처에만 여는 `geolocation=(self)`로 바꾼다. 카메라와 마이크는 계속 막는다. 헤더를 고치기 전에는 지도가 현재 위치를 잡지 못하고 서울 기본 위치만 쓴다.
+`next.config.ts`에서 설정한다. X-Content-Type-Options, Referrer-Policy, X-Frame-Options, Permissions-Policy 넷이다. Permissions-Policy로 카메라와 마이크를 막고 위치는 `geolocation=(self)`로 같은 출처에만 연다. 탐색 지도가 현재 위치를 지도 중심으로 잡는 데 쓴다.
