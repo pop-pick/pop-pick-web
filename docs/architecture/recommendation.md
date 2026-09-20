@@ -1,14 +1,16 @@
 # 홈 추천 설계
 
-`features/recommendation`. 회원 홈의 추천 섹션과 비회원 홈의 인기 섹션, 지역 요약, 플래너 배너, 추천이 준비되기 전이나 실패했을 때의 축소 동작을 다룬다. 홈 화면 자체는 `src/app/(tabs)/home/page.tsx`가 이 기능과 `popup`, `bookmark`를 조립한다.
+`features/recommendation`. 회원 홈의 추천 섹션과 비회원 홈의 인기 섹션, 지역 요약, 플래너 배너, 추천이 준비되기 전이나 실패했을 때의 축소 동작을 다룬다. 홈 화면 자체는 `src/app/home/page.tsx`가 이 기능과 `popup`, `bookmark`를 조립한다.
 
 ## R. Requirements
 
-**기능.** 회원 홈은 취향 기반 추천 카드와 닉네임 인사, 비회원 홈은 취향 입력 배너와 인기 팝업이다. 둘 다 검색바와 인기 지역 칩, 플래너 배너가 있다. 카드에 무엇이 놓이는지는 `docs/product/SPEC.md`의 AI 개인화 추천 코스 절이 정본이다.
+**기능.** 회원 홈은 "{이름}님의 팝업 PICK" 롤링과 인기 팝업, 비회원 홈은 취향 입력 배너와 인기 팝업이다. 둘 다 검색바와 인기 지역 칩, AI 코스 생성 버튼이 있고 인기 팝업과 인기 지역은 회원과 비회원에게 같은 내용이다. 카드에 무엇이 놓이는지는 `docs/product/SPEC.md`의 AI 개인화 추천 코스 절이 정본이다.
 
 **보장.**
 
 - 홈 LCP는 p75 2.5초 이하다. 첫 카드 이미지가 LCP 요소다
+- 회원 홈 상단은 취향으로 고른 팝업 세 개를 3초 간격으로 롤링한다. 취향이 없는 회원에게는 랜덤 세 개를 보인다. 로그인한 사용자에게 이 자리가 비는 경우가 없다
+- 인기 팝업은 상위 셋을 고정으로 보이고 전체보기를 누르면 탐색 목록이 인기순으로 열린다
 - 추천이 준비되지 않았거나 실패해도 홈이 비지 않는다. 그 섹션이 인기 팝업으로 채워지고 제목과 한 줄 문구가 바뀌어 사용자가 추천이 아님을 안다
 - 추천 이유는 두 줄을 넘지 않는다. 넘치면 두 줄에서 말줄임한다. 글자 수 상한은 백엔드와 맞춘다
 - 섹션 셋(추천 또는 인기, 인기 지역, 배너)이 각자 로딩되고 하나의 실패가 다른 섹션을 막지 않는다
@@ -21,18 +23,18 @@
 - "준비 중"은 실패가 아니라 상태다. 온보딩 답이 아직 없거나 임베딩이 끝나지 않은 사용자에게 서버가 `PREPARING`을 값으로 낸다. 실패(`ApiError`)와 준비 중을 화면은 같은 축소 동작으로 다루지만 로그는 다르게 남긴다
 - 축소 동작은 `no-fallback.md`의 조건 셋을 채운다. `docs/product/SPEC.md`에 적혀 있고 화면에서 라벨로 구분되고 `[recommendation]` 로그가 남는다
 
-**범위 밖.** 추천 새로 고침 버튼, 추천 결과 저장, 카드 단위 "관심 없음" 피드백, 평점과 리뷰 수(피그마 비회원 카드에 있지만 출처가 미정이라 `null`이면 그리지 않는다).
+**범위 밖.** 추천 새로 고침 버튼, 추천 결과 저장, 카드 단위 "관심 없음" 피드백, 평점과 리뷰 수(화면에 있지만 출처가 미정이라 `null`이면 그리지 않는다).
 
 ## A. Architecture
 
-| 상태                  | 원천                                                         | 비고                                                   |
-| --------------------- | ------------------------------------------------------------ | ------------------------------------------------------ |
-| 추천 결과             | Server. `["recommendations", "home"]`                        | 로그인 상태일 때만                                     |
-| 인기 팝업             | Server. `["popups", "list", { sort: "popular", limit: 10 }]` | 공개. 비회원 홈과 축소 동작 둘이 같은 캐시를 쓴다      |
-| 지역 요약             | Server. `["regions", "summary"]`                             | 공개                                                   |
-| 내 정보               | Server. `["me"]`                                             | `auth.md`                                              |
-| 어느 홈을 그리나      | Derived. 인증 상태                                           | `authenticated`면 회원 홈                              |
-| 추천 섹션의 표시 모드 | Derived. 추천 쿼리 상태와 `status`                           | `recommended`, `fallback-preparing`, `fallback-failed` |
+| 상태                  | 원천                                                         | 비고                                                                             |
+| --------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| 추천 결과             | Server. `["recommendations", "home"]`                        | 로그인 상태일 때만                                                               |
+| 인기 팝업             | Server. `["popups", "list", { sort: "popular", limit: 10 }]` | 공개. 최근 7일 상세 조회수 내림차순. 비회원 홈과 축소 동작 둘이 같은 캐시를 쓴다 |
+| 지역 요약             | Server. `["regions", "summary"]`                             | 공개                                                                             |
+| 내 정보               | Server. `["me"]`                                             | `auth.md`                                                                        |
+| 어느 홈을 그리나      | Derived. 인증 상태                                           | `authenticated`면 회원 홈                                                        |
+| 추천 섹션의 표시 모드 | Derived. 추천 쿼리 상태와 `status`                           | `recommended`, `fallback-preparing`, `fallback-failed`                           |
 
 통신은 요청 응답 셋이다.
 
@@ -87,7 +89,8 @@ export function HomeHeader(); // 회원이면 닉네임 인사, 비회원이면 
 export function RecommendationSection(); // 모드에 따라 카드 목록과 라벨. 카드는 shared/ui/PopupCard
 export function PopularSection({ title }: { title: string }); // 비회원 홈의 인기 팝업
 export function OnboardingBanner(); // 비회원 홈. "취향 입력하기"가 /login?next=/onboarding/1로
-export function PlannerBanner(); // "AI 코스 생성기"가 /planner로
+export function PickRolling(); // 회원 홈 상단. 세 개를 3초 간격으로 롤링
+export function PlannerBanner(); // "AI 코스 생성"이 /planner/new로
 export function RegionChips(); // 지역 요약. 칩이 /explore?region=으로
 export function HomeSearchBar(); // 제출하면 /explore?q=
 
@@ -105,7 +108,7 @@ export function useRegionSummary(): UseQueryResult<RegionSummary[], ApiError>;
 | `GET /api/v1/popups?sort=popular&limit=10` | 선택 | `PageResponse<PopupSummary>` | 요구(`popup.md`) |
 | `GET /api/v1/regions/summary`              | 없음 | `RegionSummary[]`            | 요구             |
 
-"인기"의 정의는 백엔드가 정한다. 지금은 조회수나 찜 수가 없어 최신 등록순이 될 수 있고 FE는 `sort=popular`라는 이름만 안다.
+"인기"는 최근 7일간 팝업 상세 페이지 조회수 내림차순이다. 외부에서 받는 값이 아니라 우리가 집계한다. 집계와 정렬은 백엔드가 맡고 FE는 `sort=popular`를 넘긴다. 상세를 여는 것이 조회수에 반영되는 경로는 백엔드가 정한다.
 
 **로그.** `[recommendation]` 접두사. `fallback-preparing`과 `fallback-failed`로 들어갈 때 각각 한 줄. 실패는 `errorCode`를 함께 남긴다.
 
@@ -113,7 +116,7 @@ export function useRegionSummary(): UseQueryResult<RegionSummary[], ApiError>;
 
 ## O. Optimization과 운영
 
-**렌더링.** 첫 카드 이미지에 `priority`를 주고 나머지는 지연 로드한다. 카드 이미지는 `next/image`에 고정 비율 컨테이너를 두어 CLS를 막는다. 대표 이미지가 없으면 카테고리별 대체 이미지를 쓴다. 대체 이미지는 `public/`의 정적 파일이다.
+**렌더링.** 첫 카드 이미지에 `priority`를 주고 나머지는 지연 로드한다. 상단 롤링은 3초 간격이고 탭이 백그라운드면 멈춘다. 사용자가 손으로 넘기면 자동 넘김을 멈추고 `prefers-reduced-motion`이 켜져 있으면 자동으로 넘기지 않는다. 카드 이미지는 `next/image`에 고정 비율 컨테이너를 두어 CLS를 막는다. 대표 이미지가 없으면 카테고리별 대체 이미지를 쓴다. 대체 이미지는 `public/`의 정적 파일이다.
 
 **장애.** 위의 결정표대로다. 인기 지역이 실패하면 칩 줄만 사라지고 로그를 남긴다. 배너는 정적이라 실패가 없다.
 

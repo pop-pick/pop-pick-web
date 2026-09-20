@@ -30,11 +30,11 @@ PR은 CI(`.github/workflows/ci.yaml`) 통과 뒤에만 머지된다. Vercel 배�
 
 `.env*` 파일은 커밋하지 않는다. `.gitignore`에 있고 예외는 `.env.example` 하나다. `.env.example`에 같은 이름과 설명이 있다. 로컬은 `.env.local`에, 배포는 Vercel 프로젝트 설정에 값을 둔다.
 
-| 변수                          | 용도                                                                                                                                            | 값과 받는 곳                                                      |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| `API_BASE_URL`                | 백엔드 API 주소. `next.config.ts`의 `/api` rewrite 목적지와 서버 컴포넌트의 직접 호출에 쓴다. 서버와 빌드에서만 읽히고 브라우저에는 가지 않는다 | `https://prod.poppick.shop`. Vercel 프로젝트 설정에 등록되어 있다 |
-| `NEXT_PUBLIC_KAKAO_MAP_KEY`   | 카카오맵 JavaScript 키                                                                                                                          | 카카오 개발자 콘솔의 팝픽 앱에서 받는다                           |
-| `NEXT_PUBLIC_KAKAO_CLIENT_ID` | 카카오 로그인 REST API 키                                                                                                                       | 카카오 개발자 콘솔의 팝픽 앱에서 받는다                           |
+| 변수                          | 용도                                                                                                                                                    | 값과 받는 곳                                                      |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `API_BASE_URL`                | 백엔드 API 주소. `next.config.ts`의 rewrite 목적지와 서버 컴포넌트, Route Handler의 직접 호출에 쓴다. 서버와 빌드에서만 읽히고 브라우저에는 가지 않는다 | `https://prod.poppick.shop`. Vercel 프로젝트 설정에 등록되어 있다 |
+| `NEXT_PUBLIC_KAKAO_MAP_KEY`   | 카카오맵 JavaScript 키                                                                                                                                  | 카카오 개발자 콘솔의 팝픽 앱에서 받는다                           |
+| `NEXT_PUBLIC_KAKAO_CLIENT_ID` | 카카오 로그인 REST API 키                                                                                                                               | 카카오 개발자 콘솔의 팝픽 앱에서 받는다                           |
 
 `API_BASE_URL`은 Vercel 대시보드의 Settings 아래 Environment Variables에 Production과 Preview 둘 다로 들어가 있다. 둘 다 있어야 미리보기 배포도 빌드된다. 값이 없으면 `next.config.ts`가 로드되는 시점에 던져 Vercel 빌드가 실패한다.
 
@@ -46,7 +46,9 @@ PR은 CI(`.github/workflows/ci.yaml`) 통과 뒤에만 머지된다. Vercel 배�
 
 ## 카카오 개발자 콘솔
 
-카카오맵용 앱은 팝픽 앱 하나만 쓴다. 무료 쿼터가 계정에서 처음 카카오맵을 켠 앱 하나에만 붙고 한 번 정해지면 비활성화해도 되돌아가지 않는다. 팝픽 앱이 그 쿼터를 갖고 있고 카카오맵 사용 설정도 켜져 있다. 사용 설정에는 심사가 없다.
+카카오 앱은 백엔드 담당자 계정의 앱 하나로 통일한다. 카카오맵과 카카오 로그인이 같은 앱을 쓴다. 무료 쿼터가 계정에서 처음 카카오맵을 켠 앱 하나에만 붙고 한 번 정해지면 비활성화해도 되돌아가지 않아서다. 사용 설정에는 심사가 없다.
+
+프론트엔드도 지도 SDK와 로그인에 키가 필요하므로 그 앱 프로젝트에 초대를 받는다. 초대에는 카카오 계정 이메일이 필요하다. 조회만 하는 데 어느 권한 등급이 필요한지는 확인 중이다.
 
 지도 SDK와 카카오 로그인은 둘 다 콘솔에 등록한 주소에서만 동작한다. 등록할 주소는 셋이다.
 
@@ -76,7 +78,9 @@ PR은 CI(`.github/workflows/ci.yaml`) 통과 뒤에만 머지된다. Vercel 배�
 
 ## 백엔드 API 주소
 
-운영 주소는 https://prod.poppick.shop 이다. Swagger UI는 https://prod.poppick.shop/swagger-ui/index.html 에, OpenAPI JSON은 https://prod.poppick.shop/v3/api-docs 에 있다. 브라우저는 이 주소를 직접 부르지 않고 같은 출처 `/api` 경로를 부르며 `next.config.ts`의 rewrite가 이 주소로 넘긴다. 두 경로의 규칙은 `.agents/rules/api.md`에 있다.
+운영 주소는 https://prod.poppick.shop 이다. Swagger UI는 https://prod.poppick.shop/swagger-ui/index.html 에, OpenAPI JSON은 https://prod.poppick.shop/v3/api-docs 에 있다. 브라우저는 이 주소를 직접 부르지 않고 같은 출처 `/api/v1` 경로를 부르며 `next.config.ts`의 rewrite가 이 주소로 넘긴다. 두 경로의 규칙은 `.agents/rules/api.md`에 있다.
+
+`/api/auth`는 rewrite를 타지 않고 Next의 Route Handler가 받는다. 세션 쿠키를 심고 지우는 자리이고 그 안에서 백엔드 `/api/v1/auth/**`를 부른다. rewrite는 `/api/v1/:path*`로 좁혀 두 경로가 겹치지 않게 한다. 흐름은 `docs/architecture/auth.md`에 있다.
 
 ## 롤백
 
@@ -98,3 +102,5 @@ Vercel 대시보드의 Deployments 목록에서 이전 배포를 프로덕션으
 ## 보안 헤더
 
 `next.config.ts`에서 설정한다. X-Content-Type-Options, Referrer-Policy, X-Frame-Options, Permissions-Policy 넷이다. Permissions-Policy로 카메라와 마이크, 위치 권한을 막는다.
+
+**탐색 지도가 위치 권한을 쓰기로 하면서 이 헤더를 고쳐야 한다.** 지금은 `geolocation=()`이라 브라우저가 권한을 묻지 못한다. 같은 출처에만 여는 `geolocation=(self)`로 바꾼다. 카메라와 마이크는 계속 막는다. 헤더를 고치기 전에는 지도가 현재 위치를 잡지 못하고 서울 기본 위치만 쓴다.
