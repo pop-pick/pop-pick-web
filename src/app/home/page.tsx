@@ -31,7 +31,7 @@ export default function HomePage() {
 			</section>
 
 			<Link
-				href="/planner"
+				href="/planner/new"
 				className="flex flex-col gap-1 rounded-2xl bg-blue-600 p-5 text-white focus-ring transition-colors hover:bg-blue-700"
 			>
 				<span className="font-bold">AI 코스 생성기</span>

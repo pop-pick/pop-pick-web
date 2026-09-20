@@ -2,7 +2,9 @@ import "@/shared/styles/globals.css";
 
 import type { Metadata } from "next";
 
+import { AuthProvider } from "@/features/auth/ui/AuthProvider";
 import { QueryProvider } from "@/shared/providers/QueryProvider";
+import { BottomTabBar } from "@/shared/ui/BottomTabBar";
 
 export const metadata: Metadata = {
 	title: "팝픽 POP PICK",
@@ -14,7 +16,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 		<html lang="ko" className="h-full antialiased">
 			<body className="bg-zinc-100 font-sans text-foreground">
 				<div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-background">
-					<QueryProvider>{children}</QueryProvider>
+					<QueryProvider>
+						<AuthProvider>
+							{children}
+							<BottomTabBar />
+						</AuthProvider>
+					</QueryProvider>
 				</div>
 			</body>
 		</html>
