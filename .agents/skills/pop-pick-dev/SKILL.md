@@ -115,7 +115,7 @@ Stop 훅이 응답을 끝내기 전에 같은 스크립트를 돌린다. 막는 
 
 ## 시나리오 둘
 
-**정상.** 탐색 화면에 지역 필터를 붙인다. 화면 하나라 계획 없이 ui-builder를 부른다. 바뀐 것이 `features/popup/ui`와 `className`, 라우트 파일이라 review-screen과 review-tailwind, review-nextjs를 병렬로 부른다. 고칠것 둘을 고치고 review-tailwind에 그 자리만 다시 보낸다. 게이트를 돌리고 끝낸다.
+**정상.** 탐색 화면에 정렬 선택을 붙인다. 화면 하나라 계획 없이 ui-builder를 부른다. 바뀐 것이 `features/popup/ui`와 `className`, 라우트 파일이라 review-screen과 review-tailwind, review-nextjs를 병렬로 부른다. 고칠것 둘을 고치고 review-tailwind에 그 자리만 다시 보낸다. 게이트를 돌리고 끝낸다.
 
 **막힘.** feature-builder가 응답 필드 이름을 Swagger에서 확인하지 못해 멈춘다. 지어내지 않고 무엇을 확인 못 했는지 보고한다. 백엔드에 물을 문구를 만들어 사용자에게 넘기고 그 기능은 거기서 멈춘다.
 

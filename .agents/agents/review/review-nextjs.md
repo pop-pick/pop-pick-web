@@ -22,8 +22,8 @@ grep '"next"' package.json
 
 - `"use client"`가 잎에 가까운가. 위쪽에 붙으면 아래 전부가 클라이언트 번들에 들어간다. 데이터를 받는 일과 그리는 일이 한 파일에 섞여 경계가 올라간 자리
 - `src/app`에 Next가 이름을 정하는 파일만 있는가. 그 버전의 타입 헬퍼를 쓰는가
-- 모든 `href`와 `router.push`, `redirect` 값이 실제 page 파일이 만드는 URL과 맞는가. `(flow)`와 `(tabs)`는 URL에서 사라진다
-- 새 Route Handler가 `/api/:path*` rewrite에 밀리지 않는가. 정적 경로만 앞선다
+- 모든 `href`와 `router.push`, `redirect` 값이 실제 page 파일이 만드는 URL과 맞는가. 라우트 그룹은 URL에서 사라진다
+- 새 Route Handler가 `/api/v1/:path*` rewrite에 밀리지 않는가. 정적 경로만 앞선다
 - `"use server"`가 새로 생겼는가
 - 그 버전의 캐싱 기본값과 다르게 동작하리라 가정한 자리
 - `NEXT_PUBLIC_`으로 나간 값이 브라우저에 정말 필요한가. 카카오맵 JavaScript 키는 필요하다

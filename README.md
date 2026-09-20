@@ -23,7 +23,7 @@
 | 컴파일러        | React Compiler (babel-plugin-react-compiler)                                                   | 설치됨         |
 | 코드 품질       | ESLint, Prettier, lefthook                                                                     | 설치됨         |
 | 서버 상태       | TanStack Query                                                                                 | 설치됨         |
-| 클라이언트 상태 | Zustand. 인증 토큰과 온보딩 입력 중인 답 정도로 최소                                           | 설치됨         |
+| 클라이언트 상태 | Zustand. 액세스 토큰과 온보딩 입력 중인 답 정도로 최소. 리프레시 토큰은 httpOnly 쿠키다        | 설치됨         |
 | 지도            | Kakao Map JavaScript SDK. `src/shared/lib/kakao-map`이 script를 직접 주입한다. npm 패키지 없음 | 코어 모듈 있음 |
 | 도보 소요시간   | 카카오맵 REST API 도보 경로 조회. 코스 순서를 아는 백엔드가 부르고 프론트는 코스 조회로 받는다 | 결정됨         |
 | 폼              | react-hook-form, zod, @hookform/resolvers                                                      | 설치됨         |
@@ -88,11 +88,11 @@ src/
     └── model/      여러 기능이 함께 쓰는 값과 타입, 라벨
 ```
 
-라우트 그룹 `(flow)`와 `(tabs)`가 하단 탭바 노출을 가른다. 어떤 라우트가 있는지는 `docs/architecture/ARCHITECTURE.md`에, 기능 폴더 안을 어떻게 나누는지는 `.agents/rules/structure.md`에 있다.
+라우트 그룹 `(flow)`와 `(tabs)`가 하단 탭바 노출을 가른다. 탭바를 모든 화면에 붙이기로 정해져 이 그룹 둘은 없어질 예정이다. 어떤 라우트가 있는지는 `docs/architecture/ARCHITECTURE.md`에, 기능 폴더 안을 어떻게 나누는지는 `.agents/rules/structure.md`에 있다.
 
 ## API 주소
 
-브라우저는 같은 출처 `/api/...`를 부르고 `next.config.ts`의 rewrites가 백엔드로 넘긴다. 서버는 `API_BASE_URL`로 백엔드를 직접 부른다. 주소를 가르는 것은 `src/shared/api`의 래퍼이고 그 이유와 규칙은 `.agents/rules/api.md`에 있다.
+브라우저는 같은 출처 `/api/v1/...`를 부르고 `next.config.ts`의 rewrites가 백엔드로 넘긴다. 서버는 `API_BASE_URL`로 백엔드를 직접 부른다. 세션 쿠키를 다루는 `/api/auth/**`만 Next의 Route Handler가 직접 받는다. 주소를 가르는 것은 `src/shared/api`의 래퍼이고 그 이유와 규칙은 `.agents/rules/api.md`에 있다.
 
 ## 문서
 
