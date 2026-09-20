@@ -13,10 +13,15 @@
 			"name": "여찬규",
 			"email": "dev.cgyeo@gmail.com",
 			"url": "https://github.com/chan9yu"
+		},
+		{
+			"name": "김준성",
+			"email": "wnstjdzzz999@gmail.com",
+			"url": "https://github.com/wnstjdzzz999"
 		}
 	],
 	"private": true,
-	"packageManager": "pnpm@11.24.0",
+	"packageManager": "pnpm@11.27.0",
 	"engines": {
 		"node": "24.x",
 		"pnpm": "11.x"
@@ -30,8 +35,9 @@
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",
 		"type:check": "next typegen && tsc --noEmit",
-		"link:agents": "bash .agents/scripts/link-agents.sh",
-		"prepare": "lefthook install && pnpm link:agents"
+		"harness:sync": "node .agents/scripts/agents-sync.mjs",
+		"harness:check": "bash .agents/scripts/harness-check.sh",
+		"prepare": "lefthook install && pnpm harness:sync"
 	},
 	"dependencies": {
 		"@hookform/resolvers": "^5.9.1",

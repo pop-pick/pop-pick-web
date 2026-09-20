@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/pop-pick/pop-pick-web/actions/workflows/ci.yaml/badge.svg)
 
-취향과 시간, 지역에 맞는 서울 팝업을 추천하고 방문 동선까지 짜주는 서비스.
+온보딩에서 받은 취향으로 서울 팝업을 AI가 추천하고 방문 동선까지 짜주는 서비스.
 
 이 저장소(`pop-pick-web`)는 팝픽의 프론트엔드다. 백엔드는 같은 `pop-pick` Organization의 `pop-pick-server`에 있다. 두 저장소 모두 공개 저장소다.
 
@@ -12,26 +12,27 @@
 
 ## 기술 스택
 
-설치된 것과 도입이 결정됐지만 아직 의존성에 없는 것을 나눠 적는다.
+결정된 도구와 그 상태다. 쓰지 않기로 한 것과 이유는 `docs/product/ROADMAP.md`의 하지 않기로 한 것 표에 있다.
 
-| 영역            | 도구                                           | 상태                 |
-| --------------- | ---------------------------------------------- | -------------------- |
-| 언어            | TypeScript                                     | 설치됨               |
-| 프레임워크      | Next.js (App Router), React                    | 설치됨               |
-| 스타일          | Tailwind CSS v4                                | 설치됨               |
-| 클래스 합치기   | clsx, tailwind-merge, class-variance-authority | 설치됨               |
-| 컴파일러        | React Compiler (babel-plugin-react-compiler)   | 설치됨               |
-| 코드 품질       | ESLint, Prettier, lefthook                     | 설치됨               |
-| 서버 상태       | TanStack Query                                 | 설치됨               |
-| 클라이언트 상태 | Zustand. 필터와 담은 팝업 목록 정도로 최소     | 설치됨               |
-| 지도            | Kakao Map SDK. 스크립트 로딩, 패키지 없음      | 담당 미정            |
-| 폼              | react-hook-form, zod, @hookform/resolvers      | 설치됨               |
-| 날짜            | date-fns                                       | 설치됨               |
-| 아이콘          | 미결정                                         |                      |
-| HTTP            | Next.js fetch를 얇게 감싼 래퍼                 | 별도 라이브러리 없음 |
-| UI 라이브러리   | 쓰지 않는다. 디자이너 시안 기반 자체 컴포넌트  | 결정됨               |
-| 배포            | Vercel. PR마다 미리보기 URL                    | 2026-08-29 첫 배포   |
-| 테스트          | 미결정                                         |                      |
+| 영역            | 도구                                                                                           | 상태           |
+| --------------- | ---------------------------------------------------------------------------------------------- | -------------- |
+| 언어            | TypeScript                                                                                     | 설치됨         |
+| 프레임워크      | Next.js (App Router), React                                                                    | 설치됨         |
+| 스타일          | Tailwind CSS v4                                                                                | 설치됨         |
+| 클래스 합치기   | clsx, tailwind-merge, class-variance-authority                                                 | 설치됨         |
+| 컴파일러        | React Compiler (babel-plugin-react-compiler)                                                   | 설치됨         |
+| 코드 품질       | ESLint, Prettier, lefthook                                                                     | 설치됨         |
+| 서버 상태       | TanStack Query                                                                                 | 설치됨         |
+| 클라이언트 상태 | Zustand. 액세스 토큰과 온보딩 입력 중인 답 정도로 최소. 리프레시 토큰은 httpOnly 쿠키다        | 설치됨         |
+| 지도            | Kakao Map JavaScript SDK. `src/shared/lib/kakao-map`이 script를 직접 주입한다. npm 패키지 없음 | 코어 모듈 있음 |
+| 도보 소요시간   | 카카오맵 REST API 도보 경로 조회. 코스 순서를 아는 백엔드가 부르고 프론트는 코스 조회로 받는다 | 결정됨         |
+| 폼              | react-hook-form, zod, @hookform/resolvers                                                      | 설치됨         |
+| 날짜            | date-fns                                                                                       | 설치됨         |
+| HTTP            | `fetch`를 감싼 `src/shared/api` 래퍼. 별도 라이브러리 없음                                     | 결정됨         |
+| UI 라이브러리   | 쓰지 않는다. 디자이너 시안 기반 자체 컴포넌트                                                  | 결정됨         |
+| 배포            | Vercel. PR마다 미리보기 URL                                                                    | 배포됨         |
+| 아이콘          | 미정                                                                                           |                |
+| 테스트          | 미정                                                                                           |                |
 
 ## 시작하기
 
@@ -44,68 +45,71 @@ cp .env.example .env.local
 pnpm dev
 ```
 
-`pnpm install`이 끝나면 `prepare` 스크립트가 lefthook 훅을 설치하고 `.agents/` 본문을 `.claude/rules`와 `.claude/skills`에 심볼릭 링크로 잇는다. 따로 할 일은 없다.
+`pnpm install`이 끝나면 `prepare` 스크립트가 lefthook 훅을 설치하고 `.agents/` 원본을 `.claude`와 `.codex` 자리에 복사한다. 따로 할 일은 없다.
 
-`.env.local`의 값은 비워 둔 채 시작한다. 백엔드 주소와 Kakao Map 키가 정해지면 채운다. 변수 이름과 용도는 `docs/release/RUNBOOK.md`의 환경 변수 절에 있다.
+`.env.local`에 `API_BASE_URL`이 없으면 개발 서버와 `pnpm type:check`, push가 전부 멈춘다. `next.config.ts`가 로드될 때 이 값을 읽고 비어 있으면 그 자리에서 던지기 때문이다. `.env.example`의 값을 그대로 쓰면 된다. 지도를 보려면 카카오맵 JavaScript 키가 더 필요하다. 변수 이름과 키 발급, 도메인 등록은 `docs/release/RUNBOOK.md`에 있다.
 
 `pnpm dev`를 실행하면 http://localhost:3000 에서 개발 서버가 열린다.
 
 ## 스크립트
 
-| 명령                | 하는 일                                                         |
-| ------------------- | --------------------------------------------------------------- |
-| `pnpm dev`          | 개발 서버를 연다                                                |
-| `pnpm build`        | 프로덕션 빌드를 만든다                                          |
-| `pnpm start`        | 빌드 결과를 실행한다                                            |
-| `pnpm lint`         | ESLint로 저장소 전체를 검사한다                                 |
-| `pnpm lint:fix`     | ESLint가 자동으로 고칠 수 있는 것을 고친다. import 정렬 등      |
-| `pnpm format`       | Prettier로 저장소 전체를 고쳐 쓴다                              |
-| `pnpm format:check` | Prettier 검사만 한다                                            |
-| `pnpm type:check`   | `tsc --noEmit`                                                  |
-| `pnpm link:agents`  | `.agents/` 본문을 `.claude/rules`와 `.claude/skills`에 링크한다 |
-| `pnpm prepare`      | lefthook 설치와 `link:agents`. `pnpm install` 때 자동으로 돈다  |
+| 명령                 | 하는 일                                                                                |
+| -------------------- | -------------------------------------------------------------------------------------- |
+| `pnpm dev`           | 개발 서버를 연다                                                                       |
+| `pnpm build`         | 프로덕션 빌드를 만든다                                                                 |
+| `pnpm start`         | 빌드 결과를 실행한다                                                                   |
+| `pnpm lint`          | ESLint로 저장소 전체를 검사한다                                                        |
+| `pnpm lint:fix`      | ESLint가 자동으로 고칠 수 있는 것을 고친다. import 정렬 등                             |
+| `pnpm format`        | Prettier로 저장소 전체를 고쳐 쓴다                                                     |
+| `pnpm format:check`  | Prettier 검사만 한다                                                                   |
+| `pnpm type:check`    | `next typegen`과 `tsc --noEmit`                                                        |
+| `pnpm harness:sync`  | `.agents/` 원본을 `.claude`와 `.codex` 자리에 복사하고 변환한다. 원본을 고친 뒤 돌린다 |
+| `pnpm harness:check` | 컨벤션 검사와 생성물 대조, 회귀 테스트를 한 번에 돌린다. lefthook과 CI가 돌린다        |
+| `pnpm prepare`       | lefthook 설치와 `harness:sync`. `pnpm install` 때 자동으로 돈다                        |
 
 ## 폴더 구조
 
-Feature 기반으로 나눈다.
+Feature 기반으로 나눈다. 경로 별칭 `@/*`는 `./src/*`다.
 
 ```
 src/
-├── app/            Next.js App Router 라우팅. layout.tsx, page.tsx 같은 라우트 파일만 둔다
+├── app/            Next.js App Router 라우팅. 라우트 파일만 둔다
+│   ├── (flow)/     전체 화면으로 도는 흐름. 온보딩과 로그인, 팝업 상세, 플래너 생성, 코스
+│   ├── (tabs)/     하단 탭바를 두르는 넷. 홈과 탐색, 플래너, 마이
+│   └── auth/       소셜 로그인 콜백
 ├── features/       비즈니스 기능. 기능 하나가 폴더 하나
-├── shared/         여러 기능이 함께 쓰는 것
-│   ├── api/        서버 호출 레이어. 화면 코드는 여기를 거쳐 서버를 부른다
-│   ├── ui/         공용 컴포넌트. 디자인 시스템 담당 프론트엔드가 주인이다
-│   ├── hooks/      공용 훅
-│   ├── lib/        공용 유틸. 클래스를 합치는 cn()과 Kakao Map SDK 자리(kakao-map/)
-│   ├── providers/  루트 레이아웃이 감싸는 프로바이더. QueryProvider
-│   └── styles/     globals.css. Tailwind 진입점과 디자인 토큰 정본
-└── types/          여러 기능이 함께 쓰는 타입
+└── shared/         여러 기능이 함께 쓰는 것
+    ├── api/        서버 호출 레이어. 화면 코드는 여기를 거쳐 서버를 부른다
+    ├── ui/         공용 컴포넌트. 디자인 시스템 담당 프론트엔드가 주인이다
+    ├── hooks/      공용 훅
+    ├── lib/        공용 유틸. 클래스를 합치는 cn()과 카카오맵 코어 모듈(kakao-map/)
+    ├── providers/  루트 레이아웃이 감싸는 프로바이더. QueryProvider
+    ├── styles/     globals.css. Tailwind 진입점과 디자인 토큰 정본
+    └── model/      여러 기능이 함께 쓰는 값과 타입, 라벨
 ```
 
-`features/` 하위 폴더 이름은 8/30 정기회의에서 기능 범위가 확정된 뒤 정한다. `features/`와 `types/`는 지금 `.gitkeep`만 있다. 정적 파일은 `public/`에 둔다(지금은 `favicon.ico` 하나).
+라우트 그룹 `(flow)`와 `(tabs)`가 하단 탭바 노출을 가른다. 탭바를 모든 화면에 붙이기로 정해져 이 그룹 둘은 없어질 예정이다. 어떤 라우트가 있는지는 `docs/architecture/ARCHITECTURE.md`에, 기능 폴더 안을 어떻게 나누는지는 `.agents/rules/structure.md`에 있다.
 
-경로 별칭 `@/*`는 `./src/*`다.
+## API 주소
+
+브라우저는 같은 출처 `/api/v1/...`를 부르고 `next.config.ts`의 rewrites가 백엔드로 넘긴다. 서버는 `API_BASE_URL`로 백엔드를 직접 부른다. 세션 쿠키를 다루는 `/api/auth/**`만 Next의 Route Handler가 직접 받는다. 주소를 가르는 것은 `src/shared/api`의 래퍼이고 그 이유와 규칙은 `.agents/rules/api.md`에 있다.
 
 ## 문서
 
-| 문서                         | 답하는 질문                                 |
-| ---------------------------- | ------------------------------------------- |
-| `docs/product/PRD.md`        | 누구의 어떤 문제를 왜 푸는가                |
-| `docs/product/SPEC.md`       | 각 기능이 정확히 어떻게 동작하는가          |
-| `docs/product/ROADMAP.md`    | 무엇을 어떤 순서로 만드는가                 |
-| `docs/design/DESIGN.md`      | 서비스가 어떤 인상을 주는가                 |
-| `docs/design/DESIGN-SPEC.md` | 각 화면에 무엇이 어떻게 놓이는가            |
-| `docs/release/RUNBOOK.md`    | 배포와 장애 대응을 어떻게 하는가            |
-| `docs/release/SEO.md`        | 코드로 할 수 없는 검색 유입 작업은 무엇인가 |
-| `docs/release/PRIVACY.md`    | 어떤 정보를 모으고 어떻게 다루는가          |
+| 문서                                | 답하는 질문                                                                                                                     |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `docs/product/PRD.md`               | 누구의 어떤 문제를 왜 푸는가                                                                                                    |
+| `docs/product/SPEC.md`              | 각 기능이 정확히 어떻게 동작하는가                                                                                              |
+| `docs/product/ROADMAP.md`           | 무엇을 어떤 순서로 만드는가                                                                                                     |
+| `docs/design/DESIGN.md`             | 서비스가 어떤 인상을 주는가                                                                                                     |
+| `docs/design/DESIGN-SPEC.md`        | 각 화면에 무엇이 어떻게 놓이는가                                                                                                |
+| `docs/architecture/ARCHITECTURE.md` | 라우트와 상태의 원천, 데이터 흐름, 폴더는 어떻게 잡았고 백엔드에 무엇을 요구하는가                                              |
+| `docs/architecture/{기능}.md`       | 기능 하나가 무엇을 보장하고 어떤 타입과 계약으로 움직이는가. auth, onboarding, recommendation, popup, bookmark, planner, course |
+| `docs/release/RUNBOOK.md`           | 배포와 장애 대응을 어떻게 하는가                                                                                                |
+| `docs/release/SEO.md`               | 코드로 할 수 없는 검색 유입 작업은 무엇인가                                                                                     |
+| `docs/release/PRIVACY.md`           | 어떤 정보를 모으고 어떻게 다루는가                                                                                              |
 
-문서를 어디에 두고 어떤 순서로 채우는지는 `docs/CLAUDE.md`에 있다. 에이전트가 늘 지켜야 하는 것은 `AGENTS.md`에, 자세한 규칙은 `.agents/rules/`에 있다. 기여 방법은 `CONTRIBUTING.md`를 본다.
-
-공통 레이어 안내는 코드 옆에 둔다.
-
-- `src/shared/api/README.md` API 레이어. 서버 호출을 어디서 어떻게 하는가
-- `src/shared/ui/README.md` 디자인 시스템. 공용 컴포넌트를 어떻게 만드는가
+문서 배치 기준과 문서마다 무엇이 채워졌고 무엇이 비었는지는 `docs/README.md`에 있다. 에이전트가 늘 지켜야 하는 것은 `AGENTS.md`에, 자세한 규칙은 `.agents/rules/`에 있다. 기여 방법은 `CONTRIBUTING.md`를 본다.
 
 ## 팀
 
