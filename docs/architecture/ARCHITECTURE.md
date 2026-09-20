@@ -12,21 +12,21 @@
 
 ## 화면과 라우트
 
-하단 탭바는 모든 화면에 붙는다. 노출 조건 분기가 없어 루트 레이아웃이 탭바를 그린다. **지금 코드는 라우트 그룹 `(flow)`와 `(tabs)`로 노출을 가르고 있고 탭바가 넷에만 붙는다.** 이 결정을 반영하면 그룹 둘이 없어진다. 반응형 범위는 `docs/design/DESIGN.md`에 있다.
+하단 탭바는 모든 화면에 붙는다. 노출 조건 분기가 없어 루트 레이아웃이 탭바를 그린다. 라우트 그룹을 두지 않는다. 반응형 범위는 `docs/design/DESIGN.md`에 있다.
 
 ```
 src/app/
-├── layout.tsx                          루트. QueryProvider와 고정 폭 컬럼, 하단 탭바. AuthProvider는 설계
+├── layout.tsx                          루트. QueryProvider와 AuthProvider, 고정 폭 컬럼, 하단 탭바
 ├── page.tsx                            /                         랜딩(메인)
 ├── error.tsx                           라우트 오류 경계
 ├── not-found.tsx
-├── api/auth/                           설계. 세션 쿠키를 굽고 지운다
+├── api/auth/                           세션 쿠키를 굽고 지운다
 │   ├── session/route.ts                POST 로그인, DELETE 로그아웃
 │   └── refresh/route.ts                POST 재발급
 ├── onboarding/[step]/page.tsx          /onboarding/1, 2, 3       온보딩 세 단계
 ├── onboarding/result/page.tsx          /onboarding/result        추천 미리보기(존치 미결정)
 ├── login/page.tsx                      /login?next=              로그인
-├── login/complete/page.tsx             /login/complete?next=     로그인 완료(설계)
+├── login/complete/page.tsx             /login/complete?next=     로그인 완료
 ├── auth/kakao/callback/page.tsx
 ├── auth/google/callback/page.tsx       설계. 구글 클라이언트 ID가 오면 만든다
 ├── home/page.tsx                       /home                     회원 홈과 비회원 홈
@@ -41,7 +41,7 @@ src/app/
 └── my/page.tsx                         /my?tab=                  마이페이지
 ```
 
-**지금 코드와 다른 자리가 넷이다.** 라우트 그룹 `(flow)`와 `(tabs)`가 아직 있고, `/planner`가 조건 입력이며, `/login/complete`와 `api/auth`, 상세 인터셉트 라우트가 없다. 화면은 랜딩과 로그인, 홈, 탐색, 마이페이지에 내용이 있고 나머지는 `ScreenPlaceholder`로 자리만 있다.
+상세 인터셉트 라우트는 아직 없다. 팝업 상세 본문을 만들 때 함께 붙인다. 화면은 랜딩과 로그인, 로그인 완료, 홈, 탐색, 내 일정, 마이페이지에 내용이 있고 나머지는 `ScreenPlaceholder`로 자리만 있다.
 
 팝업 상세는 껍데기가 둘이다. 홈과 검색 결과에서 누르면 페이지로 이동하고 탐색 지도의 팝업 카드에서 누르면 레이어로 뜬다. 지도에서 페이지로 나가면 보던 지도로 돌아오지 못하기 때문이다. 본문 컴포넌트는 하나이고 두 껍데기가 그것을 감싼다. Next의 인터셉트 라우트가 이 구조에 그대로 맞는다. `explore` 아래 `@modal` 슬롯이 `(..)popups/[popupId]`로 형제 경로를 가로채고 새로고침하면 가로채지 않아 전체 화면 상세가 열린다.
 
@@ -50,7 +50,7 @@ src/app/
 | `/`                           | 랜딩             | 아니오    | 없음. 정적                                                      | `onboarding.md`     |
 | `/onboarding/[step]`          | 온보딩 1, 2, 3   | 예        | 서버                                                            | `onboarding.md`     |
 | `/login`                      | 로그인           | 아니오    | 없음                                                            | `auth.md`           |
-| `/login/complete`             | 로그인 완료      | 예        | 없음. 정적                                                      | `auth.md`           |
+| `/login/complete`             | 로그인 완료      | 예        | 없음. URL의 `next`를 읽어 다음 화면으로 넘긴다                  | `auth.md`           |
 | `/auth/{provider}/callback`   | 콜백             | 아니오    | 클라이언트 쿼리                                                 | `auth.md`           |
 | `/home`                       | 홈               | 아니오    | 클라이언트 쿼리. 로그인 여부로 분기                             | `recommendation.md` |
 | `/explore`                    | 탐색 지도와 목록 | 아니오    | 클라이언트 쿼리. 검색어와 정렬은 URL                            | `popup.md`          |
@@ -128,13 +128,14 @@ rewrite는 `/api/v1/:path*`로 좁힌다. 백엔드 API가 전부 `/api/v1/**`�
 
 기능 폴더 안을 어떻게 나누는지는 `.agents/rules/structure.md`에 있다. MSW를 도입하면 기능마다 `api/handlers.ts`가 하나씩 더 생긴다.
 
-여러 기능이 함께 쓰는 것은 `src/shared`에 둔다. `shared/model`과 `shared/lib/kakao-map`, `shared/ui`, `shared/api/auth-token.ts`는 있고 나머지 셋은 이 설계로 새로 생긴다.
+여러 기능이 함께 쓰는 것은 `src/shared`에 둔다. `shared/model`과 `shared/lib/kakao-map`, `shared/ui`, `shared/api`의 토큰과 Route Handler 도구는 있고 나머지 셋은 이 설계로 새로 생긴다.
 
 | 위치                             | 담는 것                                                                                                                                           |
 | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `shared/model/region.ts`         | 지역 유니온과 라벨 대응표. **선택지가 서버로 가면서 없어질 파일이다.** 지역 값과 라벨은 온보딩 선택지 조회에서 온다                               |
 | `shared/model/popup.ts`          | 카테고리와 예약 유형, 라벨 대응표, 카드가 그리는 값 `PopupCardItem`. 카테고리 라벨도 서버 목록으로 옮겨가고 핀 아이콘 대응표만 코드에 남는다      |
-| `shared/api/auth-token.ts`       | 액세스 토큰 소스 등록. auth 기능이 등록하고 `request`가 읽는다. 재발급이 붙으면 만료 이벤트가 더해진다                                            |
+| `shared/api/auth-token.ts`       | 액세스 토큰 소스와 재발급 핸들러 등록, 만료 이벤트. auth 기능이 등록하고 `request`가 읽는다                                                       |
+| `shared/api/route-handler.ts`    | Route Handler가 쓰는 응답 만들기와 Bearer 읽기. `/api/auth` 셋이 쓴다                                                                             |
 | `shared/api/schema.d.ts`         | Swagger `/v3/api-docs`에서 생성한 타입. 손으로 고치지 않는다                                                                                      |
 | `shared/api/mocks/`              | MSW 브라우저 워커와 노드 서버 설정. 핸들러는 각 기능의 `api/handlers.ts`에서 모은다                                                               |
 | `shared/hooks/useCursorQuery.ts` | `PageResponse<T>`를 받는 무한 스크롤 쿼리. 마지막 항목에서 커서를 뽑는 규칙을 한 곳에 둔다                                                        |

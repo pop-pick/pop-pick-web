@@ -11,12 +11,13 @@ interface KakaoCallbackParams {
 	state: string | null;
 }
 
-async function exchangeCodeForTokens(code: string, state: string | null) {
+async function exchangeCodeForSession(code: string, state: string | null) {
 	try {
 		verifyOAuthState(state);
-		const tokens = await loginWithKakao(code, getKakaoRedirectUri());
-		useAuthStore.getState().setTokens(tokens);
-		return { tokens, nextPath: consumeNextPath() };
+		const { accessToken } = await loginWithKakao(code, getKakaoRedirectUri());
+		useAuthStore.getState().setAccessToken(accessToken);
+
+		return { nextPath: consumeNextPath() };
 	} catch (error) {
 		console.error("[auth] 카카오 로그인 실패", error);
 		throw error;
@@ -27,7 +28,7 @@ async function exchangeCodeForTokens(code: string, state: string | null) {
 export function useKakaoLogin({ code, state }: KakaoCallbackParams) {
 	return useQuery({
 		queryKey: ["auth", "kakao-login", code, state],
-		queryFn: code === null ? skipToken : () => exchangeCodeForTokens(code, state),
+		queryFn: code === null ? skipToken : () => exchangeCodeForSession(code, state),
 		retry: false,
 		staleTime: Infinity
 	});

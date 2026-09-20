@@ -74,8 +74,7 @@ Feature 기반으로 나눈다. 경로 별칭 `@/*`는 `./src/*`다.
 ```
 src/
 ├── app/            Next.js App Router 라우팅. 라우트 파일만 둔다
-│   ├── (flow)/     전체 화면으로 도는 흐름. 온보딩과 로그인, 팝업 상세, 플래너 생성, 코스
-│   ├── (tabs)/     하단 탭바를 두르는 넷. 홈과 탐색, 플래너, 마이
+│   ├── api/auth/   세션 쿠키를 굽고 지우는 Route Handler
 │   └── auth/       소셜 로그인 콜백
 ├── features/       비즈니스 기능. 기능 하나가 폴더 하나
 └── shared/         여러 기능이 함께 쓰는 것
@@ -88,7 +87,7 @@ src/
     └── model/      여러 기능이 함께 쓰는 값과 타입, 라벨
 ```
 
-라우트 그룹 `(flow)`와 `(tabs)`가 하단 탭바 노출을 가른다. 탭바를 모든 화면에 붙이기로 정해져 이 그룹 둘은 없어질 예정이다. 어떤 라우트가 있는지는 `docs/architecture/ARCHITECTURE.md`에, 기능 폴더 안을 어떻게 나누는지는 `.agents/rules/structure.md`에 있다.
+하단 탭바는 루트 레이아웃이 모든 화면에 그린다. 어떤 라우트가 있는지는 `docs/architecture/ARCHITECTURE.md`에, 기능 폴더 안을 어떻게 나누는지는 `.agents/rules/structure.md`에 있다.
 
 ## API 주소
 

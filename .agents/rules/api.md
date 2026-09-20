@@ -173,7 +173,7 @@ Next 서버는 프록시로만 쓴다. Route Handler로 프록시를 손으로 �
 
 응답 공통 구조와 에러 코드 체계, 커서 기반 페이지네이션, camelCase 필드 이름은 백엔드가 정했다. 상세는 백엔드 Swagger(https://prod.poppick.shop/swagger-ui/index.html)와 백엔드 저장소의 `global/response`, `global/exception` 패키지에 있다.
 
-토큰 보관도 정해졌다. 액세스 토큰은 Zustand 메모리, 리프레시 토큰은 httpOnly 쿠키이고 쿠키는 백엔드가 아니라 Next Route Handler가 심는다. 아직 정해지지 않은 것은 날짜와 시간 포맷, 쿠키 수명이다. 미결정 항목은 `docs/product/ROADMAP.md`의 미결정 절이 갖는다.
+토큰 보관도 정해졌다. 액세스 토큰은 Zustand 메모리, 리프레시 토큰은 httpOnly 쿠키이고 쿠키는 백엔드가 아니라 Next Route Handler가 심는다. 아직 정해지지 않은 것은 날짜와 시간 포맷이다. 미결정 항목은 `docs/product/ROADMAP.md`의 미결정 절이 갖는다.
 
 ## 리뷰에서 볼 것
 

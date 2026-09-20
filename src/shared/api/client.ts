@@ -1,8 +1,14 @@
-import { getAccessToken } from "./auth-token";
+import { getAccessToken, notifyAuthExpired, refreshAccessToken } from "./auth-token";
 import { ApiError } from "./errors";
 import { isApiResponse } from "./types";
 
 const DEFAULT_TIMEOUT_MS = 10_000;
+
+/** 백엔드가 액세스 토큰 만료에 쓰는 코드 */
+const EXPIRED_ERROR_CODE = "E1004";
+
+/** 백엔드가 인증 필요에 쓰는 코드. 토큰 없이 인증 요청을 보내려 할 때 여기서 먼저 막는다 */
+const NO_TOKEN_ERROR_CODE = "E1000";
 
 type QueryValue = string | number | boolean | null | undefined;
 
@@ -12,6 +18,8 @@ export interface RequestOptions extends Omit<RequestInit, "body"> {
 	timeoutMs?: number;
 	/** Bearer를 붙일지. 기본은 붙인다. 백엔드가 `/api/v1/auth/**`만 열어 두고 나머지는 인증을 요구한다 */
 	auth?: boolean;
+	/** Route Handler가 백엔드를 부를 때 쓸 토큰. 서버에는 토큰 소스가 없어 받아서 넘긴다 */
+	accessToken?: string;
 }
 
 function resolveBaseUrl() {
@@ -52,7 +60,16 @@ function resolveUrl(path: string, query: RequestOptions["query"]) {
 	return url;
 }
 
-function buildHeaders(headers: HeadersInit | undefined, hasJsonBody: boolean, auth: boolean) {
+/** 넘겨받은 토큰이 있으면 그것을 쓰고, 없으면 `auth`일 때만 등록된 소스에서 읽는다 */
+function resolveToken(auth: boolean, accessToken: string | undefined) {
+	if (accessToken !== undefined) {
+		return accessToken;
+	}
+
+	return auth ? getAccessToken() : null;
+}
+
+function buildHeaders(headers: HeadersInit | undefined, hasJsonBody: boolean, token: string | null) {
 	const result = new Headers(headers);
 	if (!result.has("accept")) {
 		result.set("accept", "application/json");
@@ -62,11 +79,8 @@ function buildHeaders(headers: HeadersInit | undefined, hasJsonBody: boolean, au
 		result.set("content-type", "application/json");
 	}
 
-	if (auth && !result.has("authorization")) {
-		const token = getAccessToken();
-		if (token !== null) {
-			result.set("authorization", `Bearer ${token}`);
-		}
+	if (token !== null) {
+		result.set("authorization", `Bearer ${token}`);
 	}
 
 	return result;
@@ -130,13 +144,18 @@ function readErrorCode(body: unknown) {
 	return isApiResponse(body) && body.error !== null ? body.error.errorCode : null;
 }
 
-export async function request<T>(path: string, options: RequestOptions = {}) {
-	const { query, json, headers, signal, timeoutMs = DEFAULT_TIMEOUT_MS, auth = true, ...init } = options;
+async function sendOnce<T>(path: string, options: RequestOptions) {
+	const { query, json, headers, signal, timeoutMs = DEFAULT_TIMEOUT_MS, auth = true, accessToken, ...init } = options;
 	const url = resolveUrl(path, query);
+	const token = resolveToken(auth, accessToken);
+
+	if (auth && token === null) {
+		throw new ApiError({ kind: "http", status: 401, url: url.href, body: null, errorCode: NO_TOKEN_ERROR_CODE });
+	}
 
 	const { response, text } = await fetchResponse(url, {
 		...init,
-		headers: buildHeaders(headers, json !== undefined, auth),
+		headers: buildHeaders(headers, json !== undefined, token),
 		body: json !== undefined ? JSON.stringify(json) : undefined,
 		signal: buildSignal(signal, timeoutMs)
 	});
@@ -159,6 +178,33 @@ export async function request<T>(path: string, options: RequestOptions = {}) {
 	}
 
 	return body.data as T;
+}
+
+/** 재발급은 브라우저 세션의 개념이다. Route Handler가 백엔드를 부를 때는 타지 않는다 */
+function canRefresh(error: unknown, auth: boolean) {
+	if (typeof window === "undefined" || !auth) {
+		return false;
+	}
+
+	return error instanceof ApiError && error.errorCode === EXPIRED_ERROR_CODE;
+}
+
+export async function request<T>(path: string, options: RequestOptions = {}) {
+	try {
+		return await sendOnce<T>(path, options);
+	} catch (error) {
+		if (!canRefresh(error, options.auth ?? true)) {
+			throw error;
+		}
+
+		const refreshed = await refreshAccessToken();
+		if (!refreshed) {
+			notifyAuthExpired();
+			throw error;
+		}
+
+		return sendOnce<T>(path, options);
+	}
 }
 
 export const api = {

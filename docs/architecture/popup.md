@@ -248,4 +248,4 @@ interface KakaoMapProps {
 
 팝업의 지역 배지는 백엔드가 주소와 위경도로 매핑해 내려준 값이다. 팝업 데이터에 저장된 값이 아니라 조회할 때 붙는다. 매핑 범위가 바뀌면 프론트는 고칠 것이 없다.
 
-위치 권한을 쓰려면 `next.config.ts`의 `Permissions-Policy`에서 `geolocation`을 열어야 한다. 지금은 `geolocation=()`으로 막혀 있어 지도가 권한을 묻지 못한다. 이 헤더를 같은 출처에만 여는 `geolocation=(self)`로 바꾸는 것이 지도 작업의 첫 단계다.
+`next.config.ts`의 `Permissions-Policy`는 `geolocation=(self)`다. 같은 출처에서만 권한을 묻고 iframe에 넣은 외부 문서는 묻지 못한다. 카메라와 마이크는 빈 목록으로 막혀 있다.

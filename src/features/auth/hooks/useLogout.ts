@@ -7,14 +7,7 @@ import { useAuthStore } from "../model/useAuthStore";
 
 export function useLogout() {
 	return useMutation({
-		mutationFn: async () => {
-			const { refreshToken } = useAuthStore.getState();
-			if (refreshToken === null) {
-				return;
-			}
-
-			await logout(refreshToken);
-		},
+		mutationFn: () => logout(useAuthStore.getState().accessToken),
 		onError: (error) => {
 			console.warn("[auth] 로그아웃 요청이 실패했습니다", error);
 		},
