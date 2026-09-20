@@ -25,7 +25,7 @@ lefthook 훅이 커밋과 푸시 때 같은 검사를 저장소 전체에 돌린
 ## 구조
 
 - Feature 기반이다. `src/app`은 라우팅, `src/features`는 기능 단위, `src/shared`는 공용이다. 의존은 shared에서 features로, features에서 app으로 한 방향이고 기능끼리 부르지 않는다. 경로 별칭 `@/*`는 `./src/*`
-- `src/app`에는 Next가 이름을 정하는 라우트 파일(`layout.tsx`, `page.tsx` 등)만 둔다. 전부 소문자다. 컴포넌트와 CSS는 `src/shared`나 `src/features`에 두고 라우트 파일이 import한다. 라우트 그룹 `(flow)`와 `(tabs)`가 하단 탭바 노출을 가르는데 탭바를 모든 화면에 붙이기로 정해져 없어질 예정이다
+- `src/app`에는 Next가 이름을 정하는 라우트 파일(`layout.tsx`, `page.tsx` 등)만 둔다. 전부 소문자다. 컴포넌트와 CSS는 `src/shared`나 `src/features`에 두고 라우트 파일이 import한다. 하단 탭바는 루트 레이아웃이 모든 화면에 그린다. 라우트 그룹을 두지 않는다
 - `features/` 하위 폴더는 기능 하나에 하나다. 이름은 백엔드 `feature/{이름}` 패키지와 맞춘다. 기능 폴더 안은 `api`와 `ui`, `hooks`, `model` 넷으로 나누고 루트에 파일을 두지 않는다. `lib`은 `src/shared`에만 둔다
 - 토큰 정본은 `src/shared/styles/globals.css`의 `@theme inline`이다
 

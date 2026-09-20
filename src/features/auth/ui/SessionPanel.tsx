@@ -11,10 +11,14 @@ interface SessionPanelProps {
 }
 
 export function SessionPanel({ next }: SessionPanelProps) {
-	const accessToken = useAuthStore((state) => state.accessToken);
+	const status = useAuthStore((state) => state.status);
 	const { mutate: signOut, isPending } = useLogout();
 
-	if (accessToken === null) {
+	if (status === "restoring") {
+		return <div aria-busy className="h-24 animate-pulse rounded-2xl bg-zinc-100" />;
+	}
+
+	if (status === "anonymous") {
 		return (
 			<section className="flex flex-col gap-4 rounded-2xl bg-zinc-50 p-5">
 				<div className="flex flex-col gap-1">
@@ -30,7 +34,7 @@ export function SessionPanel({ next }: SessionPanelProps) {
 		<section className="flex items-center justify-between gap-4 rounded-2xl bg-blue-50 p-5">
 			<div className="flex min-w-0 flex-col gap-1">
 				<p className="font-semibold text-blue-900">로그인된 상태입니다</p>
-				<p className="text-sm text-blue-700">토큰이 메모리에 있어 새로고침하면 풀립니다.</p>
+				<p className="text-sm text-blue-700">새로고침해도 로그인이 풀리지 않습니다.</p>
 			</div>
 			<Button
 				variant="secondary"

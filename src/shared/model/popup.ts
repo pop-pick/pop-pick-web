@@ -1,17 +1,18 @@
 import type { Region } from "./region";
 
-export const POPUP_CATEGORIES = ["character", "fashion", "food", "art", "beauty", "game", "etc"] as const;
+export const POPUP_CATEGORIES = ["fashion", "beauty", "character", "game", "tech", "food", "art", "lifestyle"] as const;
 
 export type PopupCategory = (typeof POPUP_CATEGORIES)[number];
 
 export const POPUP_CATEGORY_LABELS: Record<PopupCategory, string> = {
+	fashion: "패션/브랜드",
+	beauty: "뷰티",
 	character: "캐릭터/IP",
-	fashion: "패션",
+	game: "게임/엔터",
+	tech: "테크/가전",
 	food: "F&B",
 	art: "전시/아트",
-	beauty: "뷰티",
-	game: "애니/게임",
-	etc: "기타"
+	lifestyle: "라이프스타일"
 };
 
 export const RESERVATION_TYPES = ["free", "waiting", "required"] as const;
