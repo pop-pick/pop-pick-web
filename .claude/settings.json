@@ -1,13 +1,74 @@
 {
 	"$schema": "https://json.schemastore.org/claude-code-settings.json",
+	"permissions": {
+		"allow": [
+			"Bash(pnpm type:check)",
+			"Bash(pnpm build)",
+			"Bash(pnpm lint)",
+			"Bash(pnpm format:check)",
+			"Bash(pnpm check)",
+			"Bash(pnpm harness:check)",
+			"Bash(pnpm harness:sync)",
+			"Bash(bash .agents/scripts/check-conventions.sh)",
+			"Bash(git status)",
+			"Bash(git status *)",
+			"Bash(git diff)",
+			"Bash(git diff *)",
+			"Bash(git log *)",
+			"Bash(git show *)"
+		],
+		"ask": [
+			"Bash(git reset --hard*)",
+			"Bash(git clean *)",
+			"Bash(git stash drop*)",
+			"Bash(git stash clear*)",
+			"Bash(git checkout -- .)",
+			"Bash(git checkout .)",
+			"Bash(git restore .)",
+			"Bash(git branch -D *)",
+			"Bash(git update-ref *)",
+			"mcp__vercel__create_deployment",
+			"mcp__vercel__cancel_deployment",
+			"mcp__vercel__request_promote",
+			"mcp__vercel__request_rollback",
+			"mcp__vercel__assign_alias",
+			"mcp__vercel__create_project_env",
+			"mcp__vercel__edit_project_env",
+			"mcp__vercel__update_project",
+			"mcp__vercel__pause_project",
+			"mcp__vercel__add_project_domain",
+			"mcp__vercel__put_firewall_config",
+			"mcp__vercel__update_firewall_config"
+		]
+	},
 	"hooks": {
 		"PreToolUse": [
+			{
+				"matcher": "Edit|Write",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bash \"$CLAUDE_PROJECT_DIR\"/.agents/hooks/inject-matching-rules.sh",
+						"timeout": 3
+					}
+				]
+			},
 			{
 				"matcher": "Bash",
 				"hooks": [
 					{
 						"type": "command",
 						"command": "bash \"$CLAUDE_PROJECT_DIR\"/.agents/hooks/guard-git.sh"
+					}
+				]
+			}
+		],
+		"UserPromptSubmit": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bash \"$CLAUDE_PROJECT_DIR\"/.agents/hooks/lib/turn-changes.sh save"
 					}
 				]
 			}
