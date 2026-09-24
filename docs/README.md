@@ -4,7 +4,7 @@
 
 ## 배치 기준
 
-성격으로 나눈다. 만드는 것은 `product/`, 보이는 것은 `design/`, 어떻게 만드는지는 `architecture/`, 내보내고 운영하는 것은 `release/`다. 파일마다 어떤 질문에 답하는지는 루트 `README.md`의 문서 절에 있다.
+성격으로 나눈다. 만드는 것은 `product/`, 보이는 것은 `design/`, 어떻게 만드는지는 `architecture/`, 내보내고 운영하는 것은 `release/`, 에이전트 하네스가 어떻게 도는지는 `harness/`다. 파일마다 어떤 질문에 답하는지는 루트 `README.md`의 문서 절에 있다.
 
 `architecture/`는 전체 구조 문서 `ARCHITECTURE.md` 하나와 기능 폴더와 이름이 같은 기능 문서 일곱으로 되어 있다. 기능 문서는 Requirements, Architecture, Data Model, Interface, Optimization 다섯 절을 같은 순서로 가진다. 화면을 만들 때 그 화면의 기능 문서를 먼저 연다.
 

@@ -107,6 +107,7 @@ src/
 | `docs/release/RUNBOOK.md`           | 배포와 장애 대응을 어떻게 하는가                                                                                                |
 | `docs/release/SEO.md`               | 코드로 할 수 없는 검색 유입 작업은 무엇인가                                                                                     |
 | `docs/release/PRIVACY.md`           | 어떤 정보를 모으고 어떻게 다루는가                                                                                              |
+| `docs/harness/AI_WORKFLOW.md`       | 에이전트 하네스가 어떻게 돌고 어떻게 고치는가                                                                                   |
 
 문서 배치 기준과 문서마다 무엇이 채워졌고 무엇이 비었는지는 `docs/README.md`에 있다. 에이전트가 늘 지켜야 하는 것은 `AGENTS.md`에, 자세한 규칙은 `.agents/rules/`에 있다. 기여 방법은 `CONTRIBUTING.md`를 본다.
 
