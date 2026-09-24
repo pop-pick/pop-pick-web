@@ -93,6 +93,9 @@ check "컴포넌트 파일이 소문자다" \
 check "export default 로 내보낸다" \
 	'grep -rn "export default" src/features src/shared --include="*.ts" --include="*.tsx"'
 
+check "한 파일에 컴포넌트가 둘 이상이다" \
+	'grep -rcE "^(export )?function [A-Z]" src --include="*.tsx" | grep -vE ":[01]$"'
+
 check "화살표 함수에 대입한 컴포넌트다" \
 	'grep -rnE "^(export )?const [A-Z][a-z][A-Za-z0-9]*( *: *[A-Za-z][A-Za-z0-9<>,. ]*)? *= *\(" src/features src/shared --include="*.tsx"'
 

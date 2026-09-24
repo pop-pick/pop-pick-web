@@ -2,9 +2,10 @@
 #
 # harness-test. 검사 스크립트와 훅의 회귀 테스트. harness-check.sh 가 돌린다.
 #
-# 위반 다섯을 심은 픽스처로 check-conventions.sh 가 그 다섯을 잡는지, 명령 열다섯으로 guard-git.sh 가
+# 위반 여섯을 심은 픽스처로 check-conventions.sh 가 그 여섯을 잡는지, 명령 열다섯으로 guard-git.sh 가
 # 막을 것을 막고 통과시킬 것을 통과시키는지 본다. 토큰을 쓰지 않는다.
-# 픽스처에 심은 위반: 화살표 함수의 반환 타입, 뒤따르는 본문 주석, 격식체 동사 이름, ?? 0, 기능 폴더의 fetch.
+# 픽스처에 심은 위반: 화살표 함수의 반환 타입, 뒤따르는 본문 주석, 격식체 동사 이름, ?? 0, 기능 폴더의 fetch,
+# 한 파일의 컴포넌트 둘.
 
 set -uo pipefail
 
@@ -28,6 +29,18 @@ export async function loadRaw() {
 EOF
 git -C "$fixture" add src/features/popup/api/get-popups.ts
 
+mkdir -p "$fixture/src/features/popup/ui"
+cat >"$fixture/src/features/popup/ui/PopupCard.tsx" <<'EOF'
+export function PopupCard() {
+	return <article />;
+}
+
+function PopupBadge() {
+	return <span />;
+}
+EOF
+git -C "$fixture" add src/features/popup/ui/PopupCard.tsx
+
 fail=0
 expect() {
 	if printf '%s' "$2" | grep -q -- "$1"; then
@@ -45,6 +58,7 @@ status=$?
 expect "걸림  추론되는 반환 타입을 적었다" "$output"
 expect "걸림  함수 본문에 주석을 적었다" "$output"
 expect "걸림  컴포넌트나 훅에서 fetch 를 직접 부른다" "$output"
+expect "걸림  한 파일에 컴포넌트가 둘 이상이다" "$output"
 expect "볼것  격식체 동사로 시작하는 이름" "$output"
 expect "볼것  빈 값으로 받는 자리" "$output"
 
