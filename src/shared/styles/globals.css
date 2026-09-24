@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import "tailwindcss" source("../../");
 
 @layer base {
 	button:not(:disabled),
@@ -14,11 +14,13 @@
 :root {
 	--background: #ffffff;
 	--foreground: #171717;
+	--primary: #2563eb;
 }
 
 @theme inline {
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
+	--color-primary: var(--primary);
 	--color-kakao: #fee500;
 	--color-kakao-hover: #f2d900;
 	--color-kakao-active: #e6ce00;
@@ -27,7 +29,7 @@
 
 @utility focus-ring {
 	&:focus-visible {
-		outline: 2px solid theme(colors.blue.600);
+		outline: 2px solid var(--primary);
 		outline-offset: 2px;
 	}
 }

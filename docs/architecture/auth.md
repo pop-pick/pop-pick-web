@@ -241,4 +241,4 @@ export function readBearerToken(request: Request): string | null;
 
 **지표.** 재발급 뒤 재요청이 다시 401인 횟수가 0이어야 한다. 0이 아니면 재발급 응답의 토큰이 스토어에 늦게 들어가거나 재요청이 옛 토큰을 읽고 있다. `state` 불일치 횟수도 0이어야 한다. 앱 시작 재발급이 실패하는 비율은 0이 목표가 아니다. 비로그인 방문자가 그만큼 있다는 뜻이다.
 
-**운영.** 카카오 개발자 콘솔에 콜백 주소를 프로덕션과 develop 별칭, localhost 셋에 등록한다(RUNBOOK). 구글은 `NEXT_PUBLIC_GOOGLE_CLIENT_ID`를 더하고 콜백 `/auth/google/callback`을 구글 콘솔에 등록한다. 백엔드가 `Set-Cookie`를 내려주기로 바뀌면 지우는 곳은 Route Handler 셋과 `next.config.ts`의 rewrite 경로 둘이다.
+**운영.** 카카오 개발자 콘솔에 콜백 주소를 프로덕션과 develop 별칭, localhost 셋에 등록한다(RUNBOOK). 구글 콘솔 프로젝트는 백엔드 인증 담당 계정의 것이다. 구글은 `NEXT_PUBLIC_GOOGLE_CLIENT_ID`를 더하고 승인된 자바스크립트 원본과 리디렉션 URI에 같은 주소 셋과 콜백 `/auth/google/callback`을 구글 콘솔에 등록한다. OAuth 동의 화면은 게시 상태여야 한다. 테스팅 상태에서는 등록한 사용자만 로그인되어 심사하는 사람이 들어오지 못한다. 프로필과 이메일만 받으면 민감한 범위가 아니라 심사 없이 게시된다. 백엔드가 `Set-Cookie`를 내려주기로 바뀌면 지우는 곳은 Route Handler 셋과 `next.config.ts`의 rewrite 경로 둘이다.

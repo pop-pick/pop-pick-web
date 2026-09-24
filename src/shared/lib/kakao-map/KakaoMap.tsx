@@ -4,9 +4,10 @@ import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { cn } from "@/shared/lib/cn";
+import { Button } from "@/shared/ui/Button";
 
 import { KakaoMapContext } from "./kakao-map-context";
-import { KakaoMapSession, type KakaoMarkerData } from "./kakao-map-session";
+import { type KakaoClusterOptions, KakaoMapSession, type KakaoMarkerData } from "./kakao-map-session";
 import { KAKAO_MAP_DEFAULT_LEVEL, type KakaoLatLngLiteral } from "./kakao-map-utils";
 import { useKakaoMapSdk } from "./useKakaoMapSdk";
 
@@ -18,9 +19,16 @@ type KakaoMapView =
 export type KakaoMapProps = KakaoMapView & {
 	markers?: readonly KakaoMarkerData[];
 	onMarkerClick?: (markerId: string) => void;
+	selectedMarkerId?: string | null;
+	/** 현재 위치 표시. null이면 지운다 */
+	myPosition?: KakaoLatLngLiteral | null;
+	/** 넘기면 핀을 클러스터러가 묶는다. 세션을 만들 때 한 번 읽고 그 뒤 값은 보지 않는다 */
+	initialCluster?: KakaoClusterOptions;
 	label: string;
 	className?: string;
 	children?: ReactNode;
+	/** SDK 로딩 실패 화면에 더 놓을 것. 다시 시도 버튼은 기본으로 있다 */
+	errorAction?: ReactNode;
 };
 
 const NO_MARKERS: readonly KakaoMarkerData[] = [];
@@ -37,11 +45,15 @@ export function KakaoMap({
 	level = KAKAO_MAP_DEFAULT_LEVEL,
 	markers = NO_MARKERS,
 	onMarkerClick,
+	selectedMarkerId = null,
+	myPosition = null,
+	initialCluster,
 	label,
 	className,
-	children
+	children,
+	errorAction
 }: KakaoMapProps) {
-	const { status, sdk, error } = useKakaoMapSdk();
+	const { status, sdk, error, retry } = useKakaoMapSdk();
 
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const initialCenter = fitTo?.[0] ?? center;
@@ -49,7 +61,7 @@ export function KakaoMap({
 		throw new Error("KakaoMap에 fitTo나 center 중 하나는 있어야 한다. fitTo가 빈 배열이면 그릴 자리를 알 수 없다");
 	}
 
-	const initialViewRef = useRef({ center: initialCenter, level });
+	const initialViewRef = useRef({ center: initialCenter, level, cluster: initialCluster });
 
 	const [session, setSession] = useState<KakaoMapSession | null>(null);
 
@@ -93,6 +105,14 @@ export function KakaoMap({
 		session?.syncMarkers(markers);
 	}, [session, markers]);
 
+	useEffect(() => {
+		session?.setSelectedMarker(selectedMarkerId);
+	}, [session, selectedMarkerId]);
+
+	useEffect(() => {
+		session?.setMyPosition(myPosition);
+	}, [session, myPosition]);
+
 	const contextValue = useMemo(
 		() => ({
 			handle:
@@ -110,9 +130,21 @@ export function KakaoMap({
 		return (
 			<div
 				role="alert"
-				className={cn("flex items-center justify-center rounded-2xl bg-red-50 p-6 text-sm text-red-900", className)}
+				className={cn(
+					"flex flex-col items-center justify-center gap-4 rounded-2xl bg-red-50 p-6 text-center",
+					className
+				)}
 			>
-				{error.message}
+				<div className="flex flex-col gap-1">
+					<p className="font-semibold text-red-900">지도를 불러오지 못했습니다</p>
+					<p className="text-xs leading-relaxed text-red-800">{error.message}</p>
+				</div>
+				<div className="flex flex-wrap justify-center gap-2">
+					<Button variant="secondary" onClick={retry}>
+						다시 시도
+					</Button>
+					{errorAction}
+				</div>
 			</div>
 		);
 	}

@@ -1,29 +1,55 @@
+"use client";
+
 import { KakaoMapError } from "./kakao-map-error";
-import type { KakaoMapInstance, KakaoMapsSdk, KakaoMarkerInstance } from "./kakao-map-sdk";
+import { buildPinElement, CLUSTER_STYLES, formatClusterText, getMyPositionElement } from "./kakao-map-pins";
+import type {
+	KakaoCustomOverlayInstance,
+	KakaoMapInstance,
+	KakaoMapsSdk,
+	KakaoMarkerClustererInstance
+} from "./kakao-map-sdk";
 import type { KakaoLatLngLiteral } from "./kakao-map-utils";
 import { buildKakaoMapSdkUrl, isSamePosition, readKakaoMapKey, toLatLng } from "./kakao-map-utils";
 
 export type KakaoMarkerData = {
 	id: string;
 	position: KakaoLatLngLiteral;
-	title?: string;
+	/** 핀의 접근성 이름. 라벨이 잘려도 이 값은 전체다 */
+	title: string;
+	/** 핀에 그리는 아이콘. 없으면 기본 핀 */
+	iconUrl?: string;
+	/** 핀 아래 붙는 글자. 길이 제한은 부르는 쪽이 한다 */
+	label?: string;
+};
+
+export type KakaoClusterOptions = {
+	/** 이 레벨 이상(멀리 볼 때)에서만 묶는다 */
+	minLevel: number;
 };
 
 export type KakaoMapViewOptions = {
 	center: KakaoLatLngLiteral;
 	level: number;
+	cluster?: KakaoClusterOptions;
 };
 
 type MarkerClickHandler = (markerId: string) => void;
 
-type SyncedMarker = {
-	instance: KakaoMarkerInstance;
+type SyncedPin = {
+	overlay: KakaoCustomOverlayInstance;
+	element: HTMLElement;
 	listener: () => void;
-	position: KakaoLatLngLiteral;
-	title: string | undefined;
+	data: KakaoMarkerData;
 };
 
 const SCRIPT_ELEMENT_ID = "kakao-map-sdk";
+const PIN_Z_INDEX = 1;
+const SELECTED_PIN_Z_INDEX = 2;
+const MY_POSITION_Z_INDEX = 3;
+
+function isSamePinData(a: KakaoMarkerData, b: KakaoMarkerData) {
+	return a.title === b.title && a.iconUrl === b.iconUrl && a.label === b.label;
+}
 
 export class KakaoMapSession {
 	private static sdkPromise: Promise<KakaoMapsSdk> | null = null;
@@ -32,6 +58,14 @@ export class KakaoMapSession {
 	public static load() {
 		KakaoMapSession.sdkPromise ??= KakaoMapSession.loadScript();
 		return KakaoMapSession.sdkPromise;
+	}
+
+	/** 실패로 끝난 로딩을 버리고 다시 시도한다. 실패한 script 요소도 지운다 */
+	public static reload() {
+		KakaoMapSession.sdkPromise = null;
+		document.getElementById(SCRIPT_ELEMENT_ID)?.remove();
+
+		return KakaoMapSession.load();
 	}
 
 	public static attach(sdk: KakaoMapsSdk, container: HTMLElement, view: KakaoMapViewOptions) {
@@ -112,10 +146,13 @@ export class KakaoMapSession {
 	public readonly map: KakaoMapInstance;
 
 	private readonly container: HTMLElement;
-	private readonly markers = new Map<string, SyncedMarker>();
+	private readonly pins = new Map<string, SyncedPin>();
+	private readonly clusterer: KakaoMarkerClustererInstance | null;
 
 	private observer: ResizeObserver | null = null;
 	private onMarkerClick: MarkerClickHandler | undefined = undefined;
+	private selectedId: string | null = null;
+	private myPosition: KakaoCustomOverlayInstance | null = null;
 
 	private constructor(sdk: KakaoMapsSdk, container: HTMLElement, view: KakaoMapViewOptions) {
 		const center = toLatLng(sdk, view.center);
@@ -127,6 +164,16 @@ export class KakaoMapSession {
 			level: view.level,
 			keyboardShortcuts: true
 		});
+		this.clusterer =
+			view.cluster === undefined
+				? null
+				: new sdk.maps.MarkerClusterer({
+						map: this.map,
+						minLevel: view.cluster.minLevel,
+						averageCenter: true,
+						styles: CLUSTER_STYLES,
+						texts: formatClusterText
+					});
 
 		this.observeResize();
 	}
@@ -163,51 +210,101 @@ export class KakaoMapSession {
 		this.onMarkerClick = handler;
 	}
 
+	public setSelectedMarker(id: string | null) {
+		if (this.selectedId === id) {
+			return;
+		}
+
+		const previous = this.selectedId === null ? undefined : this.pins.get(this.selectedId);
+		if (previous !== undefined) {
+			previous.element.setAttribute("aria-pressed", "false");
+			previous.overlay.setZIndex(PIN_Z_INDEX);
+		}
+
+		const next = id === null ? undefined : this.pins.get(id);
+		if (next !== undefined) {
+			next.element.setAttribute("aria-pressed", "true");
+			next.overlay.setZIndex(SELECTED_PIN_Z_INDEX);
+		}
+
+		this.selectedId = id;
+	}
+
+	public setMyPosition(position: KakaoLatLngLiteral | null) {
+		if (position === null) {
+			this.myPosition?.setMap(null);
+			this.myPosition = null;
+			return;
+		}
+
+		const latLng = toLatLng(this.sdk, position);
+		if (this.myPosition === null) {
+			this.myPosition = new this.sdk.maps.CustomOverlay({
+				map: this.map,
+				position: latLng,
+				content: getMyPositionElement(),
+				zIndex: MY_POSITION_Z_INDEX
+			});
+			return;
+		}
+
+		this.myPosition.setPosition(latLng);
+	}
+
 	public syncMarkers(markers: readonly KakaoMarkerData[]) {
 		const nextIds = new Set(markers.map((marker) => marker.id));
 
-		for (const [id, synced] of this.markers) {
+		for (const [id, synced] of this.pins) {
 			if (!nextIds.has(id)) {
-				this.removeMarker(id, synced);
+				this.removePin(id, synced);
 			}
 		}
 
 		for (const marker of markers) {
-			const synced = this.markers.get(marker.id);
+			const synced = this.pins.get(marker.id);
 
 			if (synced === undefined) {
-				this.markers.set(marker.id, this.createMarker(marker));
+				this.pins.set(marker.id, this.createPin(marker));
 				continue;
 			}
 
-			if (!isSamePosition(synced.position, marker.position)) {
-				synced.instance.setPosition(toLatLng(this.sdk, marker.position));
-				synced.position = marker.position;
+			if (!isSamePosition(synced.data.position, marker.position)) {
+				synced.overlay.setPosition(toLatLng(this.sdk, marker.position));
 			}
 
-			if (synced.title !== marker.title) {
-				synced.instance.setTitle(marker.title ?? "");
-				synced.title = marker.title;
+			if (!isSamePinData(synced.data, marker)) {
+				this.removePin(marker.id, synced);
+				this.pins.set(marker.id, this.createPin(marker));
+				continue;
 			}
+
+			synced.data = marker;
 		}
+
+		this.clusterer?.redraw();
 	}
 
 	public detach() {
-		for (const [id, synced] of this.markers) {
-			this.removeMarker(id, synced);
+		for (const [id, synced] of this.pins) {
+			this.removePin(id, synced);
 		}
 
+		this.setMyPosition(null);
+		this.clusterer?.setMap(null);
 		this.observer?.disconnect();
 		this.observer = null;
 		KakaoMapSession.attached.delete(this.container);
 	}
 
-	private createMarker(marker: KakaoMarkerData) {
-		const position = toLatLng(this.sdk, marker.position);
-		const instance = new this.sdk.maps.Marker({
-			map: this.map,
-			position,
-			title: marker.title,
+	private createPin(marker: KakaoMarkerData) {
+		const element = buildPinElement(marker);
+		element.setAttribute("aria-pressed", String(marker.id === this.selectedId));
+
+		const overlay = new this.sdk.maps.CustomOverlay({
+			position: toLatLng(this.sdk, marker.position),
+			content: element,
+			yAnchor: 1,
+			zIndex: marker.id === this.selectedId ? SELECTED_PIN_Z_INDEX : PIN_Z_INDEX,
 			clickable: true
 		});
 
@@ -215,21 +312,32 @@ export class KakaoMapSession {
 		const listener = () => {
 			this.onMarkerClick?.(markerId);
 		};
+		element.addEventListener("click", listener);
 
-		this.sdk.maps.event.addListener(instance, "click", listener);
+		if (this.clusterer === null) {
+			overlay.setMap(this.map);
+		} else {
+			this.clusterer.addMarker(overlay, true);
+		}
 
 		return {
-			instance,
+			overlay,
+			element,
 			listener,
-			position: marker.position,
-			title: marker.title
+			data: marker
 		};
 	}
 
-	private removeMarker(id: string, synced: SyncedMarker) {
-		this.sdk.maps.event.removeListener(synced.instance, "click", synced.listener);
-		synced.instance.setMap(null);
-		this.markers.delete(id);
+	private removePin(id: string, synced: SyncedPin) {
+		synced.element.removeEventListener("click", synced.listener);
+
+		if (this.clusterer === null) {
+			synced.overlay.setMap(null);
+		} else {
+			this.clusterer.removeMarker(synced.overlay, true);
+		}
+
+		this.pins.delete(id);
 	}
 
 	private observeResize() {
