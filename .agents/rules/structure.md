@@ -1,5 +1,7 @@
 ---
 description: src/app은 라우팅, src/features는 기능, src/shared는 공용. 기능 폴더 안은 api와 ui, hooks, model 넷이다. 의존은 한 방향이고 배럴 파일을 만들지 않는다
+paths:
+  - "src/**"
 ---
 
 # 폴더 구조
