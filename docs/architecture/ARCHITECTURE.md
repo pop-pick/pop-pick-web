@@ -258,4 +258,3 @@ rewrite는 `/api/v1/:path*`로 좁힌다. 백엔드 API가 전부 `/api/v1/**`�
 | 후기와 평점                  | `reviewSummary`가 `null`이면 그리지 않는다                                                     | `popup.md`의 `PopupDetail`                                       |
 | 대기시간 예상                | `waitEstimateMinutes`가 `null`이면 그리지 않는다                                               | `course.md`의 `CourseItem`                                       |
 | 폴리라인 좌표를 응답에 싣나  | 구간 응답에 실린다(FE 제안)                                                                    | `course.md`의 `WalkSegment`                                      |
-| 구글 API 계정                | 카카오는 한 계정으로 통일됐고 구글은 누구 것으로 할지 남았다                                   | `NEXT_PUBLIC_GOOGLE_CLIENT_ID`와 콘솔의 Redirect URI             |
