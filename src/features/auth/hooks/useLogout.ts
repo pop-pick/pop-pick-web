@@ -12,7 +12,7 @@ export function useLogout() {
 			console.warn("[auth] 로그아웃 요청이 실패했습니다", error);
 		},
 		onSettled: () => {
-			useAuthStore.getState().clear();
+			useAuthStore.getState().clearSession();
 		}
 	});
 }

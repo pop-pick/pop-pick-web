@@ -8,8 +8,10 @@ export type KakaoLatLngLiteral = {
 type KakaoMapLibrary = "services" | "clusterer" | "drawing";
 
 const KAKAO_MAP_SDK_URL = "https://dapi.kakao.com/v2/maps/sdk.js";
-const KAKAO_MAP_LIBRARIES: readonly KakaoMapLibrary[] = [];
+const KAKAO_MAP_LIBRARIES: readonly KakaoMapLibrary[] = ["clusterer"];
 export const KAKAO_MAP_DEFAULT_LEVEL = 3;
+
+export const SEOUL_CENTER: KakaoLatLngLiteral = { lat: 37.5665, lng: 126.978 };
 
 export function readKakaoMapKey() {
 	const key = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY;

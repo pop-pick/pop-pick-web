@@ -130,17 +130,17 @@ rewrite는 `/api/v1/:path*`로 좁힌다. 백엔드 API가 전부 `/api/v1/**`�
 
 여러 기능이 함께 쓰는 것은 `src/shared`에 둔다. `shared/model`과 `shared/lib/kakao-map`, `shared/ui`, `shared/api`의 토큰과 Route Handler 도구는 있고 나머지 셋은 이 설계로 새로 생긴다.
 
-| 위치                             | 담는 것                                                                                                                                           |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `shared/model/region.ts`         | 지역 유니온과 라벨 대응표. **선택지가 서버로 가면서 없어질 파일이다.** 지역 값과 라벨은 온보딩 선택지 조회에서 온다                               |
-| `shared/model/popup.ts`          | 카테고리와 예약 유형, 라벨 대응표, 카드가 그리는 값 `PopupCardItem`. 카테고리 라벨도 서버 목록으로 옮겨가고 핀 아이콘 대응표만 코드에 남는다      |
-| `shared/api/auth-token.ts`       | 액세스 토큰 소스와 재발급 핸들러 등록, 만료 이벤트. auth 기능이 등록하고 `request`가 읽는다                                                       |
-| `shared/api/route-handler.ts`    | Route Handler가 쓰는 응답 만들기와 Bearer 읽기. `/api/auth` 셋이 쓴다                                                                             |
-| `shared/api/schema.d.ts`         | Swagger `/v3/api-docs`에서 생성한 타입. 손으로 고치지 않는다                                                                                      |
-| `shared/api/mocks/`              | MSW 브라우저 워커와 노드 서버 설정. 핸들러는 각 기능의 `api/handlers.ts`에서 모은다                                                               |
-| `shared/hooks/useCursorQuery.ts` | `PageResponse<T>`를 받는 무한 스크롤 쿼리. 마지막 항목에서 커서를 뽑는 규칙을 한 곳에 둔다                                                        |
-| `shared/lib/kakao-map`           | 마커와 마커 전체가 보이게 맞추기(`fitTo`)는 있다. 클러스터러와 카테고리 핀, 폴리라인, 번호 마커, 경로 좌표를 SDK 좌표로 옮기는 함수가 더 필요하다 |
-| `shared/ui`                      | 화면 뼈대가 쓰는 열 개가 있다. 이 설계가 더 요구하는 것은 BottomSheet와 Tabs, Skeleton, ErrorState, ConfirmDialog                                 |
+| 위치                             | 담는 것                                                                                                                                                                 |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `shared/model/region.ts`         | 지역 유니온과 라벨 대응표. **선택지가 서버로 가면서 없어질 파일이다.** 지역 값과 라벨은 온보딩 선택지 조회에서 온다                                                     |
+| `shared/model/popup.ts`          | 카테고리와 예약 유형, 라벨 대응표, 카드가 그리는 값 `PopupCardItem`. 라벨은 서버 목록으로 옮겨간다. 핀 아이콘 대응표는 쓰는 기능이 하나라 `features/popup/model`에 있다 |
+| `shared/api/auth-token.ts`       | 액세스 토큰 소스와 재발급 핸들러 등록, 만료 이벤트. auth 기능이 등록하고 `request`가 읽는다                                                                             |
+| `shared/api/route-handler.ts`    | Route Handler가 쓰는 응답 만들기와 Bearer 읽기. `/api/auth` 셋이 쓴다                                                                                                   |
+| `shared/api/schema.d.ts`         | Swagger `/v3/api-docs`에서 생성한 타입. 손으로 고치지 않는다                                                                                                            |
+| `shared/api/mocks/`              | MSW 브라우저 워커와 노드 서버 설정. 핸들러는 각 기능의 `api/handlers.ts`에서 모은다                                                                                     |
+| `shared/hooks/useCursorQuery.ts` | `PageResponse<T>`를 받는 무한 스크롤 쿼리. 마지막 항목에서 커서를 뽑는 규칙을 한 곳에 둔다                                                                              |
+| `shared/lib/kakao-map`           | 클러스터러와 아이콘이 붙는 핀, 현재 위치 표시, 카메라 이동, SDK 재시도까지 있다. 폴리라인과 번호 핀, 경로 좌표를 SDK 좌표로 옮기는 함수가 더 필요하다                   |
+| `shared/ui`                      | 화면 뼈대가 쓰는 열 개가 있다. 이 설계가 더 요구하는 것은 BottomSheet와 Tabs, Skeleton, ErrorState, ConfirmDialog                                                       |
 
 `shared/ui`에 무엇을 올릴지는 후보로 둔다. 두 화면 이상에서 쓰임이 확인된 것만 올리고 주인은 디자인 시스템 담당이다.
 
@@ -258,4 +258,3 @@ rewrite는 `/api/v1/:path*`로 좁힌다. 백엔드 API가 전부 `/api/v1/**`�
 | 후기와 평점                  | `reviewSummary`가 `null`이면 그리지 않는다                                                     | `popup.md`의 `PopupDetail`                                       |
 | 대기시간 예상                | `waitEstimateMinutes`가 `null`이면 그리지 않는다                                               | `course.md`의 `CourseItem`                                       |
 | 폴리라인 좌표를 응답에 싣나  | 구간 응답에 실린다(FE 제안)                                                                    | `course.md`의 `WalkSegment`                                      |
-| 구글 API 계정                | 카카오는 한 계정으로 통일됐고 구글은 누구 것으로 할지 남았다                                   | `NEXT_PUBLIC_GOOGLE_CLIENT_ID`와 콘솔의 Redirect URI             |

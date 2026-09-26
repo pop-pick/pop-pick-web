@@ -22,9 +22,11 @@ export function getLoginFailureMessage(error: unknown) {
 		if (error.errorCode !== null && KAKAO_AUTH_FAILURE_CODES.has(error.errorCode)) {
 			return "카카오 인증에 실패했습니다. 다시 로그인해 주세요.";
 		}
+
 		if (error.kind === "network") {
 			return "네트워크에 연결할 수 없습니다. 연결을 확인하고 다시 시도해 주세요.";
 		}
+
 		if (error.kind === "timeout") {
 			return "서버 응답이 늦어 로그인하지 못했습니다. 잠시 뒤 다시 시도해 주세요.";
 		}

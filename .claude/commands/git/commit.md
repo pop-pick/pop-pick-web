@@ -1,5 +1,6 @@
 ---
 description: 변경사항을 분석하여 커밋 컨벤션에 맞게 커밋을 생성해주세요.
+disable-model-invocation: true
 ---
 
 # Commit

@@ -5,18 +5,18 @@ import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/shared/lib/cn";
 
 type ChipProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-	selected?: boolean;
+	isSelected?: boolean;
 };
 
-export function Chip({ selected = false, className, type = "button", ...props }: ChipProps) {
+export function Chip({ isSelected = false, className, type = "button", ...props }: ChipProps) {
 	return (
 		<button
 			type={type}
-			aria-pressed={selected}
+			aria-pressed={isSelected}
 			className={cn(
 				"rounded-xl border px-4 py-2 text-sm font-medium transition-colors",
 				"focus-ring",
-				selected
+				isSelected
 					? "border-blue-600 bg-blue-50 text-blue-700"
 					: "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50",
 				className

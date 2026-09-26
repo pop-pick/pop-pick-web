@@ -19,4 +19,4 @@ description: main과 develop, feature 세 브랜치. 커밋 메시지는 <타입
 4. 병합 충돌 `--ours` 일방 해소. 양쪽 의미를 검토한 뒤 해소한다
 5. 강제 푸시와 `--no-verify`. 리베이스가 필요하면 `--force-with-lease`만 쓰고 기본 브랜치에는 쓰지 않는다
 
-첫째와 둘째, 다섯째는 PreToolUse 훅 `.agents/hooks/guard-git.sh`가 막는다. 절차와 이유, lefthook이 하는 일, 릴리스 뒤 정리는 `.agents/skills/pop-pick-git/SKILL.md`에 있다.
+`main`과 `develop` 직접 커밋, `main`으로 가는 푸시, 광범위 스테이징과 `commit -a`, `.env` 스테이징, 강제 푸시, 훅 건너뛰기는 PreToolUse 훅 `.agents/hooks/guard-git.sh`가 막는다. `develop`으로 가는 푸시는 릴리스 뒤 정리 절차가 쓰므로 막지 않는다. 절차와 이유, lefthook이 하는 일, 릴리스 뒤 정리는 `.agents/skills/pop-pick-git/SKILL.md`에 있다.

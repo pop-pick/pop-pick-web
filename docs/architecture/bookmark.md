@@ -38,7 +38,7 @@
 ```
 하트 클릭
   비로그인    "로그인 후 이용 가능합니다. 로그인 하시겠습니까?"
-                확인  useRequireAuth().ensure(현재 경로)로 /login?next=
+                확인  useRequireAuth().ensureAuthenticated(현재 경로)로 /login?next=
                 취소  알럿만 닫힌다
   찜 안 함    "해당 팝업을 찜하시겠습니까?"
                 확인  POST /bookmarks/{popupId}

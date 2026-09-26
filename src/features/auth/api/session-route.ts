@@ -15,7 +15,6 @@ export async function handleLogin(request: Request) {
 
 	try {
 		const tokens = await api.post<AuthTokens>("/api/v1/auth/login", { json: body, auth: false });
-
 		return setRefreshCookie(toSuccessResponse({ accessToken: tokens.accessToken }), tokens.refreshToken);
 	} catch (error) {
 		return toBackendErrorResponse(error);

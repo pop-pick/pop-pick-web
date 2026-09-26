@@ -44,6 +44,8 @@ next-env.d.ts
 
 # AI Tools
 _workspace
+*.local.md
+*.local.json
 .serena
 .playwright-mcp
 CLAUDE.local.md

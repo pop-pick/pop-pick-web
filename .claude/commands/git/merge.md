@@ -1,5 +1,6 @@
 ---
 description: PR을 머지하고 브랜치를 정리해주세요.
+disable-model-invocation: true
 ---
 
 # Merge

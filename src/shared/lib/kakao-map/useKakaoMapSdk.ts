@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { KakaoMapError } from "./kakao-map-error";
 import type { KakaoMapsSdk } from "./kakao-map-sdk";
@@ -19,19 +19,21 @@ const LOADING_STATE: KakaoMapSdkState = {
 
 export function useKakaoMapSdk() {
 	const [state, setState] = useState<KakaoMapSdkState>(LOADING_STATE);
+	const [attempt, setAttempt] = useState(0);
 	const [unexpectedError, setUnexpectedError] = useState<Error | null>(null);
 
 	useEffect(() => {
-		let active = true;
+		let isActive = true;
+		const loading = attempt === 0 ? KakaoMapSession.load() : KakaoMapSession.reload();
 
-		KakaoMapSession.load().then(
+		loading.then(
 			(sdk) => {
-				if (active) {
+				if (isActive) {
 					setState({ status: "ready", sdk, error: null });
 				}
 			},
 			(error: unknown) => {
-				if (!active) {
+				if (!isActive) {
 					return;
 				}
 
@@ -50,13 +52,18 @@ export function useKakaoMapSdk() {
 		);
 
 		return () => {
-			active = false;
+			isActive = false;
 		};
+	}, [attempt]);
+
+	const reloadSdk = useCallback(() => {
+		setState(LOADING_STATE);
+		setAttempt((count) => count + 1);
 	}, []);
 
 	if (unexpectedError !== null) {
 		throw unexpectedError;
 	}
 
-	return state;
+	return { ...state, reloadSdk };
 }

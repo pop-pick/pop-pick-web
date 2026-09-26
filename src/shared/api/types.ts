@@ -23,6 +23,7 @@ function hasErrorMessageShape(error: unknown) {
 	}
 
 	const { errorCode, message } = error as Record<string, unknown>;
+
 	return typeof errorCode === "string" && typeof message === "string" && "data" in error;
 }
 
@@ -34,5 +35,6 @@ export function isApiResponse(body: unknown): body is ApiResponse<unknown> {
 	const { resultType, error } = body as Record<string, unknown>;
 	const hasResultType = resultType === "SUCCESS" || resultType === "ERROR";
 	const hasError = error === null || hasErrorMessageShape(error);
+
 	return hasResultType && "data" in body && hasError;
 }

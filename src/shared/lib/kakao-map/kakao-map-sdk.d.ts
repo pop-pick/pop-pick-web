@@ -42,6 +42,59 @@ export type KakaoMarkerInstance = {
 	setTitle(title: string): void;
 };
 
+export type KakaoCustomOverlayOptions = {
+	map?: KakaoMapInstance;
+	position: KakaoLatLng;
+	content: string | HTMLElement;
+	xAnchor?: number;
+	yAnchor?: number;
+	zIndex?: number;
+	clickable?: boolean;
+};
+
+export type KakaoCustomOverlayInstance = {
+	setMap(map: KakaoMapInstance | null): void;
+	getMap(): KakaoMapInstance | null;
+	setPosition(position: KakaoLatLng): void;
+	getPosition(): KakaoLatLng;
+	setContent(content: string | HTMLElement): void;
+	setVisible(visible: boolean): void;
+	setZIndex(zIndex: number): void;
+};
+
+export type KakaoClusterable = KakaoMarkerInstance | KakaoCustomOverlayInstance;
+
+export type KakaoClusterStyle = Record<string, string>;
+
+export type KakaoMarkerClustererOptions = {
+	map: KakaoMapInstance;
+	minLevel?: number;
+	minClusterSize?: number;
+	averageCenter?: boolean;
+	gridSize?: number;
+	disableClickZoom?: boolean;
+	styles?: KakaoClusterStyle[];
+	texts?: string[] | ((size: number) => string);
+	calculator?: number[] | ((size: number) => number);
+};
+
+export type KakaoClusterInstance = {
+	getCenter(): KakaoLatLng;
+	getBounds(): KakaoLatLngBounds;
+	getSize(): number;
+	getMarkers(): KakaoClusterable[];
+};
+
+export type KakaoMarkerClustererInstance = {
+	addMarker(marker: KakaoClusterable, nodraw?: boolean): void;
+	addMarkers(markers: KakaoClusterable[], nodraw?: boolean): void;
+	removeMarker(marker: KakaoClusterable, nodraw?: boolean): void;
+	removeMarkers(markers: KakaoClusterable[], nodraw?: boolean): void;
+	clear(): void;
+	redraw(): void;
+	setMap(map: KakaoMapInstance | null): void;
+};
+
 export type KakaoMapEventType =
 	| "bounds_changed"
 	| "center_changed"
@@ -62,11 +115,24 @@ export type KakaoMapEventType =
 
 export type KakaoMarkerEventType = "click" | "dragend" | "dragstart" | "mouseout" | "mouseover" | "rightclick";
 
+export type KakaoClustererEventType =
+	"clusterclick" | "clusterover" | "clusterout" | "clusterdblclick" | "clusterrightclick" | "clustered";
+
 export type KakaoMapsEventNamespace = {
 	addListener(target: KakaoMapInstance, type: KakaoMapEventType, handler: () => void): void;
 	addListener(target: KakaoMarkerInstance, type: KakaoMarkerEventType, handler: () => void): void;
+	addListener(
+		target: KakaoMarkerClustererInstance,
+		type: KakaoClustererEventType,
+		handler: (cluster: KakaoClusterInstance) => void
+	): void;
 	removeListener(target: KakaoMapInstance, type: KakaoMapEventType, handler: () => void): void;
 	removeListener(target: KakaoMarkerInstance, type: KakaoMarkerEventType, handler: () => void): void;
+	removeListener(
+		target: KakaoMarkerClustererInstance,
+		type: KakaoClustererEventType,
+		handler: (cluster: KakaoClusterInstance) => void
+	): void;
 };
 
 export type KakaoMapsNamespace = {
@@ -75,6 +141,9 @@ export type KakaoMapsNamespace = {
 	LatLngBounds: new () => KakaoLatLngBounds;
 	Map: new (container: HTMLElement, options: KakaoMapOptions) => KakaoMapInstance;
 	Marker: new (options: KakaoMarkerOptions) => KakaoMarkerInstance;
+	CustomOverlay: new (options: KakaoCustomOverlayOptions) => KakaoCustomOverlayInstance;
+	/** `libraries=clusterer`로 SDK를 불러야 존재한다 */
+	MarkerClusterer: new (options: KakaoMarkerClustererOptions) => KakaoMarkerClustererInstance;
 	event: KakaoMapsEventNamespace;
 };
 

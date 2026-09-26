@@ -1,5 +1,6 @@
 ---
 description: 새 브랜치를 생성하고 전환해주세요.
+disable-model-invocation: true
 ---
 
 # Branch

@@ -4,13 +4,13 @@ import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { cn } from "@/shared/lib/cn";
+import { Button } from "@/shared/ui/Button";
 
 import { KakaoMapContext } from "./kakao-map-context";
-import { KakaoMapSession, type KakaoMarkerData } from "./kakao-map-session";
+import { type KakaoClusterOptions, KakaoMapSession, type KakaoMarkerData } from "./kakao-map-session";
 import { KAKAO_MAP_DEFAULT_LEVEL, type KakaoLatLngLiteral } from "./kakao-map-utils";
 import { useKakaoMapSdk } from "./useKakaoMapSdk";
 
-/** 지도를 어디에 맞출지. 좌표를 전부 담거나(fitTo) 중심 하나를 고른다(center). 둘 중 하나는 있어야 한다 */
 type KakaoMapView =
 	| { fitTo: readonly KakaoLatLngLiteral[]; center?: never; level?: never }
 	| { fitTo?: never; center: KakaoLatLngLiteral; level?: number };
@@ -18,30 +18,34 @@ type KakaoMapView =
 export type KakaoMapProps = KakaoMapView & {
 	markers?: readonly KakaoMarkerData[];
 	onMarkerClick?: (markerId: string) => void;
+	selectedMarkerId?: string | null;
+	myPosition?: KakaoLatLngLiteral | null;
+	initialCluster?: KakaoClusterOptions;
 	label: string;
 	className?: string;
 	children?: ReactNode;
+	errorAction?: ReactNode;
 };
 
 const NO_MARKERS: readonly KakaoMarkerData[] = [];
 const FIT_PADDING_PX = 20;
 
-/**
- * 지도 SDK가 컨테이너 안에 z-index 2 레이어를 만든다. 컨테이너의 `isolate`가 그 숫자를 가둬서
- * 지도 위에 겹쳐 놓는 것은 z를 주지 않아도 DOM 순서대로 위에 그려진다. 빼면 타일 뒤로 들어가
- * 접근성 트리에는 남고 화면에서만 사라진다.
- */
+/** 컨테이너의 `isolate`가 SDK의 z-index 2 레이어를 가둔다. 빼면 지도 위 요소가 타일 뒤로 숨는다 */
 export function KakaoMap({
 	fitTo,
 	center,
 	level = KAKAO_MAP_DEFAULT_LEVEL,
 	markers = NO_MARKERS,
 	onMarkerClick,
+	selectedMarkerId = null,
+	myPosition = null,
+	initialCluster,
 	label,
 	className,
-	children
+	children,
+	errorAction
 }: KakaoMapProps) {
-	const { status, sdk, error } = useKakaoMapSdk();
+	const { status, sdk, error, reloadSdk } = useKakaoMapSdk();
 
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const initialCenter = fitTo?.[0] ?? center;
@@ -49,7 +53,7 @@ export function KakaoMap({
 		throw new Error("KakaoMap에 fitTo나 center 중 하나는 있어야 한다. fitTo가 빈 배열이면 그릴 자리를 알 수 없다");
 	}
 
-	const initialViewRef = useRef({ center: initialCenter, level });
+	const initialViewRef = useRef({ center: initialCenter, level, cluster: initialCluster });
 
 	const [session, setSession] = useState<KakaoMapSession | null>(null);
 
@@ -93,6 +97,14 @@ export function KakaoMap({
 		session?.syncMarkers(markers);
 	}, [session, markers]);
 
+	useEffect(() => {
+		session?.setSelectedMarker(selectedMarkerId);
+	}, [session, selectedMarkerId]);
+
+	useEffect(() => {
+		session?.setMyPosition(myPosition);
+	}, [session, myPosition]);
+
 	const contextValue = useMemo(
 		() => ({
 			handle:
@@ -110,9 +122,21 @@ export function KakaoMap({
 		return (
 			<div
 				role="alert"
-				className={cn("flex items-center justify-center rounded-2xl bg-red-50 p-6 text-sm text-red-900", className)}
+				className={cn(
+					"flex flex-col items-center justify-center gap-4 rounded-2xl bg-red-50 p-6 text-center",
+					className
+				)}
 			>
-				{error.message}
+				<div className="flex flex-col gap-1">
+					<p className="font-semibold text-red-900">지도를 불러오지 못했습니다</p>
+					<p className="text-xs leading-relaxed text-red-800">{error.message}</p>
+				</div>
+				<div className="flex flex-wrap justify-center gap-2">
+					<Button variant="secondary" onClick={reloadSdk}>
+						다시 시도
+					</Button>
+					{errorAction}
+				</div>
 			</div>
 		);
 	}
