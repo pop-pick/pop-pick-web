@@ -53,8 +53,8 @@ lefthook 훅이 커밋과 푸시 때 같은 검사를 저장소 전체에 돌린
 - `structure.md`. src/app은 라우팅, src/features는 기능, src/shared는 공용. 기능 폴더 안은 api와 ui, hooks, model 넷이다. 의존은 한 방향이고 배럴 파일을 만들지 않는다
 - `tailwind.md`. X-[value] 임의값을 쓰지 않는다. 값은 src/shared/styles/globals.css의 @theme inline 토큰과 @utility에서 온다. 어긋난 값을 옮기는 네 갈래
 - `testing.md`. 테스팅 트로피가 전략이다. 기본 동작은 삭제이고 추가는 예외다. 도구는 미정. 층마다 소유하는 것과 지우는 기준
-- `typescript.md`. 추론되는 반환 타입을 적지 않는다. 반환 타입을 적는 예외 둘. 이름은 흔한 동사와 목적어로 짓는다. 리뷰에서 쓰는 grep
-- `ui.md`. 기성 UI 라이브러리 없음. 공용 컴포넌트는 src/shared/ui가 주인. 파일 이름과 선언 형식의 정본. 모바일 퍼스트, 키보드로 조작 가능, 토큰만 쓴다
+- `typescript.md`. 추론되는 반환 타입을 적지 않는다. 이름은 흔한 동사와 목적어로 짓고 handle, on, is 같은 접두사를 역할대로 쓴다. return 앞과 블록 뒤 빈 줄. 리뷰에서 쓰는 grep
+- `ui.md`. 기성 UI 라이브러리 없음. 공용 컴포넌트는 src/shared/ui가 주인. 파일 이름과 선언 형식의 정본. 이벤트 핸들러는 JSX 밖으로 뺀다. 모바일 퍼스트, 키보드로 조작 가능, 토큰만 쓴다
 
 <!-- agents-sync:rules:end -->
 

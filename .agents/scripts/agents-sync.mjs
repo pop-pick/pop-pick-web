@@ -1,20 +1,5 @@
 #!/usr/bin/env node
 // agents-sync. `.agents/` 원본을 Claude Code 와 Codex 가 읽는 자리로 복사하고 변환한다.
-//
-//   pnpm harness:sync                          생성물을 갱신한다
-//   node .agents/scripts/agents-sync.mjs --check  생성물이 원본과 맞는지만 본다. harness:check 가 돌린다
-//   node .agents/scripts/agents-sync.mjs --check-index  git 인덱스에 올라간 원본과 생성물이 맞는지 본다
-//
-//   원본                         생성물
-//   .agents/skills/<이름>/       .claude/skills/<이름>/        통째로 복사
-//   .agents/rules/*.md           .claude/rules/*.md            복사
-//                                AGENTS.md 표식 사이           description 으로 목록을 만든다
-//   .agents/agents/**/*.md       .claude/agents/**/*.md        복사. 하위 폴더를 유지한다
-//                                .codex/agents/<이름>.toml     name, description, developer_instructions 로 변환한다
-//                                                              tools 에 Write 와 Edit 가 없으면 sandbox_mode 를 read-only 로 둔다
-//   .agents/hooks/hooks.json     .claude/settings.json         hooks 키만 바꿔 넣는다
-//
-// 심볼릭 링크를 만들지 않는다. 커밋한 링크는 core.symlinks 가 꺼진 환경에서 텍스트 파일로 풀린다.
 
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";

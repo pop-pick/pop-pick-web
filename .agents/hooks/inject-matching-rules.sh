@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-#
 # PreToolUse(Edit|Write) 훅. 고치려는 파일에 paths 가 맞는 룰 목록을 알린다. 판정은 lib/rule-matcher.py 가 한다
 
 set -uo pipefail

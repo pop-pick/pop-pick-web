@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-#
-# 이번 턴에 바뀐 파일을 가린다. save 는 UserPromptSubmit 에서 바뀐 파일과 내용 해시를 떠 두고
-# list <세션> 은 떠 둔 뒤로 새로 바뀐 파일을 낸다. 떠 둔 것이 없으면 바뀐 파일 전부를 낸다
+# 이번 턴에 바뀐 파일을 가린다. save 는 바뀐 파일과 내용 해시를 떠 두고 list <세션> 은 그 뒤로 바뀐 파일을 낸다
 
 set -uo pipefail
 

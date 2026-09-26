@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-#
 # PreToolUse(Bash) 훅. 판정은 lib/guard-git.mjs 가 한다. node 가 없으면 git 이 든 명령을 막는다
 
 set -uo pipefail

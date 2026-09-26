@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-#
 # 훅 입력 JSON 에서 최상위 필드 하나를 꺼낸다. 불리언은 true 나 false 로 낸다. 읽지 못하면 1 로 끝난다
 
 hook_field() {

@@ -1,21 +1,10 @@
 #!/usr/bin/env bash
-#
 # check-conventions. 룰 파일마다 적어 둔 grep 검사를 한 번에 돌린다.
-#
-# `.agents/rules/` 의 각 룰은 "확인하는 법" 이나 "리뷰에서 볼 것" 절에 찾는 명령을
-# 갖고 있다. 흩어져 있으면 아무도 전부 돌리지 않는다. 여기 모아 한 번에 돌린다.
-#
-# 기계가 판정할 수 있는 것만 넣는다. 판단이 필요한 것은 리뷰 에이전트 몫이다.
-# 검사를 추가할 때는 근거가 되는 룰 파일 이름을 제목에 적는다.
-#
-# Usage: bash .agents/scripts/check-conventions.sh
-# 걸린 검사가 하나라도 있으면 1 로 끝난다.
-#
-# macOS bash 3.2 호환. grep -P 를 쓰지 않는다.
 
 set -uo pipefail
 
-REPO_ROOT="${CHECK_ROOT:-$(cd "$(dirname "$0")/../.." && pwd)}"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="${CHECK_ROOT:-$(cd "$SCRIPT_DIR/../.." && pwd)}"
 cd "$REPO_ROOT" || exit 1
 
 if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -30,7 +19,6 @@ soft_count=0
 errfile="$(mktemp)"
 trap 'rm -f "$errfile"' EXIT
 
-# 검사 명령을 돌린다. 0 과 1(grep 일치 없음), 123(xargs 안의 grep 일치 없음)만 정상 종료로 센다
 run_check() {
 	local cmd="$1"
 	local status
@@ -56,7 +44,6 @@ report() {
 	printf '\n'
 }
 
-# 막는 검사. 출력이 있으면 걸린 것이다
 check() {
 	run_check "$2"
 	if [ -z "$out" ]; then
@@ -68,7 +55,6 @@ check() {
 	fail_count=$((fail_count + 1))
 }
 
-# 판단이 필요한 검사. 자리를 알려 주되 실패로 세지 않는다
 soft_check() {
 	run_check "$2"
 	if [ -z "$out" ]; then
@@ -132,7 +118,17 @@ check "한 파일에 컴포넌트가 둘 이상이다" \
 check "화살표 함수에 대입한 컴포넌트다" \
 	'grep -rnE "^(export )?const [A-Z][a-z][A-Za-z0-9]*( *: *[A-Za-z][A-Za-z0-9<>,. ]*)? *= *\(" src/features src/shared --include="*.tsx"'
 
+check "이벤트 핸들러를 JSX 안에 인라인으로 적었다 (ui.md)" \
+	'grep -rnE "\bon[A-Z][A-Za-z]*=\{[[:space:]]*(async[[:space:]]*)?(\(|[a-z][A-Za-z0-9_]*[[:space:]]*=>|function|$)" src --include="*.tsx"'
 
+check "boolean 상태 이름에 is, has, can, should 가 없다 (typescript.md)" \
+	'grep -rnE "const \[[a-z][A-Za-z0-9]*, set[A-Za-z0-9]*\] = useState(<boolean>)?\((true|false)\)" src --include="*.ts" --include="*.tsx" | grep -vE "const \[(is|has|can|should)[A-Z][A-Za-z0-9]*, set(Is|Has|Can|Should)[A-Z]"'
+
+check "return 앞 빈 줄이나 블록 뒤 빈 줄이 규칙과 다르다 (typescript.md)" \
+	'node "$SCRIPT_DIR/check-return-spacing.mjs" src'
+
+soft_check "on 프롭에 handle 로 시작하지 않는 이름을 넘긴다. 훅이나 프롭에서 받은 함수면 그대로 둔다 (ui.md)" \
+	'grep -rnoE "\bon[A-Z][A-Za-z]*=\{[a-z][A-Za-z0-9]*\}" src --include="*.tsx" | grep -vE "=\{(handle|on)[A-Z]"'
 
 printf '\n=== 값과 타입 (tailwind.md, typescript.md) ===\n\n'
 

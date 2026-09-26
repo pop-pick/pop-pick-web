@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
-#
 # harness-test. 검사 스크립트와 훅 넷, 생성기의 회귀 테스트. harness-check.sh 가 돌린다. 토큰을 쓰지 않는다.
-# 위반을 심은 픽스처로 검사가 그 위반을 잡는지, 판정표로 guard-git 이 막을 것을 막고 통과시킬 것을 통과시키는지,
-# 이번 턴 변경만 Stop 훅이 보는지, 룰 주입 훅이 Claude Code 와 같은 glob 으로 룰을 고르는지 본다.
 
 set -uo pipefail
 unset GIT_INDEX_FILE GIT_DIR GIT_WORK_TREE
@@ -62,6 +59,12 @@ export function countPopups(items: string[]) {
 export async function loadRaw() {
 	return fetch("/api/v1/popups");
 }
+
+export function doublePopups(items: string[]) {
+	const size = items.length;
+
+	return size * 2;
+}
 EOF
 cat >"$fixture/src/features/popup/ui/PopupCard.tsx" <<'EOF'
 export function PopupCard() {
@@ -70,6 +73,14 @@ export function PopupCard() {
 
 function PopupBadge() {
 	return <span />;
+}
+EOF
+cat >"$fixture/src/features/popup/ui/PopupToggle.tsx" <<'EOF'
+import { useState } from "react";
+
+export function PopupToggle() {
+	const [open, setOpen] = useState(false);
+	return <button onClick={() => setOpen(!open)} />;
 }
 EOF
 cat >"$fixture/src/shared/api/client.ts" <<'EOF'
@@ -95,6 +106,11 @@ expect "걸림  추론되는 반환 타입을 적었다" "$output"
 expect "걸림  함수 본문에 주석을 적었다" "$output"
 expect "걸림  컴포넌트나 훅에서 fetch 를 직접 부른다" "$output"
 expect "걸림  한 파일에 컴포넌트가 둘 이상이다" "$output"
+expect "걸림  이벤트 핸들러를 JSX 안에 인라인으로 적었다" "$output"
+expect "걸림  boolean 상태 이름에 is, has, can, should 가 없다" "$output"
+expect "걸림  return 앞 빈 줄이나 블록 뒤 빈 줄이 규칙과 다르다" "$output"
+expect "PopupToggle.tsx:5: JSX 를 돌려주는 return 앞에 빈 줄이 없다" "$output"
+expect "get-popups.ts:15: 블록이 2줄인데 return 앞에 빈 줄이 있다" "$output"
 expect "걸림  금지 기호나 한자를 썼다" "$output"
 expect "걸림  번역 은유를 썼다" "$output"
 expect "걸림  커밋되는 파일에 개인 절대 경로나 위키 경로를 적었다" "$output"

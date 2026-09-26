@@ -1,5 +1,5 @@
 ---
-description: 기성 UI 라이브러리 없음. 공용 컴포넌트는 src/shared/ui가 주인. 파일 이름과 선언 형식의 정본. 모바일 퍼스트, 키보드로 조작 가능, 토큰만 쓴다
+description: 기성 UI 라이브러리 없음. 공용 컴포넌트는 src/shared/ui가 주인. 파일 이름과 선언 형식의 정본. 이벤트 핸들러는 JSX 밖으로 뺀다. 모바일 퍼스트, 키보드로 조작 가능, 토큰만 쓴다
 paths:
   - "src/**/*.tsx"
   - "src/**/use*.ts"
@@ -29,6 +29,33 @@ paths:
 
 훅 파일 이름이 훅 이름과 다르면 import 줄에서 무엇을 가져오는지 한 번 더 확인해야 한다. `auth-store.ts`에서 `useAuthStore`를 가져오는 식이다. 같으면 파일 이름만 보고 안다.
 
+## 이벤트 핸들러
+
+**JSX 안에 핸들러를 인라인으로 적지 않는다.** 한 줄이어도 컴포넌트 본문에 `const handleX = () => {}`로 빼고 `onClick={handleX}`로 넘긴다. React 공식 문서는 짧은 함수의 인라인을 허용하지만 이 저장소는 한 모양으로 맞춘다. 속성 목록 사이에 로직이 끼지 않고, 무엇을 하는지는 핸들러 이름이 말한다.
+
+```tsx
+export function SessionRetry() {
+	const [isRetrying, setIsRetrying] = useState(false);
+
+	const handleRetry = async () => {
+		setIsRetrying(true);
+		await refreshAccessToken();
+		setIsRetrying(false);
+	};
+
+	return (
+		<Button disabled={isRetrying} onClick={handleRetry}>
+			다시 시도
+		</Button>
+	);
+}
+```
+
+- 목록에서 항목 값이 필요하면 항목을 받아 핸들러를 돌려주는 함수를 둔다. `const handleListItemClick = (popup: PopupCardItem) => () => { ... }`와 `onClick={handleListItemClick(popup)}`이다
+- 훅이나 props로 받은 함수는 감싸지 않고 그대로 넘긴다. `onClick={reset}`, `onLocate={requestCurrentPosition}`이다
+- ref 콜백은 이벤트 핸들러가 아니라 이 규칙의 대상이 아니다
+- 핸들러와 props의 이름은 `typescript.md`의 접두사 표를 따른다. 핸들러는 `handle`, 이벤트 props는 `on`이다
+
 ## 만들 때 지키는 것
 
 - 값은 토큰에서 온다. 임의값 금지와 옮기는 방법은 `tailwind.md`
@@ -47,4 +74,5 @@ paths:
 - 포커스 스타일을 지운 `outline-none`
 - 소문자 파일명의 컴포넌트, 화살표 함수 컴포넌트, `export default` 컴포넌트
 - 컴포넌트가 둘 이상 들어 있는 `.tsx` 파일
+- JSX 안의 인라인 핸들러와 `handle`로 시작하지 않는 핸들러
 - `use`로 시작하는 이름을 내보내는데 파일 이름이 케밥 케이스인 파일
