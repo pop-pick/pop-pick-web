@@ -8,7 +8,7 @@ paths:
 
 ## 규칙
 
-**층은 셋이다.** `src/app`은 라우팅, `src/features`는 기능 단위, `src/shared`는 둘 이상이 쓰는 것이다.
+**층은 셋이다.** `src/app`은 라우팅, `src/features`는 기능 단위, `src/shared`는 둘 이상이 쓰는 것이다. `src/` 바로 아래 파일은 Next가 이름과 위치를 정한 `proxy.ts` 하나이고 조립만 한다. `src/app`의 라우트 파일과 같이 features와 shared를 부를 수 있다.
 
 **의존은 한 방향이다.** `shared`에서 `features`로, `features`에서 `app`으로 흐른다. `shared`는 `features`와 `app`을 부르지 않고 기능은 다른 기능을 부르지 않는다. 두 기능을 한 화면에 놓는 것은 `src/app`의 라우트 파일이 한다.
 
