@@ -12,6 +12,7 @@ export function createOAuthState() {
 	const bytes = crypto.getRandomValues(new Uint8Array(STATE_BYTE_LENGTH));
 	const state = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
 	window.sessionStorage.setItem(STORAGE_KEY, state);
+
 	return state;
 }
 

@@ -4,10 +4,6 @@ import { ExploreView } from "@/features/popup/ui/ExploreView";
 import { PLACEHOLDER_POPUPS } from "@/shared/lib/placeholder-data";
 import { Skeleton } from "@/shared/ui/Skeleton";
 
-/**
- * Suspense가 본문 전체를 감싸 정적 HTML에는 제목과 스켈레톤만 남는다. 기본 뷰가 지도라 어차피
- * 스크립트 없이 보여줄 것이 없어 토글만 따로 떼는 이득이 없다고 봤다.
- */
 export default function ExplorePage() {
 	return (
 		<main className="flex flex-1 flex-col">

@@ -17,6 +17,10 @@ export function SessionPanel({ next }: SessionPanelProps) {
 	const status = useAuthStore((state) => state.status);
 	const { mutate: signOut, isPending } = useLogout();
 
+	const handleLogout = () => {
+		signOut();
+	};
+
 	if (status === "restoring") {
 		return (
 			<div role="status">
@@ -52,13 +56,7 @@ export function SessionPanel({ next }: SessionPanelProps) {
 				<p className="font-semibold text-blue-900">로그인된 상태입니다</p>
 				<p className="text-sm text-blue-700">새로고침해도 로그인이 풀리지 않습니다.</p>
 			</div>
-			<Button
-				variant="secondary"
-				disabled={isPending}
-				onClick={() => {
-					signOut();
-				}}
-			>
+			<Button variant="secondary" disabled={isPending} onClick={handleLogout}>
 				{isPending ? "로그아웃 중" : "로그아웃"}
 			</Button>
 		</section>

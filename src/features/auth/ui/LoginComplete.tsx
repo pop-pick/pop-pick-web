@@ -8,7 +8,6 @@ interface LoginCompleteProps {
 	next: string | null;
 }
 
-/** 링크가 첫 포커스를 받으므로 제목과 안내를 aria-describedby로 이어 완료 사실이 함께 읽히게 한다 */
 export function LoginComplete({ next }: LoginCompleteProps) {
 	const destination = next ?? DEFAULT_NEXT_PATH;
 	const titleId = useId();

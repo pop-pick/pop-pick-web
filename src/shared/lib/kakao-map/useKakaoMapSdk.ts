@@ -23,17 +23,17 @@ export function useKakaoMapSdk() {
 	const [unexpectedError, setUnexpectedError] = useState<Error | null>(null);
 
 	useEffect(() => {
-		let active = true;
+		let isActive = true;
 		const loading = attempt === 0 ? KakaoMapSession.load() : KakaoMapSession.reload();
 
 		loading.then(
 			(sdk) => {
-				if (active) {
+				if (isActive) {
 					setState({ status: "ready", sdk, error: null });
 				}
 			},
 			(error: unknown) => {
-				if (!active) {
+				if (!isActive) {
 					return;
 				}
 
@@ -52,11 +52,11 @@ export function useKakaoMapSdk() {
 		);
 
 		return () => {
-			active = false;
+			isActive = false;
 		};
 	}, [attempt]);
 
-	const retry = useCallback(() => {
+	const reloadSdk = useCallback(() => {
 		setState(LOADING_STATE);
 		setAttempt((count) => count + 1);
 	}, []);
@@ -65,5 +65,5 @@ export function useKakaoMapSdk() {
 		throw unexpectedError;
 	}
 
-	return { ...state, retry };
+	return { ...state, reloadSdk };
 }

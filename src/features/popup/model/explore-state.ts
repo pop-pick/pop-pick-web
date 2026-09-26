@@ -11,7 +11,6 @@ export const EXPLORE_VIEW_LABELS: Record<ExploreViewMode, string> = {
 
 export interface ExploreState {
 	view: ExploreViewMode;
-	/** 홈의 지역 칩에서 들어올 때만 값이 있다. 화면 안에서 바꾸는 자리는 없다 */
 	region: Region | null;
 }
 

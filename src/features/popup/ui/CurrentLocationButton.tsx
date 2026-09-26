@@ -14,10 +14,15 @@ interface CurrentLocationButtonProps {
 	ref?: Ref<HTMLButtonElement>;
 }
 
-/** 거부와 미지원은 다시 눌러도 결과가 같아 끈다. 측위 중은 눌림만 막고 포커스는 남긴다 */
 export function CurrentLocationButton({ status, onLocate, className, ref }: CurrentLocationButtonProps) {
 	const isDisabled = status === "denied" || status === "unavailable";
 	const isBusy = status === "locating";
+
+	const handleClick = () => {
+		if (!isBusy) {
+			onLocate();
+		}
+	};
 
 	return (
 		<IconButton
@@ -25,11 +30,7 @@ export function CurrentLocationButton({ status, onLocate, className, ref }: Curr
 			label="현재 위치로 이동"
 			aria-busy={isBusy}
 			disabled={isDisabled}
-			onClick={() => {
-				if (!isBusy) {
-					onLocate();
-				}
-			}}
+			onClick={handleClick}
 			className={cn(isBusy && "animate-pulse", className)}
 		>
 			<svg viewBox="0 0 24 24" aria-hidden className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8">

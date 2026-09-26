@@ -17,6 +17,7 @@ function shouldRetry(failureCount: number, error: unknown) {
 	if (isClientError(error) || environmentManager.isServer()) {
 		return false;
 	}
+
 	return failureCount < MAX_RETRY_COUNT;
 }
 

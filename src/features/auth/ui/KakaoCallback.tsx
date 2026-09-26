@@ -21,7 +21,9 @@ export function KakaoCallback() {
 
 	if (providerError !== null) {
 		return (
-			<LoginFailure canceled={providerError === "access_denied"}>{getProviderErrorMessage(providerError)}</LoginFailure>
+			<LoginFailure isCanceled={providerError === "access_denied"}>
+				{getProviderErrorMessage(providerError)}
+			</LoginFailure>
 		);
 	}
 

@@ -14,11 +14,9 @@ export async function handleRefresh() {
 
 	try {
 		const tokens = await api.post<AuthTokens>("/api/v1/auth/refresh", { json: { refreshToken }, auth: false });
-
 		return setRefreshCookie(toSuccessResponse({ accessToken: tokens.accessToken }), tokens.refreshToken);
 	} catch (error) {
 		const response = toBackendErrorResponse(error);
-
 		return isRejectedToken(error) ? clearRefreshCookie(response) : response;
 	}
 }

@@ -3,7 +3,6 @@ import type { ComponentProps } from "react";
 
 import { cn } from "@/shared/lib/cn";
 
-/** 44px는 터치 타깃 최소 크기다. Button의 md(48px)와 다른 값이라 따로 둔다 */
 export const iconButtonVariants = cva(
 	"flex size-11 items-center justify-center rounded-full transition-colors focus-ring",
 	{
@@ -22,7 +21,6 @@ export const iconButtonVariants = cva(
 
 type IconButtonProps = ComponentProps<"button"> &
 	VariantProps<typeof iconButtonVariants> & {
-		/** 아이콘만 있는 버튼이라 읽어 줄 이름이 필수다 */
 		label: string;
 	};
 

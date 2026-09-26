@@ -27,11 +27,10 @@ function resolveNextIndex(key: string, current: number, count: number) {
 	return step === undefined ? null : (current + step + count) % count;
 }
 
-/** WAI-ARIA 라디오 그룹. 화살표와 Home, End가 선택과 포커스를 함께 옮긴다 */
 export function ViewToggle({ view, onChange }: ViewToggleProps) {
 	const buttonsRef = useRef<(HTMLButtonElement | null)[]>([]);
 
-	const moveByKey = (event: KeyboardEvent<HTMLDivElement>) => {
+	const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
 		const nextIndex = resolveNextIndex(event.key, EXPLORE_VIEW_MODES.indexOf(view), EXPLORE_VIEW_MODES.length);
 		const next = nextIndex === null ? undefined : EXPLORE_VIEW_MODES[nextIndex];
 
@@ -44,8 +43,12 @@ export function ViewToggle({ view, onChange }: ViewToggleProps) {
 		buttonsRef.current[nextIndex]?.focus();
 	};
 
+	const handleOptionClick = (value: ExploreViewMode) => () => {
+		onChange(value);
+	};
+
 	return (
-		<div role="radiogroup" aria-label="보기 방식" onKeyDown={moveByKey} className="flex rounded-xl bg-zinc-100 p-1">
+		<div role="radiogroup" aria-label="보기 방식" onKeyDown={handleKeyDown} className="flex rounded-xl bg-zinc-100 p-1">
 			{EXPLORE_VIEW_MODES.map((value, index) => {
 				const isCurrent = view === value;
 
@@ -59,9 +62,7 @@ export function ViewToggle({ view, onChange }: ViewToggleProps) {
 						role="radio"
 						aria-checked={isCurrent}
 						tabIndex={isCurrent ? 0 : -1}
-						onClick={() => {
-							onChange(value);
-						}}
+						onClick={handleOptionClick(value)}
 						className={cn(
 							"rounded-lg px-3 py-1.5 text-sm font-medium focus-ring transition-colors",
 							isCurrent ? "bg-white text-zinc-900 shadow-sm hover:bg-zinc-50" : "text-zinc-500 hover:text-zinc-700"

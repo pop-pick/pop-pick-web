@@ -11,7 +11,6 @@ const KAKAO_MAP_SDK_URL = "https://dapi.kakao.com/v2/maps/sdk.js";
 const KAKAO_MAP_LIBRARIES: readonly KakaoMapLibrary[] = ["clusterer"];
 export const KAKAO_MAP_DEFAULT_LEVEL = 3;
 
-/** 서울시청. 위치 권한을 거부했거나 보여줄 마커가 없을 때 지도가 서는 자리 */
 export const SEOUL_CENTER: KakaoLatLngLiteral = { lat: 37.5665, lng: 126.978 };
 
 export function readKakaoMapKey() {
