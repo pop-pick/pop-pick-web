@@ -191,7 +191,7 @@ type PositionStatus = "idle" | "locating" | "granted" | "denied" | "unavailable"
 export function useCurrentPosition(): {
 	position: KakaoLatLngLiteral | null;
 	status: PositionStatus;
-	locate: () => Promise<KakaoLatLngLiteral | null>;
+	requestCurrentPosition: () => Promise<KakaoLatLngLiteral | null>;
 };
 
 // 설계
