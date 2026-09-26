@@ -24,37 +24,32 @@ interface ExploreViewProps {
 
 function toHref(pathname: string, state: ExploreState) {
 	const query = serializeExploreState(state).toString();
-
 	return query === "" ? pathname : `${pathname}?${query}`;
 }
 
-/**
- * 위치 상태를 지도가 아니라 여기서 든다. 목록으로 갔다 돌아와도 거부한 사용자에게 다시 묻지 않는다.
- * 권한은 지도 뷰에 처음 들어올 때 한 번만 묻는다.
- */
 export function ExploreView({ popups }: ExploreViewProps) {
 	const searchParams = useSearchParams();
 	const pathname = usePathname();
-	const { position, status, locate } = useCurrentPosition();
+	const { position, status, requestCurrentPosition } = useCurrentPosition();
 
 	const state = useMemo(() => parseExploreState(searchParams), [searchParams]);
-	const visible = useMemo(
+	const visiblePopups = useMemo(
 		() => (state.region === null ? popups : popups.filter((popup) => popup.region === state.region)),
 		[popups, state.region]
 	);
 
 	useEffect(() => {
 		if (state.view === "map" && status === "idle") {
-			void locate();
+			void requestCurrentPosition();
 		}
-	}, [state.view, status, locate]);
+	}, [state.view, status, requestCurrentPosition]);
 
-	/**
-	 * 라우터를 거치지 않고 주소만 바꾼다. Next가 `useSearchParams`를 동기화해 주므로 화면은 따라온다.
-	 * 페이지가 `searchParams`를 읽지 않아 서버에서 다시 그릴 것이 없고 스크롤도 그대로다.
-	 */
-	const changeView = (view: ExploreViewMode) => {
+	const handleViewChange = (view: ExploreViewMode) => {
 		window.history.replaceState(null, "", toHref(pathname, { ...state, view }));
+	};
+
+	const handleSwitchToList = () => {
+		handleViewChange("list");
 	};
 
 	return (
@@ -75,22 +70,20 @@ export function ExploreView({ popups }: ExploreViewProps) {
 						</svg>
 					</Link>
 				)}
-				<ViewToggle view={state.view} onChange={changeView} />
+				<ViewToggle view={state.view} onChange={handleViewChange} />
 			</div>
 
 			{state.view === "map" ? (
 				<PopupMap
-					popups={visible}
+					popups={visiblePopups}
 					region={state.region}
 					position={position}
 					positionStatus={status}
-					onLocate={locate}
-					onSwitchToList={() => {
-						changeView("list");
-					}}
+					onLocate={requestCurrentPosition}
+					onSwitchToList={handleSwitchToList}
 				/>
 			) : (
-				<PopupList popups={visible} region={state.region} />
+				<PopupList popups={visiblePopups} region={state.region} />
 			)}
 		</>
 	);

@@ -1,5 +1,6 @@
 ---
 description: 팀 위키의 확정된 결정을 저장소 문서에 반영하고 중복과 낡은 서술을 걷어내주세요.
+disable-model-invocation: true
 ---
 
 # Docs Sync

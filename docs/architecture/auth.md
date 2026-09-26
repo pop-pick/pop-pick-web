@@ -2,7 +2,7 @@
 
 `features/auth`. 카카오와 구글 소셜 로그인, 토큰 보관과 재발급, 내 정보, 로그인 필요 동작의 가드를 다룬다.
 
-카카오 로그인과 토큰 보관은 코드에 있다. 액세스 토큰은 Zustand 메모리, 리프레시 토큰은 httpOnly 쿠키이고 쿠키는 Next Route Handler가 심는다. 인가 요청의 `state` 대조와 콜백 이중 실행 방지, 앱 시작 재발급, 만료 뒤 재발급과 재요청, `next` 경로 복귀, 로그인 완료 화면, 로그아웃이 선다. 백엔드 토큰 교환은 카카오 앱 키가 갈려 있어 끝까지 통과하지 못한다. 내 정보와 로그인 가드, 구글 로그인은 아직 설계다. 아래에서 설계라고 표시한 것이 그것이다.
+카카오 로그인과 토큰 보관은 코드에 있다. 액세스 토큰은 Zustand 메모리, 리프레시 토큰은 httpOnly 쿠키이고 쿠키는 Next Route Handler가 심는다. 인가 요청의 `state` 대조와 콜백 이중 실행 방지, 앱 시작 재발급, 만료 뒤 재발급과 재요청, `next` 경로 복귀, 로그인 완료 화면, 로그아웃, 로그인 가드가 선다. 로컬에서 prod 백엔드에 붙여 로그인과 새로고침 복원, 로그아웃이 끝까지 통과했다. Vercel의 `NEXT_PUBLIC_KAKAO_CLIENT_ID`는 아직 백엔드가 쓰는 앱과 다른 키라 미리보기와 운영에서는 교환이 막힌다. 내 정보와 구글 로그인은 아직 설계다. 아래에서 설계라고 표시한 것이 그것이다.
 
 ## R. Requirements
 
@@ -24,9 +24,10 @@
 - 토큰을 어디에 두는가. 액세스 토큰은 Zustand 메모리, 리프레시 토큰은 httpOnly 쿠키다. 로컬 스토리지는 XSS에 그대로 노출되고 서버가 읽지 못한다. 메모리에만 두면 새로고침에서 세션이 사라진다. 둘을 갈라 액세스는 짧게 살고 노출돼도 만료되는 값으로, 리프레시는 자바스크립트가 닿지 못하는 값으로 둔다
 - 쿠키를 누가 굽는가. 백엔드가 `Set-Cookie`로 내려주는 쪽이 정석이지만 백엔드는 토큰을 응답 본문으로 주게 이미 만들어져 있다. 프론트의 Next Route Handler가 그 본문을 받아 쿠키로 굽는다. 아래 "쿠키를 Next가 굽는 이유" 절에 근거가 있다
 - 실패는 종류마다 다른 문구로 드러낸다. 공급자 화면에서 취소하면 `error=access_denied`로 돌아오고 백엔드 실패는 `errorCode`로 갈린다. 원문 메시지를 화면에 내지 않는다
-- 서버 컴포넌트는 인증이 필요한 요청을 보내지 않는다. 쿠키에 있는 것은 리프레시 토큰뿐이고 액세스 토큰은 브라우저 메모리에 있다
+- 서버 컴포넌트는 인증이 필요한 요청을 보내지 않는다. 쿠키에 있는 것은 리프레시 토큰뿐이고 액세스 토큰은 브라우저 메모리에 있다. `RequireAuth`가 감싼 서버 컴포넌트도 비로그인 사용자에게 RSC 페이로드로 내려가므로 사용자 데이터는 가드 안의 클라이언트 컴포넌트가 받는다
+- `src/proxy.ts`가 `/my`와 `/planner` 요청에 리프레시 쿠키가 없으면 페이지를 그리기 전에 `/login?next=`로 보낸다. 쿠키가 있는지만 보는 검사라 쿠키가 있어도 토큰이 거절되면 `RequireAuth`가 보낸다. 데이터를 지키는 검사는 백엔드가 Bearer로 한다
 
-**범위 밖.** 네이버 로그인, 로컬 회원가입, 프로필 편집, 회원 탈퇴, 약관 동의 화면. 약관은 로그인 버튼 아래 고지문으로 갈음한다. 서버에서 보호 라우트를 판단하는 `proxy.ts`도 지금 만들지 않는다. 쿠키 `Path`가 `/`라 기술적으로는 가능해지지만 가드는 클라이언트에 둔다.
+**범위 밖.** 네이버 로그인, 로컬 회원가입, 프로필 편집, 회원 탈퇴, 약관 동의 화면. 약관은 로그인 버튼 아래 고지문으로 갈음한다.
 
 ## A. Architecture
 
@@ -63,9 +64,9 @@
 4. Route Handler가 리프레시 토큰을 쿠키로 굽고 액세스 토큰만 돌려준다. 액세스 토큰을 스토어에 넣는다
 5. 로그인 완료 화면을 지나 `sessionStorage`에서 꺼낸 `next`로 이동한다. 없거나 같은 출처가 아니면 `/home`이다
 
-**앱 시작과 새로고침.** `AuthProvider`가 `POST /api/auth/refresh`를 한 번 부른다. 쿠키가 있으면 액세스 토큰을 받아 스토어에 넣고, 없거나 만료면 비로그인으로 시작한다. 이 동안 `restoring` 상태이고 보호 화면은 스켈레톤을 보인다. 이 한 번의 호출이 새로고침에서 로그아웃되지 않게 하는 전부다.
+**앱 시작과 새로고침.** `AuthProvider`가 `POST /api/auth/refresh`를 한 번 부른다. 쿠키가 있으면 액세스 토큰을 받아 스토어에 넣고, 없거나 토큰이 거절되면(401이나 `E1000`, `E1011`) 비로그인으로 시작한다. 네트워크 오류나 5xx로 끝나면 로그인 여부를 모르는 `unavailable`이 된다. 로그인한 사용자를 로그인 화면으로 보내지 않기 위해서다. 보호 화면은 이때 오류 문구와 다시 시도 버튼을 보인다. 재발급이 끝나기 전은 `restoring` 상태이고 보호 화면은 스켈레톤을 보인다. 이 한 번의 호출이 새로고침에서 로그아웃되지 않게 하는 전부다.
 
-**재발급.** 브라우저에서만 돈다. Route Handler가 백엔드를 부를 때는 타지 않는다. `request`가 `auth: true`인 요청에 Bearer를 붙인다. 응답이 `E1004`(만료)면 `POST /api/auth/refresh`를 한 번 부르고 같은 요청을 다시 보낸다. 재발급이 동시에 여러 요청에서 필요해지면 진행 중인 재발급 Promise 하나를 공유해 요청은 한 번만 나간다. 재발급이 `E1011`(무효나 재사용된 리프레시 토큰)이나 다른 실패로 끝나면 스토어를 비우고 만료 이벤트를 낸다. 쿠키를 지우는 것은 토큰이 거절된 경우(401이나 `E1011`, `E1000`)뿐이다. 백엔드 장애로 실패했을 때 멀쩡한 쿠키를 지우면 서버가 돌아온 뒤에도 다시 로그인해야 한다. `AuthProvider`가 그 이벤트를 받아 현재 경로를 `next`에 실어 `/login`으로 보낸다.
+**재발급.** 브라우저에서만 돈다. Route Handler가 백엔드를 부를 때는 타지 않는다. `request`가 `auth: true`인 요청에 Bearer를 붙인다. 응답이 `E1004`(만료)면 `POST /api/auth/refresh`를 한 번 부르고 같은 요청을 다시 보낸다. 재발급이 동시에 여러 요청에서 필요해지면 진행 중인 재발급 Promise 하나를 공유해 요청은 한 번만 나간다. 재발급이 토큰 거절로 끝나면 스토어를 비우고, 네트워크나 서버 오류로 끝나면 `unavailable`로 둔다. 어느 쪽이든 만료 이벤트를 낸다. 쿠키를 지우는 것은 토큰이 거절된 경우(401이나 `E1011`, `E1000`)뿐이다. 백엔드 장애로 실패했을 때 멀쩡한 쿠키를 지우면 서버가 돌아온 뒤에도 다시 로그인해야 한다. `AuthProvider`가 그 이벤트를 받아 상태가 비로그인일 때만 현재 경로를 `next`에 실어 `/login`으로 보낸다. `RequireAuth`와 같은 주소로 `replace`를 걸어 history에 로그인 화면이 한 번만 남는다.
 
 **로그아웃.** `DELETE /api/auth/session`을 부르고 응답과 무관하게 스토어를 비운다. Route Handler는 쿠키를 먼저 지우고 백엔드 로그아웃을 부른다. 백엔드 호출이 실패해도 쿠키는 이미 지워졌다. 서버의 블랙리스트 등록이 안 됐을 수 있지만 사용자의 로그아웃 의도를 되돌리지 않는다. 실패는 `[auth]`로 로그를 남긴다. 이 축소 동작은 로그가 있고 화면 상태(비로그인)가 의도와 같다.
 
@@ -85,11 +86,12 @@ interface AuthState {
 	accessToken: string | null;
 	status: AuthStatus;
 	setAccessToken: (accessToken: string) => void;
-	clear: () => void;
+	clearSession: () => void;
+	markUnavailable: () => void;
 }
 
-/** 설계. restoring은 앱 시작 재발급이 끝나기 전 */
-type AuthStatus = "restoring" | "anonymous" | "authenticated";
+/** restoring은 앱 시작 재발급 전, unavailable은 서버를 못 읽어 로그인 여부를 모르는 상태 */
+type AuthStatus = "restoring" | "anonymous" | "unavailable" | "authenticated";
 
 // features/auth/model/auth.ts
 type OAuthProvider = "KAKAO" | "GOOGLE";
@@ -122,7 +124,7 @@ interface Me {
 
 ## I. Interface
 
-**지금 있는 컴포넌트와 훅.** 카카오만 있다. 구글 버튼은 로그인 화면에 비활성으로 자리만 있다.
+**지금 있는 컴포넌트와 훅.** 로그인은 카카오만 있다. 구글 버튼은 로그인 화면에 비활성으로 자리만 있다.
 
 ```typescript
 // ui/KakaoLoginButton.tsx. state 생성과 next 보관, 카카오 인가 주소로 이동
@@ -145,6 +147,12 @@ export function useKakaoLogin(params: {
 
 export function useLogout(): UseMutationResult<void, Error, void>;
 export function useAuthStore(): AuthState;
+
+// 비로그인이면 /login?next=로 보내고 false. restoring과 unavailable에서는 보내지 않고 false. 찜 버튼과 코스 만들기 버튼이 부른다
+export function useRequireAuth(): { ensureAuthenticated: (next: string) => boolean };
+
+// /my와 /planner처럼 화면 전체가 로그인 필요일 때 본문을 감싼다. 제목은 밖에 둔다. 비로그인이면 router.replace로 로그인 화면으로 보낸다
+export function RequireAuth({ children, next }: { children: ReactNode; next: string });
 ```
 
 **설계.** 아래는 아직 코드에 없다. 공급자가 둘이 될 때 위의 카카오 전용 이름이 공급자를 받는 이름으로 바뀐다.
@@ -155,12 +163,6 @@ export function OAuthCallback({ provider }: { provider: OAuthProvider });
 
 // 로그인 상태일 때만 조회한다. 비로그인이면 data는 undefined이고 요청이 나가지 않는다
 export function useMe(): UseQueryResult<Me, ApiError>;
-
-// 비로그인이면 /login?next=로 보내고 false를 돌려준다. 찜 버튼과 코스 만들기 버튼이 부른다
-export function useRequireAuth(): { ensure: (next: string) => boolean };
-
-// /my처럼 화면 전체가 로그인 필요일 때 감싼다. 비로그인이면 redirect
-export function RequireAuth({ children, next }: { children: ReactNode; next: string });
 ```
 
 **`shared/api`의 계약.** `auth`는 기본 `true`이고 `false`면 Bearer를 붙이지 않는다. `accessToken`을 넘기면 그 값으로 Bearer를 만든다. 서버에는 토큰 소스가 없어 Route Handler가 브라우저에서 받은 토큰을 이 옵션으로 넘긴다.
@@ -232,8 +234,20 @@ export function readBearerToken(request: Request): string | null;
 | `HttpOnly` | 켬. 자바스크립트가 읽지 못한다                                                                                |
 | `Secure`   | 켬. 로컬 개발도 `localhost`가 보안 컨텍스트라 그대로 동작한다                                                 |
 | `SameSite` | `Lax`. 브라우저가 같은 출처로만 나가므로 `Strict`까지 조일 이유가 없고 외부에서 돌아오는 콜백이 막히지 않는다 |
-| `Path`     | `/`. 나중에 `proxy.ts`가 보호 라우트를 판단하려면 페이지 요청에도 쿠키가 실려야 한다                          |
+| `Path`     | `/`. `proxy.ts`가 보호 라우트의 페이지 요청에서 쿠키가 있는지 본다                                            |
 | `Max-Age`  | 백엔드 리프레시 토큰 수명과 같게 둔다. 값은 백엔드에 확인한다                                                 |
+
+**표준과 대조한 결과.** Next.js 인증 가이드(16.3.6)와 RFC 9700(OAuth 2.0 보안 BCP), RFC 10017(브라우저 앱 OAuth BCP), 카카오 로그인 REST API 문서에 댄 결과다.
+
+| 항목                      | 표준                                                                                    | 우리 구현                                                                                                                                         |
+| ------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 쿠키 옵션과 서버에서 심기 | Next.js 가이드의 권장값과 같다                                                          | 같다                                                                                                                                              |
+| 보호 화면                 | 가이드는 `proxy.ts`의 쿠키 검사를 선택으로 두고 보안 검사는 데이터 가까이에 두라고 한다 | `proxy.ts`가 쿠키를 보고 `RequireAuth`가 상태를 보며 데이터는 백엔드가 지킨다                                                                     |
+| CSRF                      | RFC 9700은 PKCE를 확인할 수 없으면 `state`를 반드시 쓰라고 한다                         | `state`를 쓴다. 카카오 문서의 인가 요청 파라미터에는 PKCE가 없다                                                                                  |
+| 토큰 배치                 | RFC 10017은 개인정보를 다루는 앱에 토큰을 브라우저에 두지 않는 BFF를 강하게 권한다      | 액세스 토큰이 브라우저 메모리에 있는 Token-Mediating Backend 배치다. 백엔드가 토큰을 응답 본문으로 주는 계약이라 프론트만으로 BFF로 옮기지 못한다 |
+| 인증 라이브러리           | 가이드는 라이브러리를 권한다                                                            | 백엔드가 자체 JWT를 발급해 쓰지 않는다                                                                                                            |
+| client secret             | 카카오는 기본으로 켜 두라고 한다                                                        | 교환은 백엔드가 하므로 시크릿 설정도 백엔드가 바꾼다                                                                                              |
+| Redirect URI              | RFC 9700은 글자 그대로 일치를 요구한다                                                  | 브랜치마다 주소가 바뀌는 미리보기는 등록되지 않아 로그인할 수 없다. 운영 항목의 세 주소에서만 된다                                                |
 
 **장애.** 공급자가 죽으면 콜백에 `error`가 실려 오거나 돌아오지 않는다. 돌아오지 않는 경우는 우리가 할 것이 없다. 백엔드가 죽으면 교환이 `network`로 끝나고 같은 코드를 다시 쓸 수 없어 "다시 로그인"만 안내한다. Route Handler가 죽으면 로그인과 재발급이 같이 멈춘다. Next 배포가 곧 이 세 경로의 배포다.
 

@@ -3,11 +3,31 @@
 	"hooks": {
 		"PreToolUse": [
 			{
+				"matcher": "Edit|Write",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bash \"$CLAUDE_PROJECT_DIR\"/.agents/hooks/inject-matching-rules.sh",
+						"timeout": 3
+					}
+				]
+			},
+			{
 				"matcher": "Bash",
 				"hooks": [
 					{
 						"type": "command",
 						"command": "bash \"$CLAUDE_PROJECT_DIR\"/.agents/hooks/guard-git.sh"
+					}
+				]
+			}
+		],
+		"UserPromptSubmit": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bash \"$CLAUDE_PROJECT_DIR\"/.agents/hooks/lib/turn-changes.sh save"
 					}
 				]
 			}

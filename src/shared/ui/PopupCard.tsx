@@ -9,11 +9,11 @@ import { PlaceholderBox } from "@/shared/ui/PlaceholderBox";
 
 interface PopupCardProps {
 	popup: PopupCardItem;
-	showReason?: boolean;
+	shouldShowReason?: boolean;
 	className?: string;
 }
 
-export function PopupCard({ popup, showReason = false, className }: PopupCardProps) {
+export function PopupCard({ popup, shouldShowReason = false, className }: PopupCardProps) {
 	return (
 		<Link
 			href={`/popups/${String(popup.id)}`}
@@ -33,7 +33,7 @@ export function PopupCard({ popup, showReason = false, className }: PopupCardPro
 				<p className="text-sm text-zinc-500">
 					{REGION_LABELS[popup.region]}, {popup.endsOn} 종료
 				</p>
-				{showReason && popup.reason !== undefined ? (
+				{shouldShowReason && popup.reason !== undefined ? (
 					<p className="line-clamp-2 text-sm text-blue-700">{popup.reason}</p>
 				) : null}
 			</div>

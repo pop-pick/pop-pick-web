@@ -35,13 +35,8 @@ function getPlaceholderPosition(region: Region, indexInRegion: number) {
 	};
 }
 
-/** 지도 위 안내. 이 파일이 지워질 때 함께 사라져야 한다 */
 export const PLACEHOLDER_NOTICE = "위치는 지역 기준 대략값이에요";
 
-/**
- * 팝업의 실제 좌표 대신 지역 중심 둘레에 흩어 놓은 마커. 같은 지역 팝업이 한 점에 겹치지 않게 한다.
- * 백엔드가 팝업 응답에 좌표를 담기 시작하면 이 파일을 통째로 지우고 좌표를 그대로 쓴다.
- */
 export function toPlaceholderMarkers(popups: readonly PopupCardItem[]) {
 	const countByRegion = new Map<Region, number>();
 

@@ -11,10 +11,6 @@ const DEFAULT_DOT_CLASS = "size-3 rounded-full bg-blue-600";
 const LABEL_CLASS =
 	"max-w-24 truncate rounded-full bg-background/90 px-2 py-0.5 text-xs font-medium text-zinc-800 shadow-sm group-aria-pressed:bg-blue-600 group-aria-pressed:text-white";
 
-/**
- * SDK가 클러스터 모양을 인라인 스타일 객체로만 받는다. 클래스를 넘길 자리가 없어
- * 색과 글자 크기는 globals.css의 CSS 변수를 읽고 크기와 그림자만 여기 적는다.
- */
 export const CLUSTER_STYLES: KakaoClusterStyle[] = [
 	{
 		width: "40px",
@@ -43,6 +39,7 @@ function buildIcon(iconUrl: string | undefined) {
 		const dot = document.createElement("span");
 		dot.className = DEFAULT_DOT_CLASS;
 		wrap.appendChild(dot);
+
 		return wrap;
 	}
 
@@ -55,11 +52,6 @@ function buildIcon(iconUrl: string | undefined) {
 	return wrap;
 }
 
-/**
- * 핀 하나의 DOM. 아이콘이 위, 라벨이 아래다. 클릭 리스너는 세션이 건다.
- * 접근성 트리에서 빼고 마우스 전용으로 둔다. 키보드와 스크린리더 경로는 부르는 쪽이 같은 팝업 목록으로 따로 낸다.
- * 핀의 탭 순서는 오버레이 삽입 순서라 화면 위치와 무관하고 클러스터에 묶이면 DOM에서 빠지기 때문이다.
- */
 export function buildPinElement(marker: KakaoMarkerData) {
 	const root = document.createElement("div");
 	root.className = PIN_CLASS;
@@ -93,11 +85,9 @@ function buildMyPositionElement() {
 	return root;
 }
 
-/** 서버에서 import돼도 DOM을 만들지 않게 지연시킨다. 세션이 브라우저에서 처음 쓸 때 만든다 */
 let myPositionTemplate: HTMLElement | null = null;
 
 export function getMyPositionElement() {
 	myPositionTemplate ??= buildMyPositionElement();
-
 	return myPositionTemplate.cloneNode(true) as HTMLElement;
 }

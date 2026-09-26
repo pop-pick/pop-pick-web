@@ -9,6 +9,7 @@ import {
 	LOGIN_PENDING_MESSAGE,
 	MISSING_CODE_MESSAGE
 } from "../model/login-messages";
+import { LoginFailure } from "./LoginFailure";
 import { LoginStatus } from "./LoginStatus";
 
 export function KakaoCallback() {
@@ -19,15 +20,19 @@ export function KakaoCallback() {
 	const loginQuery = useKakaoLogin({ code, state });
 
 	if (providerError !== null) {
-		return <LoginStatus showHomeLink>{getProviderErrorMessage(providerError)}</LoginStatus>;
+		return (
+			<LoginFailure isCanceled={providerError === "access_denied"}>
+				{getProviderErrorMessage(providerError)}
+			</LoginFailure>
+		);
 	}
 
 	if (code === null) {
-		return <LoginStatus showHomeLink>{MISSING_CODE_MESSAGE}</LoginStatus>;
+		return <LoginFailure>{MISSING_CODE_MESSAGE}</LoginFailure>;
 	}
 
 	if (loginQuery.isError) {
-		return <LoginStatus showHomeLink>{getLoginFailureMessage(loginQuery.error)}</LoginStatus>;
+		return <LoginFailure>{getLoginFailureMessage(loginQuery.error)}</LoginFailure>;
 	}
 
 	if (loginQuery.isSuccess) {

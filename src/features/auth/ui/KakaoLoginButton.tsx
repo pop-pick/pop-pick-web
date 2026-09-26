@@ -11,15 +11,13 @@ interface KakaoLoginButtonProps {
 }
 
 export function KakaoLoginButton({ next }: KakaoLoginButtonProps) {
+	const handleLogin = () => {
+		storeNextPath(next);
+		window.location.href = buildKakaoAuthorizeUrl(getKakaoRedirectUri(), createOAuthState());
+	};
+
 	return (
-		<Button
-			variant="kakao"
-			size="lg"
-			onClick={() => {
-				storeNextPath(next);
-				window.location.href = buildKakaoAuthorizeUrl(getKakaoRedirectUri(), createOAuthState());
-			}}
-		>
+		<Button variant="kakao" size="lg" onClick={handleLogin}>
 			카카오로 계속하기
 		</Button>
 	);

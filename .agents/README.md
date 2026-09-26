@@ -7,19 +7,20 @@
   README.md            이 파일
   rules/               룰 본문. 원본
   skills/              스킬 본문. 원본
-  agents/              서브에이전트 정의. 원본. build, review, qa 하위 폴더
+  agents/              서브에이전트 정의. 원본. builders, verifiers, curators, reviewers 하위 폴더
   hooks/               훅 명세 hooks.json 과 훅이 부르는 스크립트. 원본
+    lib/               훅이 부르는 판정기. guard-git.mjs, rule-matcher.py, turn-changes.sh, hook-input.sh
   scripts/
     check-conventions.sh   룰에 적힌 grep 검사
     agents-sync.mjs        원본을 도구 자리로 복사하고 변환하는 생성기
     harness-test.sh        검사 스크립트와 훅의 회귀 테스트
-    harness-check.sh       위 셋을 한 번에. lefthook 과 CI 가 돌린다
+    harness-check.sh       검사와 생성물 대조 둘, 회귀 테스트를 한 번에. lefthook 과 CI 가 돌린다
 .claude/
   rules/               생성. .agents/rules 복사본
   skills/              생성. .agents/skills 복사본
   agents/              생성. .agents/agents 복사본
   settings.json        직접 고친다. hooks 키만 생성이 채운다
-  commands/            슬래시 커맨드. Claude 전용
+  commands/            슬래시 커맨드. Claude 전용. 직접 고친다
 .codex/
   agents/              생성. .agents/agents 를 TOML 로 변환
 AGENTS.md              늘 지켜야 하는 것. 룰 절의 표식 사이만 생성
@@ -32,7 +33,7 @@ CLAUDE.md              첫 줄 @AGENTS.md. 아래는 Claude Code 전용
 
 ```bash
 pnpm harness:sync    # 원본을 고친 뒤. 생성물을 갱신한다
-pnpm harness:check   # 컨벤션 검사와 생성물 대조, 회귀 테스트. lefthook 과 CI 가 돌린다
+pnpm harness:check   # 컨벤션 검사와 작업 트리, 인덱스의 생성물 대조, 회귀 테스트. lefthook 과 CI 가 돌린다
 ```
 
 심볼릭 링크를 쓰지 않는다. 커밋한 링크는 `core.symlinks`가 꺼진 환경에서 대상 경로가 적힌 텍스트 파일로 체크아웃되고 Windows에서는 링크 생성에 권한이 필요하다. 복사본은 clone 직후 어느 OS에서나 동작한다. 대가는 원본을 고칠 때 생성기를 한 번 돌리는 것이고 잊으면 `harness:check`가 커밋과 CI에서 막는다.
@@ -56,7 +57,7 @@ pnpm harness:check   # 컨벤션 검사와 생성물 대조, 회귀 테스트. l
 
 `.agents/rules/{이름}.md`를 만들고 프론트매터에 `description`을 적는다. 필수다. 한 줄 요약이고 `AGENTS.md` 룰 목록의 그 줄이 된다.
 
-`paths` 머리말이 있는 룰은 그 패턴의 파일을 읽을 때 실리고 없는 룰은 세션 시작 때 실린다. 늘 실리는 것은 `structure.md`와 `git-workflow.md` 둘이고 나머지 여덟은 파일 패턴에 묶여 있다. 세션마다, 그리고 서브에이전트마다 실리는 지침이 곧 비용이라 늘 실릴 자격은 어느 파일을 만져도 필요한 것에만 준다.
+`paths` 머리말이 있는 룰은 그 패턴의 파일을 읽을 때 실리고 없는 룰은 세션 시작 때 실린다. 늘 실리는 것은 `git-workflow.md` 하나고 나머지 열은 파일 패턴에 묶여 있다. Claude Code는 파일을 읽을 때만 `paths` 룰을 싣기 때문에 새로 만드는 파일에는 룰이 실리지 않는다. 새 파일에는 inject-matching-rules 훅이 맞는 룰 목록을 알린다. 경로 구조를 바꾸면 `paths`도 함께 고친다. 어긋나면 룰이 실리지 않고 아무도 알아채지 못한다. 세션마다, 그리고 서브에이전트마다 실리는 지침이 곧 비용이라 늘 실릴 자격은 어느 파일을 만져도 필요한 것에만 준다.
 
 ## 스킬
 
@@ -66,16 +67,30 @@ pnpm harness:check   # 컨벤션 검사와 생성물 대조, 회귀 테스트. l
 
 ## 서브에이전트
 
-`.agents/agents/{폴더}/{이름}.md`에 Claude Code 형식(프론트매터 `name`, `description`, `tools`, `model`, `skills`)으로 쓴다. Claude 자리에는 그대로 복사되고 Codex 자리에는 `name`, `description`, `developer_instructions` TOML로 변환된다. `skills:`에 적은 스킬 본문은 Codex에 미리 싣는 기능이 없어 `developer_instructions` 끝에 이어 붙는다. `tools`와 `model`은 Codex로 가지 않는다.
+`.agents/agents/{폴더}/{이름}.md`에 Claude Code 형식(프론트매터 `name`, `description`, `tools`, `model`, `skills`)으로 쓴다. 이름은 `pop-pick-`으로 시작한다. Claude 쪽에는 그대로 복사되고 Codex 쪽에는 `name`, `description`, `developer_instructions` TOML로 변환된다. `skills:`에 적은 스킬 본문은 Codex에 미리 싣는 기능이 없어 `developer_instructions` 끝에 이어 붙는다. `tools`와 `model`은 Codex로 가지 않는다. 대신 `tools`에 Write와 Edit가 없으면 `sandbox_mode = "read-only"`가 들어간다.
+
+읽기 위주 에이전트는 `disallowedTools`가 아니라 `tools` 허용 목록으로 제한한다. 에이전트 팀의 팀원에게는 정의 가운데 `tools`와 `model`, 본문만 적용되고 `disallowedTools`와 `skills`, `hooks`는 적용되지 않는다. 리뷰어 본문이 규약 파일을 직접 읽으라고 적는 이유다.
+
+사용자가 부르지 않는 스킬(`review-protocol`)은 `agents/openai.yaml`에 `allow_implicit_invocation: false`를 두어 Codex가 알아서 부르지 않게 한다.
 
 ## 훅
 
-명세는 `.agents/hooks/hooks.json` 하나다. 생성기가 `.claude/settings.json`의 `hooks` 키에 넣는다. 훅이 부르는 스크립트도 `.agents/hooks/`에 둔다. 지금 둘이다. `guard-git.sh`는 PreToolUse에서 광범위 스테이징과 `--no-verify`, 강제 푸시, main과 develop 직접 커밋을 막고, `check-on-stop.sh`는 Stop에서 컨벤션 검사를 돌린다. Codex 훅은 Stop 이벤트 동작이 확인되지 않아 아직 만들지 않는다.
+명세는 `.agents/hooks/hooks.json` 하나다. 생성기가 `.claude/settings.json`의 `hooks` 키에 넣는다. 훅이 부르는 스크립트도 `.agents/hooks/`에 둔다.
 
-도구 훅은 빠른 되먹임이고 강제 경계가 아니다. 반드시 통과해야 하는 검사는 lefthook pre-commit과 CI에 있다.
+| 이벤트                  | 스크립트                   | 하는 일                                                                                                                                                                                              |
+| ----------------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PreToolUse(Bash)        | `guard-git.sh`             | 명령을 셸처럼 나눠 git 호출만 판정한다. 광범위 스테이징과 `.env` 스테이징, `commit -a`, 훅 건너뛰기, 강제 푸시, `main`으로 가는 푸시, `main`과 `develop`에서의 커밋을 막는다. 판정하지 못하면 막는다 |
+| PreToolUse(Edit, Write) | `inject-matching-rules.sh` | 고치려는 파일에 `paths`가 맞는 룰 목록을 알린다. 같은 세션에서 같은 조합은 한 번만 알린다                                                                                                            |
+| UserPromptSubmit        | `lib/turn-changes.sh save` | 요청을 받을 때 바뀐 파일과 내용 해시를 떠 둔다                                                                                                                                                       |
+| Stop                    | `check-on-stop.sh`         | 떠 둔 뒤로 바뀐 파일이 컨벤션 검사에 걸리면 한 번 막는다                                                                                                                                             |
+
+Codex 훅은 Stop 이벤트 동작이 확인되지 않아 아직 만들지 않는다.
+
+도구 훅은 빠른 되먹임이고 강제 경계가 아니다. 반드시 통과해야 하는 검사는 lefthook pre-commit과 CI에 있다. 권한 규칙은 `.claude/settings.json`의 `permissions`에 직접 적는다. guard-git은 Bash만 보므로 Vercel MCP의 배포와 환경 변수 도구는 `ask` 규칙이 막는다.
 
 ## 처음 clone한 뒤
 
 1. `pnpm install`. `prepare`가 lefthook을 깔고 생성기를 돌린다. 작업 트리가 깨끗해야 한다
 2. Claude Code를 열어 `/skills`에 `pop-pick-dev`, `pop-pick-qa`, `pop-pick-git`, `review-protocol`이 뜨는지 본다
-3. Codex를 쓰면 저장소를 신뢰로 표시한다. 하지 않으면 `.codex/` 아래가 통째로 무시된다
+3. 개인 설정이 필요하면 `CLAUDE.local.md`와 `.claude/settings.local.json`에 둔다. 둘 다 `.gitignore`에 있고 `.worktreeinclude`가 새 worktree에 복사한다
+4. Codex를 쓰면 저장소를 신뢰로 표시한다. 하지 않으면 `.codex/` 아래가 통째로 무시된다

@@ -4,10 +4,8 @@ import { isApiResponse } from "./types";
 
 const DEFAULT_TIMEOUT_MS = 10_000;
 
-/** 백엔드가 액세스 토큰 만료에 쓰는 코드 */
 const EXPIRED_ERROR_CODE = "E1004";
 
-/** 백엔드가 인증 필요에 쓰는 코드. 토큰 없이 인증 요청을 보내려 할 때 여기서 먼저 막는다 */
 const NO_TOKEN_ERROR_CODE = "E1000";
 
 type QueryValue = string | number | boolean | null | undefined;
@@ -16,9 +14,7 @@ export interface RequestOptions extends Omit<RequestInit, "body"> {
 	query?: Record<string, QueryValue> | URLSearchParams;
 	json?: unknown;
 	timeoutMs?: number;
-	/** Bearer를 붙일지. 기본은 붙인다. 백엔드가 `/api/v1/auth/**`만 열어 두고 나머지는 인증을 요구한다 */
 	auth?: boolean;
-	/** Route Handler가 백엔드를 부를 때 쓸 토큰. 서버에는 토큰 소스가 없어 받아서 넘긴다 */
 	accessToken?: string;
 }
 
@@ -60,7 +56,6 @@ function resolveUrl(path: string, query: RequestOptions["query"]) {
 	return url;
 }
 
-/** 넘겨받은 토큰이 있으면 그것을 쓰고, 없으면 `auth`일 때만 등록된 소스에서 읽는다 */
 function resolveToken(auth: boolean, accessToken: string | undefined) {
 	if (accessToken !== undefined) {
 		return accessToken;
@@ -180,7 +175,6 @@ async function sendOnce<T>(path: string, options: RequestOptions) {
 	return body.data as T;
 }
 
-/** 재발급은 브라우저 세션의 개념이다. Route Handler가 백엔드를 부를 때는 타지 않는다 */
 function canRefresh(error: unknown, auth: boolean) {
 	if (typeof window === "undefined" || !auth) {
 		return false;

@@ -46,12 +46,9 @@ export type KakaoCustomOverlayOptions = {
 	map?: KakaoMapInstance;
 	position: KakaoLatLng;
 	content: string | HTMLElement;
-	/** 0이 왼쪽, 1이 오른쪽. 기본 0.5 */
 	xAnchor?: number;
-	/** 0이 위, 1이 아래. 기본 0.5 */
 	yAnchor?: number;
 	zIndex?: number;
-	/** true면 오버레이 클릭이 지도 클릭으로 번지지 않는다 */
 	clickable?: boolean;
 };
 
@@ -65,26 +62,19 @@ export type KakaoCustomOverlayInstance = {
 	setZIndex(zIndex: number): void;
 };
 
-/** 클러스터러가 묶는 대상. 마커와 커스텀 오버레이 둘 다 받는다 */
 export type KakaoClusterable = KakaoMarkerInstance | KakaoCustomOverlayInstance;
 
 export type KakaoClusterStyle = Record<string, string>;
 
 export type KakaoMarkerClustererOptions = {
 	map: KakaoMapInstance;
-	/** 이 레벨 이상(멀리 볼 때)에서만 묶는다. 이보다 확대하면 개별 핀으로 풀린다 */
 	minLevel?: number;
-	/** 몇 개부터 묶는지. 기본 2 */
 	minClusterSize?: number;
-	/** 묶인 핀들의 평균 위치에 클러스터를 둔다. false면 첫 핀 위치 */
 	averageCenter?: boolean;
 	gridSize?: number;
-	/** 클러스터를 누르면 한 단계 확대하는 기본 동작을 끈다 */
 	disableClickZoom?: boolean;
 	styles?: KakaoClusterStyle[];
-	/** 클러스터에 쓰는 글자. 배열이면 styles와 같은 인덱스, 함수면 크기를 받아 문자열을 낸다 */
 	texts?: string[] | ((size: number) => string);
-	/** 클러스터 크기를 styles 인덱스로 바꾼다. 배열이면 경계값 목록 */
 	calculator?: number[] | ((size: number) => number);
 };
 

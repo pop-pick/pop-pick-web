@@ -2,14 +2,14 @@ import { create } from "zustand";
 
 import { setAccessTokenSource } from "@/shared/api/auth-token";
 
-/** restoring은 앱 시작 재발급이 끝나기 전이다. 보호 화면은 이 동안 기다린다 */
-export type AuthStatus = "restoring" | "anonymous" | "authenticated";
+export type AuthStatus = "restoring" | "anonymous" | "unavailable" | "authenticated";
 
 interface AuthState {
 	accessToken: string | null;
 	status: AuthStatus;
 	setAccessToken: (accessToken: string) => void;
-	clear: () => void;
+	clearSession: () => void;
+	markUnavailable: () => void;
 }
 
 export const useAuthStore = create<AuthState>()((set) => ({
@@ -18,8 +18,11 @@ export const useAuthStore = create<AuthState>()((set) => ({
 	setAccessToken: (accessToken) => {
 		set({ accessToken, status: "authenticated" });
 	},
-	clear: () => {
+	clearSession: () => {
 		set({ accessToken: null, status: "anonymous" });
+	},
+	markUnavailable: () => {
+		set({ accessToken: null, status: "unavailable" });
 	}
 }));
 

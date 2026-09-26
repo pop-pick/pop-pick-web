@@ -1,5 +1,6 @@
 ---
 description: 현재 브랜치의 변경사항으로 Pull Request를 생성해주세요.
+disable-model-invocation: true
 ---
 
 # Create PR

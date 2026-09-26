@@ -10,6 +10,11 @@ export function sanitizeNextPath(value: string | null) {
 	return value;
 }
 
+export function buildLoginPath(next: string) {
+	const safePath = sanitizeNextPath(next) ?? DEFAULT_NEXT_PATH;
+	return `/login?next=${encodeURIComponent(safePath)}`;
+}
+
 export function storeNextPath(next: string | null) {
 	const safePath = sanitizeNextPath(next);
 	if (safePath === null) {
@@ -23,6 +28,5 @@ export function storeNextPath(next: string | null) {
 export function consumeNextPath() {
 	const stored = window.sessionStorage.getItem(STORAGE_KEY);
 	window.sessionStorage.removeItem(STORAGE_KEY);
-
 	return sanitizeNextPath(stored) ?? DEFAULT_NEXT_PATH;
 }

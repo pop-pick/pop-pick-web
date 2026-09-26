@@ -11,7 +11,6 @@ import { type KakaoClusterOptions, KakaoMapSession, type KakaoMarkerData } from 
 import { KAKAO_MAP_DEFAULT_LEVEL, type KakaoLatLngLiteral } from "./kakao-map-utils";
 import { useKakaoMapSdk } from "./useKakaoMapSdk";
 
-/** 지도를 어디에 맞출지. 좌표를 전부 담거나(fitTo) 중심 하나를 고른다(center). 둘 중 하나는 있어야 한다 */
 type KakaoMapView =
 	| { fitTo: readonly KakaoLatLngLiteral[]; center?: never; level?: never }
 	| { fitTo?: never; center: KakaoLatLngLiteral; level?: number };
@@ -20,25 +19,18 @@ export type KakaoMapProps = KakaoMapView & {
 	markers?: readonly KakaoMarkerData[];
 	onMarkerClick?: (markerId: string) => void;
 	selectedMarkerId?: string | null;
-	/** 현재 위치 표시. null이면 지운다 */
 	myPosition?: KakaoLatLngLiteral | null;
-	/** 넘기면 핀을 클러스터러가 묶는다. 세션을 만들 때 한 번 읽고 그 뒤 값은 보지 않는다 */
 	initialCluster?: KakaoClusterOptions;
 	label: string;
 	className?: string;
 	children?: ReactNode;
-	/** SDK 로딩 실패 화면에 더 놓을 것. 다시 시도 버튼은 기본으로 있다 */
 	errorAction?: ReactNode;
 };
 
 const NO_MARKERS: readonly KakaoMarkerData[] = [];
 const FIT_PADDING_PX = 20;
 
-/**
- * 지도 SDK가 컨테이너 안에 z-index 2 레이어를 만든다. 컨테이너의 `isolate`가 그 숫자를 가둬서
- * 지도 위에 겹쳐 놓는 것은 z를 주지 않아도 DOM 순서대로 위에 그려진다. 빼면 타일 뒤로 들어가
- * 접근성 트리에는 남고 화면에서만 사라진다.
- */
+/** 컨테이너의 `isolate`가 SDK의 z-index 2 레이어를 가둔다. 빼면 지도 위 요소가 타일 뒤로 숨는다 */
 export function KakaoMap({
 	fitTo,
 	center,
@@ -53,7 +45,7 @@ export function KakaoMap({
 	children,
 	errorAction
 }: KakaoMapProps) {
-	const { status, sdk, error, retry } = useKakaoMapSdk();
+	const { status, sdk, error, reloadSdk } = useKakaoMapSdk();
 
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const initialCenter = fitTo?.[0] ?? center;
@@ -140,7 +132,7 @@ export function KakaoMap({
 					<p className="text-xs leading-relaxed text-red-800">{error.message}</p>
 				</div>
 				<div className="flex flex-wrap justify-center gap-2">
-					<Button variant="secondary" onClick={retry}>
+					<Button variant="secondary" onClick={reloadSdk}>
 						다시 시도
 					</Button>
 					{errorAction}

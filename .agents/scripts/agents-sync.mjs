@@ -1,20 +1,9 @@
 #!/usr/bin/env node
 // agents-sync. `.agents/` 원본을 Claude Code 와 Codex 가 읽는 자리로 복사하고 변환한다.
-//
-//   pnpm harness:sync                          생성물을 갱신한다
-//   node .agents/scripts/agents-sync.mjs --check  생성물이 원본과 맞는지만 본다. harness:check 가 돌린다
-//
-//   원본                         생성물
-//   .agents/skills/<이름>/       .claude/skills/<이름>/        통째로 복사
-//   .agents/rules/*.md           .claude/rules/*.md            복사
-//                                AGENTS.md 표식 사이           description 으로 목록을 만든다
-//   .agents/agents/**/*.md       .claude/agents/**/*.md        복사. 하위 폴더를 유지한다
-//                                .codex/agents/<이름>.toml     name, description, developer_instructions 로 변환한다
-//   .agents/hooks/hooks.json     .claude/settings.json         hooks 키만 바꿔 넣는다
-//
-// 심볼릭 링크를 만들지 않는다. 커밋한 링크는 core.symlinks 가 꺼진 환경에서 텍스트 파일로 풀린다.
 
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -148,10 +137,18 @@ function agentOutputs(file) {
 		instructions += `\n\n${frontmatter(fs.readFileSync(skillFile, "utf8")).body.trim()}`;
 	}
 
+	const tools = asList(meta.tools);
+	const disallowed = asList(meta.disallowedTools);
+	const writes = ["Write", "Edit"];
+	const readOnly =
+		(tools.length > 0 && !writes.some((tool) => tools.includes(tool))) ||
+		writes.every((tool) => disallowed.includes(tool));
+
 	const toml =
 		`# .agents/scripts/agents-sync.mjs 가 .agents/agents/${relative} 에서 만든다. 손으로 고치지 않는다\n` +
 		`name = ${tomlInline(name)}\n` +
 		`description = ${tomlInline(typeof meta.description === "string" ? meta.description : "")}\n` +
+		(readOnly ? `sandbox_mode = "read-only"\n` : "") +
 		`developer_instructions = ${tomlMultiline(`${instructions}\n`)}\n`;
 
 	return {
@@ -285,8 +282,39 @@ function check({ files, dirs }) {
 	return [...bad, ...stale({ files, dirs })];
 }
 
-const planned = plan();
-if (process.argv.includes("--check")) {
+function checkIndex() {
+	const listed = spawnSync("git", ["-C", ROOT, "ls-files", "-z", "--", ".agents", ".claude", ".codex", "AGENTS.md"]);
+	if (listed.status !== 0) {
+		console.log("git ls-files 가 실패했다. 인덱스를 대조하지 못했다");
+		process.exit(1);
+	}
+	const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "agents-sync-index-"));
+	try {
+		const extracted = spawnSync("git", ["-C", ROOT, "checkout-index", "-z", "--stdin", `--prefix=${tmp}/`], {
+			input: listed.stdout
+		});
+		if (extracted.status !== 0) {
+			console.log(`git checkout-index 가 실패했다. ${extracted.stderr.toString().trim()}`);
+			process.exit(1);
+		}
+		const result = spawnSync("node", [path.join(tmp, ".agents", "scripts", "agents-sync.mjs"), "--check"], {
+			encoding: "utf8"
+		});
+		if (result.status !== 0) {
+			process.stdout.write(result.stdout.replaceAll(`${tmp}${path.sep}`, ""));
+			console.log("커밋할 인덱스에서 원본과 생성물이 어긋난다. 생성물을 원본과 함께 스테이징한다");
+			process.exit(1);
+		}
+		console.log("인덱스의 생성물이 원본과 맞는다");
+	} finally {
+		fs.rmSync(tmp, { recursive: true, force: true });
+	}
+}
+
+if (process.argv.includes("--check-index")) {
+	checkIndex();
+} else if (process.argv.includes("--check")) {
+	const planned = plan();
 	const bad = check(planned);
 	for (const target of bad) {
 		console.log(`어긋남: ${path.relative(ROOT, target)}`);
@@ -297,6 +325,7 @@ if (process.argv.includes("--check")) {
 	}
 	console.log("생성물이 원본과 맞는다");
 } else {
+	const planned = plan();
 	apply(planned);
 	console.log(`동기화 완료. 파일 ${planned.files.size}개, 스킬 ${planned.dirs.size}개`);
 }

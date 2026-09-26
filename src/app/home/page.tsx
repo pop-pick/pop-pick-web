@@ -24,7 +24,7 @@ export default function HomePage() {
 				<ul className="flex flex-col gap-3">
 					{PLACEHOLDER_POPUPS.slice(0, 3).map((popup) => (
 						<li key={popup.id}>
-							<PopupCard popup={popup} showReason />
+							<PopupCard popup={popup} shouldShowReason />
 						</li>
 					))}
 				</ul>

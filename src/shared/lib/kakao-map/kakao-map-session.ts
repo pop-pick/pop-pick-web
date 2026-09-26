@@ -14,16 +14,12 @@ import { buildKakaoMapSdkUrl, isSamePosition, readKakaoMapKey, toLatLng } from "
 export type KakaoMarkerData = {
 	id: string;
 	position: KakaoLatLngLiteral;
-	/** 핀의 접근성 이름. 라벨이 잘려도 이 값은 전체다 */
 	title: string;
-	/** 핀에 그리는 아이콘. 없으면 기본 핀 */
 	iconUrl?: string;
-	/** 핀 아래 붙는 글자. 길이 제한은 부르는 쪽이 한다 */
 	label?: string;
 };
 
 export type KakaoClusterOptions = {
-	/** 이 레벨 이상(멀리 볼 때)에서만 묶는다 */
 	minLevel: number;
 };
 
@@ -60,11 +56,9 @@ export class KakaoMapSession {
 		return KakaoMapSession.sdkPromise;
 	}
 
-	/** 실패로 끝난 로딩을 버리고 다시 시도한다. 실패한 script 요소도 지운다 */
 	public static reload() {
 		KakaoMapSession.sdkPromise = null;
 		document.getElementById(SCRIPT_ELEMENT_ID)?.remove();
-
 		return KakaoMapSession.load();
 	}
 
@@ -127,6 +121,7 @@ export class KakaoMapSession {
 
 				existing.addEventListener("load", finish, { once: true });
 				existing.addEventListener("error", rejectOnError(existing), { once: true });
+
 				return;
 			}
 
@@ -186,7 +181,6 @@ export class KakaoMapSession {
 		this.map.setLevel(level);
 	}
 
-	/** 넘긴 좌표가 전부 보이도록 중심과 배율을 한 번에 맞춘다. 좌표가 하나면 배율은 그대로 두고 중심만 옮긴다 */
 	public fitToPositions(positions: readonly KakaoLatLngLiteral[], paddingPx: number) {
 		const first = positions[0];
 		if (first === undefined) {
@@ -245,6 +239,7 @@ export class KakaoMapSession {
 				content: getMyPositionElement(),
 				zIndex: MY_POSITION_Z_INDEX
 			});
+
 			return;
 		}
 
