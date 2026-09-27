@@ -15,11 +15,11 @@ const POSITION_OPTIONS: PositionOptions = {
 export function useCurrentPosition() {
 	const [status, setStatus] = useState<PositionStatus>("idle");
 	const [position, setPosition] = useState<KakaoLatLngLiteral | null>(null);
-	const inFlightRef = useRef<Promise<KakaoLatLngLiteral | null> | null>(null);
+	const pendingRequestRef = useRef<Promise<KakaoLatLngLiteral | null> | null>(null);
 
 	const requestCurrentPosition = useCallback(() => {
-		if (inFlightRef.current !== null) {
-			return inFlightRef.current;
+		if (pendingRequestRef.current !== null) {
+			return pendingRequestRef.current;
 		}
 
 		const request = new Promise<KakaoLatLngLiteral | null>((resolve) => {
@@ -32,10 +32,10 @@ export function useCurrentPosition() {
 			setStatus("locating");
 			navigator.geolocation.getCurrentPosition(
 				({ coords }) => {
-					const found = { lat: coords.latitude, lng: coords.longitude };
-					setPosition(found);
+					const foundPosition = { lat: coords.latitude, lng: coords.longitude };
+					setPosition(foundPosition);
 					setStatus("granted");
-					resolve(found);
+					resolve(foundPosition);
 				},
 				(error) => {
 					if (error.code === error.PERMISSION_DENIED) {
@@ -51,10 +51,10 @@ export function useCurrentPosition() {
 				POSITION_OPTIONS
 			);
 		}).finally(() => {
-			inFlightRef.current = null;
+			pendingRequestRef.current = null;
 		});
 
-		inFlightRef.current = request;
+		pendingRequestRef.current = request;
 
 		return request;
 	}, []);
