@@ -5,4 +5,5 @@
 @import "./tokens/color-semantic.css";
 @import "./tokens/typography.css";
 @import "./tokens/shadow.css";
+@import "./tokens/layout.css";
 @import "./utilities.css";

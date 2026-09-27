@@ -20,13 +20,19 @@ const TEXT_SIZE_TOKENS = [
 ];
 const SHADOW_TOKENS = ["subtle", "bar", "floating", "on-map", "sheet", "modal"];
 const TEXT_SHADOW_TOKENS = ["on-image"];
+const SPACING_TOKENS = ["float-gap", "tab-bar-clearance"];
+const CONTAINER_TOKENS = ["app"];
+const BLUR_TOKENS = ["floating"];
 
 const twMerge = extendTailwindMerge({
 	extend: {
 		theme: {
 			text: TEXT_SIZE_TOKENS,
 			shadow: SHADOW_TOKENS,
-			"text-shadow": TEXT_SHADOW_TOKENS
+			"text-shadow": TEXT_SHADOW_TOKENS,
+			spacing: SPACING_TOKENS,
+			container: CONTAINER_TOKENS,
+			blur: BLUR_TOKENS
 		}
 	}
 });
