@@ -139,7 +139,7 @@ function readErrorCode(body: unknown) {
 	return isApiResponse(body) && body.error !== null ? body.error.errorCode : null;
 }
 
-async function sendOnce<T>(path: string, options: RequestOptions) {
+async function sendRequestOnce<T>(path: string, options: RequestOptions) {
 	const { query, json, headers, signal, timeoutMs = DEFAULT_TIMEOUT_MS, auth = true, accessToken, ...init } = options;
 	const url = resolveUrl(path, query);
 	const token = resolveToken(auth, accessToken);
@@ -185,19 +185,19 @@ function canRefresh(error: unknown, auth: boolean) {
 
 export async function request<T>(path: string, options: RequestOptions = {}) {
 	try {
-		return await sendOnce<T>(path, options);
+		return await sendRequestOnce<T>(path, options);
 	} catch (error) {
 		if (!canRefresh(error, options.auth ?? true)) {
 			throw error;
 		}
 
-		const refreshed = await refreshAccessToken();
-		if (!refreshed) {
+		const isRefreshed = await refreshAccessToken();
+		if (!isRefreshed) {
 			notifyAuthExpired();
 			throw error;
 		}
 
-		return sendOnce<T>(path, options);
+		return sendRequestOnce<T>(path, options);
 	}
 }
 
