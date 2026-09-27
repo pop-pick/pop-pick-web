@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { Fragment } from "react";
 
 import { PopupImage } from "@/shared/components/PopupImage";
 import { RESERVATION_SHORT_LABELS } from "@/shared/model/popup";
 import { REGION_LABELS } from "@/shared/model/region";
+import { SeparatedText } from "@/shared/ui/SeparatedText";
 
 import type { PopularPopupItem } from "../model/home-popup";
 
@@ -18,20 +18,6 @@ function buildDetailParts({ popup, reviewSummary }: PopularPopupItem) {
 	const reservation = popup.reservationType === "UNKNOWN" ? null : RESERVATION_SHORT_LABELS[popup.reservationType];
 
 	return [review, reservation].filter((part) => part !== null);
-}
-
-function renderSeparatedParts(parts: string[]) {
-	return parts.map((part, index) => (
-		<Fragment key={`${String(index)}-${part}`}>
-			{index > 0 && (
-				<>
-					<span aria-hidden className="mx-1.25 inline-block size-0.5 rounded-full bg-current align-middle" />
-					<span className="sr-only">, </span>
-				</>
-			)}
-			{part}
-		</Fragment>
-	));
 }
 
 interface PopularPopupRowProps {
@@ -58,11 +44,15 @@ export function PopularPopupRow({ item }: PopularPopupRowProps) {
 				<div className="flex flex-col gap-0.5">
 					<p className="truncate text-b1-16 text-text-1">{item.popup.title}</p>
 					{locationParts.length > 0 && (
-						<p className="truncate text-b3-14 text-text-1">{renderSeparatedParts(locationParts)}</p>
+						<p className="truncate text-b3-14 text-text-1">
+							<SeparatedText parts={locationParts} />
+						</p>
 					)}
 				</div>
 				{detailParts.length > 0 && (
-					<p className="truncate text-b3-12 text-text-4">{renderSeparatedParts(detailParts)}</p>
+					<p className="truncate text-b3-12 text-text-4">
+						<SeparatedText parts={detailParts} />
+					</p>
 				)}
 			</div>
 		</Link>
