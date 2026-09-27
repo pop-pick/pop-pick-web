@@ -24,9 +24,9 @@ export function useKakaoMapSdk() {
 
 	useEffect(() => {
 		let isActive = true;
-		const loading = attempt === 0 ? KakaoMapSession.load() : KakaoMapSession.reload();
+		const sdkPromise = attempt === 0 ? KakaoMapSession.loadSdk() : KakaoMapSession.reloadSdk();
 
-		loading.then(
+		sdkPromise.then(
 			(sdk) => {
 				if (isActive) {
 					setState({ status: "ready", sdk, error: null });

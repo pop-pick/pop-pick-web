@@ -87,7 +87,7 @@ function buildMyPositionElement() {
 
 let myPositionTemplate: HTMLElement | null = null;
 
-export function getMyPositionElement() {
+export function createMyPositionElement() {
 	myPositionTemplate ??= buildMyPositionElement();
 	return myPositionTemplate.cloneNode(true) as HTMLElement;
 }
