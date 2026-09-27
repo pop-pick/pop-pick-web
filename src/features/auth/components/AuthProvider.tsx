@@ -8,7 +8,7 @@ import { ApiError } from "@/shared/api/errors";
 
 import { refreshAuthTokens } from "../api/refresh-auth-tokens";
 import { buildLoginPath } from "../model/next-path";
-import { isRejectedToken } from "../model/session-rejection";
+import { isTokenRejectedError } from "../model/session-rejection";
 import { useAuthStore } from "../model/useAuthStore";
 
 const NO_SESSION_ERROR_CODE = "E1000";
@@ -23,9 +23,9 @@ async function restoreSession() {
 		useAuthStore.getState().setAccessToken(accessToken);
 		return true;
 	} catch (error) {
-		if (!isRejectedToken(error)) {
+		if (!isTokenRejectedError(error)) {
 			console.warn("[auth] 세션을 확인하지 못했습니다", error);
-			useAuthStore.getState().markUnavailable();
+			useAuthStore.getState().markSessionUnavailable();
 			return false;
 		}
 
@@ -62,8 +62,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 				return;
 			}
 
-			const next = `${window.location.pathname}${window.location.search}`;
-			router.replace(buildLoginPath(next));
+			const nextPath = `${window.location.pathname}${window.location.search}`;
+			router.replace(buildLoginPath(nextPath));
 		});
 	}, [router]);
 

@@ -4,10 +4,10 @@ import { redirect, useSearchParams } from "next/navigation";
 
 import { useKakaoLogin } from "../hooks/useKakaoLogin";
 import {
-	getLoginFailureMessage,
-	getProviderErrorMessage,
 	LOGIN_PENDING_MESSAGE,
-	MISSING_CODE_MESSAGE
+	MISSING_CODE_MESSAGE,
+	toLoginFailureMessage,
+	toProviderErrorMessage
 } from "../model/login-messages";
 import { LoginFailure } from "./LoginFailure";
 import { LoginStatus } from "./LoginStatus";
@@ -22,7 +22,7 @@ export function KakaoCallback() {
 	if (providerError !== null) {
 		return (
 			<LoginFailure isCanceled={providerError === "access_denied"}>
-				{getProviderErrorMessage(providerError)}
+				{toProviderErrorMessage(providerError)}
 			</LoginFailure>
 		);
 	}
@@ -32,7 +32,7 @@ export function KakaoCallback() {
 	}
 
 	if (loginQuery.isError) {
-		return <LoginFailure>{getLoginFailureMessage(loginQuery.error)}</LoginFailure>;
+		return <LoginFailure>{toLoginFailureMessage(loginQuery.error)}</LoginFailure>;
 	}
 
 	if (loginQuery.isSuccess) {

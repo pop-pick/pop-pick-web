@@ -3,9 +3,9 @@ import { toBackendErrorResponse, toErrorResponse, toSuccessResponse } from "@/sh
 
 import type { AuthTokens } from "../model/auth";
 import { clearRefreshCookie, readRefreshToken, setRefreshCookie } from "../model/session-cookie";
-import { isRejectedToken } from "../model/session-rejection";
+import { isTokenRejectedError } from "../model/session-rejection";
 
-export async function handleRefresh() {
+export async function postRefresh() {
 	const refreshToken = await readRefreshToken();
 
 	if (refreshToken === null) {
@@ -17,6 +17,6 @@ export async function handleRefresh() {
 		return setRefreshCookie(toSuccessResponse({ accessToken: tokens.accessToken }), tokens.refreshToken);
 	} catch (error) {
 		const response = toBackendErrorResponse(error);
-		return isRejectedToken(error) ? clearRefreshCookie(response) : response;
+		return isTokenRejectedError(error) ? clearRefreshCookie(response) : response;
 	}
 }
