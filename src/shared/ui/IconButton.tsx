@@ -19,10 +19,9 @@ export const iconButtonVariants = cva(
 	}
 );
 
-type IconButtonProps = ComponentProps<"button"> &
-	VariantProps<typeof iconButtonVariants> & {
-		label: string;
-	};
+interface IconButtonProps extends ComponentProps<"button">, VariantProps<typeof iconButtonVariants> {
+	label: string;
+}
 
 export function IconButton({ label, variant, className, type = "button", children, ...props }: IconButtonProps) {
 	return (

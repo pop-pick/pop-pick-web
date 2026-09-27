@@ -4,9 +4,9 @@ import type { ButtonHTMLAttributes } from "react";
 
 import { cn } from "@/shared/lib/cn";
 
-type ChipProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+interface ChipProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 	isSelected?: boolean;
-};
+}
 
 export function Chip({ isSelected = false, className, type = "button", ...props }: ChipProps) {
 	return (
