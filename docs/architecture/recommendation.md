@@ -86,7 +86,7 @@ function resolveSectionMode(query: UseQueryResult<RecommendationResult, ApiError
 
 ```typescript
 export function HomeHeader(); // 회원이면 닉네임 인사, 비회원이면 고정 문구
-export function RecommendationSection(); // 모드에 따라 카드 목록과 라벨. 카드는 shared/ui/PopupCard
+export function RecommendationSection(); // 모드에 따라 카드 목록과 라벨. 카드는 shared/components/PopupCard
 export function PopularSection({ title }: { title: string }); // 비회원 홈의 인기 팝업
 export function OnboardingBanner(); // 비회원 홈. "취향 입력하기"가 /login?next=/onboarding/1로
 export function PickRolling(); // 회원 홈 상단. 세 개를 3초 간격으로 롤링
@@ -98,7 +98,7 @@ export function useRecommendations(): UseQueryResult<RecommendationResult, ApiEr
 export function useRegionSummary(): UseQueryResult<RegionSummary[], ApiError>;
 ```
 
-`PopupCard`는 `shared/ui`에 두고 `reason`을 선택 prop으로 받는다. 홈과 탐색 목록, 찜 목록이 같은 카드를 쓴다. 카드는 `<article>`이고 제목이 상세로 가는 링크, 찜 버튼은 링크의 형제다. 링크 안에 버튼을 넣지 않는다.
+`PopupCard`는 `shared/components`에 두고 `reason`을 선택 prop으로 받는다. 홈과 탐색 목록, 찜 목록이 같은 카드를 쓴다. 카드는 `<article>`이고 제목이 상세로 가는 링크, 찜 버튼은 링크의 형제다. 링크 안에 버튼을 넣지 않는다.
 
 **서버 API.**
 
