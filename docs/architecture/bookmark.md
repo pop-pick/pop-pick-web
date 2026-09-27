@@ -13,7 +13,7 @@
 - 요청이 나간 동안 그 버튼은 대기 상태이고 다시 눌리지 않는다. 같은 팝업에 요청이 겹치지 않는다
 - 같은 팝업이 홈과 탐색 목록, 상세, 찜 목록에 동시에 보여도 하트 상태가 전부 같다. 응답이 오면 캐시에 있는 그 팝업의 모든 사본을 한 번에 갱신한다
 - 비로그인 사용자가 누르면 로그인 유도 알럿이 뜨고 확인하면 `/login?next={현재 경로}`로 간다. 로그인 뒤 돌아왔을 때 찜이 되어 있지 않다. 누른 의도까지 넘기지 않는다
-- 지도 팝업 카드에서 찜 버튼을 눌러도 상세가 열리지 않는다
+- 지도 팝업 카드와 탐색 목록 카드에서 찜 버튼을 눌러도 상세가 열리지 않는다
 
 **설계를 가르는 질문.**
 
@@ -24,7 +24,7 @@
 
 **범위 밖.** 찜 폴더와 메모, 찜 개수 상한, 찜한 팝업의 종료 알림(알림 자체가 범위 밖).
 
-**지금 있는 것.** 백엔드에 찜 API가 없다. 팝업 상세의 하트만 있고 비회원 알럿까지 동작한다. 회원의 하트는 그려 두되 누를 수 없고 "준비 중"으로 읽힌다. 확인 알럿과 요청, 캐시 갱신은 API가 열리면 붙인다. 9/26 시안의 홈 카드에는 하트가 없다.
+**지금 있는 것.** 백엔드에 찜 API가 없다. 팝업 상세와 지도 위 상세 바텀시트, 탐색의 지도 카드와 목록 카드에 하트가 있고 비회원 알럿까지 동작한다. 회원의 하트는 그려 두되 누를 수 없고 "준비 중"으로 읽힌다. 확인 알럿과 요청, 캐시 갱신은 API가 열리면 붙인다. 9/26 시안의 홈 카드에는 하트가 없다.
 
 ## A. Architecture
 
@@ -40,9 +40,9 @@
 
 ```
 하트 클릭
-  비로그인    "로그인 후 이용 가능합니다. 로그인 하시겠습니까?"
-                확인  라우트가 넘긴 loginHref(/login?next=현재 경로)로 이동
-                취소  알럿만 닫힌다
+  비로그인    "로그인 후 이용이 가능합니다. 로그인하시겠습니까?"
+                로그인 하러가기  라우트가 넘긴 loginHref(/login?next=현재 경로)로 이동
+                닫기(X)          알럿만 닫힌다
   찜 안 함    "해당 팝업을 찜하시겠습니까?"
                 확인  POST /bookmarks/{popupId}
                 취소  알럿만 닫힌다
@@ -55,13 +55,15 @@
   onError     하트는 그대로. 토스트로 이유, [bookmark] 로그
 ```
 
-**로그인 여부를 아는 곳.** `BookmarkButton`은 `auth`의 `useAuthStore`를 부르지 않는다. 기능끼리 부르지 않는 규칙(`structure.md`) 때문이다. 대신 라우트가 `features/auth`의 `AuthStatusSwitch`에 인증 상태마다 다른 `mode`의 버튼을 넣는다. `anonymous`는 `mode="guest"`와 `buildLoginPath`로 만든 `loginHref`, `authenticated`는 `mode="member"`, `restoring`과 `unavailable`은 `mode="pending"`이다. `member`와 `pending`은 `aria-disabled`라 눌러도 아무 일이 없다.
+**로그인 여부를 아는 곳.** `BookmarkButton`은 `auth`의 `useAuthStore`를 부르지 않는다. 기능끼리 부르지 않는 규칙(`structure.md`) 때문이다. 대신 라우트가 `features/auth`의 `AuthStatusSwitch`에 인증 상태마다 다른 `mode`의 `BookmarkSlotProvider`를 넣는다. `anonymous`는 `mode="guest"`와 `buildLoginPath`로 만든 `loginHref`, `authenticated`는 `mode="member"`, `restoring`과 `unavailable`은 `mode="pending"`이다. `member`와 `pending`은 `aria-disabled`라 눌러도 아무 일이 없다.
 
 캐시를 바꾸는 자리는 `patchBookmarkInCaches` 하나다. `["popups"]`, `["recommendations"]`, `["bookmarks"]`로 시작하는 모든 쿼리 데이터를 훑어 `id`가 같은 `PopupSummary`를 찾아 바꾼다. 무한 쿼리는 페이지 배열 안을 훑는다. 상세 캐시(`PopupDetail`)도 `PopupSummary`를 확장하므로 같은 함수가 다룬다.
 
 응답이 온 뒤에 캐시를 바꾸므로 되돌리는 경로가 없다. 무효화는 서버 값을 다시 받아 맞추는 자리이고 화면은 그 사이 패치된 값을 보인다.
 
-지도 팝업 카드는 카드 전체가 상세를 여는 자리다. 찜 버튼의 클릭 핸들러가 `stopPropagation`을 부른다. 기획이 겹칠 우려를 먼저 짚은 자리라 구현할 때 확인한다.
+지도 카드와 목록 카드는 카드 전체가 상세를 여는 링크처럼 보인다. 찜 버튼은 링크 안에 넣지 않고 링크의 형제로 두어 링크가 덮는 영역 위에 쌓는다. 클릭이 링크로 번질 경로가 없어 `stopPropagation`을 부르지 않는다.
+
+**카드와 상세에 버튼을 넣는 법.** 탐색 카드는 여러 개이고 `features/popup` 안에서 그려져 라우트가 슬롯 prop으로 하나씩 넘길 수 없다. popup이 bookmark를 부르면 기능끼리 부르지 않는 규칙에 걸린다. 그래서 `shared/components/BookmarkSlot`이 컨텍스트를 두고 탐색 카드와 상세 본문은 `<BookmarkSlot popupId popupTitle size />` 자리만 그린다. 라우트가 `AuthStatusSwitch`로 인증 상태마다 `BookmarkSlotProvider`의 `mode`를 바꿔 화면을 감싸고 Provider가 그 모드의 `BookmarkButton`을 그린다. 탐색과 두 상세 라우트(`/popups/[popupId]`, `/explore/@sheet/popups/[popupId]`)가 이렇게 감싼다. Provider 밖에서 `BookmarkSlot`을 그리면 예외를 낸다. 라우트가 감싸는 것을 빠뜨리면 조용히 빈칸이 되지 않고 바로 드러난다.
 
 ## D. Data Model
 
@@ -93,9 +95,25 @@ function patchBookmarkInCaches(queryClient: QueryClient, popupId: number, isBook
 **컴포넌트와 훅.**
 
 ```typescript
-// 있는 것. 48px 테두리 버튼. isBookmarked는 API가 열리면 더한다
+// 있는 것. 테두리 버튼. isBookmarked는 API가 열리면 더한다
+type BookmarkButtonSize = "sm" | "md" | "lg"; // shared/components/BookmarkSlot.tsx. 32px, 40px, 48px이고 아이콘은 20, 24, 24
 export function BookmarkButton(
-	props: { mode: "guest"; popupTitle: string; loginHref: string } | { mode: "member" | "pending"; popupTitle: string }
+	props:
+		| { mode: "guest"; popupTitle: string; loginHref: string; size?: BookmarkButtonSize }
+		| { mode: "member" | "pending"; popupTitle: string; size?: BookmarkButtonSize }
+); // size 기본 lg. 상세는 lg, 지도 카드는 md, 목록 카드는 sm
+
+// 있는 것. shared/components/BookmarkSlot.tsx
+interface BookmarkSlotProps {
+	popupId: number;
+	popupTitle: string;
+	size: BookmarkButtonSize;
+}
+export function BookmarkSlot(props: BookmarkSlotProps); // 가장 가까운 Provider가 준 함수로 그린다
+
+// 있는 것. features/bookmark/components/BookmarkSlotProvider.tsx
+export function BookmarkSlotProvider(
+	props: { mode: "guest"; loginHref: string; children: ReactNode } | { mode: "member" | "pending"; children: ReactNode }
 );
 
 // 설계
@@ -105,7 +123,7 @@ export function useToggleBookmark(): UseMutationResult<null, ApiError, BookmarkT
 export function useBookmarkList(): UseInfiniteQueryResult<InfiniteData<PageResponse<PopupSummary>>, ApiError>;
 ```
 
-`BookmarkButton`은 알럿을 자기 안에 들고 있다. API가 열리면 `isBookmarked`를 그대로 그리고 뮤테이션이 진행 중이면 `disabled`다. 확인 대화상자는 `shared/ui`의 `AlertDialog`를 쓴다. 취소 버튼은 `onCancel`을 줄 때만 생긴다. 코스 삭제 확인도 같은 컴포넌트를 쓴다.
+`BookmarkButton`은 알럿을 자기 안에 들고 있다. API가 열리면 `isBookmarked`를 그대로 그리고 뮤테이션이 진행 중이면 `disabled`다. 확인 대화상자는 `shared/ui`의 `AlertDialog`를 쓴다. 취소 버튼은 `onCancel`을 줄 때만 생긴다. `closeLabel`을 주면 취소 버튼 대신 오른쪽 위 닫기 버튼이 취소를 맡고 딤이 투명해진다. 로그인 유도 알럿이 이 모양이고 확인 문구 "로그인 하러가기"와 메시지는 `shared/model/login-prompt.ts`에서 하단 탭바와 함께 쓴다. 코스 삭제 확인도 같은 컴포넌트를 쓴다.
 
 **서버 API.** 전부 백엔드 요구다.
 
@@ -121,7 +139,7 @@ export function useBookmarkList(): UseInfiniteQueryResult<InfiniteData<PageRespo
 
 **접근성.** 하트는 `<button aria-pressed={isBookmarked}>`이고 `aria-label`은 "{팝업명} 찜" 하나로 고정한다. 눌림 상태는 `aria-pressed`가 전달하므로 라벨을 "찜 해제"로 바꾸지 않는다. 아이콘만 있는 버튼이라 라벨이 필수다. 지금은 `aria-pressed`가 없고 `member`와 `pending`의 버튼은 화면에 보이지 않는 "{팝업명} 찜, 준비 중" 문구로 이름을 가진다.
 
-확인 대화상자는 native `<dialog>`다. 열면 확인 버튼에 포커스가 가고 Esc와 취소가 같은 동작이며 닫으면 눌렀던 하트로 포커스가 돌아온다. 실패 토스트는 `role="status"` 영역에 들어간다. 찜 목록의 종료 항목은 흐림 처리와 함께 "종료" 텍스트 배지를 가진다. 색만으로 구분하지 않는다.
+확인 대화상자는 native `<dialog>`다. 열면 확인 버튼에 포커스가 가고 Esc와 취소, 닫기 버튼이 같은 동작이며 닫으면 눌렀던 하트로 포커스가 돌아온다. 실패 토스트는 `role="status"` 영역에 들어간다. 찜 목록의 종료 항목은 흐림 처리와 함께 "종료" 텍스트 배지를 가진다. 색만으로 구분하지 않는다.
 
 ## O. Optimization과 운영
 

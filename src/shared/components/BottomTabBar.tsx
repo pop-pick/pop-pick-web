@@ -10,7 +10,7 @@ import HomeFillIcon from "@/shared/assets/icons/home-fill.svg";
 import SearchFillIcon from "@/shared/assets/icons/search-fill.svg";
 import UserFillIcon from "@/shared/assets/icons/user-fill.svg";
 import { cn } from "@/shared/lib/cn";
-import { LOGIN_REQUIRED_MESSAGE } from "@/shared/model/login-prompt";
+import { LOGIN_CONFIRM_LABEL, LOGIN_REQUIRED_MESSAGE } from "@/shared/model/login-prompt";
 import { AlertDialog } from "@/shared/ui/AlertDialog";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
@@ -81,7 +81,7 @@ export function BottomTabBar({ loginHrefByTab }: BottomTabBarProps) {
 		<>
 			<nav
 				aria-label="주요 화면"
-				className="sticky bottom-float-gap z-10 mx-5 mt-10 mb-float-gap rounded-3xl bg-bg-1/80 px-8.5 py-3 shadow-floating backdrop-blur-floating"
+				className="sticky bottom-float-gap z-10 mx-5 mt-tab-bar-gap mb-float-gap rounded-3xl bg-bg-1/80 px-8.5 py-3 shadow-floating backdrop-blur-floating"
 			>
 				<ul className="flex justify-between pt-1">
 					{TABS.map((tab, index) => {
@@ -126,6 +126,8 @@ export function BottomTabBar({ loginHrefByTab }: BottomTabBarProps) {
 			<AlertDialog
 				open={loginPromptHref !== null}
 				message={LOGIN_REQUIRED_MESSAGE}
+				confirmLabel={LOGIN_CONFIRM_LABEL}
+				closeLabel="닫기"
 				onConfirm={handleLoginConfirm}
 				onCancel={handleLoginCancel}
 			/>

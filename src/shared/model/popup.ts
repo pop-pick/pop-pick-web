@@ -15,26 +15,6 @@ export const POPUP_CATEGORY_LABELS: Record<PopupCategory, string> = {
 	lifestyle: "라이프스타일"
 };
 
-export const RESERVATION_TYPES = ["free", "waiting", "required"] as const;
-
-export type ReservationType = (typeof RESERVATION_TYPES)[number];
-
-export const RESERVATION_TYPE_LABELS: Record<ReservationType, string> = {
-	free: "자유 입장",
-	waiting: "현장 대기",
-	required: "예약 필요"
-};
-
-export interface PopupCardItem {
-	id: number;
-	name: string;
-	region: Region;
-	category: PopupCategory;
-	reservation: ReservationType;
-	endsOn: string;
-	reason?: string;
-}
-
 export const POPUP_RESERVATION_TYPES = ["NONE", "RESERVATION", "WAITING", "BOTH", "UNKNOWN"] as const;
 
 export type PopupReservationType = (typeof POPUP_RESERVATION_TYPES)[number];

@@ -2,7 +2,7 @@ import { PLACEHOLDER_IMAGES } from "@/shared/lib/placeholder-images";
 
 import type { PopupDetail } from "./popup-detail";
 
-const PLACEHOLDER_POPUP_DETAILS: PopupDetail[] = [
+export const PLACEHOLDER_POPUP_DETAILS: PopupDetail[] = [
 	{
 		id: 1,
 		title: "성수 어글리 토이 팝업 : 가을의 위로",
@@ -42,7 +42,7 @@ const PLACEHOLDER_POPUP_DETAILS: PopupDetail[] = [
 		addressRoad: null,
 		reservationUrl: null,
 		entryFee: null,
-		viewCount: null,
+		viewCount: 9500,
 		matchRate: null
 	},
 	{
@@ -60,7 +60,7 @@ const PLACEHOLDER_POPUP_DETAILS: PopupDetail[] = [
 		addressRoad: null,
 		reservationUrl: null,
 		entryFee: null,
-		viewCount: null,
+		viewCount: 2200,
 		matchRate: null
 	},
 	{
@@ -78,7 +78,7 @@ const PLACEHOLDER_POPUP_DETAILS: PopupDetail[] = [
 		addressRoad: null,
 		reservationUrl: null,
 		entryFee: null,
-		viewCount: null,
+		viewCount: 6100,
 		matchRate: null
 	},
 	{
@@ -96,7 +96,7 @@ const PLACEHOLDER_POPUP_DETAILS: PopupDetail[] = [
 		addressRoad: null,
 		reservationUrl: null,
 		entryFee: null,
-		viewCount: null,
+		viewCount: 7300,
 		matchRate: null
 	},
 	{
@@ -114,7 +114,7 @@ const PLACEHOLDER_POPUP_DETAILS: PopupDetail[] = [
 		addressRoad: null,
 		reservationUrl: null,
 		entryFee: null,
-		viewCount: null,
+		viewCount: 1500,
 		matchRate: null
 	},
 	{
@@ -132,7 +132,25 @@ const PLACEHOLDER_POPUP_DETAILS: PopupDetail[] = [
 		addressRoad: null,
 		reservationUrl: null,
 		entryFee: null,
-		viewCount: null,
+		viewCount: 4800,
+		matchRate: null
+	},
+	{
+		id: 8,
+		title: "더현대 서울 윈터 빌리지",
+		category: "lifestyle",
+		region: "yeouido",
+		startDate: "2024-10-05",
+		endDate: null,
+		reservationType: "NONE",
+		imageUrl: null,
+		imageUrls: [],
+		description: null,
+		openingHours: null,
+		addressRoad: null,
+		reservationUrl: null,
+		entryFee: null,
+		viewCount: 8400,
 		matchRate: null
 	}
 ];

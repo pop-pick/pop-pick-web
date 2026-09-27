@@ -52,7 +52,7 @@ export function SessionRetry() {
 }
 ```
 
-- 목록에서 항목 값이 필요하면 항목을 받아 핸들러를 돌려주는 함수를 둔다. `const handleListItemClick = (popup: PopupCardItem) => () => { ... }`와 `onClick={handleListItemClick(popup)}`이다
+- 목록에서 항목 값이 필요하면 항목을 받아 핸들러를 돌려주는 함수를 둔다. `const handleListItemClick = (popup: ExplorePopup) => () => { ... }`와 `onClick={handleListItemClick(popup)}`이다
 - 훅이나 props로 받은 함수는 감싸지 않고 그대로 넘긴다. `onClick={reset}`, `onLocate={requestCurrentPosition}`이다
 - ref 콜백은 이벤트 핸들러가 아니라 이 규칙의 대상이 아니다
 - 핸들러와 props의 이름은 `typescript.md`의 접두사 표를 따른다. 핸들러는 `handle`, 이벤트 props는 `on`이다

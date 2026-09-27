@@ -20,7 +20,7 @@ const TEXT_SIZE_TOKENS = [
 ];
 const SHADOW_TOKENS = ["subtle", "bar", "floating", "on-map", "sheet", "modal"];
 const TEXT_SHADOW_TOKENS = ["on-image"];
-const SPACING_TOKENS = ["float-gap", "tab-bar-clearance"];
+const SPACING_TOKENS = ["tab-bar-gap", "float-gap", "tab-bar-clearance"];
 const CONTAINER_TOKENS = ["app"];
 const BLUR_TOKENS = ["floating"];
 
