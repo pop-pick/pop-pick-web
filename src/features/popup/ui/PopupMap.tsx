@@ -2,6 +2,7 @@
 
 import { type FocusEvent, useMemo, useRef, useState } from "react";
 
+import CloseIcon from "@/shared/assets/icons/close.svg";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { PopupCard } from "@/shared/components/PopupCard";
 import { cn } from "@/shared/lib/cn";
@@ -13,6 +14,7 @@ import { type Region, REGION_LABELS } from "@/shared/model/region";
 import { Button } from "@/shared/ui/Button";
 import { IconButton } from "@/shared/ui/IconButton";
 import { LinkButton } from "@/shared/ui/LinkButton";
+import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 import type { PositionStatus } from "../hooks/useCurrentPosition";
 import { PLACEHOLDER_NOTICE, toPlaceholderMarkers } from "../model/placeholder-markers";
@@ -158,16 +160,7 @@ export function PopupMap({ popups, region, position, positionStatus, onLocate, o
 								onClick={handleSelectionClose}
 								className="absolute top-2 right-2"
 							>
-								<svg
-									viewBox="0 0 24 24"
-									aria-hidden
-									className="size-4"
-									fill="none"
-									stroke="currentColor"
-									strokeWidth="2"
-								>
-									<path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
-								</svg>
+								<SvgIcon icon={CloseIcon} size={16} />
 							</IconButton>
 						</div>
 					</section>

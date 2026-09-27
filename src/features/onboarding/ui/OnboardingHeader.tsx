@@ -1,5 +1,8 @@
 import Link from "next/link";
 
+import ArrowLeftIcon from "@/shared/assets/icons/arrow-left.svg";
+import { SvgIcon } from "@/shared/ui/SvgIcon";
+
 import { getPreviousPath, ONBOARDING_STEPS, type OnboardingStep } from "../model/steps";
 
 interface OnboardingHeaderProps {
@@ -14,9 +17,7 @@ export function OnboardingHeader({ step }: OnboardingHeaderProps) {
 				aria-label={step === 1 ? "처음 화면으로" : `${String(step - 1)}단계로`}
 				className="flex size-9 items-center justify-center rounded-full text-zinc-700 focus-ring hover:bg-zinc-100"
 			>
-				<svg viewBox="0 0 24 24" aria-hidden className="size-5" fill="none" stroke="currentColor" strokeWidth="2">
-					<path d="M15 5l-7 7 7 7" strokeLinecap="round" strokeLinejoin="round" />
-				</svg>
+				<SvgIcon icon={ArrowLeftIcon} size={20} />
 			</Link>
 			<p className="min-w-0 flex-1 text-base font-semibold">
 				{step}단계
