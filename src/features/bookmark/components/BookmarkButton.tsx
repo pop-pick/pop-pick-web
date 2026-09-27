@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import HeartIcon from "@/shared/assets/icons/heart.svg";
-import { LOGIN_REQUIRED_MESSAGE } from "@/shared/model/login-prompt";
+import { LOGIN_CONFIRM_LABEL, LOGIN_REQUIRED_MESSAGE } from "@/shared/model/login-prompt";
 import { AlertDialog } from "@/shared/ui/AlertDialog";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
@@ -61,6 +61,8 @@ export function BookmarkButton({ mode, popupTitle, loginHref }: BookmarkButtonPr
 				<AlertDialog
 					open={isDialogOpen}
 					message={LOGIN_REQUIRED_MESSAGE}
+					confirmLabel={LOGIN_CONFIRM_LABEL}
+					closeLabel="닫기"
 					onConfirm={handleLoginConfirm}
 					onCancel={handleLoginCancel}
 				/>
