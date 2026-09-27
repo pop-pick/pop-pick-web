@@ -6,4 +6,5 @@
 @import "./tokens/typography.css";
 @import "./tokens/shadow.css";
 @import "./tokens/layout.css";
+@import "./tokens/radius.css";
 @import "./utilities.css";
