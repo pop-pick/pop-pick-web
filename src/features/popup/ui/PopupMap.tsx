@@ -2,6 +2,8 @@
 
 import { type FocusEvent, useMemo, useRef, useState } from "react";
 
+import { EmptyState } from "@/shared/components/EmptyState";
+import { PopupCard } from "@/shared/components/PopupCard";
 import { cn } from "@/shared/lib/cn";
 import type { KakaoLatLngLiteral } from "@/shared/lib/kakao-map/kakao-map-utils";
 import { KakaoMap } from "@/shared/lib/kakao-map/KakaoMap";
@@ -9,10 +11,8 @@ import { KakaoMapCamera } from "@/shared/lib/kakao-map/KakaoMapCamera";
 import type { PopupCardItem } from "@/shared/model/popup";
 import { type Region, REGION_LABELS } from "@/shared/model/region";
 import { Button } from "@/shared/ui/Button";
-import { EmptyState } from "@/shared/ui/EmptyState";
 import { IconButton } from "@/shared/ui/IconButton";
 import { LinkButton } from "@/shared/ui/LinkButton";
-import { PopupCard } from "@/shared/ui/PopupCard";
 
 import type { PositionStatus } from "../hooks/useCurrentPosition";
 import { PLACEHOLDER_NOTICE, toPlaceholderMarkers } from "../model/placeholder-markers";

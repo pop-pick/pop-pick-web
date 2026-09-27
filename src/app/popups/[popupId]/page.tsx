@@ -1,4 +1,4 @@
-import { ScreenPlaceholder } from "@/shared/ui/ScreenPlaceholder";
+import { ScreenPlaceholder } from "@/shared/components/ScreenPlaceholder";
 
 export default async function PopupDetailPage({ params }: PageProps<"/popups/[popupId]">) {
 	const { popupId } = await params;

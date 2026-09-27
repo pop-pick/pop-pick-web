@@ -3,10 +3,10 @@ import "@/shared/styles/globals.css";
 import type { Metadata } from "next";
 
 import { AuthProvider } from "@/features/auth/ui/AuthProvider";
+import { BottomTabBar } from "@/shared/components/BottomTabBar";
 import { cn } from "@/shared/lib/cn";
 import { QueryProvider } from "@/shared/providers/QueryProvider";
 import { pretendard } from "@/shared/styles/fonts";
-import { BottomTabBar } from "@/shared/ui/BottomTabBar";
 
 export const metadata: Metadata = {
 	title: "팝픽 POP PICK",

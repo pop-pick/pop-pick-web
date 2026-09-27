@@ -1,4 +1,4 @@
-import { ScreenPlaceholder } from "@/shared/ui/ScreenPlaceholder";
+import { ScreenPlaceholder } from "@/shared/components/ScreenPlaceholder";
 
 export default function PlannerNewPage() {
 	return (

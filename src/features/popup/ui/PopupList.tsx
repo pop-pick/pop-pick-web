@@ -1,8 +1,8 @@
+import { EmptyState } from "@/shared/components/EmptyState";
+import { PopupCard } from "@/shared/components/PopupCard";
 import type { PopupCardItem } from "@/shared/model/popup";
 import { type Region, REGION_LABELS } from "@/shared/model/region";
-import { EmptyState } from "@/shared/ui/EmptyState";
 import { LinkButton } from "@/shared/ui/LinkButton";
-import { PopupCard } from "@/shared/ui/PopupCard";
 
 interface PopupListProps {
 	popups: readonly PopupCardItem[];

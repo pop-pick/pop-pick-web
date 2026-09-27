@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import { parseStep } from "@/features/onboarding/model/steps";
 import { OnboardingHeader } from "@/features/onboarding/ui/OnboardingHeader";
-import { ScreenPlaceholder } from "@/shared/ui/ScreenPlaceholder";
+import { ScreenPlaceholder } from "@/shared/components/ScreenPlaceholder";
 
 export default async function OnboardingStepPage({ params }: PageProps<"/onboarding/[step]">) {
 	const { step: stepParam } = await params;
