@@ -44,3 +44,9 @@
 		}
 	}
 }
+
+@utility overflow-y-auto-when-short {
+	@media (height < 32.5rem) {
+		overflow-y: auto;
+	}
+}

@@ -76,7 +76,7 @@ export function LandingDialog({ loginHref }: LandingDialogProps) {
 			data-closing={isClosing ? "" : undefined}
 			onCancel={handleDialogCancel}
 			onClick={handleDialogClick}
-			className="m-auto w-full max-w-83.75 overflow-visible bg-transparent p-0 backdrop-fade backdrop:bg-black/40"
+			className="m-auto w-full max-w-83.75 overflow-visible overflow-y-auto-when-short bg-transparent p-0 backdrop-fade backdrop:bg-black/40"
 		>
 			<m.div
 				initial={HIDDEN_CARD_STYLE}
