@@ -10,13 +10,13 @@ export function sanitizeNextPath(value: string | null) {
 	return value;
 }
 
-export function buildLoginPath(next: string) {
-	const safePath = sanitizeNextPath(next) ?? DEFAULT_NEXT_PATH;
+export function buildLoginPath(nextPath: string) {
+	const safePath = sanitizeNextPath(nextPath) ?? DEFAULT_NEXT_PATH;
 	return `/login?next=${encodeURIComponent(safePath)}`;
 }
 
-export function storeNextPath(next: string | null) {
-	const safePath = sanitizeNextPath(next);
+export function storeNextPath(nextPath: string | null) {
+	const safePath = sanitizeNextPath(nextPath);
 	if (safePath === null) {
 		window.sessionStorage.removeItem(STORAGE_KEY);
 		return;
@@ -26,7 +26,7 @@ export function storeNextPath(next: string | null) {
 }
 
 export function consumeNextPath() {
-	const stored = window.sessionStorage.getItem(STORAGE_KEY);
+	const storedPath = window.sessionStorage.getItem(STORAGE_KEY);
 	window.sessionStorage.removeItem(STORAGE_KEY);
-	return sanitizeNextPath(stored) ?? DEFAULT_NEXT_PATH;
+	return sanitizeNextPath(storedPath) ?? DEFAULT_NEXT_PATH;
 }

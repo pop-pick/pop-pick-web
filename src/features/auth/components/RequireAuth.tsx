@@ -11,18 +11,18 @@ import { SessionRetry } from "./SessionRetry";
 
 interface RequireAuthProps {
 	children: ReactNode;
-	next: string;
+	nextPath: string;
 }
 
-export function RequireAuth({ children, next }: RequireAuthProps) {
+export function RequireAuth({ children, nextPath }: RequireAuthProps) {
 	const router = useRouter();
 	const status = useAuthStore((state) => state.status);
 
 	useEffect(() => {
 		if (status === "anonymous") {
-			router.replace(buildLoginPath(next));
+			router.replace(buildLoginPath(nextPath));
 		}
-	}, [status, next, router]);
+	}, [status, nextPath, router]);
 
 	if (status === "unavailable") {
 		return (

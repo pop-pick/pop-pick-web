@@ -12,8 +12,8 @@ export default function MyPage() {
 				<p className="text-sm text-zinc-500">찜한 팝업과 최근 본 팝업을 모아 봅니다.</p>
 			</header>
 
-			<RequireAuth next="/my">
-				<SessionPanel next="/my" />
+			<RequireAuth nextPath="/my">
+				<SessionPanel nextPath="/my" />
 
 				<section className="flex flex-col gap-4">
 					<SectionHeader title="찜한 팝업" />

@@ -10,15 +10,15 @@ import { useAuthStore } from "../model/useAuthStore";
 import { SessionRetry } from "./SessionRetry";
 
 interface SessionPanelProps {
-	next: string;
+	nextPath: string;
 }
 
-export function SessionPanel({ next }: SessionPanelProps) {
+export function SessionPanel({ nextPath }: SessionPanelProps) {
 	const status = useAuthStore((state) => state.status);
-	const { mutate: signOut, isPending } = useLogout();
+	const { mutate: logout, isPending } = useLogout();
 
 	const handleLogout = () => {
-		signOut();
+		logout();
 	};
 
 	if (status === "restoring") {
@@ -45,7 +45,7 @@ export function SessionPanel({ next }: SessionPanelProps) {
 					<p className="font-semibold text-zinc-900">로그인하고 추천을 받아보세요</p>
 					<p className="text-sm text-zinc-500">취향을 저장하면 다음에도 같은 추천을 볼 수 있어요.</p>
 				</div>
-				<LinkButton href={buildLoginPath(next)}>로그인하기</LinkButton>
+				<LinkButton href={buildLoginPath(nextPath)}>로그인하기</LinkButton>
 			</section>
 		);
 	}

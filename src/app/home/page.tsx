@@ -15,7 +15,7 @@ export default function HomePage() {
 				<h1 className="text-2xl font-bold tracking-tight">서울의 가장 트렌디한 공간을 한눈에</h1>
 			</header>
 
-			<SessionPanel next="/home" />
+			<SessionPanel nextPath="/home" />
 
 			<PlaceholderBox label="검색바" className="h-12" />
 
