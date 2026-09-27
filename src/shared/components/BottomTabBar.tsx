@@ -13,7 +13,7 @@ import { cn } from "@/shared/lib/cn";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 const TABS = [
-	{ href: "/home", label: "홈", icon: HomeFillIcon, widthClass: "w-8.75" },
+	{ href: "/", label: "홈", icon: HomeFillIcon, widthClass: "w-8.75" },
 	{ href: "/explore", label: "탐색", icon: SearchFillIcon, widthClass: "w-10.5" },
 	{ href: "/planner", label: "플래너", icon: CalendarFillIcon, widthClass: "w-6" },
 	{ href: "/my", label: "마이", icon: UserFillIcon, widthClass: "w-11.5" }

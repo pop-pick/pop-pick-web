@@ -1,6 +1,6 @@
 const STORAGE_KEY = "pop-pick.next-path";
 
-export const DEFAULT_NEXT_PATH = "/home";
+export const DEFAULT_NEXT_PATH = "/";
 
 export function sanitizeNextPath(value: string | null) {
 	if (value === null || !value.startsWith("/") || value.startsWith("//")) {
