@@ -28,3 +28,19 @@
 		scrollbar-color: var(--gray-300) transparent;
 	}
 }
+
+@utility backdrop-fade {
+	&::backdrop {
+		transition: opacity 250ms ease-out;
+	}
+
+	&[data-closing]::backdrop {
+		opacity: 0;
+	}
+
+	@starting-style {
+		&[open]::backdrop {
+			opacity: 0;
+		}
+	}
+}
