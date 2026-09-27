@@ -14,6 +14,7 @@ import { useKakaoMapSdk } from "./useKakaoMapSdk";
 interface KakaoMapCommonProps {
 	markers?: readonly KakaoMarkerData[];
 	onMarkerClick?: (markerId: string) => void;
+	onMapClick?: () => void;
 	selectedMarkerId?: string | null;
 	myPosition?: KakaoLatLngLiteral | null;
 	initialCluster?: KakaoClusterOptions;
@@ -47,6 +48,7 @@ export function KakaoMap({
 	level = KAKAO_MAP_DEFAULT_LEVEL,
 	markers = NO_MARKERS,
 	onMarkerClick,
+	onMapClick,
 	selectedMarkerId = null,
 	myPosition = null,
 	initialCluster,
@@ -70,6 +72,10 @@ export function KakaoMap({
 	useEffect(() => {
 		session?.setMarkerClickHandler(onMarkerClick);
 	}, [session, onMarkerClick]);
+
+	useEffect(() => {
+		session?.setMapClickHandler(onMapClick);
+	}, [session, onMapClick]);
 
 	useEffect(() => {
 		const container = containerRef.current;
@@ -133,13 +139,13 @@ export function KakaoMap({
 			<div
 				role="alert"
 				className={cn(
-					"flex flex-col items-center justify-center gap-4 rounded-2xl bg-red-50 p-6 text-center",
+					"flex flex-col items-center justify-center gap-4 rounded-2xl bg-error-bg p-6 text-center",
 					className
 				)}
 			>
 				<div className="flex flex-col gap-1">
-					<p className="font-semibold text-red-900">지도를 불러오지 못했습니다</p>
-					<p className="text-xs leading-relaxed text-red-800">{error.message}</p>
+					<p className="text-b1-16 text-error">지도를 불러오지 못했습니다</p>
+					<p className="text-b3-12 text-text-3">{error.message}</p>
 				</div>
 				<div className="flex flex-wrap justify-center gap-2">
 					<Button variant="secondary" onClick={reloadSdk}>
@@ -153,7 +159,7 @@ export function KakaoMap({
 
 	return (
 		<KakaoMapContext.Provider value={contextValue}>
-			<div className={cn("relative overflow-hidden rounded-2xl bg-zinc-100", className)}>
+			<div className={cn("relative overflow-hidden rounded-2xl bg-bg-3", className)}>
 				<div
 					ref={containerRef}
 					role="application"
@@ -163,7 +169,7 @@ export function KakaoMap({
 					className="absolute inset-0 isolate focus-ring"
 				/>
 				{status === "loading" ? (
-					<p role="status" className="absolute inset-0 flex items-center justify-center text-sm text-zinc-600">
+					<p role="status" className="absolute inset-0 flex items-center justify-center text-b3-14 text-text-4">
 						지도를 준비하고 있습니다
 					</p>
 				) : null}

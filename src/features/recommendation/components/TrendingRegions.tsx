@@ -16,7 +16,7 @@ export function TrendingRegions({ regions }: TrendingRegionsProps) {
 				{regions.map((region) => (
 					<li key={region}>
 						<Link
-							href={`/explore?region=${region}`}
+							href={`/explore?view=list&region=${region}`}
 							className="inline-flex rounded-xl border border-divider-2 bg-bg-1 px-4 py-2 text-b3-14 text-text-1 focus-ring transition-colors hover:bg-bg-2"
 						>
 							{REGION_LABELS[region]}
