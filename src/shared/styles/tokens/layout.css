@@ -1,6 +1,7 @@
 @theme inline {
 	--container-app: 26.875rem;
 
+	--spacing-tab-bar-gap: 2.5rem;
 	--spacing-float-gap: max(2.625rem, calc(0.5rem + env(safe-area-inset-bottom)));
 	--spacing-tab-bar-clearance: calc(5rem + var(--spacing-float-gap));
 }

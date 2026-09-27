@@ -81,7 +81,7 @@ export function BottomTabBar({ loginHrefByTab }: BottomTabBarProps) {
 		<>
 			<nav
 				aria-label="주요 화면"
-				className="sticky bottom-float-gap z-10 mx-5 mt-10 mb-float-gap rounded-3xl bg-bg-1/80 px-8.5 py-3 shadow-floating backdrop-blur-floating"
+				className="sticky bottom-float-gap z-10 mx-5 mt-tab-bar-gap mb-float-gap rounded-3xl bg-bg-1/80 px-8.5 py-3 shadow-floating backdrop-blur-floating"
 			>
 				<ul className="flex justify-between pt-1">
 					{TABS.map((tab, index) => {
