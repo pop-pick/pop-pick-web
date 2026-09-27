@@ -3,7 +3,9 @@ import "@/shared/styles/globals.css";
 import type { Metadata } from "next";
 
 import { AuthProvider } from "@/features/auth/ui/AuthProvider";
+import { cn } from "@/shared/lib/cn";
 import { QueryProvider } from "@/shared/providers/QueryProvider";
+import { pretendard } from "@/shared/styles/fonts";
 import { BottomTabBar } from "@/shared/ui/BottomTabBar";
 
 export const metadata: Metadata = {
@@ -13,7 +15,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
 	return (
-		<html lang="ko" className="h-full antialiased">
+		<html lang="ko" className={cn(pretendard.variable, "h-full antialiased")}>
 			<body className="bg-zinc-100 font-sans text-text-1">
 				<div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-bg-1">
 					<QueryProvider>

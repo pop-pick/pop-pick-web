@@ -1,4 +1,7 @@
 @theme inline {
+	--font-sans:
+		var(--font-pretendard), -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+
 	--text-h1: 1.5rem;
 	--text-h1--line-height: 1.5;
 	--text-h1--letter-spacing: -0.2px;
