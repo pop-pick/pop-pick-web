@@ -7,6 +7,6 @@ export function parseStep(value: string) {
 	return ONBOARDING_STEPS.find((candidate) => candidate === step) ?? null;
 }
 
-export function getPreviousPath(step: OnboardingStep) {
+export function buildPreviousStepPath(step: OnboardingStep) {
 	return step === 1 ? "/" : `/onboarding/${String(step - 1)}`;
 }
