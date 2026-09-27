@@ -136,7 +136,7 @@ check "Tailwind 임의값을 썼다" \
 	'grep -rnoE "(^|[\" ])[a-z-]+-\[[^]]+\]" src --include="*.tsx" --include="*.ts"'
 
 check "shared/ui 가 앱을 안다. 경로나 도메인 타입이 필요하면 shared/components 에 둔다 (structure.md)" \
-	'grep -rnE "from \"(next/navigation|@/shared/(model|components)/|@/features/)" src/shared/ui --include="*.ts" --include="*.tsx"'
+	'[ ! -d src/shared/ui ] || grep -rnE "from \"(next/navigation|@/shared/(model|components)/|@/features/)" src/shared/ui --include="*.ts" --include="*.tsx"'
 
 check "styles/tokens 의 글자와 그림자 토큰이 cn.ts 의 tailwind-merge 목록과 다르다" \
 	'node "$SCRIPT_DIR/check-merge-tokens.mjs"'
