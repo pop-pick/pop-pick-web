@@ -12,7 +12,7 @@ paths:
 - 기성 UI 라이브러리를 쓰지 않는다. shadcn 같은 것을 깔지 않는다
 - 두 화면 이상이 쓰는 컴포넌트는 `src/shared`에 두고 디자인 시스템 담당 프론트엔드가 주인이다. 앱을 모르는 부품은 `ui`, 경로나 도메인 타입을 아는 조립품은 `components`다
 - 한 화면만 쓰는 컴포넌트는 그 기능의 `components` 폴더에 둔다. 두 번째 쓰임이 나오면 `src/shared`로 올린다. 둘을 가르는 기준과 폴더 규칙은 `structure.md`에 있다
-- 아이콘은 `src/shared/assets/icons/`의 SVG 원본을 import해 `SvgIcon`에 넘긴다. SVG를 TSX로 옮겨 적지 않는다
+- 아이콘은 `src/shared/assets/icons/`의 SVG 원본을 `@/shared/assets/icons/` 경로로 import해 `SvgIcon`에 넘긴다. SVG를 TSX로 옮겨 적지 않는다. 크기는 `size`로 16, 20, 24, 32 중 하나이고 색은 `text-icon-*` 같은 글자색 클래스로 칠한다. 뜻을 전하는 아이콘만 `label`을 주고 나머지는 읽히지 않는다. 색이 고정되거나 그라디언트가 있는 그림은 `public/`에 두고 `next/image`로 싣는다. 새 아이콘을 넣는 법은 `docs/design/DESIGN.md`의 아이콘 절
 
 ## 이 규칙이 생긴 이유
 
