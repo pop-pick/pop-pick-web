@@ -1,0 +1,52 @@
+@utility focus-ring {
+	&:focus-visible {
+		outline: 2px solid var(--color-primary);
+		outline-offset: 2px;
+	}
+}
+
+@utility scrollbar-subtle {
+	scrollbar-gutter: stable both-edges;
+
+	&::-webkit-scrollbar {
+		width: 6px;
+		background: transparent;
+	}
+
+	&::-webkit-scrollbar-track,
+	&::-webkit-scrollbar-corner {
+		background: transparent;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		border-radius: 9999px;
+		background: var(--gray-300);
+	}
+
+	@supports not selector(::-webkit-scrollbar) {
+		scrollbar-width: thin;
+		scrollbar-color: var(--gray-300) transparent;
+	}
+}
+
+@utility backdrop-fade {
+	&::backdrop {
+		transition: opacity 250ms ease-out;
+	}
+
+	&[data-closing]::backdrop {
+		opacity: 0;
+	}
+
+	@starting-style {
+		&[open]::backdrop {
+			opacity: 0;
+		}
+	}
+}
+
+@utility overflow-y-auto-when-short {
+	@media (height < 32.5rem) {
+		overflow-y: auto;
+	}
+}

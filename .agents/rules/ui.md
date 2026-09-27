@@ -1,5 +1,5 @@
 ---
-description: 기성 UI 라이브러리 없음. 공용 컴포넌트는 src/shared/ui가 주인. 파일 이름과 선언 형식의 정본. 이벤트 핸들러는 JSX 밖으로 뺀다. 모바일 퍼스트, 키보드로 조작 가능, 토큰만 쓴다
+description: 기성 UI 라이브러리 없음. 공용 컴포넌트는 src/shared/ui와 components가 주인. 파일 이름과 선언 형식의 정본. 이벤트 핸들러는 JSX 밖으로 뺀다. 모바일 퍼스트, 키보드로 조작 가능, 토큰만 쓴다
 paths:
   - "src/**/*.tsx"
   - "src/**/use*.ts"
@@ -10,8 +10,9 @@ paths:
 ## 규칙
 
 - 기성 UI 라이브러리를 쓰지 않는다. shadcn 같은 것을 깔지 않는다
-- 두 화면 이상이 쓰는 컴포넌트는 `src/shared/ui`에 두고 디자인 시스템 담당 프론트엔드가 주인이다
-- 한 화면만 쓰는 컴포넌트는 그 기능의 `ui` 폴더에 둔다. 두 번째 쓰임이 나오면 `src/shared/ui`로 올린다. 폴더 규칙은 `structure.md`에 있다
+- 두 화면 이상이 쓰는 컴포넌트는 `src/shared`에 두고 디자인 시스템 담당 프론트엔드가 주인이다. 앱을 모르는 부품은 `ui`, 경로나 도메인 타입을 아는 조립품은 `components`다
+- 한 화면만 쓰는 컴포넌트는 그 기능의 `components` 폴더에 둔다. 두 번째 쓰임이 나오면 `src/shared`로 올린다. 둘을 가르는 기준과 폴더 규칙은 `structure.md`에 있다
+- 아이콘은 `src/shared/assets/icons/`의 SVG 원본을 `@/shared/assets/icons/` 경로로 import해 `SvgIcon`에 넘긴다. SVG를 TSX로 옮겨 적지 않는다. 크기는 `size`로 16, 20, 24, 32 중 하나이고 색은 `text-icon-*` 같은 글자색 클래스로 칠한다. 뜻을 전하는 아이콘만 `label`을 주고 나머지는 읽히지 않는다. 색이 고정되거나 그라디언트가 있는 그림은 `public/`에 두고 `next/image`로 싣는다. 새 아이콘을 넣는 법은 `docs/design/DESIGN.md`의 아이콘 절
 
 ## 이 규칙이 생긴 이유
 
@@ -19,7 +20,7 @@ paths:
 
 ## 파일 이름과 선언 형식
 
-`src/shared/ui`만이 아니라 `src/app`과 `src/features`를 포함한 저장소의 모든 파일에 적용한다.
+`src/shared`만이 아니라 `src/app`과 `src/features`를 포함한 저장소의 모든 파일에 적용한다.
 
 - 컴포넌트 파일은 PascalCase다. `Button.tsx`, `QueryProvider.tsx`. 컴포넌트가 아닌 파일(`cn.ts`, `client.ts`, `globals.css`)은 소문자 케밥 케이스다
 - 훅 파일은 훅 이름을 그대로 파일 이름으로 쓴다. `useKakaoMapSdk.ts`. Zustand 스토어도 `useAuthStore`를 내보내면 파일은 `useAuthStore.ts`다
@@ -62,7 +63,7 @@ export function SessionRetry() {
 - 375px에서 430px까지의 모바일 웹이 대상이다. 넓은 화면에서는 가운데 고정 폭 컬럼으로 보이고 데스크탑 배치는 따로 만들지 않는다
 - 키보드만으로 조작할 수 있고 포커스 표시가 보인다
 - 화면마다 로딩과 빈 결과, 실패, 정상 넷을 그린다. 빈 결과와 실패는 다른 화면이다. 같으면 서버를 못 읽은 것이 결과 없음으로 보인다
-- 눌리는 것은 `hover`와 `focus-visible`, `disabled` 상태가 보인다. 버튼의 커서는 `globals.css`의 `@layer base`가 준다
+- 눌리는 것은 `hover`와 `focus-visible`, `disabled` 상태가 보인다. 버튼의 커서는 `src/shared/styles/base.css`의 `@layer base`가 준다
 - 클래스 합치기는 `src/shared/lib/cn.ts`의 `cn()`을 쓴다
 
 ## 리뷰에서 볼 것

@@ -1,8 +1,8 @@
-import { RequireAuth } from "@/features/auth/ui/RequireAuth";
-import { SessionPanel } from "@/features/auth/ui/SessionPanel";
-import { EmptyState } from "@/shared/ui/EmptyState";
+import { RequireAuth } from "@/features/auth/components/RequireAuth";
+import { SessionPanel } from "@/features/auth/components/SessionPanel";
+import { EmptyState } from "@/shared/components/EmptyState";
+import { SectionHeader } from "@/shared/components/SectionHeader";
 import { LinkButton } from "@/shared/ui/LinkButton";
-import { SectionHeader } from "@/shared/ui/SectionHeader";
 
 export default function MyPage() {
 	return (
@@ -12,8 +12,8 @@ export default function MyPage() {
 				<p className="text-sm text-zinc-500">찜한 팝업과 최근 본 팝업을 모아 봅니다.</p>
 			</header>
 
-			<RequireAuth next="/my">
-				<SessionPanel next="/my" />
+			<RequireAuth nextPath="/my">
+				<SessionPanel nextPath="/my" />
 
 				<section className="flex flex-col gap-4">
 					<SectionHeader title="찜한 팝업" />

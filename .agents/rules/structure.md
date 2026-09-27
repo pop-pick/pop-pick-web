@@ -1,5 +1,5 @@
 ---
-description: src/app은 라우팅, src/features는 기능, src/shared는 공용. 기능 폴더 안은 api와 ui, hooks, model 넷이다. 의존은 한 방향이고 배럴 파일을 만들지 않는다
+description: src/app은 라우팅, src/features는 기능, src/shared는 공용. 기능 폴더 안은 api와 components, hooks, model 넷이다. 의존은 한 방향이고 배럴 파일을 만들지 않는다
 paths:
   - "src/**"
 ---
@@ -17,12 +17,14 @@ paths:
 ```
 features/{기능}/
 ├── api/      엔드포인트 함수와 queryOptions
-├── ui/       컴포넌트
+├── components/ 그 기능의 컴포넌트
 ├── hooks/    변경을 내는 훅과 화면이 쓰는 훅
 └── model/    그 기능이 무엇인지. 값과 타입, 도메인 규칙, 스토어
 ```
 
-필요한 것만 만든다. 쓰지 않는 폴더를 미리 만들지 않는다. 지금 넷을 다 쓰는 기능은 `auth` 하나이고 `onboarding`과 `popup`은 둘씩이다.
+필요한 것만 만든다. 쓰지 않는 세그먼트 폴더를 미리 만들지 않는다. 지금 넷을 다 쓰는 기능은 `auth` 하나다. `popup`과 `recommendation`은 `components`와 `hooks`, `model`을 쓰고 `onboarding`은 `components`와 `model`, `bookmark`는 `components`만 쓴다. `course`와 `planner`는 설계 문서의 기능 표에 맞춰 만든 빈 기능 폴더다.
+
+**기능 안 컴포넌트 폴더는 `components`다.** 기능 안의 컴포넌트는 모두 자기 기능의 도메인을 알아서 `shared/components`와 성격이 같다. `ui`라는 이름은 저장소 전체에서 앱을 모르는 부품(`shared/ui`)에만 쓴다.
 
 **루트에 파일을 두지 않는다.** 모든 파일이 세그먼트 폴더 안에 있어야 상대 경로의 깊이가 곧 경계가 된다. `../`는 같은 기능 안이고 `../../`는 밖이다.
 
@@ -30,9 +32,21 @@ features/{기능}/
 
 **같은 기능 안은 상대 경로, 밖은 `@/` 별칭을 쓴다.** 상대 경로는 `../{세그먼트}`까지다.
 
+## shared 안
+
+| 폴더                               | 담는 것                                                                                                                                                                                                                     |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ui`                               | 디자인 시스템 부품. `Button`, `Chip`, `Badge`, `IconButton`, `Skeleton`, `SvgIcon`처럼 props와 토큰만으로 그리고 앱을 모른다                                                                                                |
+| `components`                       | `ui`를 조립한 공용 컴포넌트. `BottomTabBar`, `SectionHeader`, `EmptyState`, `PopupCard`처럼 경로와 도메인 타입을 알아도 된다                                                                                                |
+| `assets`                           | 코드가 아닌 원본 파일. `icons/`의 SVG는 SVGR이 빌드할 때 컴포넌트로 바꾸고 `fonts/`의 woff2는 `styles/fonts.ts`가 싣는다. 색이 고정되거나 그라디언트가 있는 SVG는 SVGR이 색을 바꿔서 `public/`에 두고 `next/image`로 싣는다 |
+| `styles`                           | Tailwind 진입점 `globals.css`와 디자인 토큰 `tokens/`                                                                                                                                                                       |
+| `api`, `lib`, `model`, `providers` | HTTP 층, 도메인 지식이 없는 도구, 여러 기능이 쓰는 값과 타입, 루트 레이아웃이 감싸는 Provider                                                                                                                               |
+
+**`ui`와 `components`는 무엇을 import하는지로 가른다.** 두 이름 모두 컴포넌트를 뜻해서 이름만 보고는 어디에 둘지 알 수 없다. `ui`는 `next/navigation`과 `@/shared/model`, `@/shared/components`, `@/features`를 부르지 않는다. 새 컴포넌트가 앱의 경로나 도메인 타입을 알아야 하면 `components`에 둔다. 의존은 `ui`에서 `components`로 한 방향이고 `check-conventions.sh`가 막는다.
+
 ## model이 담는 것
 
-**그 기능이 무엇인지를 담는다.** 화면에 그리는 방법(`ui`)도 서버를 부르는 방법(`api`)도 아닌 나머지다.
+**그 기능이 무엇인지를 담는다.** 화면에 그리는 방법(`components`)도 서버를 부르는 방법(`api`)도 아닌 나머지다.
 
 | 들어가는 것             | 예                                     |
 | ----------------------- | -------------------------------------- |
@@ -55,15 +69,17 @@ export const REGION_LABELS: Record<Region, string> = { ... };
 
 ## 기능 폴더에 lib과 types를 두지 않는다
 
-**`lib`은 `src/shared`에만 있다.** 도메인 지식이 없는 도구를 담는다. 지금 셋이다. 클래스 합치기(`cn.ts`), 외부 SDK 어댑터(`kakao-map/`), 화면용 임시 데이터(`placeholder-data.ts`)다.
+**`lib`은 `src/shared`에만 있다.** 도메인 지식이 없는 도구를 담는다. 지금 다섯이다. 클래스 합치기(`cn.ts`), 플러그인과 서울 시간대를 한 번 설정한 날짜 라이브러리(`dayjs.ts`), 외부 SDK 어댑터(`kakao-map/`), 화면용 임시 데이터(`placeholder-data.ts`)와 임시 사진 목록(`placeholder-images.ts`)이다.
 
 기능 폴더에 `lib`을 두지 않는 이유는 그 이름이 목적을 말하지 않아서다. `auth/lib/kakao-oauth.ts`에서 `lib`을 빼고 읽어도 아는 것이 같다. 폴더 한 겹이 경로만 늘리고 정보를 더하지 않으면 지운다.
 
 **`types` 세그먼트를 두지 않는다.** 같은 이유다. 타입은 그 타입이 설명하는 값 옆에 있어야 한다. 값과 갈라놓으면 위의 파생 관계가 끊긴다.
 
-이 판단은 갈리는 자리다. Feature-Sliced Design은 `components`와 `hooks`, `types`를 "내용이 무엇인지 말할 뿐 무엇을 위한 것인지 말하지 않는다"는 이유로 나쁜 세그먼트 이름이라고 문서에 적는다. 반대로 bulletproof-react는 `types`와 `utils`를 기능 세그먼트로 그대로 쓴다. 우리는 앞쪽을 골랐고 근거는 위 문단이다. 세그먼트를 몇 개까지 두라는 수치 기준은 어느 쪽 문서에도 없다.
+이 판단은 갈리는 자리다. Feature-Sliced Design은 `components`와 `hooks`, `types`를 "내용이 무엇인지 말할 뿐 무엇을 위한 것인지 말하지 않는다"는 이유로 나쁜 세그먼트 이름이라고 문서에 적는다. 반대로 bulletproof-react는 `types`와 `utils`를 기능 세그먼트로 그대로 쓴다. `lib`과 `types`에서는 앞쪽을 골랐고 근거는 위 문단이다. 세그먼트를 몇 개까지 두라는 수치 기준은 어느 쪽 문서에도 없다.
 
 `hooks`는 남겼다. 이름이 본질을 가리키는 것은 같지만 React에서 훅은 호출 규칙이 따로 있는 별개 종류라 파일을 열기 전에 아는 값이 있다.
+
+`components`도 남겼다. FSD는 기능 안 컴포넌트를 `ui`라 부르지만 이 저장소에서 `ui`는 앱을 모르는 부품(`shared/ui`)이다. 기능 안 컴포넌트는 도메인을 알아서 `shared/components`와 성격이 같으니 같은 이름을 쓴다. 한 이름이 두 뜻으로 쓰이지 않게 하려는 것이다.
 
 ## 이 규칙이 생긴 이유
 
@@ -95,7 +111,7 @@ lint 규칙으로 막지 않는다. 사람이 읽고 지킨다. 아래 넷이 �
 grep -rn "@/features/" src/features src/shared --include="*.ts" --include="*.tsx"
 grep -rn "from \"\.\./\.\./" src/features --include="*.ts" --include="*.tsx"
 find src -name "index.ts" -o -name "index.tsx"
-find src/features -mindepth 2 -maxdepth 2 -type d ! -name api ! -name ui ! -name hooks ! -name model
+find src/features -mindepth 2 -maxdepth 2 -type d ! -name api ! -name components ! -name hooks ! -name model
 ```
 
 네 명령 모두 아무것도 내지 않아야 한다. `src/app`은 검사 대상이 아니다.
@@ -106,4 +122,4 @@ find src/features -mindepth 2 -maxdepth 2 -type d ! -name api ! -name ui ! -name
 - 새로 생긴 `index.ts`
 - `src/app` 라우트 파일 안의 로직. 조립만 한다
 - 값과 그 값에서 파생된 타입이 다른 파일에 있는 자리
-- 한 기능에만 있는데 다른 기능도 쓰기 시작한 컴포넌트. `src/shared/ui`로 올린다
+- 한 기능에만 있는데 다른 기능도 쓰기 시작한 컴포넌트. 앱을 모르면 `src/shared/ui`, 경로나 도메인 타입을 알면 `src/shared/components`로 올린다

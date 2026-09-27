@@ -9,7 +9,7 @@ interface AuthState {
 	status: AuthStatus;
 	setAccessToken: (accessToken: string) => void;
 	clearSession: () => void;
-	markUnavailable: () => void;
+	markSessionUnavailable: () => void;
 }
 
 export const useAuthStore = create<AuthState>()((set) => ({
@@ -21,7 +21,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
 	clearSession: () => {
 		set({ accessToken: null, status: "anonymous" });
 	},
-	markUnavailable: () => {
+	markSessionUnavailable: () => {
 		set({ accessToken: null, status: "unavailable" });
 	}
 }));

@@ -34,7 +34,7 @@ export function isApiResponse(body: unknown): body is ApiResponse<unknown> {
 
 	const { resultType, error } = body as Record<string, unknown>;
 	const hasResultType = resultType === "SUCCESS" || resultType === "ERROR";
-	const hasError = error === null || hasErrorMessageShape(error);
+	const hasValidErrorField = error === null || hasErrorMessageShape(error);
 
-	return hasResultType && "data" in body && hasError;
+	return hasResultType && "data" in body && hasValidErrorField;
 }

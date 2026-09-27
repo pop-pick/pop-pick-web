@@ -44,3 +44,5 @@ export const PLACEHOLDER_POPUPS: PopupCardItem[] = [
 		endsOn: "10.20"
 	}
 ];
+
+export const PLACEHOLDER_NICKNAME: string | null = null;

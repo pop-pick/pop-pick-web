@@ -8,16 +8,16 @@
 
 화면에는 데이터를 받을 경로가 없는 요소가 몇 남아 있다. 연계 카페와 제휴 할인, 방문 후기 탭과 평점, 대기시간 예상이다. 이들은 화면 자리를 두되 데이터 모델에서 `null`을 허용하고 값이 `null`이면 그리지 않는다. 서버가 "없음"을 보낸 것이라 실패를 감추는 것이 아니다. 어느 결정에 걸려 있는지는 미결정 의존 절에 있다.
 
-수료 심사가 운영진에 제출한 기능 구현 계획과 결과물을 대조한다. 제출문과 달라진 자리는 둘이다. 온보딩에서 성별을 받지 않고 동행 유형을 받는다. 팝업 상세의 하단 액션이 예약 버튼이 아니라 찜과 공유하기, 코스 추천받기 셋이고 예약 링크는 `reservationUrl`이 있을 때 정보 영역에 외부 링크로 놓인다.
+수료 심사가 운영진에 제출한 기능 구현 계획과 결과물을 대조한다. 제출문과 달라진 자리는 둘이다. 온보딩에서 성별을 받지 않고 동행 유형을 받는다. 팝업 상세의 액션 줄은 9/26 시안대로 예약 사이트 버튼과 찜, 공유이고 예약 버튼은 `reservationUrl`이 있을 때만 놓인다.
 
 ## 화면과 라우트
 
-하단 탭바는 모든 화면에 붙는다. 노출 조건 분기가 없어 루트 레이아웃이 탭바를 그린다. 라우트 그룹을 두지 않는다. 반응형 범위는 `docs/design/DESIGN.md`에 있다.
+하단 탭바는 루트 레이아웃이 그리고 온보딩과 로그인, 카카오 콜백, 코스 조건 입력, 코스 생성 중 화면에서는 `BottomTabBar`가 경로를 보고 아무것도 그리지 않는다. 숨기는 화면이 다섯 곳뿐이라 라우트 그룹을 두지 않는다. 반응형 범위는 `docs/design/DESIGN.md`에 있다.
 
 ```
 src/app/
-├── layout.tsx                          루트. QueryProvider와 AuthProvider, 고정 폭 컬럼, 하단 탭바
-├── page.tsx                            /                         랜딩(메인)
+├── layout.tsx                          루트. QueryProvider와 AuthProvider, MotionProvider, 고정 폭 컬럼, 하단 탭바
+├── page.tsx                            /                         홈(회원과 비회원). 비회원이면 랜딩 모달
 ├── error.tsx                           라우트 오류 경계
 ├── not-found.tsx
 ├── api/auth/                           세션 쿠키를 굽고 지운다
@@ -26,10 +26,8 @@ src/app/
 ├── onboarding/[step]/page.tsx          /onboarding/1, 2, 3       온보딩 세 단계
 ├── onboarding/result/page.tsx          /onboarding/result        추천 미리보기(존치 미결정)
 ├── login/page.tsx                      /login?next=              로그인
-├── login/complete/page.tsx             /login/complete?next=     로그인 완료
 ├── auth/kakao/callback/page.tsx
 ├── auth/google/callback/page.tsx       설계. 구글 클라이언트 ID가 오면 만든다
-├── home/page.tsx                       /home                     회원 홈과 비회원 홈
 ├── explore/page.tsx                    /explore?view=&q=&sort=
 ├── explore/@modal/(..)popups/[popupId]/page.tsx  설계. 지도에서 연 상세를 레이어로 가로챈다
 ├── popups/[popupId]/page.tsx           /popups/{id}?tab=         팝업 상세(전체 화면)
@@ -41,18 +39,16 @@ src/app/
 └── my/page.tsx                         /my?tab=                  마이페이지
 ```
 
-상세 인터셉트 라우트는 아직 없다. 팝업 상세 본문을 만들 때 함께 붙인다. 화면은 랜딩과 로그인, 로그인 완료, 홈, 탐색, 내 일정, 마이페이지에 내용이 있고 나머지는 `ScreenPlaceholder`로 자리만 있다.
+상세 인터셉트 라우트는 아직 없다. 탐색 지도의 팝업 카드를 만들 때 붙인다. 화면은 로그인과 홈, 팝업 상세, 탐색, 내 일정, 마이페이지에 내용이 있고 나머지는 `ScreenPlaceholder`로 자리만 있다.
 
 팝업 상세는 껍데기가 둘이다. 홈과 검색 결과에서 누르면 페이지로 이동하고 탐색 지도의 팝업 카드에서 누르면 레이어로 뜬다. 지도에서 페이지로 나가면 보던 지도로 돌아오지 못하기 때문이다. 본문 컴포넌트는 하나이고 두 껍데기가 그것을 감싼다. Next의 인터셉트 라우트가 이 구조에 그대로 맞는다. `explore` 아래 `@modal` 슬롯이 `(..)popups/[popupId]`로 형제 경로를 가로채고 새로고침하면 가로채지 않아 전체 화면 상세가 열린다.
 
 | 경로                          | 화면             | 로그인    | 데이터를 받는 곳                                                | 기능 문서           |
 | ----------------------------- | ---------------- | --------- | --------------------------------------------------------------- | ------------------- |
-| `/`                           | 랜딩             | 아니오    | 없음. 정적                                                      | `onboarding.md`     |
+| `/`                           | 홈과 랜딩 모달   | 아니오    | 로그인 여부로 PICK과 랜딩 모달을 가른다                         | `recommendation.md` |
 | `/onboarding/[step]`          | 온보딩 1, 2, 3   | 예        | 서버                                                            | `onboarding.md`     |
 | `/login`                      | 로그인           | 아니오    | 없음                                                            | `auth.md`           |
-| `/login/complete`             | 로그인 완료      | 예        | 없음. URL의 `next`를 읽어 다음 화면으로 넘긴다                  | `auth.md`           |
 | `/auth/{provider}/callback`   | 콜백             | 아니오    | 클라이언트 쿼리                                                 | `auth.md`           |
-| `/home`                       | 홈               | 아니오    | 클라이언트 쿼리. 로그인 여부로 분기                             | `recommendation.md` |
 | `/explore`                    | 탐색 지도와 목록 | 아니오    | 클라이언트 쿼리. 검색어와 정렬은 URL                            | `popup.md`          |
 | `/popups/[popupId]`           | 팝업 상세        | 아니오    | 서버 컴포넌트가 첫 데이터와 메타 태그, 나머지는 클라이언트 쿼리 | `popup.md`          |
 | `/planner`                    | 내 일정          | 예        | 클라이언트 쿼리. 탭은 URL                                       | `course.md`         |
@@ -64,7 +60,7 @@ src/app/
 
 저장한 코스는 마이페이지가 아니라 플래너에 있다. 플래너에 들어왔을 때 자기 일정이 먼저 보이는 편이 낫다는 판단이다. 탭은 다가오는 일정과 지난 일정, 취소된 일정 셋이고 일정이 없으면 코스 만들기로 가는 자리가 뜬다. 마이페이지는 찜한 팝업과 최근 본 팝업 둘이다.
 
-로그인 필요 화면과 동작은 클라이언트에서 막는다. 리프레시 토큰 쿠키의 `Path`가 `/`라 서버가 로그인 여부를 볼 수는 있지만 `proxy.ts`로 옮기는 것은 지금 하지 않는다. 비로그인 사용자가 찜이나 코스 만들기를 누르면 그 시점에 `/login?next={돌아올 경로}`로 보낸다. 로그인 뒤 `next`로 돌아온다.
+로그인이 필요한 화면은 `proxy.ts`가 리프레시 쿠키가 있는지 보고 막는다. 지금 막는 것은 `/my`와 `/planner`, 온보딩 단계다. 존치가 미결정인 `/onboarding/result`는 막지 않는다. 표에서 로그인이 필요한 생성 중과 코스 결과, 저장 완료는 화면이 자리만 있어 아직 막지 않고 화면을 만들 때 넣는다. 비로그인 사용자가 하단 탭바의 플래너나 MY를 누르거나 상세의 찜 버튼을 누르면 로그인 알럿이 먼저 뜨고 확인하면 `/login?next={돌아올 경로}`로 간다. 문구와 취소 동작은 `docs/product/SPEC.md`에 있다. 로그인 뒤 `next`로 돌아온다.
 
 서버 컴포넌트가 백엔드를 직접 부르는 자리는 상세 하나다. 공유 링크의 메타 태그(제목, 대표 이미지, 기간)를 서버에서 채워야 하고 상세 조회가 인증 없는 공개 API라서 가능하다. 그 밖의 화면은 개인화나 URL 필터에 묶여 있어 클라이언트 쿼리로 통일한다. 서버 컴포넌트는 인증이 필요한 API를 부르지 않는다. 토큰이 서버에 없다.
 
@@ -112,37 +108,40 @@ rewrite는 `/api/v1/:path*`로 좁힌다. 백엔드 API가 전부 `/api/v1/**`�
 
 `features/` 하위 폴더는 기능 하나에 하나이고 이름은 백엔드 `feature/{이름}` 패키지와 맞춘다. 지금 백엔드에는 `auth`와 `member`, `collection`(수집 파이프라인)만 있어 나머지 이름은 FE가 제안하고 백엔드가 사용자향 API 패키지를 만들 때 같은 이름을 쓰도록 요구 목록에 올린다.
 
-일곱 중 `auth`와 `onboarding`, `popup`에 내용이 있고 나머지 넷은 폴더만 있다.
+일곱 중 `auth`와 `onboarding`, `popup`, `recommendation`, `bookmark`에 내용이 있고 `course`와 `planner`는 폴더만 있다. `recommendation`은 홈 컴포넌트와 임시 데이터, PICK 자동 넘김 훅이 있고 API가 없어 `api`가 없다. `bookmark`는 상세의 찜 버튼 하나라 `components`만 있다.
+
+**인증 상태로 갈리는 조각.** 홈의 PICK과 상세의 찜 버튼, 일치율 한 줄이 인증 상태를 봐야 하지만 기능끼리 부르지 않으므로 각 기능이 `useAuthStore`를 import할 수 없다. 서버 컴포넌트인 라우트 파일은 상태를 읽지 못한다. 그래서 `features/auth/components/AuthStatusSwitch`가 인증 상태 넷(`authenticated`, `anonymous`, `restoring`, `unavailable`)마다 ReactNode 슬롯을 받아 현재 상태의 것 하나를 그리고, 라우트 파일이 슬롯에 각 기능의 컴포넌트를 넣는다. 빠진 슬롯은 아무것도 그리지 않는다. 두 라우트는 리프레시 토큰 쿠키가 있는지 읽어 `restoring` 슬롯을 고르므로 요청마다 렌더된다. 루트 레이아웃도 이 스위치로 하단 탭바를 넣는다. `anonymous` 칸의 탭바에만 로그인 경로를 넘겨 알럿을 띄우게 하고 쿠키는 읽지 않는다.
 
 | 폴더                      | 담는 것                                                                     | 쓰는 화면                             |
 | ------------------------- | --------------------------------------------------------------------------- | ------------------------------------- |
 | `features/auth`           | 소셜 로그인 둘, 토큰 스토어, 재발급, 내 정보, 로그인 가드                   | 로그인, 콜백, 모든 보호 화면          |
 | `features/onboarding`     | 랜딩, 온보딩 세 단계 폼, 취향 저장                                          | `/`, `/onboarding/*`                  |
-| `features/recommendation` | 홈 추천 섹션, 인기 팝업 섹션, 지역 요약, 추천 실패 축소 동작                | `/home`                               |
+| `features/recommendation` | 홈 추천 섹션, 인기 팝업 섹션, 지역 요약, 추천 실패 축소 동작                | `/`                                   |
 | `features/popup`          | 탐색 지도와 목록, 검색과 정렬, 상세, 마커 카드, 최근 본 팝업 기록           | `/explore`, `/popups/[id]`            |
 | `features/bookmark`       | 찜 버튼(확인 알럿), 찜 목록                                                 | 카드가 있는 모든 화면, `/my`          |
 | `features/planner`        | 조건 입력 폼, 코스 생성 작업 시작과 폴링과 취소                             | `/planner/new`, `/planner/generating` |
 | `features/course`         | 코스 결과(지도와 타임라인), 구간 소요시간, 내 일정 목록과 삭제, 캘린더 저장 | `/courses/*`, `/planner`              |
 
-홈과 마이페이지처럼 여러 기능이 한 화면에 놓이는 자리는 `src/app`의 라우트 파일이 조립한다. 홈은 recommendation과 popup과 bookmark를, 마이페이지는 bookmark와 popup을 가져다 놓는다. 라우트 파일은 조립만 하고 로직을 갖지 않는다.
+홈과 마이페이지처럼 여러 기능이 한 화면에 놓이는 자리는 `src/app`의 라우트 파일이 조립한다. 홈은 recommendation과 auth의 인증 슬롯을, 상세는 popup과 bookmark, auth의 인증 슬롯을, 마이페이지는 bookmark와 popup을 가져다 놓는다. 라우트 파일은 조립만 하고 로직을 갖지 않는다.
 
 기능 폴더 안을 어떻게 나누는지는 `.agents/rules/structure.md`에 있다. MSW를 도입하면 기능마다 `api/handlers.ts`가 하나씩 더 생긴다.
 
-여러 기능이 함께 쓰는 것은 `src/shared`에 둔다. `shared/model`과 `shared/lib/kakao-map`, `shared/ui`, `shared/api`의 토큰과 Route Handler 도구는 있고 나머지 셋은 이 설계로 새로 생긴다.
+여러 기능이 함께 쓰는 것은 `src/shared`에 둔다. `shared/model`과 `shared/lib/kakao-map`, `shared/ui`, `shared/components`, `shared/api`의 토큰과 Route Handler 도구는 있고 나머지 셋은 이 설계로 새로 생긴다.
 
-| 위치                             | 담는 것                                                                                                                                                                 |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `shared/model/region.ts`         | 지역 유니온과 라벨 대응표. **선택지가 서버로 가면서 없어질 파일이다.** 지역 값과 라벨은 온보딩 선택지 조회에서 온다                                                     |
-| `shared/model/popup.ts`          | 카테고리와 예약 유형, 라벨 대응표, 카드가 그리는 값 `PopupCardItem`. 라벨은 서버 목록으로 옮겨간다. 핀 아이콘 대응표는 쓰는 기능이 하나라 `features/popup/model`에 있다 |
-| `shared/api/auth-token.ts`       | 액세스 토큰 소스와 재발급 핸들러 등록, 만료 이벤트. auth 기능이 등록하고 `request`가 읽는다                                                                             |
-| `shared/api/route-handler.ts`    | Route Handler가 쓰는 응답 만들기와 Bearer 읽기. `/api/auth` 셋이 쓴다                                                                                                   |
-| `shared/api/schema.d.ts`         | Swagger `/v3/api-docs`에서 생성한 타입. 손으로 고치지 않는다                                                                                                            |
-| `shared/api/mocks/`              | MSW 브라우저 워커와 노드 서버 설정. 핸들러는 각 기능의 `api/handlers.ts`에서 모은다                                                                                     |
-| `shared/hooks/useCursorQuery.ts` | `PageResponse<T>`를 받는 무한 스크롤 쿼리. 마지막 항목에서 커서를 뽑는 규칙을 한 곳에 둔다                                                                              |
-| `shared/lib/kakao-map`           | 클러스터러와 아이콘이 붙는 핀, 현재 위치 표시, 카메라 이동, SDK 재시도까지 있다. 폴리라인과 번호 핀, 경로 좌표를 SDK 좌표로 옮기는 함수가 더 필요하다                   |
-| `shared/ui`                      | 화면 뼈대가 쓰는 열 개가 있다. 이 설계가 더 요구하는 것은 BottomSheet와 Tabs, Skeleton, ErrorState, ConfirmDialog                                                       |
+| 위치                             | 담는 것                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `shared/model/region.ts`         | 지역 유니온과 라벨 대응표. **선택지가 서버로 가면서 없어질 파일이다.** 지역 값과 라벨은 온보딩 선택지 조회에서 온다                                                                                                                                                                                                                                                                                                                                          |
+| `shared/model/popup.ts`          | 카테고리와 예약 유형, 라벨 대응표, 탐색 카드가 그리는 값 `PopupCardItem`, 홈과 상세가 쓰는 `PopupSummary`와 입장 방식 짧은 라벨. 날짜와 이름 문구를 만드는 함수는 옆의 `popup-format.ts`다. 날짜는 `shared/lib/dayjs.ts`의 day.js로 엄격하게 읽고 형식이 틀리면 예외를 낸다. 오늘 같은 현재 시각은 서버가 UTC로 돌아서 `dayjs.tz()`로 서울 시각을 구한다. 라벨은 서버 목록으로 옮겨간다. 핀 아이콘 대응표는 쓰는 기능이 하나라 `features/popup/model`에 있다 |
+| `shared/api/auth-token.ts`       | 액세스 토큰 소스와 재발급 핸들러 등록, 만료 이벤트. auth 기능이 등록하고 `request`가 읽는다                                                                                                                                                                                                                                                                                                                                                                  |
+| `shared/api/route-handler.ts`    | Route Handler가 쓰는 응답 만들기와 Bearer 읽기. `/api/auth` 셋이 쓴다                                                                                                                                                                                                                                                                                                                                                                                        |
+| `shared/api/schema.d.ts`         | Swagger `/v3/api-docs`에서 생성한 타입. 손으로 고치지 않는다                                                                                                                                                                                                                                                                                                                                                                                                 |
+| `shared/api/mocks/`              | MSW 브라우저 워커와 노드 서버 설정. 핸들러는 각 기능의 `api/handlers.ts`에서 모은다                                                                                                                                                                                                                                                                                                                                                                          |
+| `shared/hooks/useCursorQuery.ts` | `PageResponse<T>`를 받는 무한 스크롤 쿼리. 마지막 항목에서 커서를 뽑는 규칙을 한 곳에 둔다                                                                                                                                                                                                                                                                                                                                                                   |
+| `shared/lib/kakao-map`           | 클러스터러와 아이콘이 붙는 핀, 현재 위치 표시, 카메라 이동, SDK 재시도까지 있다. 폴리라인과 번호 핀, 경로 좌표를 SDK 좌표로 옮기는 함수가 더 필요하다                                                                                                                                                                                                                                                                                                        |
+| `shared/ui`                      | 앱을 모르는 부품. 확인 알럿 `AlertDialog`가 있다. 이 설계가 더 요구하는 것은 BottomSheet와 Tabs, ErrorState                                                                                                                                                                                                                                                                                                                                                  |
+| `shared/components`              | 경로나 도메인 타입을 아는 조립품. 하단 탭바와 섹션 머리, 빈 결과, 팝업 카드, 사진을 그리는 `PopupImage`와 사진이 없을 때의 `CategoryFallbackImage`가 있다                                                                                                                                                                                                                                                                                                    |
 
-`shared/ui`에 무엇을 올릴지는 후보로 둔다. 두 화면 이상에서 쓰임이 확인된 것만 올리고 주인은 디자인 시스템 담당이다.
+`shared/ui`와 `shared/components`에 무엇을 올릴지는 후보로 둔다. 두 화면 이상에서 쓰임이 확인된 것만 올리고 주인은 디자인 시스템 담당이다.
 
 ## 공통 계약
 
@@ -202,7 +201,7 @@ rewrite는 `/api/v1/:path*`로 좁힌다. 백엔드 API가 전부 `/api/v1/**`�
 
 | 메서드와 경로                          | 인증 | 용도                                              | 기능 문서           |
 | -------------------------------------- | ---- | ------------------------------------------------- | ------------------- |
-| `GET /api/v1/me`                       | 필요 | 닉네임과 프로필 이미지. 홈 인사 헤더              | `auth.md`           |
+| `GET /api/v1/me`                       | 필요 | 닉네임과 프로필 이미지. 홈 PICK 제목              | `auth.md`           |
 | `GET /api/v1/onboarding/options`       | 없음 | 관심 카테고리와 지역, 선호 활동 목록              | `onboarding.md`     |
 | `PUT /api/v1/me/preferences`           | 필요 | 온보딩 답 저장                                    | `onboarding.md`     |
 | `GET /api/v1/recommendations`          | 필요 | 홈 추천. 준비 중 상태를 값으로 낸다               | `recommendation.md` |
@@ -243,18 +242,15 @@ rewrite는 `/api/v1/:path*`로 좁힌다. 백엔드 API가 전부 `/api/v1/**`�
 
 이 설계가 걸려 있는 결정과 결정이 바뀌면 고칠 자리다. 미결정의 정본은 `docs/product/ROADMAP.md`이고 여기는 설계와의 대응만 적는다.
 
-| 항목                         | 설계가 지금 취한 자리                                                                          | 바뀌면 고칠 곳                                                   |
-| ---------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| 랜딩 노출 조건               | 온보딩 완료 쿠키가 있으면 `proxy.ts`가 `/`를 `/home`으로 보낸다                                | `proxy.ts` 조건 한 줄                                            |
-| 지역 목록                    | 지금은 코드의 다섯. 선택지 API가 열리면 서버 목록을 그대로 그린다                              | `shared/model/region.ts`를 지우고 선택지 조회로 바꾼다           |
-| 탐색의 지역 선택 UI          | 화면 안에서 지역을 고르는 자리는 없다. 홈 인기 지역 칩에서 들어올 때만 `region`이 URL에 실린다 | `popup.md`의 `ExploreState`                                      |
-| 카테고리에 없는 팝업         | 여덟 중 하나로 온다고 보고 짠다. ETC가 없다                                                    | `shared/model/popup.ts`의 값과 카테고리별 대체 이미지, 핀 아이콘 |
-| 최근 본 팝업 보관 자리       | 메모리. 새로고침하면 사라진다                                                                  | 기록하는 `features/popup`의 훅 한 곳                             |
-| 하단 탭 마지막 라벨          | 화면마다 MY와 내 팝업이 섞여 있어 MY로 둔다                                                    | `shared/ui/BottomTabBar.tsx`의 라벨                              |
-| 머무는 시간 선택지           | 둘. 간편 약 2시간과 반나절 4시간에서 5시간                                                     | `planner.md`의 `Duration`                                        |
-| 동행을 여러 개 고르나        | 하나만 고른다                                                                                  | `planner.md`의 `CourseRequest.companion`과 온보딩 답 타입        |
-| 로그인 완료 화면을 지나는 곳 | 모든 로그인이 완료 화면을 한 번 지난다                                                         | `auth.md`의 로그인 흐름 5단계                                    |
-| 연계 카페                    | 코스 항목의 `kind`가 `POPUP` 하나. `PLACE`가 오면 그린다                                       | `course.md`의 `CourseItem`                                       |
-| 후기와 평점                  | `reviewSummary`가 `null`이면 그리지 않는다                                                     | `popup.md`의 `PopupDetail`                                       |
-| 대기시간 예상                | `waitEstimateMinutes`가 `null`이면 그리지 않는다                                               | `course.md`의 `CourseItem`                                       |
-| 폴리라인 좌표를 응답에 싣나  | 구간 응답에 실린다(FE 제안)                                                                    | `course.md`의 `WalkSegment`                                      |
+| 항목                        | 설계가 지금 취한 자리                                                                          | 바뀌면 고칠 곳                                                   |
+| --------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| 지역 목록                   | 지금은 코드의 다섯. 선택지 API가 열리면 서버 목록을 그대로 그린다                              | `shared/model/region.ts`를 지우고 선택지 조회로 바꾼다           |
+| 탐색의 지역 선택 UI         | 화면 안에서 지역을 고르는 자리는 없다. 홈 인기 지역 칩에서 들어올 때만 `region`이 URL에 실린다 | `popup.md`의 `ExploreState`                                      |
+| 카테고리에 없는 팝업        | 여덟 중 하나로 온다고 보고 짠다. ETC가 없다                                                    | `shared/model/popup.ts`의 값과 카테고리별 대체 이미지, 핀 아이콘 |
+| 최근 본 팝업 보관 자리      | 메모리. 새로고침하면 사라진다                                                                  | 기록하는 `features/popup`의 훅 한 곳                             |
+| 머무는 시간 선택지          | 둘. 간편 약 2시간과 반나절 4시간에서 5시간                                                     | `planner.md`의 `Duration`                                        |
+| 동행을 여러 개 고르나       | 하나만 고른다                                                                                  | `planner.md`의 `CourseRequest.companion`과 온보딩 답 타입        |
+| 연계 카페                   | 코스 항목의 `kind`가 `POPUP` 하나. `PLACE`가 오면 그린다                                       | `course.md`의 `CourseItem`                                       |
+| 후기와 평점                 | `reviewSummary`가 `null`이면 그리지 않는다                                                     | `popup.md`의 `PopupDetail`                                       |
+| 대기시간 예상               | `waitEstimateMinutes`가 `null`이면 그리지 않는다                                               | `course.md`의 `CourseItem`                                       |
+| 폴리라인 좌표를 응답에 싣나 | 구간 응답에 실린다(FE 제안)                                                                    | `course.md`의 `WalkSegment`                                      |

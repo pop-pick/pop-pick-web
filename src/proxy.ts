@@ -4,10 +4,11 @@ import { buildLoginPath } from "@/features/auth/model/next-path";
 import { REFRESH_COOKIE_NAME } from "@/features/auth/model/session-cookie";
 
 const PROTECTED_PATHS = new Set(["/my", "/planner"]);
+const ONBOARDING_STEP_PATH = /^\/onboarding\/\d+$/;
 
 export function proxy(request: NextRequest) {
 	const { pathname, search } = request.nextUrl;
-	const isProtected = PROTECTED_PATHS.has(pathname);
+	const isProtected = PROTECTED_PATHS.has(pathname) || ONBOARDING_STEP_PATH.test(pathname);
 
 	if (!isProtected || request.cookies.has(REFRESH_COOKIE_NAME)) {
 		return NextResponse.next();
@@ -17,5 +18,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-	matcher: ["/my", "/planner"]
+	matcher: ["/my", "/planner", "/onboarding/:step(\\d+)"]
 };

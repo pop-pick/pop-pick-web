@@ -1,7 +1,7 @@
-import { RequireAuth } from "@/features/auth/ui/RequireAuth";
-import { EmptyState } from "@/shared/ui/EmptyState";
+import { RequireAuth } from "@/features/auth/components/RequireAuth";
+import { EmptyState } from "@/shared/components/EmptyState";
+import { SectionHeader } from "@/shared/components/SectionHeader";
 import { LinkButton } from "@/shared/ui/LinkButton";
-import { SectionHeader } from "@/shared/ui/SectionHeader";
 
 export default function PlannerPage() {
 	return (
@@ -11,7 +11,7 @@ export default function PlannerPage() {
 				<p className="text-sm text-zinc-500">AI가 짠 하루 동선을 모아 봅니다.</p>
 			</header>
 
-			<RequireAuth next="/planner">
+			<RequireAuth nextPath="/planner">
 				<section className="flex flex-col gap-4">
 					<SectionHeader title="다가오는 일정" />
 					<EmptyState

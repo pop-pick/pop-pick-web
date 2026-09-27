@@ -102,7 +102,7 @@ check "기능 폴더 루트에 파일이 있다" \
 	'find src/features -maxdepth 2 -type f ! -name ".gitkeep"'
 
 check "정해진 넷 밖의 세그먼트가 있다" \
-	'find src/features -mindepth 2 -maxdepth 2 -type d ! -name api ! -name ui ! -name hooks ! -name model'
+	'find src/features -mindepth 2 -maxdepth 2 -type d ! -name api ! -name components ! -name hooks ! -name model'
 
 printf '\n=== 이름과 선언 형식 (ui.md) ===\n\n'
 
@@ -110,7 +110,7 @@ check "컴포넌트 파일이 소문자다" \
 	'find src/features src/shared -name "*.tsx" | grep -vE "/[A-Z][A-Za-z0-9]*\.tsx$"'
 
 check "export default 로 내보낸다" \
-	'grep -rn "export default" src/features src/shared --include="*.ts" --include="*.tsx"'
+	'grep -rn "export default" src/features src/shared --include="*.ts" --include="*.tsx" | grep -v "\.d\.ts:"'
 
 check "한 파일에 컴포넌트가 둘 이상이다" \
 	'grep -rcE "^(export )?function [A-Z]" src --include="*.tsx" | grep -vE ":[01]$"'
@@ -135,8 +135,23 @@ printf '\n=== 값과 타입 (tailwind.md, typescript.md) ===\n\n'
 check "Tailwind 임의값을 썼다" \
 	'grep -rnoE "(^|[\" ])[a-z-]+-\[[^]]+\]" src --include="*.tsx" --include="*.ts"'
 
+check "shared/ui 가 앱을 안다. 경로나 도메인 타입이 필요하면 shared/components 에 둔다 (structure.md)" \
+	'[ ! -d src/shared/ui ] || grep -rnE "from \"(next/navigation|@/shared/(model|components)/|@/features/)" src/shared/ui --include="*.ts" --include="*.tsx"'
+
+check "styles/tokens 의 글자와 그림자 토큰이 cn.ts 의 tailwind-merge 목록과 다르다" \
+	'node "$SCRIPT_DIR/check-merge-tokens.mjs"'
+
+check "컴포넌트 props 를 type 으로 선언했다. interface 로 선언한다 (typescript.md)" \
+	'grep -rnE "^(export )?type [A-Za-z]+Props =" src --include="*.ts" --include="*.tsx" | grep -vE "= [A-Z][A-Za-z]*Props( \| [A-Z][A-Za-z]*Props)+;"'
+
 check "추론되는 반환 타입을 적었다" \
 	'{ grep -rnE "^[[:space:]]*(export )?(async )?function [A-Za-z_$][A-Za-z0-9_$]*(<[^>]*>)?\(.*\)[[:space:]]*:[[:space:]]*[A-Za-z]" src --include="*.ts" --include="*.tsx"; grep -rnE "^[[:space:]]*(export )?(const|let) [A-Za-z_$][A-Za-z0-9_$]* = (async )?(<[^>]*>)?\([^)]*\)[[:space:]]*:[[:space:]]*[A-Za-z]" src --include="*.ts" --include="*.tsx"; } | grep -v " is " | grep -v "\.d\.ts"'
+
+check "dayjs 를 직접 import 한다. @/shared/lib/dayjs 에서 가져온다 (AGENTS.md)" \
+	'grep -rnE "from \"dayjs(/[^\"]*)?\"" src --include="*.ts" --include="*.tsx" | grep -v "^src/shared/lib/dayjs.ts:"'
+
+check "Date 로 현재 시각이나 날짜를 만든다. dayjs.tz() 를 쓴다 (AGENTS.md)" \
+	'grep -rnE "new Date\(|Date\.now\(" src --include="*.ts" --include="*.tsx"'
 
 printf '\n=== 실패를 감추는 자리 (no-fallback.md, api.md) ===\n\n'
 
@@ -156,7 +171,7 @@ check "호출하는 자리에서 authorization 을 손으로 붙인다" \
 	'grep -rn "authorization\|Authorization" src/features src/app --include="*.ts" --include="*.tsx"'
 
 check "화면이 api 를 직접 부른다" \
-	'grep -rn "from \"@/shared/api/client\"" src/features/*/ui src/app --include="*.tsx"'
+	'grep -rn "from \"@/shared/api/client\"" src/features/*/components src/app --include="*.tsx"'
 
 check "브라우저 코드가 백엔드 절대 주소를 안다" \
 	'grep -rn "prod.poppick.shop\|API_BASE_URL" src/features src/app --include="*.ts" --include="*.tsx"'

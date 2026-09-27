@@ -1,7 +1,7 @@
 import { skipToken, useQuery } from "@tanstack/react-query";
 
 import { loginWithKakao } from "../api/login-with-kakao";
-import { getKakaoRedirectUri } from "../model/kakao-oauth";
+import { buildKakaoRedirectUri } from "../model/kakao-oauth";
 import { consumeNextPath } from "../model/next-path";
 import { verifyOAuthState } from "../model/oauth-state";
 import { useAuthStore } from "../model/useAuthStore";
@@ -14,7 +14,7 @@ interface KakaoCallbackParams {
 async function exchangeCodeForSession(code: string, state: string | null) {
 	try {
 		verifyOAuthState(state);
-		const { accessToken } = await loginWithKakao(code, getKakaoRedirectUri());
+		const { accessToken } = await loginWithKakao(code, buildKakaoRedirectUri());
 		useAuthStore.getState().setAccessToken(accessToken);
 
 		return { nextPath: consumeNextPath() };

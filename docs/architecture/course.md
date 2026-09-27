@@ -222,7 +222,7 @@ function fromRestPoint(point: [number, number]): KakaoLatLngLiteral;
 | 지도         | `aria-label`에 "코스 지도, 장소 3곳". 마커 번호가 타임라인 순서와 같다. 지도 조작 없이도 타임라인이 전체 정보다      |
 | 총 도보 요약 | `role="status"`. 구간이 채워지면 한 번 갱신                                                                          |
 | 캘린더 버튼  | 버튼 둘의 텍스트에 새 탭에서 열림과 파일 내려받기가 각각 들어간다. 결과는 `role="status"`로 알린다                   |
-| 삭제 확인    | `shared/ui`의 `ConfirmDialog`. 찜 알럿과 같은 컴포넌트다. 확인 버튼에 초기 포커스, 취소가 기본 동작                  |
+| 삭제 확인    | `shared/ui`의 `AlertDialog`. 찜 알럿과 같은 컴포넌트다. 확인 버튼에 초기 포커스, 취소가 기본 동작                    |
 
 ## O. Optimization과 운영
 

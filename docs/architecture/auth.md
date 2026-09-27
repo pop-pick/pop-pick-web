@@ -2,11 +2,11 @@
 
 `features/auth`. 카카오와 구글 소셜 로그인, 토큰 보관과 재발급, 내 정보, 로그인 필요 동작의 가드를 다룬다.
 
-카카오 로그인과 토큰 보관은 코드에 있다. 액세스 토큰은 Zustand 메모리, 리프레시 토큰은 httpOnly 쿠키이고 쿠키는 Next Route Handler가 심는다. 인가 요청의 `state` 대조와 콜백 이중 실행 방지, 앱 시작 재발급, 만료 뒤 재발급과 재요청, `next` 경로 복귀, 로그인 완료 화면, 로그아웃, 로그인 가드가 선다. 로컬에서 prod 백엔드에 붙여 로그인과 새로고침 복원, 로그아웃이 끝까지 통과했다. Vercel의 `NEXT_PUBLIC_KAKAO_CLIENT_ID`는 아직 백엔드가 쓰는 앱과 다른 키라 미리보기와 운영에서는 교환이 막힌다. 내 정보와 구글 로그인은 아직 설계다. 아래에서 설계라고 표시한 것이 그것이다.
+카카오 로그인과 토큰 보관은 코드에 있다. 액세스 토큰은 Zustand 메모리, 리프레시 토큰은 httpOnly 쿠키이고 쿠키는 Next Route Handler가 심는다. 인가 요청의 `state` 대조와 콜백 이중 실행 방지, 앱 시작 재발급, 만료 뒤 재발급과 재요청, `next` 경로 복귀, 로그아웃, 로그인 가드가 선다. 로컬에서 prod 백엔드에 붙여 로그인과 새로고침 복원, 로그아웃이 끝까지 통과했다. Vercel의 `NEXT_PUBLIC_KAKAO_CLIENT_ID`는 아직 백엔드가 쓰는 앱과 다른 키라 미리보기와 운영에서는 교환이 막힌다. 내 정보와 구글 로그인은 아직 설계다. 아래에서 설계라고 표시한 것이 그것이다.
 
 ## R. Requirements
 
-**기능.** 카카오나 구글로 로그인한다. 로그인이 끝나면 완료 화면을 한 번 지나 원래 가려던 곳으로 간다. 로그아웃한다. 액세스 토큰이 만료되면 사용자가 모르게 재발급한다. 새로고침해도 로그인 상태가 남는다. 로그인이 필요한 동작을 비로그인 상태에서 누르면 로그인 화면으로 보내고 끝나면 하려던 자리로 돌려보낸다. 홈 인사 헤더에 닉네임을 보인다.
+**기능.** 카카오나 구글로 로그인한다. 로그인이 끝나면 원래 가려던 곳으로 바로 간다. 로그아웃한다. 액세스 토큰이 만료되면 사용자가 모르게 재발급한다. 새로고침해도 로그인 상태가 남는다. 로그인이 필요한 동작을 비로그인 상태에서 누르면 로그인 화면으로 보내고 끝나면 하려던 자리로 돌려보낸다. 홈의 팝업 PICK 제목과 취향 일치 문구에 닉네임을 쓴다.
 
 **보장.**
 
@@ -15,7 +15,7 @@
 - 새로고침해도 로그인 상태가 남는다. 앱 시작 때 재발급을 한 번 불러 액세스 토큰을 되살린다(설계)
 - 리프레시 토큰이 자바스크립트에서 보이지 않는다. httpOnly 쿠키라 `document.cookie`로 읽히지 않는다
 - 액세스 토큰이 `localStorage`와 `sessionStorage`에 남지 않는다. 메모리에만 둔다
-- 로그인이 끝나면 `next`에 적힌 경로로 돌아간다. `next`가 없으면 `/home`이다
+- 로그인이 끝나면 `next`에 적힌 경로로 돌아간다. `next`가 없으면 홈(`/`)이다
 - 콜백 화면에서 다음 화면으로 넘어가기까지 p75 1초 이하다. 교환 요청 하나가 그 시간의 대부분이다
 
 **설계를 가르는 질문.**
@@ -25,7 +25,7 @@
 - 쿠키를 누가 굽는가. 백엔드가 `Set-Cookie`로 내려주는 쪽이 정석이지만 백엔드는 토큰을 응답 본문으로 주게 이미 만들어져 있다. 프론트의 Next Route Handler가 그 본문을 받아 쿠키로 굽는다. 아래 "쿠키를 Next가 굽는 이유" 절에 근거가 있다
 - 실패는 종류마다 다른 문구로 드러낸다. 공급자 화면에서 취소하면 `error=access_denied`로 돌아오고 백엔드 실패는 `errorCode`로 갈린다. 원문 메시지를 화면에 내지 않는다
 - 서버 컴포넌트는 인증이 필요한 요청을 보내지 않는다. 쿠키에 있는 것은 리프레시 토큰뿐이고 액세스 토큰은 브라우저 메모리에 있다. `RequireAuth`가 감싼 서버 컴포넌트도 비로그인 사용자에게 RSC 페이로드로 내려가므로 사용자 데이터는 가드 안의 클라이언트 컴포넌트가 받는다
-- `src/proxy.ts`가 `/my`와 `/planner` 요청에 리프레시 쿠키가 없으면 페이지를 그리기 전에 `/login?next=`로 보낸다. 쿠키가 있는지만 보는 검사라 쿠키가 있어도 토큰이 거절되면 `RequireAuth`가 보낸다. 데이터를 지키는 검사는 백엔드가 Bearer로 한다
+- `src/proxy.ts`가 `/my`와 `/planner`, 온보딩 단계(`/onboarding/1`처럼 숫자로 끝나는 경로) 요청에 리프레시 쿠키가 없으면 페이지를 그리기 전에 `/login?next=`로 보낸다. 쿠키가 있는지만 보는 검사라 쿠키가 있어도 토큰이 거절되면 `RequireAuth`가 보낸다. 데이터를 지키는 검사는 백엔드가 Bearer로 한다
 
 **범위 밖.** 네이버 로그인, 로컬 회원가입, 프로필 편집, 회원 탈퇴, 약관 동의 화면. 약관은 로그인 버튼 아래 고지문으로 갈음한다.
 
@@ -62,7 +62,7 @@
 2. 공급자가 `/auth/{provider}/callback?code=&state=`로 돌려보낸다. `state`를 대조하고 다르면 교환하지 않는다
 3. 교환은 `code`를 키로 하는 쿼리로 `POST /api/auth/session`을 부른다. 같은 키는 한 번만 실행되고 StrictMode 재마운트가 캐시를 다시 쓴다. 재시도는 없다. 인가 코드는 일회용이다
 4. Route Handler가 리프레시 토큰을 쿠키로 굽고 액세스 토큰만 돌려준다. 액세스 토큰을 스토어에 넣는다
-5. 로그인 완료 화면을 지나 `sessionStorage`에서 꺼낸 `next`로 이동한다. 없거나 같은 출처가 아니면 `/home`이다
+5. `sessionStorage`에서 꺼낸 `next`로 바로 이동한다. 없거나 같은 출처가 아니면 홈(`/`)이다. 9/26 시안에 로그인 완료 화면이 없어 두지 않는다
 
 **앱 시작과 새로고침.** `AuthProvider`가 `POST /api/auth/refresh`를 한 번 부른다. 쿠키가 있으면 액세스 토큰을 받아 스토어에 넣고, 없거나 토큰이 거절되면(401이나 `E1000`, `E1011`) 비로그인으로 시작한다. 네트워크 오류나 5xx로 끝나면 로그인 여부를 모르는 `unavailable`이 된다. 로그인한 사용자를 로그인 화면으로 보내지 않기 위해서다. 보호 화면은 이때 오류 문구와 다시 시도 버튼을 보인다. 재발급이 끝나기 전은 `restoring` 상태이고 보호 화면은 스켈레톤을 보인다. 이 한 번의 호출이 새로고침에서 로그아웃되지 않게 하는 전부다.
 
@@ -87,7 +87,7 @@ interface AuthState {
 	status: AuthStatus;
 	setAccessToken: (accessToken: string) => void;
 	clearSession: () => void;
-	markUnavailable: () => void;
+	markSessionUnavailable: () => void;
 }
 
 /** restoring은 앱 시작 재발급 전, unavailable은 서버를 못 읽어 로그인 여부를 모르는 상태 */
@@ -120,24 +120,21 @@ interface Me {
 
 콜백이 받는 `code`와 `state`, `error`는 `useSearchParams`로 읽고 실패를 문구로 가르는 것은 `model/login-messages.ts`다. 어떤 코드가 어떤 문구가 되는지는 아래 에러 코드 표에 있다.
 
-`nickname`이 `null`이면 홈 인사 헤더는 닉네임 없는 문구를 쓴다. 백엔드 엔티티에 닉네임이 아직 없어 `null`이 정상 상태일 수 있다.
+`nickname`이 `null`이면 "회원님"으로 쓴다. 백엔드 엔티티에 닉네임이 아직 없어 `null`이 정상 상태일 수 있다.
 
 ## I. Interface
 
 **지금 있는 컴포넌트와 훅.** 로그인은 카카오만 있다. 구글 버튼은 로그인 화면에 비활성으로 자리만 있다.
 
 ```typescript
-// ui/KakaoLoginButton.tsx. state 생성과 next 보관, 카카오 인가 주소로 이동
+// components/KakaoLoginButton.tsx. state 생성과 next 보관, 카카오 인가 주소로 이동
 export function KakaoLoginButton({ next }: { next: string | null });
 
-// ui/KakaoCallback.tsx. 교환 중이면 role=status, 실패면 role=alert
+// components/KakaoCallback.tsx. 교환 중이면 role=status, 실패면 role=alert
 export function KakaoCallback();
 
-// ui/AuthProvider.tsx. 루트 레이아웃이 감싼다. 시작 재발급과 만료 이벤트 구독
+// components/AuthProvider.tsx. 루트 레이아웃이 감싼다. 시작 재발급과 만료 이벤트 구독
 export function AuthProvider({ children }: { children: ReactNode });
-
-// ui/LoginComplete.tsx. /login/complete. 완료 문구를 보이고 next로 넘긴다
-export function LoginComplete({ next }: { next: string | null });
 
 // hooks/useKakaoLogin.ts. code를 키로 하는 쿼리. retry 없음, staleTime Infinity
 export function useKakaoLogin(params: {
@@ -147,9 +144,6 @@ export function useKakaoLogin(params: {
 
 export function useLogout(): UseMutationResult<void, Error, void>;
 export function useAuthStore(): AuthState;
-
-// 비로그인이면 /login?next=로 보내고 false. restoring과 unavailable에서는 보내지 않고 false. 찜 버튼과 코스 만들기 버튼이 부른다
-export function useRequireAuth(): { ensureAuthenticated: (next: string) => boolean };
 
 // /my와 /planner처럼 화면 전체가 로그인 필요일 때 본문을 감싼다. 제목은 밖에 둔다. 비로그인이면 router.replace로 로그인 화면으로 보낸다
 export function RequireAuth({ children, next }: { children: ReactNode; next: string });
@@ -222,7 +216,7 @@ export function readBearerToken(request: Request): string | null;
 
 **로그.** `[auth]` 접두사. 재발급 실패로 로그아웃, `state` 불일치, 공급자 오류 코드, 로그아웃 API 실패. 토큰 값은 절대 남기지 않는다. Route Handler의 로그도 같은 접두사를 쓰고 쿠키 값을 찍지 않는다.
 
-**접근성.** 로그인 버튼 텍스트에 공급자 이름이 들어간다. 콜백 처리 중 문구는 `role="status"`, 실패 문구는 `role="alert"`이고 바로 아래에 포커스 가능한 링크가 있다. 로그인 완료 화면은 `role="status"`로 완료를 알리고 다음 화면으로 가는 링크에 포커스를 준다.
+**접근성.** 로그인 버튼 텍스트에 공급자 이름이 들어간다. 콜백 처리 중 문구는 `role="status"`, 실패 문구는 `role="alert"`이고 바로 아래에 포커스 가능한 링크가 있다.
 
 ## O. Optimization과 운영
 

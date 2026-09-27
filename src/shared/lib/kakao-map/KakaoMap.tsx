@@ -11,11 +11,7 @@ import { type KakaoClusterOptions, KakaoMapSession, type KakaoMarkerData } from 
 import { KAKAO_MAP_DEFAULT_LEVEL, type KakaoLatLngLiteral } from "./kakao-map-utils";
 import { useKakaoMapSdk } from "./useKakaoMapSdk";
 
-type KakaoMapView =
-	| { fitTo: readonly KakaoLatLngLiteral[]; center?: never; level?: never }
-	| { fitTo?: never; center: KakaoLatLngLiteral; level?: number };
-
-export type KakaoMapProps = KakaoMapView & {
+interface KakaoMapCommonProps {
 	markers?: readonly KakaoMarkerData[];
 	onMarkerClick?: (markerId: string) => void;
 	selectedMarkerId?: string | null;
@@ -25,7 +21,21 @@ export type KakaoMapProps = KakaoMapView & {
 	className?: string;
 	children?: ReactNode;
 	errorAction?: ReactNode;
-};
+}
+
+interface KakaoMapFitProps extends KakaoMapCommonProps {
+	fitTo: readonly KakaoLatLngLiteral[];
+	center?: never;
+	level?: never;
+}
+
+interface KakaoMapCenterProps extends KakaoMapCommonProps {
+	fitTo?: never;
+	center: KakaoLatLngLiteral;
+	level?: number;
+}
+
+export type KakaoMapProps = KakaoMapFitProps | KakaoMapCenterProps;
 
 const NO_MARKERS: readonly KakaoMarkerData[] = [];
 const FIT_PADDING_PX = 20;
@@ -67,11 +77,11 @@ export function KakaoMap({
 			return;
 		}
 
-		const attached = KakaoMapSession.attach(sdk, container, initialViewRef.current);
-		setSession(attached);
+		const attachedSession = KakaoMapSession.attach(sdk, container, initialViewRef.current);
+		setSession(attachedSession);
 
 		return () => {
-			attached.detach();
+			attachedSession.detach();
 			setSession(null);
 		};
 	}, [sdk]);
@@ -81,7 +91,7 @@ export function KakaoMap({
 			return;
 		}
 
-		session.moveTo({ lat: center.lat, lng: center.lng });
+		session.setCenter({ lat: center.lat, lng: center.lng });
 		session.setLevel(level);
 	}, [session, fitTo, center?.lat, center?.lng, level]);
 

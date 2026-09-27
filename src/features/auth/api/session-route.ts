@@ -10,7 +10,7 @@ interface LoginBody {
 	redirectUri: string;
 }
 
-export async function handleLogin(request: Request) {
+export async function postSession(request: Request) {
 	const body = (await request.json()) as LoginBody;
 
 	try {
@@ -21,7 +21,7 @@ export async function handleLogin(request: Request) {
 	}
 }
 
-export async function handleLogout(request: Request) {
+export async function deleteSession(request: Request) {
 	const refreshToken = await readRefreshToken();
 	const response = clearRefreshCookie(toSuccessResponse(null));
 

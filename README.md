@@ -79,15 +79,17 @@ src/
 ├── features/       비즈니스 기능. 기능 하나가 폴더 하나
 └── shared/         여러 기능이 함께 쓰는 것
     ├── api/        서버 호출 레이어. 화면 코드는 여기를 거쳐 서버를 부른다
-    ├── ui/         공용 컴포넌트. 디자인 시스템 담당 프론트엔드가 주인이다
+    ├── ui/         디자인 시스템 부품. Button, Chip, SvgIcon처럼 앱을 모른다
+    ├── components/ 공용 조립 컴포넌트. 하단 탭바, 팝업 카드처럼 경로와 도메인을 안다
+    ├── assets/     코드가 아닌 원본. icons/의 SVG(빌드 때 SVGR이 컴포넌트로 바꾼다)와 fonts/
     ├── hooks/      공용 훅
     ├── lib/        공용 유틸. 클래스를 합치는 cn()과 카카오맵 코어 모듈(kakao-map/)
-    ├── providers/  루트 레이아웃이 감싸는 프로바이더. QueryProvider
-    ├── styles/     globals.css. Tailwind 진입점과 디자인 토큰 정본
+    ├── providers/  루트 레이아웃이 감싸는 프로바이더. QueryProvider, MotionProvider
+    ├── styles/     globals.css가 Tailwind 진입점이고 tokens/에 디자인 토큰 정본
     └── model/      여러 기능이 함께 쓰는 값과 타입, 라벨
 ```
 
-하단 탭바는 루트 레이아웃이 모든 화면에 그린다. 어떤 라우트가 있는지는 `docs/architecture/ARCHITECTURE.md`에, 기능 폴더 안을 어떻게 나누는지는 `.agents/rules/structure.md`에 있다.
+하단 탭바는 루트 레이아웃이 그리고 온보딩과 로그인, 카카오 콜백, 코스 조건 입력, 코스 생성 중 화면에서는 숨는다. 어떤 라우트가 있는지는 `docs/architecture/ARCHITECTURE.md`에, 기능 폴더 안을 어떻게 나누는지는 `.agents/rules/structure.md`에 있다.
 
 ## API 주소
 

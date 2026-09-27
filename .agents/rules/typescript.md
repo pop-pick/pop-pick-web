@@ -1,5 +1,5 @@
 ---
-description: 추론되는 반환 타입을 적지 않는다. 이름은 흔한 동사와 목적어로 짓고 handle, on, is 같은 접두사를 역할대로 쓴다. return 앞과 블록 뒤 빈 줄. 리뷰에서 쓰는 grep
+description: 추론되는 반환 타입을 적지 않는다. props는 interface로 선언한다. 이름은 흔한 동사와 목적어로 짓고 handle, on, is 같은 접두사를 역할대로 쓴다. return 앞과 블록 뒤 빈 줄. 리뷰에서 쓰는 grep
 paths:
   - "src/**/*.{ts,tsx}"
   - "scripts/**/*.mjs"
@@ -58,6 +58,32 @@ paths:
 **감싸는 대상이 브라우저나 SDK의 API면 그 API의 동사를 따른다.** `getUserMedia`를 감싸면 `getLocalStream`이다. 원본에서 멀어지면 무엇을 감싼 것인지 한 번 더 짚어야 한다.
 
 **약어는 일반 단어처럼 적는다.** `Http`와 `Id`, `Url`이고 `HTTP`, `ID`, `URL`이 아니다. 상수의 UPPER_SNAKE_CASE는 예외다.
+
+## props 선언
+
+**컴포넌트 props는 `interface`로 선언한다.** HTML 속성이나 variant 타입을 더할 때는 `&` 대신 `extends`로 잇는다.
+
+```tsx
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {}
+```
+
+TypeScript 핸드북은 `type`의 기능이 필요할 때까지 `interface`를 쓰라고 하고, TypeScript 성능 위키는 `A & B` 대신 `interface extends`를 권한다. `interface`는 속성 충돌을 오류로 드러내고 타입 관계가 캐시된다.
+
+**합집합이 필요하면 갈래마다 `interface`를 적고 합집합만 `type`으로 잇는다.** `interface`는 합집합을 표현하지 못한다.
+
+```tsx
+interface KakaoMapFitProps extends KakaoMapCommonProps {
+	fitTo: readonly KakaoLatLngLiteral[];
+	center?: never;
+}
+interface KakaoMapCenterProps extends KakaoMapCommonProps {
+	fitTo?: never;
+	center: KakaoLatLngLiteral;
+}
+export type KakaoMapProps = KakaoMapFitProps | KakaoMapCenterProps;
+```
+
+`check-conventions.sh`가 `type XxxProps =`를 막는다. `interface`로 된 갈래를 `|`로만 이은 줄은 통과한다.
 
 ## 빈 줄
 

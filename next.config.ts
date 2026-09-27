@@ -6,6 +6,7 @@ function resolveApiBaseUrl(value: string | undefined) {
 			"API_BASE_URL이 비어 있다. 백엔드 API 주소를 로컬은 .env.local에, 배포는 Vercel 프로젝트 환경 변수에 넣는다"
 		);
 	}
+
 	new URL(value);
 	return value.replace(/\/+$/, "");
 }
@@ -17,6 +18,35 @@ const nextConfig: NextConfig = {
 	reactCompiler: true,
 	poweredByHeader: false,
 	agentRules: false,
+	turbopack: {
+		rules: {
+			"*.svg": {
+				condition: { path: /^src\/shared\/assets\/icons\// },
+				loaders: [
+					{
+						loader: "@svgr/webpack",
+						options: {
+							svgoConfig: {
+								plugins: [
+									{
+										name: "preset-default",
+										params: {
+											overrides: {
+												removeViewBox: false,
+												convertColors: { currentColor: true }
+											}
+										}
+									},
+									"prefixIds"
+								]
+							}
+						}
+					}
+				],
+				as: "*.js"
+			}
+		}
+	},
 	async headers() {
 		return [
 			{

@@ -34,3 +34,27 @@ export interface PopupCardItem {
 	endsOn: string;
 	reason?: string;
 }
+
+export const POPUP_RESERVATION_TYPES = ["NONE", "RESERVATION", "WAITING", "BOTH", "UNKNOWN"] as const;
+
+export type PopupReservationType = (typeof POPUP_RESERVATION_TYPES)[number];
+
+export type KnownPopupReservationType = Exclude<PopupReservationType, "UNKNOWN">;
+
+export const RESERVATION_SHORT_LABELS: Record<KnownPopupReservationType, string> = {
+	NONE: "자유입장",
+	RESERVATION: "예약필요",
+	WAITING: "현장대기",
+	BOTH: "예약 및 현장대기"
+};
+
+export interface PopupSummary {
+	id: number;
+	title: string;
+	category: PopupCategory | null;
+	region: Region | null;
+	startDate: string | null;
+	endDate: string | null;
+	reservationType: PopupReservationType;
+	imageUrl: string | null;
+}
