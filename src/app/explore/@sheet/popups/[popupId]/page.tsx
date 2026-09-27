@@ -5,13 +5,16 @@ import { buildLoginPath } from "@/features/auth/model/next-path";
 import { readRefreshToken } from "@/features/auth/model/session-cookie";
 import { BookmarkSlotProvider } from "@/features/bookmark/components/BookmarkSlotProvider";
 import { MatchRateNote } from "@/features/popup/components/MatchRateNote";
-import { PopupDetailHeader } from "@/features/popup/components/PopupDetailHeader";
 import { PopupDetailView } from "@/features/popup/components/PopupDetailView";
+import { PopupSheet } from "@/features/popup/components/PopupSheet";
+import { buildExploreSheetPath } from "@/features/popup/model/explore-state";
 import { findPlaceholderPopupDetail } from "@/features/popup/model/placeholder-details";
-import { buildPopupDetailPath, parsePopupId } from "@/features/popup/model/popup-id";
+import { parsePopupId } from "@/features/popup/model/popup-id";
 import { PLACEHOLDER_NICKNAME } from "@/shared/lib/placeholder-data";
 
-async function findPopupDetailOrNotFound(params: PageProps<"/popups/[popupId]">["params"]) {
+const SHEET_TITLE_ID = "popup-sheet-title";
+
+async function findPopupDetailOrNotFound(params: PageProps<"/explore/popups/[popupId]">["params"]) {
 	const popupId = parsePopupId((await params).popupId);
 	const detail = popupId === null ? undefined : findPlaceholderPopupDetail(popupId);
 
@@ -22,12 +25,12 @@ async function findPopupDetailOrNotFound(params: PageProps<"/popups/[popupId]">[
 	return detail;
 }
 
-export async function generateMetadata({ params }: PageProps<"/popups/[popupId]">) {
+export async function generateMetadata({ params }: PageProps<"/explore/popups/[popupId]">) {
 	const detail = await findPopupDetailOrNotFound(params);
 	return { title: detail.title, description: detail.description };
 }
 
-export default async function PopupDetailPage({ params }: PageProps<"/popups/[popupId]">) {
+export default async function PopupSheetPage({ params }: PageProps<"/explore/popups/[popupId]">) {
 	const detail = await findPopupDetailOrNotFound(params);
 	const hasSessionCookie = (await readRefreshToken()) !== null;
 
@@ -42,19 +45,19 @@ export default async function PopupDetailPage({ params }: PageProps<"/popups/[po
 	const detailView = (
 		<PopupDetailView
 			popup={detail}
+			titleId={SHEET_TITLE_ID}
 			matchRateSlot={<AuthStatusSwitch views={{ authenticated: matchRateNote, restoring: restoringMatchRateNote }} />}
 		/>
 	);
 	const pendingDetailView = <BookmarkSlotProvider mode="pending">{detailView}</BookmarkSlotProvider>;
 
 	return (
-		<main className="flex flex-1 flex-col pb-tab-bar-clearance">
-			<PopupDetailHeader title={detail.title} />
+		<PopupSheet labelledBy={SHEET_TITLE_ID}>
 			<AuthStatusSwitch
 				views={{
 					authenticated: <BookmarkSlotProvider mode="member">{detailView}</BookmarkSlotProvider>,
 					anonymous: (
-						<BookmarkSlotProvider mode="guest" loginHref={buildLoginPath(buildPopupDetailPath(detail.id))}>
+						<BookmarkSlotProvider mode="guest" loginHref={buildLoginPath(buildExploreSheetPath(detail.id))}>
 							{detailView}
 						</BookmarkSlotProvider>
 					),
@@ -62,6 +65,6 @@ export default async function PopupDetailPage({ params }: PageProps<"/popups/[po
 					unavailable: pendingDetailView
 				}}
 			/>
-		</main>
+		</PopupSheet>
 	);
 }
