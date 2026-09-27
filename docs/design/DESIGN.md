@@ -2,7 +2,7 @@
 
 서비스가 주는 인상과 그것을 만드는 규칙을 적는다. 화면별 상세는 DESIGN-SPEC.md에 적는다.
 
-디자인 토큰의 정본은 `src/shared/styles/tokens/`다. 원시 색은 `color-primitive.css`, 의미 색은 `color-semantic.css`, 글자는 `typography.css`, 그림자는 `shadow.css`에 있고 `globals.css`가 이 파일들을 불러온다. 값은 피그마 시안의 변수와 텍스트 스타일, 이펙트에서 옮겼고 시안 이름과 코드 이름을 표로 맞춰 둔다. 시안이 바뀌면 해당 `tokens/` 파일을 고치고 이 문서의 표를 함께 고친다.
+디자인 토큰의 정본은 `src/shared/styles/tokens/`다. 원시 색은 `color-primitive.css`, 의미 색은 `color-semantic.css`, 글자는 `typography.css`, 그림자는 `shadow.css`, 컬럼 폭과 떠 있는 요소의 바닥 간격은 `layout.css`에 있고 `globals.css`가 이 파일들을 불러온다. 값은 피그마 시안의 변수와 텍스트 스타일, 이펙트에서 옮겼고 시안 이름과 코드 이름을 표로 맞춰 둔다. 시안이 바뀌면 해당 `tokens/` 파일을 고치고 이 문서의 표를 함께 고친다.
 
 ## 인상과 레퍼런스
 
@@ -73,7 +73,7 @@ Tailwind 기본 팔레트(`zinc`, `blue` 등)는 지우지 않았다. 기존 화
 | `Divider Color/divider-4`  | `--color-divider-4`     | `--gray-400`  | `border-divider-4`   |
 | `Icon Color/Icon`          | `--color-icon`          | `--gray-900`  | `text-icon`          |
 | `Icon Color/Icon 2`        | `--color-icon-2`        | `--gray-700`  | `text-icon-2`        |
-| `Icon Color/Icon-color`    | `--color-icon-primary`  | `--blue-500`  | `text-icon-primary`  |
+| `Icon Color/Icon-color`    | `--color-icon-primary`  | `#4377ff`     | `text-icon-primary`  |
 | `Icon Color/Icon-disabled` | `--color-icon-disabled` | `--gray-400`  | `text-icon-disabled` |
 | `Icon Color/Icon-w`        | `--color-icon-w`        | `--gray-0`    | `text-icon-w`        |
 | `blue-500(PRIMARY)`        | `--color-primary`       | `--blue-500`  | `bg-primary`         |
@@ -93,13 +93,16 @@ Tailwind 기본 팔레트(`zinc`, `blue` 등)는 지우지 않았다. 기존 화
 
 지도 SDK에 넘기는 인라인 스타일처럼 클래스를 쓸 수 없는 곳은 원시 변수를 직접 참조한다(`var(--blue-500)`). `@theme inline`의 의미 토큰 변수는 클래스에서 쓰일 때만 CSS에 출력되어서 JS 문자열에서 참조하면 값이 없을 수 있다.
 
+`Icon Color/Icon-color`는 시안에서 원시 `blue-500`(#3c6bf8)이 아니라 같은 이름의 다른 변수로 풀려 #4377ff가 된다. 시안에 그려진 값을 따라 원시 색을 거치지 않고 값을 직접 둔다.
+
 ### 대비
 
 흰 바탕(`bg-1`) 기준으로 WCAG 2.2 상대 휘도 공식으로 계산했다. 본문 글자는 4.5:1, 24px 이상이거나 약 18.66px 이상 굵은 글자와 의미를 전하는 아이콘은 3:1이 기준이다.
 
 | 토큰                      | 값        | 대비   | 본문 글자 | 큰 글자와 아이콘 |
 | ------------------------- | --------- | ------ | --------- | ---------------- |
-| `primary`, `icon-primary` | `#3c6bf8` | 4.52:1 | 통과      | 통과             |
+| `primary`                 | `#3c6bf8` | 4.52:1 | 통과      | 통과             |
+| `icon-primary`            | `#4377ff` | 3.95:1 | 실패      | 통과             |
 | `text-4`                  | `#6f768c` | 4.52:1 | 통과      | 통과             |
 | `text-5`                  | `#868da3` | 3.31:1 | 실패      | 통과             |
 | `error`                   | `#ff5d4a` | 3.04:1 | 실패      | 통과             |
@@ -137,27 +140,30 @@ Tailwind 기본 팔레트(`zinc`, `blue` 등)는 지우지 않았다. 기존 화
 
 시안의 글자 크기 변수(`font/fontSize/*`)는 토큰으로 옮기지 않았다. `base`가 14px이라 Tailwind `text-base`(16px)와 이름이 같고 값이 다르다. 시안 줄 높이 변수 snug(20px)와 relaxed(24px)는 Tailwind 기본 `leading-5`, `leading-6`과 값이 같으니 그것을 쓴다. Tailwind 기본 `leading-snug`, `leading-relaxed`는 값이 다르다. Tailwind 기본 글자 크기 `text-xs`부터 `text-9xl`은 기존 화면이 쓰고 있어 남겨 두었다.
 
-`cn()`은 tailwind-merge로 겹치는 클래스를 지운다. tailwind-merge는 모르는 `text-*`를 글자 색으로 읽으므로 `src/shared/lib/cn.ts`에 글자 토큰과 그림자 토큰 이름을 등록해 두었다. `typography.css`나 `shadow.css`에 토큰을 더하면 `cn.ts`의 목록에도 더한다. 빠뜨리면 `cn("text-h1 text-text-1")`이 `text-h1`을 지운다.
+`cn()`은 tailwind-merge로 겹치는 클래스를 지운다. tailwind-merge는 모르는 `text-*`를 글자 색으로 읽으므로 `src/shared/lib/cn.ts`에 글자 토큰과 그림자 토큰 이름을 등록해 두었다. `typography.css`나 `shadow.css`, `layout.css`에 토큰을 더하면 `cn.ts`의 목록에도 더한다. 간격과 컬럼 폭, 흐림 토큰도 등록해 두어 `cn("mb-float-gap mb-4")`처럼 겹치면 뒤의 것이 남는다. 빠뜨리면 `cn("text-h1 text-text-1")`이 `text-h1`을 지운다.
 
 ## 그림자
 
 시안의 그림자는 전부 가로, 세로 위치가 0이고 흐림 반경만 있다. 쓰임에 따라 이름을 붙였다.
 
-| 클래스                 | 값                  | 시안에서 쓰인 곳            |
-| ---------------------- | ------------------- | --------------------------- |
-| `shadow-subtle`        | `0 0 4px` 검정 4%   | 탐색 검색창                 |
-| `shadow-bar`           | `0 0 14px` 검정 8%  | 화면 아래 고정 버튼 영역    |
-| `shadow-floating`      | `0 0 12px` 검정 10% | 떠 있는 하단 탭바, 드롭다운 |
-| `shadow-on-map`        | `0 0 12px` 검정 16% | 지도 위 칩                  |
-| `shadow-sheet`         | `0 0 20px` 검정 12% | 바텀시트, 날짜와 시간 선택  |
-| `shadow-modal`         | `0 0 24px` 검정 20% | 로그인 모달                 |
-| `text-shadow-on-image` | `0 0 12px` 검정 8%  | 이미지 위 글자              |
+| 클래스                   | 값                  | 시안에서 쓰인 곳            |
+| ------------------------ | ------------------- | --------------------------- |
+| `shadow-subtle`          | `0 0 4px` 검정 4%   | 탐색 검색창                 |
+| `shadow-bar`             | `0 0 14px` 검정 8%  | 화면 아래 고정 버튼 영역    |
+| `shadow-floating`        | `0 0 12px` 검정 10% | 떠 있는 하단 탭바, 드롭다운 |
+| `shadow-on-map`          | `0 0 12px` 검정 16% | 지도 위 칩                  |
+| `shadow-sheet`           | `0 0 20px` 검정 12% | 바텀시트, 날짜와 시간 선택  |
+| `shadow-modal`           | `0 0 24px` 검정 20% | 로그인 모달                 |
+| `text-shadow-on-image`   | `0 0 12px` 검정 8%  | 이미지 위 글자              |
+| `backdrop-blur-floating` | 배경 흐림 3px       | 떠 있는 하단 탭바           |
 
-한 곳에서만 쓰인 값은 가까운 토큰으로 맞췄다. 드롭다운의 12px 12%는 `shadow-floating`으로, 메인 추천 카드의 30px 20%는 `shadow-modal`로 옮긴다. Tailwind 기본 `shadow-sm`부터 `shadow-2xl`은 기존 화면이 쓰고 있어 남겨 두었다.
+한 곳에서만 쓰인 값은 가까운 토큰으로 맞췄다. 드롭다운의 12px 12%는 `shadow-floating`으로, 메인 추천 카드의 30px 20%는 `shadow-modal`로 옮긴다. Tailwind 기본 `shadow-sm`부터 `shadow-2xl`은 기존 화면이 쓰고 있어 남겨 두었다. 배경 흐림은 시안 값의 절반을 CSS 값으로 옮긴다. 탭바의 시안 흐림 6이 3px이다.
 
 ## 간격과 모서리
 
-간격은 4px 그리드이고 Tailwind 기본 간격 척도(`p-4`는 16px)를 그대로 쓴다. 토큰을 따로 만들지 않았다.
+간격은 4px 그리드이고 Tailwind 기본 간격 척도(`p-4`는 16px)를 그대로 쓴다. 화면 좌우 여백은 시안 전 화면에서 20px이라 `px-5`다.
+
+간격 토큰은 기기 안전 영역이 들어간 둘뿐이고 `layout.css`에 있다. `float-gap`은 떠 있는 요소와 화면 바닥 사이로 시안의 42px이다. 홈 인디케이터가 있는 기기에서는 인디케이터 위 8px이 42px보다 크면 그 값을 쓴다. `max(42px, 8px + env(safe-area-inset-bottom))`이다. `tab-bar-clearance`는 탭바 높이 80px에 `float-gap`을 더한 값이고 루트 `html`의 `scroll-padding-bottom`이 쓴다. 그래서 키보드로 옮긴 포커스가 탭바 뒤에 가려지지 않는다. 안전 영역 값을 받으려고 루트 레이아웃이 `viewport-fit=cover`를 켠다.
 
 모서리 반경도 Tailwind 기본 척도를 쓴다. 시안 값과 같다.
 
@@ -201,4 +207,8 @@ import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 ## 반응형
 
-Design width 375px, 대상은 모바일 웹이고 반응형 범위는 375px에서 430px까지다. 데스크탑은 범위 밖이고 넓은 화면에서는 루트 레이아웃이 가운데 고정 폭 컬럼으로 그린다. 데스크탑 배치를 따로 만들지 않는다. 컬럼 폭은 지금 Tailwind 기본 `max-w-md`이고 디자인 토큰이 오면 `@theme inline`에 넣는다.
+Design width 375px, 대상은 모바일 웹이고 반응형 범위는 375px에서 430px까지다. 데스크탑은 범위 밖이고 넓은 화면에서는 루트 레이아웃이 가운데 고정 폭 컬럼으로 그린다. 데스크탑 배치를 따로 만들지 않는다. 컬럼 폭은 반응형 범위의 상한 430px이고 `layout.css`의 `--container-app`, 클래스로는 `max-w-app`이다. 컬럼 바깥은 `bg-bg-3`이다.
+
+하단 탭바는 시안의 떠 있는 탭바다. 좌우 20px 안쪽에 반경 24px, 흰색 80%와 배경 흐림, `shadow-floating`으로 그린다. `sticky`라 스크롤 중에는 바닥에서 `float-gap`만큼 떠서 본문이 뒤로 지나가고, 스크롤 끝에서는 본문 아래 40px 뒤에 놓인다. 탭을 누르면 새로 현재 탭이 된 아이콘이 0.8배에서 1배로 튀어 오르고 색이 부드럽게 바뀐다. 주소가 바뀌기를 기다리지 않고 누른 순간 시작한다. 멈춘 모양은 시안과 같고, 움직임 줄이기 설정을 켠 사용자에게는 크기 변화가 없다. 애니메이션은 `motion`이고 루트 레이아웃의 `MotionProvider`가 `reducedMotion="user"`를 건다.
+
+스크롤은 모든 폭에서 브라우저 창이 맡는다. 폰에서는 주소창 접힘과 당겨서 새로고침이, 넓은 화면에서는 키보드 스크롤과 뒤로 가기 위치 복원이 브라우저 기본대로 동작한다. 스크롤바는 바탕 없이 6px `gray-300` 막대이고(`utilities.css`의 `scrollbar-subtle`, 루트 `html`에 붙는다), 스크롤바 자리를 양쪽에 늘 비워 둬서 스크롤이 있는 화면과 없는 화면을 오갈 때 폭이 바뀌지 않는다.

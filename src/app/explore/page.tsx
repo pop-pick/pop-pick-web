@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 
-import { ExploreView } from "@/features/popup/ui/ExploreView";
+import { ExploreView } from "@/features/popup/components/ExploreView";
 import { PLACEHOLDER_POPUPS } from "@/shared/lib/placeholder-data";
 import { Skeleton } from "@/shared/ui/Skeleton";
 

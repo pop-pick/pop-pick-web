@@ -102,7 +102,7 @@ check "기능 폴더 루트에 파일이 있다" \
 	'find src/features -maxdepth 2 -type f ! -name ".gitkeep"'
 
 check "정해진 넷 밖의 세그먼트가 있다" \
-	'find src/features -mindepth 2 -maxdepth 2 -type d ! -name api ! -name ui ! -name hooks ! -name model'
+	'find src/features -mindepth 2 -maxdepth 2 -type d ! -name api ! -name components ! -name hooks ! -name model'
 
 printf '\n=== 이름과 선언 형식 (ui.md) ===\n\n'
 
@@ -165,7 +165,7 @@ check "호출하는 자리에서 authorization 을 손으로 붙인다" \
 	'grep -rn "authorization\|Authorization" src/features src/app --include="*.ts" --include="*.tsx"'
 
 check "화면이 api 를 직접 부른다" \
-	'grep -rn "from \"@/shared/api/client\"" src/features/*/ui src/app --include="*.tsx"'
+	'grep -rn "from \"@/shared/api/client\"" src/features/*/components src/app --include="*.tsx"'
 
 check "브라우저 코드가 백엔드 절대 주소를 안다" \
 	'grep -rn "prod.poppick.shop\|API_BASE_URL" src/features src/app --include="*.ts" --include="*.tsx"'

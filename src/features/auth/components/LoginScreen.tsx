@@ -1,4 +1,10 @@
+import Link from "next/link";
+
+import CloseIcon from "@/shared/assets/icons/close.svg";
+import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/Button";
+import { iconButtonVariants } from "@/shared/ui/IconButton";
+import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 import { KakaoLoginButton } from "./KakaoLoginButton";
 
@@ -8,7 +14,14 @@ interface LoginScreenProps {
 
 export function LoginScreen({ next }: LoginScreenProps) {
 	return (
-		<main className="flex flex-1 flex-col justify-center gap-10 px-6 py-16">
+		<main className="relative flex flex-1 flex-col justify-center gap-10 px-6 py-16">
+			<Link
+				href="/home"
+				aria-label="닫고 홈으로 가기"
+				className={cn(iconButtonVariants({ variant: "ghost" }), "absolute top-3 right-3 text-icon")}
+			>
+				<SvgIcon icon={CloseIcon} size={24} />
+			</Link>
 			<section className="flex flex-col items-center gap-3 text-center">
 				<p className="text-sm font-bold tracking-widest text-blue-600">POP PICK</p>
 				<h1 className="text-2xl leading-snug font-bold tracking-tight">

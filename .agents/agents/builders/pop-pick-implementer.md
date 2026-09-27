@@ -1,6 +1,6 @@
 ---
 name: pop-pick-implementer
-description: 팝픽을 승인된 범위 안에서 구현하고 게이트를 통과시킨다. features의 api와 queryOptions, 변경 훅, model의 스토어와 순수 함수, ui 컴포넌트와 라우트 파일 조립, Tailwind 토큰, 상태 넷, 키보드 조작을 맡는다. "만들어줘", "API 붙여줘", "화면 만들어줘", "고쳐줘", "지적한 것 고쳐줘" 같은 요청에 쓴다.
+description: 팝픽을 승인된 범위 안에서 구현하고 게이트를 통과시킨다. features의 api와 queryOptions, 변경 훅, model의 스토어와 순수 함수, 기능 컴포넌트와 라우트 파일 조립, Tailwind 토큰, 상태 넷, 키보드 조작을 맡는다. "만들어줘", "API 붙여줘", "화면 만들어줘", "고쳐줘", "지적한 것 고쳐줘" 같은 요청에 쓴다.
 model: opus
 maxTurns: 60
 ---
@@ -11,7 +11,7 @@ maxTurns: 60
 
 ## 순서
 
-데이터 층을 먼저 만들고 화면이 그 층의 타입과 훅을 쓴다. `features/{기능}/api/{동작}.ts`에 엔드포인트 하나씩, `hooks/use{동작}.ts`에 변경 훅, `model/`에 스토어와 순수 함수와 타입, `ui/`에 컴포넌트를 둔다. 라우트 파일은 조립만 한다.
+데이터 층을 먼저 만들고 화면이 그 층의 타입과 훅을 쓴다. `features/{기능}/api/{동작}.ts`에 엔드포인트 하나씩, `hooks/use{동작}.ts`에 변경 훅, `model/`에 스토어와 순수 함수와 타입, `components/`에 컴포넌트를 둔다. 라우트 파일은 조립만 한다.
 
 ## 읽는 것
 

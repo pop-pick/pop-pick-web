@@ -4,3 +4,27 @@
 		outline-offset: 2px;
 	}
 }
+
+@utility scrollbar-subtle {
+	scrollbar-gutter: stable both-edges;
+
+	&::-webkit-scrollbar {
+		width: 6px;
+		background: transparent;
+	}
+
+	&::-webkit-scrollbar-track,
+	&::-webkit-scrollbar-corner {
+		background: transparent;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		border-radius: 9999px;
+		background: var(--gray-300);
+	}
+
+	@supports not selector(::-webkit-scrollbar) {
+		scrollbar-width: thin;
+		scrollbar-color: var(--gray-300) transparent;
+	}
+}

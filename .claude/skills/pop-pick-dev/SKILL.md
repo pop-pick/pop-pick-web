@@ -58,7 +58,7 @@ git diff -U0 -- src | grep -E '^\+.*(className=|export |"use (client|server)"|/\
 | 파일이 생기거나 옮겨지거나 지워졌다                                        | `pop-pick-review-structure`  |
 | export가 생기거나 이름이 바뀌었다, JSDoc을 적었다                          | `pop-pick-review-typescript` |
 | `className`이 바뀌었다, `src/shared/styles`                                | `pop-pick-review-tailwind`   |
-| `features/*/ui`, `shared/ui`, `shared/components`                          | `pop-pick-review-screen`     |
+| `features/*/components`, `shared/ui`, `shared/components`                  | `pop-pick-review-screen`     |
 | `features/*/api`, `hooks`, `model`의 스토어, `shared/api`                  | `pop-pick-review-data`       |
 | `src/app`, `next.config.ts`, `"use client"`나 `"use server"`를 새로 붙였다 | `pop-pick-review-nextjs`     |
 
@@ -124,7 +124,7 @@ Stop 훅이 응답을 끝내기 전에 같은 스크립트를 돌린다. 이번 
 
 ## 시나리오 둘
 
-**정상.** 탐색 화면에 정렬 선택을 붙인다. 표면은 같고 동작이 바뀌어 spec-navigator로 SPEC의 정렬 절을 확인하고 implementer가 만든다. 바뀐 것이 `features/popup/ui`와 `className`, 라우트 파일이라 `pop-pick-review-screen`과 `pop-pick-review-tailwind`, `pop-pick-review-nextjs`를 병렬로 부른다. 고칠것 둘을 고치고 tailwind 리뷰어에 그 파일만 다시 보낸다. integration-qa가 경계를 대조하고 게이트를 돌려 끝낸다.
+**정상.** 탐색 화면에 정렬 선택을 붙인다. 표면은 같고 동작이 바뀌어 spec-navigator로 SPEC의 정렬 절을 확인하고 implementer가 만든다. 바뀐 것이 `features/popup/components`와 `className`, 라우트 파일이라 `pop-pick-review-screen`과 `pop-pick-review-tailwind`, `pop-pick-review-nextjs`를 병렬로 부른다. 고칠것 둘을 고치고 tailwind 리뷰어에 그 파일만 다시 보낸다. integration-qa가 경계를 대조하고 게이트를 돌려 끝낸다.
 
 **막힘.** spec-navigator가 응답 필드 이름을 서버 코드에서 확인하지 못해 멈춘다. 지어내지 않고 무엇을 확인 못 했는지 보고한다. 백엔드에 물을 문구를 만들어 사용자에게 넘기고 그 기능은 거기서 멈춘다.
 

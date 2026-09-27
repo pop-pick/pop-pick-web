@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { SessionPanel } from "@/features/auth/ui/SessionPanel";
+import { SessionPanel } from "@/features/auth/components/SessionPanel";
 import { PopupCard } from "@/shared/components/PopupCard";
 import { SectionHeader } from "@/shared/components/SectionHeader";
 import { PLACEHOLDER_POPUPS } from "@/shared/lib/placeholder-data";

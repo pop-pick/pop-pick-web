@@ -1,5 +1,5 @@
 ---
-description: src/app은 라우팅, src/features는 기능, src/shared는 공용. 기능 폴더 안은 api와 ui, hooks, model 넷이다. 의존은 한 방향이고 배럴 파일을 만들지 않는다
+description: src/app은 라우팅, src/features는 기능, src/shared는 공용. 기능 폴더 안은 api와 components, hooks, model 넷이다. 의존은 한 방향이고 배럴 파일을 만들지 않는다
 paths:
   - "src/**"
 ---
@@ -17,12 +17,14 @@ paths:
 ```
 features/{기능}/
 ├── api/      엔드포인트 함수와 queryOptions
-├── ui/       컴포넌트
+├── components/ 그 기능의 컴포넌트
 ├── hooks/    변경을 내는 훅과 화면이 쓰는 훅
 └── model/    그 기능이 무엇인지. 값과 타입, 도메인 규칙, 스토어
 ```
 
-필요한 것만 만든다. 쓰지 않는 폴더를 미리 만들지 않는다. 지금 넷을 다 쓰는 기능은 `auth` 하나이고 `onboarding`과 `popup`은 둘씩이다.
+필요한 것만 만든다. 쓰지 않는 세그먼트 폴더를 미리 만들지 않는다. 지금 넷을 다 쓰는 기능은 `auth` 하나이고 `popup`은 셋, `onboarding`은 둘이다. `bookmark`와 `course`, `planner`, `recommendation`은 설계 문서의 기능 표에 맞춰 만든 빈 기능 폴더다.
+
+**기능 안 컴포넌트 폴더는 `components`다.** 기능 안의 컴포넌트는 모두 자기 기능의 도메인을 알아서 `shared/components`와 성격이 같다. `ui`라는 이름은 저장소 전체에서 앱을 모르는 부품(`shared/ui`)에만 쓴다.
 
 **루트에 파일을 두지 않는다.** 모든 파일이 세그먼트 폴더 안에 있어야 상대 경로의 깊이가 곧 경계가 된다. `../`는 같은 기능 안이고 `../../`는 밖이다.
 
@@ -44,7 +46,7 @@ features/{기능}/
 
 ## model이 담는 것
 
-**그 기능이 무엇인지를 담는다.** 화면에 그리는 방법(`ui`)도 서버를 부르는 방법(`api`)도 아닌 나머지다.
+**그 기능이 무엇인지를 담는다.** 화면에 그리는 방법(`components`)도 서버를 부르는 방법(`api`)도 아닌 나머지다.
 
 | 들어가는 것             | 예                                     |
 | ----------------------- | -------------------------------------- |
@@ -73,9 +75,11 @@ export const REGION_LABELS: Record<Region, string> = { ... };
 
 **`types` 세그먼트를 두지 않는다.** 같은 이유다. 타입은 그 타입이 설명하는 값 옆에 있어야 한다. 값과 갈라놓으면 위의 파생 관계가 끊긴다.
 
-이 판단은 갈리는 자리다. Feature-Sliced Design은 `components`와 `hooks`, `types`를 "내용이 무엇인지 말할 뿐 무엇을 위한 것인지 말하지 않는다"는 이유로 나쁜 세그먼트 이름이라고 문서에 적는다. 반대로 bulletproof-react는 `types`와 `utils`를 기능 세그먼트로 그대로 쓴다. 우리는 앞쪽을 골랐고 근거는 위 문단이다. 세그먼트를 몇 개까지 두라는 수치 기준은 어느 쪽 문서에도 없다.
+이 판단은 갈리는 자리다. Feature-Sliced Design은 `components`와 `hooks`, `types`를 "내용이 무엇인지 말할 뿐 무엇을 위한 것인지 말하지 않는다"는 이유로 나쁜 세그먼트 이름이라고 문서에 적는다. 반대로 bulletproof-react는 `types`와 `utils`를 기능 세그먼트로 그대로 쓴다. `lib`과 `types`에서는 앞쪽을 골랐고 근거는 위 문단이다. 세그먼트를 몇 개까지 두라는 수치 기준은 어느 쪽 문서에도 없다.
 
 `hooks`는 남겼다. 이름이 본질을 가리키는 것은 같지만 React에서 훅은 호출 규칙이 따로 있는 별개 종류라 파일을 열기 전에 아는 값이 있다.
+
+`components`도 남겼다. FSD는 기능 안 컴포넌트를 `ui`라 부르지만 이 저장소에서 `ui`는 앱을 모르는 부품(`shared/ui`)이다. 기능 안 컴포넌트는 도메인을 알아서 `shared/components`와 성격이 같으니 같은 이름을 쓴다. 한 이름이 두 뜻으로 쓰이지 않게 하려는 것이다.
 
 ## 이 규칙이 생긴 이유
 
@@ -107,7 +111,7 @@ lint 규칙으로 막지 않는다. 사람이 읽고 지킨다. 아래 넷이 �
 grep -rn "@/features/" src/features src/shared --include="*.ts" --include="*.tsx"
 grep -rn "from \"\.\./\.\./" src/features --include="*.ts" --include="*.tsx"
 find src -name "index.ts" -o -name "index.tsx"
-find src/features -mindepth 2 -maxdepth 2 -type d ! -name api ! -name ui ! -name hooks ! -name model
+find src/features -mindepth 2 -maxdepth 2 -type d ! -name api ! -name components ! -name hooks ! -name model
 ```
 
 네 명령 모두 아무것도 내지 않아야 한다. `src/app`은 검사 대상이 아니다.

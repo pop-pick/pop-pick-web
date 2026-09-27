@@ -1,5 +1,5 @@
-import { RequireAuth } from "@/features/auth/ui/RequireAuth";
-import { SessionPanel } from "@/features/auth/ui/SessionPanel";
+import { RequireAuth } from "@/features/auth/components/RequireAuth";
+import { SessionPanel } from "@/features/auth/components/SessionPanel";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { SectionHeader } from "@/shared/components/SectionHeader";
 import { LinkButton } from "@/shared/ui/LinkButton";

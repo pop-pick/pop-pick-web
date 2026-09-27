@@ -1,5 +1,5 @@
+import { LoginScreen } from "@/features/auth/components/LoginScreen";
 import { sanitizeNextPath } from "@/features/auth/model/next-path";
-import { LoginScreen } from "@/features/auth/ui/LoginScreen";
 
 export default async function LoginPage({ searchParams }: PageProps<"/login">) {
 	const { next } = await searchParams;

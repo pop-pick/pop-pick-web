@@ -25,9 +25,9 @@ paths:
 
 순서대로 본다.
 
-**1. 기존 토큰에 같은 값이 있는지 본다.** `src/shared/styles/tokens/`의 `@theme inline`이 정본이다. 색은 `color-semantic.css`, 글자는 `typography.css`, 그림자는 `shadow.css`다. Tailwind v4에서는 `@theme`에 CSS 변수를 선언하면 그 이름으로 유틸리티가 생성된다. `--color-brand`를 선언하면 `bg-brand`와 `text-brand`가 생기는 식이다. Tailwind 기본 토큰도 저장소가 덮어쓰지 않은 것은 살아 있다. `--tracking-tight`가 `-0.025em`이고 `--leading-relaxed`가 `1.625`인 식이다.
+**1. 기존 토큰에 같은 값이 있는지 본다.** `src/shared/styles/tokens/`의 `@theme inline`이 정본이다. 색은 `color-semantic.css`, 글자는 `typography.css`, 그림자는 `shadow.css`, 컬럼 폭과 바닥 간격 같은 앱 틀 치수는 `layout.css`다. Tailwind v4에서는 `@theme`에 CSS 변수를 선언하면 그 이름으로 유틸리티가 생성된다. `--color-brand`를 선언하면 `bg-brand`와 `text-brand`가 생기는 식이다. Tailwind 기본 토큰도 저장소가 덮어쓰지 않은 것은 살아 있다. `--tracking-tight`가 `-0.025em`이고 `--leading-relaxed`가 `1.625`인 식이다.
 
-`@theme inline`에는 시안에서 옮긴 색과 글자, 그림자 토큰이 있고 반경과 간격은 Tailwind 기본 척도를 쓴다. 원시 색(`--blue-500`, `--gray-700`)은 `:root`에만 있어 유틸리티가 생기지 않으니 화면은 의미 토큰(`text-text-1`, `bg-primary`)을 쓴다. 시안 이름과 토큰의 대응표는 `docs/design/DESIGN.md`에 있다.
+`@theme inline`에는 시안에서 옮긴 색과 글자, 그림자 토큰이 있고 반경과 간격은 Tailwind 기본 척도를 쓴다. 간격 토큰은 기기 안전 영역이 들어간 `layout.css`의 둘뿐이다. 원시 색(`--blue-500`, `--gray-700`)은 `:root`에만 있어 유틸리티가 생기지 않으니 화면은 의미 토큰(`text-text-1`, `bg-primary`)을 쓴다. 시안 이름과 토큰의 대응표는 `docs/design/DESIGN.md`에 있다.
 
 **2. 두 곳 이상에서 쓰는 값이면 토큰을 만든다.** 색과 반경, 그림자, 간격, 자간, 줄 높이, 글자 크기가 여기 해당한다. 종류에 맞는 `tokens/` 파일의 `@theme inline`에 선언한다. 새 종류(반경, 간격 같은 것)면 `tokens/`에 파일을 하나 만들고 `globals.css`에서 불러온다.
 
