@@ -5,6 +5,7 @@ import type { Metadata, Viewport } from "next";
 import { AuthProvider } from "@/features/auth/components/AuthProvider";
 import { BottomTabBar } from "@/shared/components/BottomTabBar";
 import { cn } from "@/shared/lib/cn";
+import { MotionProvider } from "@/shared/providers/MotionProvider";
 import { QueryProvider } from "@/shared/providers/QueryProvider";
 import { pretendard } from "@/shared/styles/fonts";
 
@@ -27,8 +28,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 				<div className="mx-auto flex min-h-dvh w-full max-w-app flex-col bg-bg-1">
 					<QueryProvider>
 						<AuthProvider>
-							{children}
-							<BottomTabBar />
+							<MotionProvider>
+								{children}
+								<BottomTabBar />
+							</MotionProvider>
 						</AuthProvider>
 					</QueryProvider>
 				</div>
