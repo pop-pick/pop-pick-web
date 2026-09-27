@@ -3,6 +3,8 @@ import "@/shared/styles/globals.css";
 import type { Metadata, Viewport } from "next";
 
 import { AuthProvider } from "@/features/auth/components/AuthProvider";
+import { AuthStatusSwitch } from "@/features/auth/components/AuthStatusSwitch";
+import { buildLoginPath } from "@/features/auth/model/next-path";
 import { BottomTabBar } from "@/shared/components/BottomTabBar";
 import { cn } from "@/shared/lib/cn";
 import { MotionProvider } from "@/shared/providers/MotionProvider";
@@ -12,6 +14,11 @@ import { pretendard } from "@/shared/styles/fonts";
 export const metadata: Metadata = {
 	title: "팝픽 POP PICK",
 	description: "취향과 시간, 지역에 맞는 서울 팝업을 추천하고 방문 동선까지 짜주는 서비스"
+};
+
+const LOGIN_HREF_BY_TAB = {
+	"/planner": buildLoginPath("/planner"),
+	"/my": buildLoginPath("/my")
 };
 
 export const viewport: Viewport = {
@@ -30,7 +37,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 						<AuthProvider>
 							<MotionProvider>
 								{children}
-								<BottomTabBar />
+								<AuthStatusSwitch
+									views={{
+										restoring: <BottomTabBar />,
+										anonymous: <BottomTabBar loginHrefByTab={LOGIN_HREF_BY_TAB} />,
+										unavailable: <BottomTabBar />,
+										authenticated: <BottomTabBar />
+									}}
+								/>
 							</MotionProvider>
 						</AuthProvider>
 					</QueryProvider>
