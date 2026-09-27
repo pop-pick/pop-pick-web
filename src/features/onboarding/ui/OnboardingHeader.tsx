@@ -8,7 +8,7 @@ interface OnboardingHeaderProps {
 
 export function OnboardingHeader({ step }: OnboardingHeaderProps) {
 	return (
-		<header className="sticky top-0 z-10 flex items-center gap-2 bg-background/90 px-4 py-3 backdrop-blur">
+		<header className="sticky top-0 z-10 flex items-center gap-2 bg-bg-1/90 px-4 py-3 backdrop-blur">
 			<Link
 				href={getPreviousPath(step)}
 				aria-label={step === 1 ? "처음 화면으로" : `${String(step - 1)}단계로`}

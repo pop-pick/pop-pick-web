@@ -1,0 +1,66 @@
+@theme inline {
+	--text-h1: 1.5rem;
+	--text-h1--line-height: 1.5;
+	--text-h1--letter-spacing: -0.2px;
+	--text-h1--font-weight: 700;
+	--text-h2: 1.25rem;
+	--text-h2--line-height: 1.5;
+	--text-h2--letter-spacing: -0.02em;
+	--text-h2--font-weight: 700;
+	--text-h3: 1.125rem;
+	--text-h3--line-height: 1.5;
+	--text-h3--letter-spacing: 0;
+	--text-h3--font-weight: 600;
+	--text-h4: 1rem;
+	--text-h4--line-height: 1.5;
+	--text-h4--letter-spacing: 0;
+	--text-h4--font-weight: 600;
+
+	--text-b1-18: 1.125rem;
+	--text-b1-18--line-height: 1.5;
+	--text-b1-18--letter-spacing: -0.2px;
+	--text-b1-18--font-weight: 600;
+	--text-b1-16: 1rem;
+	--text-b1-16--line-height: 1.5;
+	--text-b1-16--letter-spacing: -0.2px;
+	--text-b1-16--font-weight: 600;
+	--text-b1-14: 0.875rem;
+	--text-b1-14--line-height: 1.5;
+	--text-b1-14--letter-spacing: -0.2px;
+	--text-b1-14--font-weight: 600;
+
+	--text-b2-20: 1.25rem;
+	--text-b2-20--line-height: 1.5;
+	--text-b2-20--letter-spacing: 0;
+	--text-b2-20--font-weight: 500;
+	--text-b2-16: 1rem;
+	--text-b2-16--line-height: 1.5;
+	--text-b2-16--letter-spacing: 0;
+	--text-b2-16--font-weight: 500;
+	--text-b2-14: 0.875rem;
+	--text-b2-14--line-height: 1.5;
+	--text-b2-14--letter-spacing: 0;
+	--text-b2-14--font-weight: 500;
+	--text-b2-12: 0.75rem;
+	--text-b2-12--line-height: 1.25rem;
+	--text-b2-12--letter-spacing: 0;
+	--text-b2-12--font-weight: 500;
+
+	--text-b3-16: 1rem;
+	--text-b3-16--line-height: 1.5;
+	--text-b3-16--letter-spacing: 0;
+	--text-b3-16--font-weight: 400;
+	--text-b3-14: 0.875rem;
+	--text-b3-14--line-height: 1.5;
+	--text-b3-14--letter-spacing: 0;
+	--text-b3-14--font-weight: 400;
+	--text-b3-12: 0.75rem;
+	--text-b3-12--line-height: 1.5;
+	--text-b3-12--letter-spacing: 0;
+	--text-b3-12--font-weight: 400;
+
+	--text-caption: 0.75rem;
+	--text-caption--line-height: 1;
+	--text-caption--letter-spacing: 0;
+	--text-caption--font-weight: 400;
+}

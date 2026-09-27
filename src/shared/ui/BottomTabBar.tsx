@@ -16,7 +16,7 @@ export function BottomTabBar() {
 	const pathname = usePathname();
 
 	return (
-		<nav aria-label="주요 화면" className="sticky bottom-0 border-t border-zinc-100 bg-background">
+		<nav aria-label="주요 화면" className="sticky bottom-0 border-t border-zinc-100 bg-bg-1">
 			<ul className="flex">
 				{TABS.map((tab) => {
 					const isCurrent = pathname === tab.href || pathname.startsWith(`${tab.href}/`);

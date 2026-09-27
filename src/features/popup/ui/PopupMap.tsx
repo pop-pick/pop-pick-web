@@ -119,7 +119,7 @@ export function PopupMap({ popups, region, position, positionStatus, onLocate, o
 				<KakaoMapCamera center={cameraTarget} level={cameraLevel} />
 
 				<div className="pointer-events-none absolute inset-x-0 top-0 p-3">
-					<p className="inline-block rounded-full bg-background/90 px-3 py-1 text-xs text-zinc-600 shadow-sm">
+					<p className="inline-block rounded-full bg-bg-1/90 px-3 py-1 text-xs text-zinc-600 shadow-sm">
 						{PLACEHOLDER_NOTICE}
 					</p>
 				</div>
@@ -138,7 +138,7 @@ export function PopupMap({ popups, region, position, positionStatus, onLocate, o
 				{positionNotice === undefined || selectedPopup !== null ? null : (
 					<p
 						role="status"
-						className="pointer-events-none absolute bottom-3 left-3 max-w-56 rounded-full bg-background/90 px-3 py-1 text-xs text-zinc-600 shadow-sm"
+						className="pointer-events-none absolute bottom-3 left-3 max-w-56 rounded-full bg-bg-1/90 px-3 py-1 text-xs text-zinc-600 shadow-sm"
 					>
 						{positionNotice}
 					</p>
@@ -179,7 +179,7 @@ export function PopupMap({ popups, region, position, positionStatus, onLocate, o
 					onBlur={handleListBlur}
 					className={cn(
 						isListRevealed
-							? "absolute inset-x-3 bottom-3 max-h-48 overflow-y-auto rounded-2xl bg-background p-2 shadow-lg"
+							? "absolute inset-x-3 bottom-3 max-h-48 overflow-y-auto rounded-2xl bg-bg-1 p-2 shadow-lg"
 							: "sr-only"
 					)}
 				>
