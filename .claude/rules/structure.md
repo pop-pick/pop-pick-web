@@ -22,7 +22,7 @@ features/{기능}/
 └── model/    그 기능이 무엇인지. 값과 타입, 도메인 규칙, 스토어
 ```
 
-필요한 것만 만든다. 쓰지 않는 세그먼트 폴더를 미리 만들지 않는다. 지금 넷을 다 쓰는 기능은 `auth` 하나이고 `popup`은 셋, `onboarding`은 둘이다. `bookmark`와 `course`, `planner`, `recommendation`은 설계 문서의 기능 표에 맞춰 만든 빈 기능 폴더다.
+필요한 것만 만든다. 쓰지 않는 세그먼트 폴더를 미리 만들지 않는다. 지금 넷을 다 쓰는 기능은 `auth` 하나다. `popup`과 `recommendation`은 `components`와 `hooks`, `model`을 쓰고 `onboarding`은 `components`와 `model`, `bookmark`는 `components`만 쓴다. `course`와 `planner`는 설계 문서의 기능 표에 맞춰 만든 빈 기능 폴더다.
 
 **기능 안 컴포넌트 폴더는 `components`다.** 기능 안의 컴포넌트는 모두 자기 기능의 도메인을 알아서 `shared/components`와 성격이 같다. `ui`라는 이름은 저장소 전체에서 앱을 모르는 부품(`shared/ui`)에만 쓴다.
 
@@ -34,13 +34,13 @@ features/{기능}/
 
 ## shared 안
 
-| 폴더                               | 담는 것                                                                                                                      |
-| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `ui`                               | 디자인 시스템 부품. `Button`, `Chip`, `Badge`, `IconButton`, `Skeleton`, `SvgIcon`처럼 props와 토큰만으로 그리고 앱을 모른다 |
-| `components`                       | `ui`를 조립한 공용 컴포넌트. `BottomTabBar`, `SectionHeader`, `EmptyState`, `PopupCard`처럼 경로와 도메인 타입을 알아도 된다 |
-| `assets`                           | 코드가 아닌 원본 파일. `icons/`의 SVG는 SVGR이 빌드할 때 컴포넌트로 바꾸고 `fonts/`의 woff2는 `styles/fonts.ts`가 싣는다     |
-| `styles`                           | Tailwind 진입점 `globals.css`와 디자인 토큰 `tokens/`                                                                        |
-| `api`, `lib`, `model`, `providers` | HTTP 층, 도메인 지식이 없는 도구, 여러 기능이 쓰는 값과 타입, 루트 레이아웃이 감싸는 Provider                                |
+| 폴더                               | 담는 것                                                                                                                                                                                                                     |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ui`                               | 디자인 시스템 부품. `Button`, `Chip`, `Badge`, `IconButton`, `Skeleton`, `SvgIcon`처럼 props와 토큰만으로 그리고 앱을 모른다                                                                                                |
+| `components`                       | `ui`를 조립한 공용 컴포넌트. `BottomTabBar`, `SectionHeader`, `EmptyState`, `PopupCard`처럼 경로와 도메인 타입을 알아도 된다                                                                                                |
+| `assets`                           | 코드가 아닌 원본 파일. `icons/`의 SVG는 SVGR이 빌드할 때 컴포넌트로 바꾸고 `fonts/`의 woff2는 `styles/fonts.ts`가 싣는다. 색이 고정되거나 그라디언트가 있는 SVG는 SVGR이 색을 바꿔서 `public/`에 두고 `next/image`로 싣는다 |
+| `styles`                           | Tailwind 진입점 `globals.css`와 디자인 토큰 `tokens/`                                                                                                                                                                       |
+| `api`, `lib`, `model`, `providers` | HTTP 층, 도메인 지식이 없는 도구, 여러 기능이 쓰는 값과 타입, 루트 레이아웃이 감싸는 Provider                                                                                                                               |
 
 **`ui`와 `components`는 무엇을 import하는지로 가른다.** 두 이름 모두 컴포넌트를 뜻해서 이름만 보고는 어디에 둘지 알 수 없다. `ui`는 `next/navigation`과 `@/shared/model`, `@/shared/components`, `@/features`를 부르지 않는다. 새 컴포넌트가 앱의 경로나 도메인 타입을 알아야 하면 `components`에 둔다. 의존은 `ui`에서 `components`로 한 방향이고 `check-conventions.sh`가 막는다.
 
@@ -69,7 +69,7 @@ export const REGION_LABELS: Record<Region, string> = { ... };
 
 ## 기능 폴더에 lib과 types를 두지 않는다
 
-**`lib`은 `src/shared`에만 있다.** 도메인 지식이 없는 도구를 담는다. 지금 셋이다. 클래스 합치기(`cn.ts`), 외부 SDK 어댑터(`kakao-map/`), 화면용 임시 데이터(`placeholder-data.ts`)다.
+**`lib`은 `src/shared`에만 있다.** 도메인 지식이 없는 도구를 담는다. 지금 다섯이다. 클래스 합치기(`cn.ts`), 플러그인과 서울 시간대를 한 번 설정한 날짜 라이브러리(`dayjs.ts`), 외부 SDK 어댑터(`kakao-map/`), 화면용 임시 데이터(`placeholder-data.ts`)와 임시 사진 목록(`placeholder-images.ts`)이다.
 
 기능 폴더에 `lib`을 두지 않는 이유는 그 이름이 목적을 말하지 않아서다. `auth/lib/kakao-oauth.ts`에서 `lib`을 빼고 읽어도 아는 것이 같다. 폴더 한 겹이 경로만 늘리고 정보를 더하지 않으면 지운다.
 

@@ -2,18 +2,18 @@
 
 import { Button } from "@/shared/ui/Button";
 
-import { buildKakaoAuthorizeUrl, getKakaoRedirectUri } from "../model/kakao-oauth";
+import { buildKakaoAuthorizeUrl, buildKakaoRedirectUri } from "../model/kakao-oauth";
 import { storeNextPath } from "../model/next-path";
 import { createOAuthState } from "../model/oauth-state";
 
 interface KakaoLoginButtonProps {
-	next: string | null;
+	nextPath: string | null;
 }
 
-export function KakaoLoginButton({ next }: KakaoLoginButtonProps) {
+export function KakaoLoginButton({ nextPath }: KakaoLoginButtonProps) {
 	const handleLogin = () => {
-		storeNextPath(next);
-		window.location.href = buildKakaoAuthorizeUrl(getKakaoRedirectUri(), createOAuthState());
+		storeNextPath(nextPath);
+		window.location.href = buildKakaoAuthorizeUrl(buildKakaoRedirectUri(), createOAuthState());
 	};
 
 	return (

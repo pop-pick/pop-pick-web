@@ -9,14 +9,14 @@ import { SvgIcon } from "@/shared/ui/SvgIcon";
 import { KakaoLoginButton } from "./KakaoLoginButton";
 
 interface LoginScreenProps {
-	next: string | null;
+	nextPath: string | null;
 }
 
-export function LoginScreen({ next }: LoginScreenProps) {
+export function LoginScreen({ nextPath }: LoginScreenProps) {
 	return (
 		<main className="relative flex flex-1 flex-col justify-center gap-10 px-6 py-16">
 			<Link
-				href="/home"
+				href="/"
 				aria-label="닫고 홈으로 가기"
 				className={cn(iconButtonVariants({ variant: "ghost" }), "absolute top-3 right-3 text-icon")}
 			>
@@ -32,7 +32,7 @@ export function LoginScreen({ next }: LoginScreenProps) {
 			</section>
 
 			<section className="flex flex-col gap-3">
-				<KakaoLoginButton next={next} />
+				<KakaoLoginButton nextPath={nextPath} />
 				<Button variant="secondary" size="lg" disabled>
 					구글로 계속하기
 				</Button>

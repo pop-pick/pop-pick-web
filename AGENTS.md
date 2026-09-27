@@ -27,7 +27,7 @@ lefthook 훅이 커밋과 푸시 때 같은 검사를 저장소 전체에 돌린
 - Feature 기반이다. `src/app`은 라우팅, `src/features`는 기능 단위, `src/shared`는 공용이다. 의존은 shared에서 features로, features에서 app으로 한 방향이고 기능끼리 부르지 않는다. 경로 별칭 `@/*`는 `./src/*`
 - `src/app`에는 Next가 이름을 정하는 라우트 파일(`layout.tsx`, `page.tsx` 등)만 둔다. 전부 소문자다. 컴포넌트와 CSS는 `src/shared`나 `src/features`에 두고 라우트 파일이 import한다. 하단 탭바는 루트 레이아웃이 그리고 온보딩과 로그인, 카카오 콜백, 코스 조건 입력, 코스 생성 중 화면에서는 숨는다. 라우트 그룹을 두지 않는다
 - `features/` 하위 폴더는 기능 하나에 하나다. 이름은 백엔드 `feature/{이름}` 패키지와 맞춘다. 기능 폴더 안은 `api`와 `components`, `hooks`, `model` 넷으로 나누고 루트에 파일을 두지 않는다. `lib`은 `src/shared`에만 둔다
-- 토큰 정본은 `src/shared/styles/tokens/`의 CSS 파일이다. 원시 색은 `color-primitive.css`의 `:root`, 의미 색과 글자, 그림자, 컬럼 폭과 바닥 간격은 `color-semantic.css`, `typography.css`, `shadow.css`, `layout.css`의 `@theme inline`에 있다. `globals.css`는 Tailwind 진입점이고 이 파일들을 불러오기만 한다
+- 토큰 정본은 `src/shared/styles/tokens/`의 CSS 파일이다. 원시 색은 `color-primitive.css`의 `:root`, 의미 색과 글자, 그림자, 모서리 반경, 컬럼 폭과 바닥 간격은 `color-semantic.css`, `typography.css`, `shadow.css`, `radius.css`, `layout.css`의 `@theme inline`에 있다. `globals.css`는 Tailwind 진입점이고 이 파일들을 불러오기만 한다
 
 ## 하지 않는 것
 
@@ -91,6 +91,7 @@ bash .agents/scripts/check-conventions.sh
 
 ## 자주 틀리는 것
 
+- 날짜는 `@/shared/lib/dayjs`에서 가져온다. `dayjs`를 직접 부르면 엄격 파싱과 시간대 플러그인이 등록되지 않은 채 돈다. 서버가 UTC로 돌아서 오늘과 현재 시각은 `dayjs.tz()`로 서울 기준을 구한다. `new Date()`와 `Date.now()`는 쓰지 않는다
 - `pnpm build`와 `pnpm type:check`는 `API_BASE_URL`이 비어 있으면 실패한다. `next.config.ts`가 설정을 읽을 때 예외를 낸다
 - GitHub 기본 브랜치가 `main`이라 화면에서 PR을 열면 base가 `main`으로 잡힌다. `develop`으로 바꾼다
 - `develop`에는 커밋하지 않지만 푸시는 막지 않는다. 릴리스 뒤 `develop`을 `main`에 맞추는 절차가 `git push origin develop`을 쓴다

@@ -18,7 +18,7 @@ import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 import type { PositionStatus } from "../hooks/useCurrentPosition";
 import { PLACEHOLDER_NOTICE, toPlaceholderMarkers } from "../model/placeholder-markers";
-import { CurrentLocationButton } from "./CurrentLocationButton";
+import { CurrentPositionButton } from "./CurrentPositionButton";
 
 const CLUSTER_MIN_LEVEL = 5;
 const MY_POSITION_LEVEL = 5;
@@ -42,7 +42,7 @@ export function PopupMap({ popups, region, position, positionStatus, onLocate, o
 	const [selectedPopupId, setSelectedPopupId] = useState<number | null>(null);
 	const [manualTarget, setManualTarget] = useState<KakaoLatLngLiteral | null>(null);
 	const [isListRevealed, setIsListRevealed] = useState(false);
-	const locationButtonRef = useRef<HTMLButtonElement | null>(null);
+	const positionButtonRef = useRef<HTMLButtonElement | null>(null);
 
 	const markers = useMemo(() => toPlaceholderMarkers(popups), [popups]);
 	const positions = useMemo(() => markers.map((marker) => marker.position), [markers]);
@@ -57,16 +57,16 @@ export function PopupMap({ popups, region, position, positionStatus, onLocate, o
 	};
 
 	const handleLocate = () => {
-		void onLocate().then((found) => {
-			if (found !== null) {
-				setManualTarget(found);
+		void onLocate().then((foundPosition) => {
+			if (foundPosition !== null) {
+				setManualTarget(foundPosition);
 			}
 		});
 	};
 
 	const handleSelectionClose = () => {
 		setSelectedPopupId(null);
-		locationButtonRef.current?.focus();
+		positionButtonRef.current?.focus();
 	};
 
 	const handleListFocus = () => {
@@ -129,8 +129,8 @@ export function PopupMap({ popups, region, position, positionStatus, onLocate, o
 				<div
 					className={cn("pointer-events-none absolute right-0 p-3", selectedPopup === null ? "bottom-0" : "bottom-36")}
 				>
-					<CurrentLocationButton
-						ref={locationButtonRef}
+					<CurrentPositionButton
+						ref={positionButtonRef}
 						status={positionStatus}
 						onLocate={handleLocate}
 						className="pointer-events-auto"

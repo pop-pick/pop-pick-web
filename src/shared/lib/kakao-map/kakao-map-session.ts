@@ -1,7 +1,7 @@
 "use client";
 
 import { KakaoMapError } from "./kakao-map-error";
-import { buildPinElement, CLUSTER_STYLES, formatClusterText, getMyPositionElement } from "./kakao-map-pins";
+import { buildPinElement, CLUSTER_STYLES, createMyPositionElement, formatClusterText } from "./kakao-map-pins";
 import type {
 	KakaoCustomOverlayInstance,
 	KakaoMapInstance,
@@ -49,28 +49,28 @@ function isSamePinData(a: KakaoMarkerData, b: KakaoMarkerData) {
 
 export class KakaoMapSession {
 	private static sdkPromise: Promise<KakaoMapsSdk> | null = null;
-	private static attached = new WeakMap<HTMLElement, KakaoMapSession>();
+	private static attachedSessions = new WeakMap<HTMLElement, KakaoMapSession>();
 
-	public static load() {
+	public static loadSdk() {
 		KakaoMapSession.sdkPromise ??= KakaoMapSession.loadScript();
 		return KakaoMapSession.sdkPromise;
 	}
 
-	public static reload() {
+	public static reloadSdk() {
 		KakaoMapSession.sdkPromise = null;
 		document.getElementById(SCRIPT_ELEMENT_ID)?.remove();
-		return KakaoMapSession.load();
+		return KakaoMapSession.loadSdk();
 	}
 
 	public static attach(sdk: KakaoMapsSdk, container: HTMLElement, view: KakaoMapViewOptions) {
-		const attached = KakaoMapSession.attached.get(container);
-		if (attached !== undefined) {
-			attached.observeResize();
-			return attached;
+		const attachedSession = KakaoMapSession.attachedSessions.get(container);
+		if (attachedSession !== undefined) {
+			attachedSession.observeResize();
+			return attachedSession;
 		}
 
 		const session = new KakaoMapSession(sdk, container, view);
-		KakaoMapSession.attached.set(container, session);
+		KakaoMapSession.attachedSessions.set(container, session);
 
 		return session;
 	}
@@ -86,7 +86,7 @@ export class KakaoMapSession {
 		}
 
 		return new Promise<KakaoMapsSdk>((resolve, reject) => {
-			const finish = () => {
+			const resolveOnLoad = () => {
 				const sdk = window.kakao;
 				if (sdk === undefined) {
 					reject(new KakaoMapError("script-load-failed"));
@@ -107,20 +107,20 @@ export class KakaoMapSession {
 			};
 
 			if (window.kakao !== undefined) {
-				finish();
+				resolveOnLoad();
 				return;
 			}
 
-			const existing = document.getElementById(SCRIPT_ELEMENT_ID);
+			const existingScript = document.getElementById(SCRIPT_ELEMENT_ID);
 
-			if (existing !== null) {
-				if (existing.dataset.loadFailed === "true") {
+			if (existingScript !== null) {
+				if (existingScript.dataset.loadFailed === "true") {
 					reject(new KakaoMapError("script-load-failed"));
 					return;
 				}
 
-				existing.addEventListener("load", finish, { once: true });
-				existing.addEventListener("error", rejectOnError(existing), { once: true });
+				existingScript.addEventListener("load", resolveOnLoad, { once: true });
+				existingScript.addEventListener("error", rejectOnError(existingScript), { once: true });
 
 				return;
 			}
@@ -130,7 +130,7 @@ export class KakaoMapSession {
 			script.id = SCRIPT_ELEMENT_ID;
 			script.src = buildKakaoMapSdkUrl(appkey);
 			script.async = true;
-			script.addEventListener("load", finish, { once: true });
+			script.addEventListener("load", resolveOnLoad, { once: true });
 			script.addEventListener("error", rejectOnError(script), { once: true });
 
 			document.head.appendChild(script);
@@ -173,7 +173,7 @@ export class KakaoMapSession {
 		this.observeResize();
 	}
 
-	public moveTo(center: KakaoLatLngLiteral) {
+	public setCenter(center: KakaoLatLngLiteral) {
 		this.map.setCenter(toLatLng(this.sdk, center));
 	}
 
@@ -182,13 +182,13 @@ export class KakaoMapSession {
 	}
 
 	public fitToPositions(positions: readonly KakaoLatLngLiteral[], paddingPx: number) {
-		const first = positions[0];
-		if (first === undefined) {
+		const firstPosition = positions[0];
+		if (firstPosition === undefined) {
 			return;
 		}
 
 		if (positions.length === 1) {
-			this.moveTo(first);
+			this.setCenter(firstPosition);
 			return;
 		}
 
@@ -209,16 +209,16 @@ export class KakaoMapSession {
 			return;
 		}
 
-		const previous = this.selectedId === null ? undefined : this.pins.get(this.selectedId);
-		if (previous !== undefined) {
-			previous.element.setAttribute("aria-pressed", "false");
-			previous.overlay.setZIndex(PIN_Z_INDEX);
+		const previousPin = this.selectedId === null ? undefined : this.pins.get(this.selectedId);
+		if (previousPin !== undefined) {
+			previousPin.element.setAttribute("aria-pressed", "false");
+			previousPin.overlay.setZIndex(PIN_Z_INDEX);
 		}
 
-		const next = id === null ? undefined : this.pins.get(id);
-		if (next !== undefined) {
-			next.element.setAttribute("aria-pressed", "true");
-			next.overlay.setZIndex(SELECTED_PIN_Z_INDEX);
+		const nextPin = id === null ? undefined : this.pins.get(id);
+		if (nextPin !== undefined) {
+			nextPin.element.setAttribute("aria-pressed", "true");
+			nextPin.overlay.setZIndex(SELECTED_PIN_Z_INDEX);
 		}
 
 		this.selectedId = id;
@@ -236,7 +236,7 @@ export class KakaoMapSession {
 			this.myPosition = new this.sdk.maps.CustomOverlay({
 				map: this.map,
 				position: latLng,
-				content: getMyPositionElement(),
+				content: createMyPositionElement(),
 				zIndex: MY_POSITION_Z_INDEX
 			});
 
@@ -249,46 +249,46 @@ export class KakaoMapSession {
 	public syncMarkers(markers: readonly KakaoMarkerData[]) {
 		const nextIds = new Set(markers.map((marker) => marker.id));
 
-		for (const [id, synced] of this.pins) {
+		for (const [id, syncedPin] of this.pins) {
 			if (!nextIds.has(id)) {
-				this.removePin(id, synced);
+				this.removePin(id, syncedPin);
 			}
 		}
 
 		for (const marker of markers) {
-			const synced = this.pins.get(marker.id);
+			const syncedPin = this.pins.get(marker.id);
 
-			if (synced === undefined) {
+			if (syncedPin === undefined) {
 				this.pins.set(marker.id, this.createPin(marker));
 				continue;
 			}
 
-			if (!isSamePosition(synced.data.position, marker.position)) {
-				synced.overlay.setPosition(toLatLng(this.sdk, marker.position));
+			if (!isSamePosition(syncedPin.data.position, marker.position)) {
+				syncedPin.overlay.setPosition(toLatLng(this.sdk, marker.position));
 			}
 
-			if (!isSamePinData(synced.data, marker)) {
-				this.removePin(marker.id, synced);
+			if (!isSamePinData(syncedPin.data, marker)) {
+				this.removePin(marker.id, syncedPin);
 				this.pins.set(marker.id, this.createPin(marker));
 				continue;
 			}
 
-			synced.data = marker;
+			syncedPin.data = marker;
 		}
 
 		this.clusterer?.redraw();
 	}
 
 	public detach() {
-		for (const [id, synced] of this.pins) {
-			this.removePin(id, synced);
+		for (const [id, syncedPin] of this.pins) {
+			this.removePin(id, syncedPin);
 		}
 
 		this.setMyPosition(null);
 		this.clusterer?.setMap(null);
 		this.observer?.disconnect();
 		this.observer = null;
-		KakaoMapSession.attached.delete(this.container);
+		KakaoMapSession.attachedSessions.delete(this.container);
 	}
 
 	private createPin(marker: KakaoMarkerData) {
@@ -323,13 +323,13 @@ export class KakaoMapSession {
 		};
 	}
 
-	private removePin(id: string, synced: SyncedPin) {
-		synced.element.removeEventListener("click", synced.listener);
+	private removePin(id: string, syncedPin: SyncedPin) {
+		syncedPin.element.removeEventListener("click", syncedPin.listener);
 
 		if (this.clusterer === null) {
-			synced.overlay.setMap(null);
+			syncedPin.overlay.setMap(null);
 		} else {
-			this.clusterer.removeMarker(synced.overlay, true);
+			this.clusterer.removeMarker(syncedPin.overlay, true);
 		}
 
 		this.pins.delete(id);

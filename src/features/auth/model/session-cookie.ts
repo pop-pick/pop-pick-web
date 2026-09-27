@@ -24,6 +24,6 @@ export function clearRefreshCookie(response: NextResponse) {
 }
 
 export async function readRefreshToken() {
-	const store = await cookies();
-	return store.get(REFRESH_COOKIE_NAME)?.value ?? null;
+	const cookieStore = await cookies();
+	return cookieStore.get(REFRESH_COOKIE_NAME)?.value ?? null;
 }

@@ -13,7 +13,7 @@ interface ViewToggleProps {
 
 const ARROW_STEPS: Record<string, number> = { ArrowRight: 1, ArrowLeft: -1 };
 
-function resolveNextIndex(key: string, current: number, count: number) {
+function resolveNextIndex(key: string, currentIndex: number, count: number) {
 	if (key === "Home") {
 		return 0;
 	}
@@ -24,7 +24,7 @@ function resolveNextIndex(key: string, current: number, count: number) {
 
 	const step = ARROW_STEPS[key];
 
-	return step === undefined ? null : (current + step + count) % count;
+	return step === undefined ? null : (currentIndex + step + count) % count;
 }
 
 export function ViewToggle({ view, onChange }: ViewToggleProps) {
@@ -32,14 +32,14 @@ export function ViewToggle({ view, onChange }: ViewToggleProps) {
 
 	const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
 		const nextIndex = resolveNextIndex(event.key, EXPLORE_VIEW_MODES.indexOf(view), EXPLORE_VIEW_MODES.length);
-		const next = nextIndex === null ? undefined : EXPLORE_VIEW_MODES[nextIndex];
+		const nextView = nextIndex === null ? undefined : EXPLORE_VIEW_MODES[nextIndex];
 
-		if (nextIndex === null || next === undefined) {
+		if (nextIndex === null || nextView === undefined) {
 			return;
 		}
 
 		event.preventDefault();
-		onChange(next);
+		onChange(nextView);
 		buttonsRef.current[nextIndex]?.focus();
 	};
 

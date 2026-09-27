@@ -7,4 +7,9 @@
 	button:disabled {
 		cursor: not-allowed;
 	}
+
+	:focus:not(:focus-visible),
+	[tabindex="-1"]:focus {
+		outline: none;
+	}
 }

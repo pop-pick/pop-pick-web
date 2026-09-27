@@ -77,11 +77,11 @@ export function KakaoMap({
 			return;
 		}
 
-		const attached = KakaoMapSession.attach(sdk, container, initialViewRef.current);
-		setSession(attached);
+		const attachedSession = KakaoMapSession.attach(sdk, container, initialViewRef.current);
+		setSession(attachedSession);
 
 		return () => {
-			attached.detach();
+			attachedSession.detach();
 			setSession(null);
 		};
 	}, [sdk]);
@@ -91,7 +91,7 @@ export function KakaoMap({
 			return;
 		}
 
-		session.moveTo({ lat: center.lat, lng: center.lng });
+		session.setCenter({ lat: center.lat, lng: center.lng });
 		session.setLevel(level);
 	}, [session, fitTo, center?.lat, center?.lng, level]);
 

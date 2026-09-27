@@ -11,7 +11,7 @@ export default function PlannerPage() {
 				<p className="text-sm text-zinc-500">AI가 짠 하루 동선을 모아 봅니다.</p>
 			</header>
 
-			<RequireAuth next="/planner">
+			<RequireAuth nextPath="/planner">
 				<section className="flex flex-col gap-4">
 					<SectionHeader title="다가오는 일정" />
 					<EmptyState

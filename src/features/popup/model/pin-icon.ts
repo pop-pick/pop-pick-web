@@ -17,6 +17,6 @@ function isKnownCategory(category: string): category is PopupCategory {
 	return category in PIN_ICONS;
 }
 
-export function getPinIcon(category: string) {
+export function toPinIconPath(category: string) {
 	return isKnownCategory(category) ? PIN_ICONS[category] : DEFAULT_PIN_ICON;
 }

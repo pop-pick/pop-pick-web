@@ -9,14 +9,14 @@ import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 import type { PositionStatus } from "../hooks/useCurrentPosition";
 
-interface CurrentLocationButtonProps {
+interface CurrentPositionButtonProps {
 	status: PositionStatus;
 	onLocate: () => void;
 	className?: string;
 	ref?: Ref<HTMLButtonElement>;
 }
 
-export function CurrentLocationButton({ status, onLocate, className, ref }: CurrentLocationButtonProps) {
+export function CurrentPositionButton({ status, onLocate, className, ref }: CurrentPositionButtonProps) {
 	const isDisabled = status === "denied" || status === "unavailable";
 	const isBusy = status === "locating";
 

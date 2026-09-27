@@ -2,7 +2,7 @@ const KAKAO_AUTHORIZE_URL = "https://kauth.kakao.com/oauth/authorize";
 
 export const KAKAO_CALLBACK_PATH = "/auth/kakao/callback";
 
-export function getKakaoRedirectUri() {
+export function buildKakaoRedirectUri() {
 	return `${window.location.origin}${KAKAO_CALLBACK_PATH}`;
 }
 

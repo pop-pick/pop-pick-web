@@ -22,8 +22,8 @@ function consumeOAuthState() {
 	return state;
 }
 
-export function verifyOAuthState(received: string | null) {
-	if (received === null || received !== consumeOAuthState()) {
+export function verifyOAuthState(receivedState: string | null) {
+	if (receivedState === null || receivedState !== consumeOAuthState()) {
 		throw new OAuthStateMismatchError();
 	}
 }

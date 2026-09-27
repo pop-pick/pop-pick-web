@@ -30,6 +30,8 @@
 	--color-primary-strong: var(--blue-600);
 	--color-ai: var(--blue-400);
 	--color-like: #dc4c4c;
+	--color-region: #bd6ccf;
+	--color-region-subtle: #fcf0ff;
 	--color-error: var(--red-500);
 	--color-error-bg: var(--red-10);
 

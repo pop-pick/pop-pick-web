@@ -2,7 +2,7 @@ import type { KakaoLatLngLiteral } from "@/shared/lib/kakao-map/kakao-map-utils"
 import type { PopupCardItem } from "@/shared/model/popup";
 import type { Region } from "@/shared/model/region";
 
-import { getPinIcon } from "./pin-icon";
+import { toPinIconPath } from "./pin-icon";
 import { truncatePinLabel } from "./pin-label";
 
 const REGION_CENTERS: Record<Region, KakaoLatLngLiteral> = {
@@ -17,7 +17,7 @@ const FULL_TURN_RADIANS = 2 * Math.PI;
 const POSITIONS_PER_RING = 6;
 const RING_RADIUS_STEP_DEGREES = 0.0015;
 
-function getPlaceholderPosition(region: Region, indexInRegion: number) {
+function buildPlaceholderPosition(region: Region, indexInRegion: number) {
 	const center = REGION_CENTERS[region];
 
 	if (indexInRegion === 0) {
@@ -46,9 +46,9 @@ export function toPlaceholderMarkers(popups: readonly PopupCardItem[]) {
 
 		return {
 			id: String(popup.id),
-			position: getPlaceholderPosition(popup.region, indexInRegion),
+			position: buildPlaceholderPosition(popup.region, indexInRegion),
 			title: popup.name,
-			iconUrl: getPinIcon(popup.category),
+			iconUrl: toPinIconPath(popup.category),
 			label: truncatePinLabel(popup.name)
 		};
 	});

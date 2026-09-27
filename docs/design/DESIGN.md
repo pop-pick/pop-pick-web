@@ -88,6 +88,8 @@ Tailwind 기본 팔레트(`zinc`, `blue` 등)는 지우지 않았다. 기존 화
 | `--color-primary-strong` | `--blue-600` | 눌린 상태의 테두리                                                                                      |
 | `--color-ai`             | `--blue-400` | AI 일치 문구와 반짝이 아이콘                                                                            |
 | `--color-like`           | `#dc4c4c`    | 찜한 하트. 시안에서 변수에 묶이지 않은 값이라 원시 변수 없이 값을 직접 둔다. 변수로 등록할지는 미정이다 |
+| `--color-region`         | `#bd6ccf`    | 팝업 상세 지역 배지의 글자. 변수에 묶이지 않은 값이라 값을 직접 둔다                                    |
+| `--color-region-subtle`  | `#fcf0ff`    | 팝업 상세 지역 배지의 배경. 변수에 묶이지 않은 값이라 값을 직접 둔다                                    |
 
 카카오 로그인 버튼 색 `--color-kakao`와 `-hover`, `-active`, `-foreground`는 카카오 디자인 가이드 값이라 시안과 무관하다.
 
@@ -106,9 +108,10 @@ Tailwind 기본 팔레트(`zinc`, `blue` 등)는 지우지 않았다. 기존 화
 | `text-4`                  | `#6f768c` | 4.52:1 | 통과      | 통과             |
 | `text-5`                  | `#868da3` | 3.31:1 | 실패      | 통과             |
 | `error`                   | `#ff5d4a` | 3.04:1 | 실패      | 통과             |
+| `region`                  | `#bd6ccf` | 3.38:1 | 실패      | 통과             |
 | `text-6`, `icon-disabled` | `#aeb3c2` | 2.09:1 | 실패      | 실패             |
 
-`primary`와 `text-4`는 흰 바탕에서 4.5보다 0.02 높을 뿐이라 `bg-2`, `bg-3` 위에서는 떨어질 수 있다. `text-5`로 쓴 보조 글자와 `error`로 쓴 12px 오류 문구는 본문 기준에 못 미친다. `text-6`과 `icon-disabled`는 비활성 상태에만 쓴다. 디자이너에게 물을 것은 `docs/product/ROADMAP.md`의 미결정 절에 있다.
+`primary`와 `text-4`는 흰 바탕에서 4.5보다 0.02 높을 뿐이라 `bg-2`, `bg-3` 위에서는 떨어질 수 있다. `text-5`로 쓴 보조 글자와 `error`로 쓴 12px 오류 문구는 본문 기준에 못 미친다. 지역 배지는 `region` 글자를 `region-subtle` 바탕에 12px로 쓰고 이때 대비가 약 3.1:1이라 본문 기준 AA에 못 미친다. `text-6`과 `icon-disabled`는 비활성 상태에만 쓴다. 디자이너에게 물을 것은 `docs/product/ROADMAP.md`의 미결정 절에 있다.
 
 ## 타이포그래피
 
@@ -130,13 +133,13 @@ Tailwind 기본 팔레트(`zinc`, `blue` 등)는 지우지 않았다. 기존 화
 | `Body2/B2_medium` 20  | `text-b2-20`   | 20px | 1.5     | 0       | 500  |
 | `Body2/B2_medium` 16  | `text-b2-16`   | 16px | 1.5     | 0       | 500  |
 | `Body2/B2_medium` 14  | `text-b2-14`   | 14px | 1.5     | 0       | 500  |
-| `Body2/B2_medium` 12  | `text-b2-12`   | 12px | 20px    | 0       | 500  |
+| `Body2/B2_medium` 12  | `text-b2-12`   | 12px | 1.5     | 0       | 500  |
 | `Body3/B3_regular` 16 | `text-b3-16`   | 16px | 1.5     | 0       | 400  |
 | `Body3/B3_regular` 14 | `text-b3-14`   | 14px | 1.5     | 0       | 400  |
 | `Body3/B3_regular` 12 | `text-b3-12`   | 12px | 1.5     | 0       | 400  |
 | `Caption/regular 12`  | `text-caption` | 12px | 12px    | 0       | 400  |
 
-`Head/H1_semi`와 `Head/H2_semi`는 이름에 semi가 붙어 있지만 시안 글꼴이 Bold라 700으로 옮겼다. `Body2/B2_medium` 12px은 시안에서 줄 높이 20px로 쓰인 곳이 가장 많아 20px로 정했다.
+`Head/H1_semi`와 `Head/H2_semi`는 이름에 semi가 붙어 있지만 시안 글꼴이 Bold라 700으로 옮겼다. `Body2/B2_medium` 12px은 홈과 팝업 상세 시안의 배지와 카드 설명에서 줄 높이가 전부 150%(18px)라 1.5로 정했다. 20px로 쓰인 곳은 하단 탭바 라벨뿐이고 탭바가 `leading-5`를 함께 준다.
 
 시안의 글자 크기 변수(`font/fontSize/*`)는 토큰으로 옮기지 않았다. `base`가 14px이라 Tailwind `text-base`(16px)와 이름이 같고 값이 다르다. 시안 줄 높이 변수 snug(20px)와 relaxed(24px)는 Tailwind 기본 `leading-5`, `leading-6`과 값이 같으니 그것을 쓴다. Tailwind 기본 `leading-snug`, `leading-relaxed`는 값이 다르다. Tailwind 기본 글자 크기 `text-xs`부터 `text-9xl`은 기존 화면이 쓰고 있어 남겨 두었다.
 
@@ -165,7 +168,7 @@ Tailwind 기본 팔레트(`zinc`, `blue` 등)는 지우지 않았다. 기존 화
 
 간격 토큰은 기기 안전 영역이 들어간 둘뿐이고 `layout.css`에 있다. `float-gap`은 떠 있는 요소와 화면 바닥 사이로 시안의 42px이다. 홈 인디케이터가 있는 기기에서는 인디케이터 위 8px이 42px보다 크면 그 값을 쓴다. `max(42px, 8px + env(safe-area-inset-bottom))`이다. `tab-bar-clearance`는 탭바 높이 80px에 `float-gap`을 더한 값이고 루트 `html`의 `scroll-padding-bottom`이 쓴다. 그래서 키보드로 옮긴 포커스가 탭바 뒤에 가려지지 않는다. 안전 영역 값을 받으려고 루트 레이아웃이 `viewport-fit=cover`를 켠다.
 
-모서리 반경도 Tailwind 기본 척도를 쓴다. 시안 값과 같다.
+모서리 반경도 Tailwind 기본 척도를 쓴다. 시안 값과 같다. 40px(랜딩 카드)은 기본 척도 위에 `tokens/radius.css`의 `--radius-5xl`(`rounded-5xl`)로 이었다.
 
 | 시안 반경 | 클래스         |
 | --------- | -------------- |
@@ -201,6 +204,8 @@ import { SvgIcon } from "@/shared/ui/SvgIcon";
 - 뜻을 전하는 아이콘은 `label` prop을 준다. 그러면 `role="img"`와 `aria-label`이 붙는다. `label`이 없으면 `aria-hidden`이 붙어 읽히지 않는다
 - 아이콘만 있는 버튼은 버튼에 이름을 단다
 
+색이 정해진 그림은 이 폴더에 넣지 않는다. 로고 워드마크 `public/brand/logo.svg`는 흰 타원이, 홈 배너의 핀 그림 `public/illustrations/banner-pins.svg`는 그라디언트가 있어 SVGR이 색을 `currentColor`로 바꾸면 깨진다. 두 파일은 `public/`에 두고 `next/image`에 경로 문자열과 `width`, `height`를 준다. 로컬 경로라 `images.remotePatterns`가 필요 없고 Next는 SVG를 최적화하지 않고 그대로 보낸다. `src/` 아래 다른 폴더에 두고 import하면 Next의 전역 타입 선언이 `any`라 타입 검사가 잘못된 경로를 잡지 못한다. 이미지가 없는 팝업의 대체 표시가 쓰는 카테고리 아이콘도 같은 방식으로 `public/pins/`에 있다.
+
 ## 다크 모드
 
 지원 여부는 미정이다. 지원한다면 시스템 설정을 따르는지 서비스 안에 전환 설정을 두는지도 함께 정한다. 지원하기로 하면 `@theme inline` 토큰에 다크 값을 더하는 방식으로 붙인다.
@@ -212,3 +217,5 @@ Design width 375px, 대상은 모바일 웹이고 반응형 범위는 375px에�
 하단 탭바는 시안의 떠 있는 탭바다. 좌우 20px 안쪽에 반경 24px, 흰색 80%와 배경 흐림, `shadow-floating`으로 그린다. `sticky`라 스크롤 중에는 바닥에서 `float-gap`만큼 떠서 본문이 뒤로 지나가고, 스크롤 끝에서는 본문 아래 40px 뒤에 놓인다. 탭을 누르면 새로 현재 탭이 된 아이콘이 0.8배에서 1배로 튀어 오르고 색이 부드럽게 바뀐다. 주소가 바뀌기를 기다리지 않고 누른 순간 시작한다. 멈춘 모양은 시안과 같고, 움직임 줄이기 설정을 켠 사용자에게는 크기 변화가 없다. 애니메이션은 `motion`이고 루트 레이아웃의 `MotionProvider`가 `reducedMotion="user"`를 건다.
 
 스크롤은 모든 폭에서 브라우저 창이 맡는다. 폰에서는 주소창 접힘과 당겨서 새로고침이, 넓은 화면에서는 키보드 스크롤과 뒤로 가기 위치 복원이 브라우저 기본대로 동작한다. 스크롤바는 바탕 없이 6px `gray-300` 막대이고(`utilities.css`의 `scrollbar-subtle`, 루트 `html`에 붙는다), 스크롤바 자리를 양쪽에 늘 비워 둬서 스크롤이 있는 화면과 없는 화면을 오갈 때 폭이 바뀌지 않는다.
+
+포커스 표시는 키보드로 옮길 때만 보인다. 마우스나 터치로 누른 요소와 코드가 포커스를 준 컨테이너(`tabindex="-1"`)에는 브라우저 기본 테두리를 그리지 않는다(`base.css`). 키보드 포커스는 `focus-ring`의 파란 2px 테두리이고, 파란 바탕 위에서는 흰 테두리를 쓴다.

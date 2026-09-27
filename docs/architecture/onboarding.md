@@ -1,6 +1,6 @@
 # 온보딩 설계
 
-`features/onboarding`. 랜딩과 온보딩 세 단계, 취향 저장을 다룬다. 진입 순서는 랜딩, 로그인, 로그인 완료, 온보딩이다. 로그인이 온보딩보다 먼저이므로 **답을 로컬에 임시 보관했다가 로그인 뒤 보내는 처리가 없다.** 로그인한 사용자가 답하고 마지막 단계에서 서버로 보낸다.
+`features/onboarding`. 랜딩과 온보딩 세 단계, 취향 저장을 다룬다. 진입 순서는 랜딩, 로그인, 온보딩이다. 로그인이 온보딩보다 먼저이므로 **답을 로컬에 임시 보관했다가 로그인 뒤 보내는 처리가 없다.** 로그인한 사용자가 답하고 마지막 단계에서 서버로 보낸다.
 
 ## R. Requirements
 
@@ -28,7 +28,7 @@
 | ---------------- | ----------------------------------- | ------------------------------------------------------------------------ |
 | 선택지 목록      | Server. `["onboarding", "options"]` | 관심 카테고리와 지역, 선호 활동 셋. 서버 테이블에서 온다. 공개           |
 | 저장된 취향      | Server. `["preferences"]`           | 로그인한 사용자의 답이다. 코스 조건 입력과 마이페이지가 같은 값을 읽는다 |
-| 온보딩 완료 여부 | 같은 응답                           | 쿠키로 랜딩 노출을 판단하는 안은 랜딩 노출 조건이 정해지면 따른다        |
+| 온보딩 완료 여부 | 같은 응답                           | 랜딩 노출은 로그인 여부로만 가른다                                       |
 | 현재 단계        | URL `/onboarding/[step]`            | 뒤로가기가 이전 단계이고 1단계의 이전은 랜딩이다                         |
 | 입력 중인 폼 값  | react-hook-form                     | 단계를 떠날 때 스토어에 쓰고 마치면 비운다                               |
 
@@ -40,13 +40,13 @@
 
 ```
 /                      나에게 맞는 팝업 찾기   /login?next=/onboarding/1
-로그인 성공                                    /login/complete 뒤 /onboarding/1
+로그인 성공                                    /onboarding/1
 /onboarding/1  다음                            값이 있으면 /onboarding/2, 없으면 알럿
                건너뛰기                        /onboarding/2 (값 저장 안 함)
 /onboarding/2  다음, 건너뛰기                  /onboarding/3
-/onboarding/3  시작하기                        PUT preferences 뒤 환영 알럿, 확인하면 /home
-               건너뛰기                        PUT preferences 뒤 /home
-/                      둘러보기                /home (비회원 홈)
+/onboarding/3  시작하기                        PUT preferences 뒤 환영 알럿, 확인하면 /
+               건너뛰기                        PUT preferences 뒤 /
+/                      둘러보기                랜딩 모달을 닫고 홈에 머문다
 ```
 
 단계 화면은 저장된 취향을 폼 기본값으로 읽고 "다음"이나 "건너뛰기"에서 폼 값을 스토어에 쓴다. 건너뛰기는 그 단계의 값을 비운 채 다음으로 간다. "다음"은 그 단계에 고른 것이 하나도 없으면 알럿을 띄우고 머무른다. 건너뛰려면 건너뛰기를 눌러야 한다는 것을 알럿이 알려주는 셈이라 문구는 기획이 준 "항목을 선택해주세요"를 그대로 쓴다.
@@ -141,7 +141,7 @@ export function isStepEmpty(step: 1 | 2 | 3, answers: OnboardingAnswers): boolea
 
 **로그.** `[onboarding]` 접두사. 취향 저장 실패와 재시도 결과.
 
-**접근성.** 단일 선택 묶음은 라디오, 다중 선택 묶음은 `<button aria-pressed>`다. 묶음마다 `<fieldset>`과 `<legend>`가 질문 문구를 담는다. 글자 수 카운터는 `aria-live="polite"`이고 상한에 닿으면 문구가 바뀐다. 미입력 알럿과 환영 알럿은 `shared/ui`의 `ConfirmDialog`와 같은 native `<dialog>`이고 확인 버튼 하나만 둔다. 닫으면 눌렀던 버튼으로 포커스가 돌아간다.
+**접근성.** 단일 선택 묶음은 라디오, 다중 선택 묶음은 `<button aria-pressed>`다. 묶음마다 `<fieldset>`과 `<legend>`가 질문 문구를 담는다. 글자 수 카운터는 `aria-live="polite"`이고 상한에 닿으면 문구가 바뀐다. 미입력 알럿과 환영 알럿은 `shared/ui`의 `AlertDialog`와 같은 native `<dialog>`이고 확인 버튼 하나만 둔다. 닫으면 눌렀던 버튼으로 포커스가 돌아간다.
 
 ## O. Optimization과 운영
 
@@ -155,4 +155,4 @@ export function isStepEmpty(step: 1 | 2 | 3, answers: OnboardingAnswers): boolea
 
 **지표.** 취향 저장 실패 횟수와 선택지 조회 실패 횟수를 센다. 조회가 실패하면 온보딩이 통째로 막힌다.
 
-**운영.** 랜딩 노출 조건이 "최초 1회"로 정해지면 `proxy.ts`가 `pp_onboarded` 쿠키를 보고 `/`를 `/home`으로 보낸다. "매번"이면 그 조건을 두지 않는다. 쿠키는 `markCompleted`가 `document.cookie`로 쓰고 값은 날짜 문자열이다.
+**운영.** 홈은 `/` 하나이고 랜딩은 `src/app/page.tsx`가 홈 화면에 `components/LandingDialog`를 얹는다. `AuthStatusSwitch`의 `anonymous` 칸에 넣어 로그인하지 않은 사용자에게만 뜬다. 닫으면 `model/landing-dismissal.ts`가 `sessionStorage`에 기록해 그 세션 동안 다시 띄우지 않는다. 네이티브 `<dialog>`의 `showModal()`로 열어 포털 없이 top layer에 뜨고 배경 차단과 Esc를 브라우저가 맡는다.
