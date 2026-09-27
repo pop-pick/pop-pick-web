@@ -135,12 +135,12 @@ export function PickCard(props: {
 export function OnImageBadge({ label }: { label: string }); // 이미지 위 반투명 배지. 카테고리와 badge
 export function MatchRatePill({ nickname, matchRate }: { nickname: string | null; matchRate: number });
 export function PickSectionSkeleton(); // restoring에서 PICK 자리를 지킨다
-export function PopularSection({ popularPopups }: { popularPopups: PopularPopupItem[] }); // 전체보기가 /explore?view=list
+export function PopularSection({ popularPopups }: { popularPopups: PopularPopupItem[] }); // 전체보기가 /explore?view=list&sort=popular
 export function PopularPopupRow({ item }: { item: PopularPopupItem }); // 72px 썸네일과 세 줄. 행 전체가 상세 링크
-export function TrendingRegions({ regions }: { regions: Region[] }); // 칩이 /explore?region=
+export function TrendingRegions({ regions }: { regions: Region[] }); // 칩이 /explore?view=list&region=
 ```
 
-홈은 `shared/components/PopupCard`를 쓰지 않는다. PICK 카드와 인기 행이 시안에서 모양이 달라 이 기능 안에 있다. 배너 목적지는 회원과 비회원 모두 `/onboarding/1`이라 배너가 인증 상태를 모른다. 로그인하지 않은 사용자는 `proxy.ts`가 `/login?next=/onboarding/1`로 보내고 로그인이 끝나면 온보딩 1단계로 온다.
+PICK 카드와 인기 행은 시안에서 탐색 카드와 모양이 달라 이 기능 안에 있다. 배너 목적지는 회원과 비회원 모두 `/onboarding/1`이라 배너가 인증 상태를 모른다. 로그인하지 않은 사용자는 `proxy.ts`가 `/login?next=/onboarding/1`로 보내고 로그인이 끝나면 온보딩 1단계로 온다.
 
 **서버 API.** 전부 백엔드 요구다.
 
@@ -171,7 +171,7 @@ export function TrendingRegions({ regions }: { regions: Region[] }); // 칩이 /
 - `placeholder-home.ts`의 상수 셋을 쿼리로 바꾸고 파일을 지운다. 조회 함수와 `queryOptions`는 엔드포인트가 생길 때 `api`에 만든다
 - 닉네임 자리의 `PLACEHOLDER_NICKNAME`(`shared/lib/placeholder-data.ts`)을 `["me"]`의 `nickname`으로 바꾼다
 - `RecommendedPopupItem`과 `PopularPopupItem`을 응답 모양에 맞추고 `null`을 허용한 필드 중 출처가 정해진 것은 `null`을 뺀다. 두 타입은 이미 이 기능의 `model`에 있다
-- 지역 칩을 `RegionSummary`로 바꾼다. 인기 전체보기 링크는 이미 `sort=popular`를 넘기고 탐색이 정렬을 읽기 시작하면 인기순으로 열린다
+- 지역 칩을 `RegionSummary`로 바꾼다
 - **추천 API가 토큰을 요구하면 서버 슬롯 방식을 다시 본다.** 지금은 서버 컴포넌트인 라우트가 임시 데이터를 넣은 `PickSection`을 `authenticated` 슬롯에 넘긴다. 서버 컴포넌트는 토큰이 없어 인증이 필요한 API를 부르지 못한다. 추천 쿼리는 클라이언트 컴포넌트 안에서 돌아야 하고 `PickSection`이 쿼리를 직접 부르는 모양으로 바뀐다
 
 **운영.** 추천 이유의 글자 수 상한을 백엔드와 정하면 카드의 줄 수 제한은 그대로 두고 상한만 문서에 적는다. 두 줄 말줄임은 상한과 무관하게 남는다.

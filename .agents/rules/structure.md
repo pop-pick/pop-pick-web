@@ -37,7 +37,7 @@ features/{기능}/
 | 폴더                               | 담는 것                                                                                                                                                                                                                     |
 | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `ui`                               | 디자인 시스템 부품. `Button`, `Chip`, `Badge`, `IconButton`, `Skeleton`, `SvgIcon`처럼 props와 토큰만으로 그리고 앱을 모른다                                                                                                |
-| `components`                       | `ui`를 조립한 공용 컴포넌트. `BottomTabBar`, `SectionHeader`, `EmptyState`, `PopupCard`처럼 경로와 도메인 타입을 알아도 된다                                                                                                |
+| `components`                       | `ui`를 조립한 공용 컴포넌트. `BottomTabBar`, `SectionHeader`, `EmptyState`, `PopupImage`처럼 경로와 도메인 타입을 알아도 된다                                                                                               |
 | `assets`                           | 코드가 아닌 원본 파일. `icons/`의 SVG는 SVGR이 빌드할 때 컴포넌트로 바꾸고 `fonts/`의 woff2는 `styles/fonts.ts`가 싣는다. 색이 고정되거나 그라디언트가 있는 SVG는 SVGR이 색을 바꿔서 `public/`에 두고 `next/image`로 싣는다 |
 | `styles`                           | Tailwind 진입점 `globals.css`와 디자인 토큰 `tokens/`                                                                                                                                                                       |
 | `api`, `lib`, `model`, `providers` | HTTP 층, 도메인 지식이 없는 도구, 여러 기능이 쓰는 값과 타입, 루트 레이아웃이 감싸는 Provider                                                                                                                               |
@@ -60,7 +60,7 @@ features/{기능}/
 **값과 파생 타입, 라벨은 한 파일에 둔다.** 떼면 안 되는 한 몸이다.
 
 ```ts
-export const REGIONS = ["seongsu", "yeouido", "hongdae", "sinchon", "yongsan"] as const;
+export const REGIONS = ["yeouido", "hongdae", "jamsil", "yongsan", "seongsu"] as const;
 export type Region = (typeof REGIONS)[number];
 export const REGION_LABELS: Record<Region, string> = { ... };
 ```
