@@ -17,6 +17,30 @@ const nextConfig: NextConfig = {
 	reactCompiler: true,
 	poweredByHeader: false,
 	agentRules: false,
+	turbopack: {
+		rules: {
+			"*.svg": {
+				condition: { path: /^src\/shared\/assets\/icons\// },
+				loaders: [
+					{
+						loader: "@svgr/webpack",
+						options: {
+							svgoConfig: {
+								plugins: [
+									{
+										name: "preset-default",
+										params: { overrides: { removeViewBox: false, convertColors: { currentColor: true } } }
+									},
+									"prefixIds"
+								]
+							}
+						}
+					}
+				],
+				as: "*.js"
+			}
+		}
+	},
 	async headers() {
 		return [
 			{

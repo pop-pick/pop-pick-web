@@ -110,7 +110,7 @@ check "컴포넌트 파일이 소문자다" \
 	'find src/features src/shared -name "*.tsx" | grep -vE "/[A-Z][A-Za-z0-9]*\.tsx$"'
 
 check "export default 로 내보낸다" \
-	'grep -rn "export default" src/features src/shared --include="*.ts" --include="*.tsx"'
+	'grep -rn "export default" src/features src/shared --include="*.ts" --include="*.tsx" | grep -v "\.d\.ts:"'
 
 check "한 파일에 컴포넌트가 둘 이상이다" \
 	'grep -rcE "^(export )?function [A-Z]" src --include="*.tsx" | grep -vE ":[01]$"'
