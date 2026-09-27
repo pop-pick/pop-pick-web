@@ -25,9 +25,9 @@ lefthook 훅이 커밋과 푸시 때 같은 검사를 저장소 전체에 돌린
 ## 구조
 
 - Feature 기반이다. `src/app`은 라우팅, `src/features`는 기능 단위, `src/shared`는 공용이다. 의존은 shared에서 features로, features에서 app으로 한 방향이고 기능끼리 부르지 않는다. 경로 별칭 `@/*`는 `./src/*`
-- `src/app`에는 Next가 이름을 정하는 라우트 파일(`layout.tsx`, `page.tsx` 등)만 둔다. 전부 소문자다. 컴포넌트와 CSS는 `src/shared`나 `src/features`에 두고 라우트 파일이 import한다. 하단 탭바는 루트 레이아웃이 모든 화면에 그린다. 라우트 그룹을 두지 않는다
+- `src/app`에는 Next가 이름을 정하는 라우트 파일(`layout.tsx`, `page.tsx` 등)만 둔다. 전부 소문자다. 컴포넌트와 CSS는 `src/shared`나 `src/features`에 두고 라우트 파일이 import한다. 하단 탭바는 루트 레이아웃이 그리고 온보딩과 로그인, 카카오 콜백, 코스 조건 입력, 코스 생성 중 화면에서는 숨는다. 라우트 그룹을 두지 않는다
 - `features/` 하위 폴더는 기능 하나에 하나다. 이름은 백엔드 `feature/{이름}` 패키지와 맞춘다. 기능 폴더 안은 `api`와 `components`, `hooks`, `model` 넷으로 나누고 루트에 파일을 두지 않는다. `lib`은 `src/shared`에만 둔다
-- 토큰 정본은 `src/shared/styles/tokens/`의 CSS 파일이다. 원시 색은 `color-primitive.css`의 `:root`, 의미 색과 글자, 그림자는 `color-semantic.css`, `typography.css`, `shadow.css`의 `@theme inline`에 있다. `globals.css`는 Tailwind 진입점이고 이 파일들을 불러오기만 한다
+- 토큰 정본은 `src/shared/styles/tokens/`의 CSS 파일이다. 원시 색은 `color-primitive.css`의 `:root`, 의미 색과 글자, 그림자, 컬럼 폭과 바닥 간격은 `color-semantic.css`, `typography.css`, `shadow.css`, `layout.css`의 `@theme inline`에 있다. `globals.css`는 Tailwind 진입점이고 이 파일들을 불러오기만 한다
 
 ## 하지 않는 것
 

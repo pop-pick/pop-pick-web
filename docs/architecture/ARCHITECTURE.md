@@ -12,11 +12,11 @@
 
 ## 화면과 라우트
 
-하단 탭바는 모든 화면에 붙는다. 노출 조건 분기가 없어 루트 레이아웃이 탭바를 그린다. 라우트 그룹을 두지 않는다. 반응형 범위는 `docs/design/DESIGN.md`에 있다.
+하단 탭바는 루트 레이아웃이 그리고 온보딩과 로그인, 카카오 콜백, 코스 조건 입력, 코스 생성 중 화면에서는 `BottomTabBar`가 경로를 보고 아무것도 그리지 않는다. 숨기는 화면이 다섯 곳뿐이라 라우트 그룹을 두지 않는다. 반응형 범위는 `docs/design/DESIGN.md`에 있다.
 
 ```
 src/app/
-├── layout.tsx                          루트. QueryProvider와 AuthProvider, 고정 폭 컬럼, 하단 탭바
+├── layout.tsx                          루트. QueryProvider와 AuthProvider, MotionProvider, 고정 폭 컬럼, 하단 탭바
 ├── page.tsx                            /                         랜딩(메인)
 ├── error.tsx                           라우트 오류 경계
 ├── not-found.tsx
@@ -251,7 +251,6 @@ rewrite는 `/api/v1/:path*`로 좁힌다. 백엔드 API가 전부 `/api/v1/**`�
 | 탐색의 지역 선택 UI          | 화면 안에서 지역을 고르는 자리는 없다. 홈 인기 지역 칩에서 들어올 때만 `region`이 URL에 실린다 | `popup.md`의 `ExploreState`                                      |
 | 카테고리에 없는 팝업         | 여덟 중 하나로 온다고 보고 짠다. ETC가 없다                                                    | `shared/model/popup.ts`의 값과 카테고리별 대체 이미지, 핀 아이콘 |
 | 최근 본 팝업 보관 자리       | 메모리. 새로고침하면 사라진다                                                                  | 기록하는 `features/popup`의 훅 한 곳                             |
-| 하단 탭 마지막 라벨          | 화면마다 MY와 내 팝업이 섞여 있어 MY로 둔다                                                    | `shared/components/BottomTabBar.tsx`의 라벨                      |
 | 머무는 시간 선택지           | 둘. 간편 약 2시간과 반나절 4시간에서 5시간                                                     | `planner.md`의 `Duration`                                        |
 | 동행을 여러 개 고르나        | 하나만 고른다                                                                                  | `planner.md`의 `CourseRequest.companion`과 온보딩 답 타입        |
 | 로그인 완료 화면을 지나는 곳 | 모든 로그인이 완료 화면을 한 번 지난다                                                         | `auth.md`의 로그인 흐름 5단계                                    |
