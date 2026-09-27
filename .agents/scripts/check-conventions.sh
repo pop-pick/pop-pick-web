@@ -147,6 +147,12 @@ check "컴포넌트 props 를 type 으로 선언했다. interface 로 선언한�
 check "추론되는 반환 타입을 적었다" \
 	'{ grep -rnE "^[[:space:]]*(export )?(async )?function [A-Za-z_$][A-Za-z0-9_$]*(<[^>]*>)?\(.*\)[[:space:]]*:[[:space:]]*[A-Za-z]" src --include="*.ts" --include="*.tsx"; grep -rnE "^[[:space:]]*(export )?(const|let) [A-Za-z_$][A-Za-z0-9_$]* = (async )?(<[^>]*>)?\([^)]*\)[[:space:]]*:[[:space:]]*[A-Za-z]" src --include="*.ts" --include="*.tsx"; } | grep -v " is " | grep -v "\.d\.ts"'
 
+check "dayjs 를 직접 import 한다. @/shared/lib/dayjs 에서 가져온다 (AGENTS.md)" \
+	'grep -rnE "from \"dayjs(/[^\"]*)?\"" src --include="*.ts" --include="*.tsx" | grep -v "^src/shared/lib/dayjs.ts:"'
+
+check "Date 로 현재 시각이나 날짜를 만든다. dayjs.tz() 를 쓴다 (AGENTS.md)" \
+	'grep -rnE "new Date\(|Date\.now\(" src --include="*.ts" --include="*.tsx"'
+
 printf '\n=== 실패를 감추는 자리 (no-fallback.md, api.md) ===\n\n'
 
 check "비어 있는 catch 다" \
