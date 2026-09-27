@@ -1,8 +1,8 @@
 import { RequireAuth } from "@/features/auth/ui/RequireAuth";
 import { SessionPanel } from "@/features/auth/ui/SessionPanel";
-import { EmptyState } from "@/shared/ui/EmptyState";
+import { EmptyState } from "@/shared/components/EmptyState";
+import { SectionHeader } from "@/shared/components/SectionHeader";
 import { LinkButton } from "@/shared/ui/LinkButton";
-import { SectionHeader } from "@/shared/ui/SectionHeader";
 
 export default function MyPage() {
 	return (

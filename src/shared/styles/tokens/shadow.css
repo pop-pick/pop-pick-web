@@ -1,0 +1,10 @@
+@theme inline {
+	--shadow-subtle: 0 0 4px rgb(0 0 0 / 0.04);
+	--shadow-bar: 0 0 14px rgb(0 0 0 / 0.08);
+	--shadow-floating: 0 0 12px rgb(0 0 0 / 0.1);
+	--shadow-on-map: 0 0 12px rgb(0 0 0 / 0.16);
+	--shadow-sheet: 0 0 20px rgb(0 0 0 / 0.12);
+	--shadow-modal: 0 0 24px rgb(0 0 0 / 0.2);
+
+	--text-shadow-on-image: 0 0 12px rgb(0 0 0 / 0.08);
+}

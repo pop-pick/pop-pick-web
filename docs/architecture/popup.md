@@ -198,7 +198,7 @@ export function useCurrentPosition(): {
 export function useRecentPopups(): { items: PopupCardItem[]; record: (popup: PopupCardItem) => void };
 ```
 
-`PopupCard`와 `Chip`, `BottomSheet`, `Tabs`, `Skeleton`, `EmptyState`는 `shared/ui`다.
+`Chip`과 `BottomSheet`, `Tabs`, `Skeleton`은 `shared/ui`, `PopupCard`와 `EmptyState`는 `shared/components`다.
 
 **최근 본 팝업.** `useRecentPopups().record`를 상세 본문이 마운트될 때 부른다. 최신 다섯만 남기고 여섯 번째가 들어오면 가장 오래된 것을 버린다. 서버에 보내지 않는다. 보여주는 곳은 마이페이지라 두 기능이 같은 훅을 쓰며 훅의 자리는 보관 방식이 정해질 때 `shared`로 올릴지 다시 본다.
 

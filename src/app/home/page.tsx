@@ -1,11 +1,11 @@
 import Link from "next/link";
 
 import { SessionPanel } from "@/features/auth/ui/SessionPanel";
+import { PopupCard } from "@/shared/components/PopupCard";
+import { SectionHeader } from "@/shared/components/SectionHeader";
 import { PLACEHOLDER_POPUPS } from "@/shared/lib/placeholder-data";
 import { REGION_LABELS, REGIONS } from "@/shared/model/region";
 import { PlaceholderBox } from "@/shared/ui/PlaceholderBox";
-import { PopupCard } from "@/shared/ui/PopupCard";
-import { SectionHeader } from "@/shared/ui/SectionHeader";
 
 export default function HomePage() {
 	return (

@@ -2,8 +2,10 @@
 
 import type { Ref } from "react";
 
+import GpsFixIcon from "@/shared/assets/icons/gps-fix.svg";
 import { cn } from "@/shared/lib/cn";
 import { IconButton } from "@/shared/ui/IconButton";
+import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 import type { PositionStatus } from "../hooks/useCurrentPosition";
 
@@ -33,11 +35,7 @@ export function CurrentLocationButton({ status, onLocate, className, ref }: Curr
 			onClick={handleClick}
 			className={cn(isBusy && "animate-pulse", className)}
 		>
-			<svg viewBox="0 0 24 24" aria-hidden className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8">
-				<circle cx="12" cy="12" r="3" />
-				<path d="M12 2v3M12 19v3M2 12h3M19 12h3" strokeLinecap="round" />
-				<circle cx="12" cy="12" r="8" />
-			</svg>
+			<SvgIcon icon={GpsFixIcon} size={20} />
 		</IconButton>
 	);
 }

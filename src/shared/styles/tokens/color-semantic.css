@@ -1,0 +1,40 @@
+@theme inline {
+	--color-text-1: var(--gray-1000);
+	--color-text-2: var(--gray-800);
+	--color-text-3: var(--gray-700);
+	--color-text-4: var(--gray-600);
+	--color-text-5: var(--gray-500);
+	--color-text-6: var(--gray-400);
+	--color-text-w: var(--gray-0);
+	--color-text-w-2: var(--gray-100);
+
+	--color-bg-1: var(--gray-0);
+	--color-bg-2: var(--gray-50);
+	--color-bg-3: var(--gray-100);
+	--color-bg-4: var(--gray-200);
+	--color-bg-5: var(--gray-300);
+
+	--color-divider-1: var(--gray-100);
+	--color-divider-2: var(--gray-200);
+	--color-divider-3: var(--gray-300);
+	--color-divider-4: var(--gray-400);
+
+	--color-icon: var(--gray-900);
+	--color-icon-2: var(--gray-700);
+	--color-icon-primary: var(--blue-500);
+	--color-icon-disabled: var(--gray-400);
+	--color-icon-w: var(--gray-0);
+
+	--color-primary: var(--blue-500);
+	--color-primary-subtle: var(--blue-10);
+	--color-primary-strong: var(--blue-600);
+	--color-ai: var(--blue-400);
+	--color-like: #dc4c4c;
+	--color-error: var(--red-500);
+	--color-error-bg: var(--red-10);
+
+	--color-kakao: #fee500;
+	--color-kakao-hover: #f2d900;
+	--color-kakao-active: #e6ce00;
+	--color-kakao-foreground: #191919;
+}

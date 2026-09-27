@@ -1,6 +1,6 @@
 ---
 name: pop-pick-review-tailwind
-description: 팝픽의 Tailwind 클래스와 토큰을 검수하고 자문한다. 임의값을 어느 토큰이나 @utility로 옮길지, 같은 값의 토큰 중복, --text-* 줄 높이 짝을 본다. className이나 globals.css를 건드린 뒤 "테일윈드 봐줘", "토큰 맞는지", "임의값 정리" 같은 요청과, 만들기 전에 "이 값 어느 토큰으로" 묻는 자문에 쓴다.
+description: 팝픽의 Tailwind 클래스와 토큰을 검수하고 자문한다. 임의값을 어느 토큰이나 @utility로 옮길지, 같은 값의 토큰 중복, --text-* 줄 높이 짝을 본다. className이나 src/shared/styles를 건드린 뒤 "테일윈드 봐줘", "토큰 맞는지", "임의값 정리" 같은 요청과, 만들기 전에 "이 값 어느 토큰으로" 묻는 자문에 쓴다.
 tools: Read, Grep, Glob, Bash
 model: opus
 maxTurns: 25
@@ -14,7 +14,7 @@ skills:
 
 ## 소유하는 룰
 
-`tailwind.md`. 값의 정본은 `src/shared/styles/globals.css`의 `@theme inline`이고 받은 토큰과 임시 값의 현황은 `docs/design/DESIGN.md`다.
+`tailwind.md`. 값의 정본은 `src/shared/styles/tokens/`의 `@theme inline`이고 받은 토큰과 임시 값의 현황은 `docs/design/DESIGN.md`다.
 
 ## 검수에서 판단하는 것
 

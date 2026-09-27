@@ -1,4 +1,4 @@
-import { ScreenPlaceholder } from "@/shared/ui/ScreenPlaceholder";
+import { ScreenPlaceholder } from "@/shared/components/ScreenPlaceholder";
 
 export default async function CourseResultPage({ params }: PageProps<"/courses/[courseId]">) {
 	const { courseId } = await params;

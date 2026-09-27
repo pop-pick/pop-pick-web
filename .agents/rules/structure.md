@@ -30,6 +30,18 @@ features/{기능}/
 
 **같은 기능 안은 상대 경로, 밖은 `@/` 별칭을 쓴다.** 상대 경로는 `../{세그먼트}`까지다.
 
+## shared 안
+
+| 폴더                               | 담는 것                                                                                                                      |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `ui`                               | 디자인 시스템 부품. `Button`, `Chip`, `Badge`, `IconButton`, `Skeleton`, `SvgIcon`처럼 props와 토큰만으로 그리고 앱을 모른다 |
+| `components`                       | `ui`를 조립한 공용 컴포넌트. `BottomTabBar`, `SectionHeader`, `EmptyState`, `PopupCard`처럼 경로와 도메인 타입을 알아도 된다 |
+| `assets`                           | 코드가 아닌 원본 파일. `icons/`의 SVG는 SVGR이 빌드할 때 컴포넌트로 바꾸고 `fonts/`의 woff2는 `styles/fonts.ts`가 싣는다     |
+| `styles`                           | Tailwind 진입점 `globals.css`와 디자인 토큰 `tokens/`                                                                        |
+| `api`, `lib`, `model`, `providers` | HTTP 층, 도메인 지식이 없는 도구, 여러 기능이 쓰는 값과 타입, 루트 레이아웃이 감싸는 Provider                                |
+
+**`ui`와 `components`는 무엇을 import하는지로 가른다.** 두 이름 모두 컴포넌트를 뜻해서 이름만 보고는 어디에 둘지 알 수 없다. `ui`는 `next/navigation`과 `@/shared/model`, `@/shared/components`, `@/features`를 부르지 않는다. 새 컴포넌트가 앱의 경로나 도메인 타입을 알아야 하면 `components`에 둔다. 의존은 `ui`에서 `components`로 한 방향이고 `check-conventions.sh`가 막는다.
+
 ## model이 담는 것
 
 **그 기능이 무엇인지를 담는다.** 화면에 그리는 방법(`ui`)도 서버를 부르는 방법(`api`)도 아닌 나머지다.
@@ -106,4 +118,4 @@ find src/features -mindepth 2 -maxdepth 2 -type d ! -name api ! -name ui ! -name
 - 새로 생긴 `index.ts`
 - `src/app` 라우트 파일 안의 로직. 조립만 한다
 - 값과 그 값에서 파생된 타입이 다른 파일에 있는 자리
-- 한 기능에만 있는데 다른 기능도 쓰기 시작한 컴포넌트. `src/shared/ui`로 올린다
+- 한 기능에만 있는데 다른 기능도 쓰기 시작한 컴포넌트. 앱을 모르면 `src/shared/ui`, 경로나 도메인 타입을 알면 `src/shared/components`로 올린다

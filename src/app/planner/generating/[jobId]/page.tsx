@@ -1,4 +1,4 @@
-import { ScreenPlaceholder } from "@/shared/ui/ScreenPlaceholder";
+import { ScreenPlaceholder } from "@/shared/components/ScreenPlaceholder";
 
 export default async function CourseGeneratingPage({ params }: PageProps<"/planner/generating/[jobId]">) {
 	const { jobId } = await params;

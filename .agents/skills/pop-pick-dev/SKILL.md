@@ -57,8 +57,8 @@ git diff -U0 -- src | grep -E '^\+.*(className=|export |"use (client|server)"|/\
 | -------------------------------------------------------------------------- | ---------------------------- |
 | 파일이 생기거나 옮겨지거나 지워졌다                                        | `pop-pick-review-structure`  |
 | export가 생기거나 이름이 바뀌었다, JSDoc을 적었다                          | `pop-pick-review-typescript` |
-| `className`이 바뀌었다, `globals.css`                                      | `pop-pick-review-tailwind`   |
-| `features/*/ui`, `shared/ui`                                               | `pop-pick-review-screen`     |
+| `className`이 바뀌었다, `src/shared/styles`                                | `pop-pick-review-tailwind`   |
+| `features/*/ui`, `shared/ui`, `shared/components`                          | `pop-pick-review-screen`     |
 | `features/*/api`, `hooks`, `model`의 스토어, `shared/api`                  | `pop-pick-review-data`       |
 | `src/app`, `next.config.ts`, `"use client"`나 `"use server"`를 새로 붙였다 | `pop-pick-review-nextjs`     |
 

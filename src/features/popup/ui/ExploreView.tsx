@@ -4,8 +4,10 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
 
+import CloseIcon from "@/shared/assets/icons/close.svg";
 import type { PopupCardItem } from "@/shared/model/popup";
 import { REGION_LABELS } from "@/shared/model/region";
+import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 import { useCurrentPosition } from "../hooks/useCurrentPosition";
 import {
@@ -65,9 +67,7 @@ export function ExploreView({ popups }: ExploreViewProps) {
 					>
 						{REGION_LABELS[state.region]}
 						<span className="sr-only">지역 해제</span>
-						<svg viewBox="0 0 24 24" aria-hidden className="size-4" fill="none" stroke="currentColor" strokeWidth="2.5">
-							<path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
-						</svg>
+						<SvgIcon icon={CloseIcon} size={16} />
 					</Link>
 				)}
 				<ViewToggle view={state.view} onChange={handleViewChange} />

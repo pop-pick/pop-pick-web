@@ -9,7 +9,7 @@ export const iconButtonVariants = cva(
 		variants: {
 			variant: {
 				surface:
-					"border border-zinc-200 bg-background text-zinc-700 shadow-md not-disabled:hover:bg-zinc-50 disabled:text-zinc-300 disabled:shadow-none",
+					"border border-zinc-200 bg-bg-1 text-zinc-700 shadow-md not-disabled:hover:bg-zinc-50 disabled:text-zinc-300 disabled:shadow-none",
 				ghost: "text-zinc-500 not-disabled:hover:bg-zinc-100"
 			}
 		},
@@ -19,10 +19,9 @@ export const iconButtonVariants = cva(
 	}
 );
 
-type IconButtonProps = ComponentProps<"button"> &
-	VariantProps<typeof iconButtonVariants> & {
-		label: string;
-	};
+interface IconButtonProps extends ComponentProps<"button">, VariantProps<typeof iconButtonVariants> {
+	label: string;
+}
 
 export function IconButton({ label, variant, className, type = "button", children, ...props }: IconButtonProps) {
 	return (

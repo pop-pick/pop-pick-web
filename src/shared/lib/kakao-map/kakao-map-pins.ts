@@ -5,21 +5,21 @@ import type { KakaoMarkerData } from "./kakao-map-session";
 
 const PIN_CLASS = "group flex cursor-pointer flex-col items-center gap-0.5";
 const ICON_WRAP_CLASS =
-	"flex size-8 items-center justify-center rounded-full border-2 border-white bg-white shadow-md transition-transform group-aria-pressed:scale-125 group-aria-pressed:border-blue-600";
+	"flex size-8 items-center justify-center rounded-full border-2 border-white bg-white shadow-md transition-transform group-aria-pressed:scale-125 group-aria-pressed:border-primary";
 const ICON_IMAGE_CLASS = "size-5";
-const DEFAULT_DOT_CLASS = "size-3 rounded-full bg-blue-600";
+const DEFAULT_DOT_CLASS = "size-3 rounded-full bg-primary";
 const LABEL_CLASS =
-	"max-w-24 truncate rounded-full bg-background/90 px-2 py-0.5 text-xs font-medium text-zinc-800 shadow-sm group-aria-pressed:bg-blue-600 group-aria-pressed:text-white";
+	"max-w-24 truncate rounded-full bg-bg-1/90 px-2 py-0.5 text-xs font-medium text-zinc-800 shadow-sm group-aria-pressed:bg-primary group-aria-pressed:text-white";
 
 export const CLUSTER_STYLES: KakaoClusterStyle[] = [
 	{
 		width: "40px",
 		height: "40px",
-		background: "var(--primary)",
-		border: "2px solid var(--background)",
+		background: "var(--blue-500)",
+		border: "2px solid var(--gray-0)",
 		borderRadius: "20px",
 		boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
-		color: "var(--background)",
+		color: "var(--gray-0)",
 		fontSize: "var(--text-sm)",
 		fontWeight: "600",
 		lineHeight: "36px",
@@ -78,7 +78,7 @@ function buildMyPositionElement() {
 	ring.className = "absolute inset-0 animate-ping rounded-full bg-blue-400/40";
 
 	const dot = document.createElement("span");
-	dot.className = "relative size-3.5 rounded-full border-2 border-white bg-blue-600 shadow-md";
+	dot.className = "relative size-3.5 rounded-full border-2 border-white bg-primary shadow-md";
 
 	root.append(ring, dot);
 

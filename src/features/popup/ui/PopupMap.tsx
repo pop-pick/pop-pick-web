@@ -2,6 +2,9 @@
 
 import { type FocusEvent, useMemo, useRef, useState } from "react";
 
+import CloseIcon from "@/shared/assets/icons/close.svg";
+import { EmptyState } from "@/shared/components/EmptyState";
+import { PopupCard } from "@/shared/components/PopupCard";
 import { cn } from "@/shared/lib/cn";
 import type { KakaoLatLngLiteral } from "@/shared/lib/kakao-map/kakao-map-utils";
 import { KakaoMap } from "@/shared/lib/kakao-map/KakaoMap";
@@ -9,10 +12,9 @@ import { KakaoMapCamera } from "@/shared/lib/kakao-map/KakaoMapCamera";
 import type { PopupCardItem } from "@/shared/model/popup";
 import { type Region, REGION_LABELS } from "@/shared/model/region";
 import { Button } from "@/shared/ui/Button";
-import { EmptyState } from "@/shared/ui/EmptyState";
 import { IconButton } from "@/shared/ui/IconButton";
 import { LinkButton } from "@/shared/ui/LinkButton";
-import { PopupCard } from "@/shared/ui/PopupCard";
+import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 import type { PositionStatus } from "../hooks/useCurrentPosition";
 import { PLACEHOLDER_NOTICE, toPlaceholderMarkers } from "../model/placeholder-markers";
@@ -119,7 +121,7 @@ export function PopupMap({ popups, region, position, positionStatus, onLocate, o
 				<KakaoMapCamera center={cameraTarget} level={cameraLevel} />
 
 				<div className="pointer-events-none absolute inset-x-0 top-0 p-3">
-					<p className="inline-block rounded-full bg-background/90 px-3 py-1 text-xs text-zinc-600 shadow-sm">
+					<p className="inline-block rounded-full bg-bg-1/90 px-3 py-1 text-xs text-zinc-600 shadow-sm">
 						{PLACEHOLDER_NOTICE}
 					</p>
 				</div>
@@ -138,7 +140,7 @@ export function PopupMap({ popups, region, position, positionStatus, onLocate, o
 				{positionNotice === undefined || selectedPopup !== null ? null : (
 					<p
 						role="status"
-						className="pointer-events-none absolute bottom-3 left-3 max-w-56 rounded-full bg-background/90 px-3 py-1 text-xs text-zinc-600 shadow-sm"
+						className="pointer-events-none absolute bottom-3 left-3 max-w-56 rounded-full bg-bg-1/90 px-3 py-1 text-xs text-zinc-600 shadow-sm"
 					>
 						{positionNotice}
 					</p>
@@ -158,16 +160,7 @@ export function PopupMap({ popups, region, position, positionStatus, onLocate, o
 								onClick={handleSelectionClose}
 								className="absolute top-2 right-2"
 							>
-								<svg
-									viewBox="0 0 24 24"
-									aria-hidden
-									className="size-4"
-									fill="none"
-									stroke="currentColor"
-									strokeWidth="2"
-								>
-									<path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
-								</svg>
+								<SvgIcon icon={CloseIcon} size={16} />
 							</IconButton>
 						</div>
 					</section>
@@ -179,7 +172,7 @@ export function PopupMap({ popups, region, position, positionStatus, onLocate, o
 					onBlur={handleListBlur}
 					className={cn(
 						isListRevealed
-							? "absolute inset-x-3 bottom-3 max-h-48 overflow-y-auto rounded-2xl bg-background p-2 shadow-lg"
+							? "absolute inset-x-3 bottom-3 max-h-48 overflow-y-auto rounded-2xl bg-bg-1 p-2 shadow-lg"
 							: "sr-only"
 					)}
 				>

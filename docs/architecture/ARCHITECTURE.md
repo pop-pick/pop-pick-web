@@ -128,7 +128,7 @@ rewrite는 `/api/v1/:path*`로 좁힌다. 백엔드 API가 전부 `/api/v1/**`�
 
 기능 폴더 안을 어떻게 나누는지는 `.agents/rules/structure.md`에 있다. MSW를 도입하면 기능마다 `api/handlers.ts`가 하나씩 더 생긴다.
 
-여러 기능이 함께 쓰는 것은 `src/shared`에 둔다. `shared/model`과 `shared/lib/kakao-map`, `shared/ui`, `shared/api`의 토큰과 Route Handler 도구는 있고 나머지 셋은 이 설계로 새로 생긴다.
+여러 기능이 함께 쓰는 것은 `src/shared`에 둔다. `shared/model`과 `shared/lib/kakao-map`, `shared/ui`, `shared/components`, `shared/api`의 토큰과 Route Handler 도구는 있고 나머지 셋은 이 설계로 새로 생긴다.
 
 | 위치                             | 담는 것                                                                                                                                                                 |
 | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -140,9 +140,10 @@ rewrite는 `/api/v1/:path*`로 좁힌다. 백엔드 API가 전부 `/api/v1/**`�
 | `shared/api/mocks/`              | MSW 브라우저 워커와 노드 서버 설정. 핸들러는 각 기능의 `api/handlers.ts`에서 모은다                                                                                     |
 | `shared/hooks/useCursorQuery.ts` | `PageResponse<T>`를 받는 무한 스크롤 쿼리. 마지막 항목에서 커서를 뽑는 규칙을 한 곳에 둔다                                                                              |
 | `shared/lib/kakao-map`           | 클러스터러와 아이콘이 붙는 핀, 현재 위치 표시, 카메라 이동, SDK 재시도까지 있다. 폴리라인과 번호 핀, 경로 좌표를 SDK 좌표로 옮기는 함수가 더 필요하다                   |
-| `shared/ui`                      | 화면 뼈대가 쓰는 열 개가 있다. 이 설계가 더 요구하는 것은 BottomSheet와 Tabs, Skeleton, ErrorState, ConfirmDialog                                                       |
+| `shared/ui`                      | 앱을 모르는 부품. 이 설계가 더 요구하는 것은 BottomSheet와 Tabs, ErrorState, ConfirmDialog                                                                              |
+| `shared/components`              | 경로나 도메인 타입을 아는 조립품. 하단 탭바와 섹션 머리, 빈 결과, 팝업 카드가 있다                                                                                      |
 
-`shared/ui`에 무엇을 올릴지는 후보로 둔다. 두 화면 이상에서 쓰임이 확인된 것만 올리고 주인은 디자인 시스템 담당이다.
+`shared/ui`와 `shared/components`에 무엇을 올릴지는 후보로 둔다. 두 화면 이상에서 쓰임이 확인된 것만 올리고 주인은 디자인 시스템 담당이다.
 
 ## 공통 계약
 
@@ -250,7 +251,7 @@ rewrite는 `/api/v1/:path*`로 좁힌다. 백엔드 API가 전부 `/api/v1/**`�
 | 탐색의 지역 선택 UI          | 화면 안에서 지역을 고르는 자리는 없다. 홈 인기 지역 칩에서 들어올 때만 `region`이 URL에 실린다 | `popup.md`의 `ExploreState`                                      |
 | 카테고리에 없는 팝업         | 여덟 중 하나로 온다고 보고 짠다. ETC가 없다                                                    | `shared/model/popup.ts`의 값과 카테고리별 대체 이미지, 핀 아이콘 |
 | 최근 본 팝업 보관 자리       | 메모리. 새로고침하면 사라진다                                                                  | 기록하는 `features/popup`의 훅 한 곳                             |
-| 하단 탭 마지막 라벨          | 화면마다 MY와 내 팝업이 섞여 있어 MY로 둔다                                                    | `shared/ui/BottomTabBar.tsx`의 라벨                              |
+| 하단 탭 마지막 라벨          | 화면마다 MY와 내 팝업이 섞여 있어 MY로 둔다                                                    | `shared/components/BottomTabBar.tsx`의 라벨                      |
 | 머무는 시간 선택지           | 둘. 간편 약 2시간과 반나절 4시간에서 5시간                                                     | `planner.md`의 `Duration`                                        |
 | 동행을 여러 개 고르나        | 하나만 고른다                                                                                  | `planner.md`의 `CourseRequest.companion`과 온보딩 답 타입        |
 | 로그인 완료 화면을 지나는 곳 | 모든 로그인이 완료 화면을 한 번 지난다                                                         | `auth.md`의 로그인 흐름 5단계                                    |

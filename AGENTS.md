@@ -27,7 +27,7 @@ lefthook 훅이 커밋과 푸시 때 같은 검사를 저장소 전체에 돌린
 - Feature 기반이다. `src/app`은 라우팅, `src/features`는 기능 단위, `src/shared`는 공용이다. 의존은 shared에서 features로, features에서 app으로 한 방향이고 기능끼리 부르지 않는다. 경로 별칭 `@/*`는 `./src/*`
 - `src/app`에는 Next가 이름을 정하는 라우트 파일(`layout.tsx`, `page.tsx` 등)만 둔다. 전부 소문자다. 컴포넌트와 CSS는 `src/shared`나 `src/features`에 두고 라우트 파일이 import한다. 하단 탭바는 루트 레이아웃이 모든 화면에 그린다. 라우트 그룹을 두지 않는다
 - `features/` 하위 폴더는 기능 하나에 하나다. 이름은 백엔드 `feature/{이름}` 패키지와 맞춘다. 기능 폴더 안은 `api`와 `ui`, `hooks`, `model` 넷으로 나누고 루트에 파일을 두지 않는다. `lib`은 `src/shared`에만 둔다
-- 토큰 정본은 `src/shared/styles/globals.css`의 `@theme inline`이다
+- 토큰 정본은 `src/shared/styles/tokens/`의 CSS 파일이다. 원시 색은 `color-primitive.css`의 `:root`, 의미 색과 글자, 그림자는 `color-semantic.css`, `typography.css`, `shadow.css`의 `@theme inline`에 있다. `globals.css`는 Tailwind 진입점이고 이 파일들을 불러오기만 한다
 
 ## 하지 않는 것
 
@@ -51,10 +51,10 @@ lefthook 훅이 커밋과 푸시 때 같은 검사를 저장소 전체에 돌린
 - `no-fallback.md`. 오류를 감싸 빈 값을 돌려주는 코드를 금지한다. 실패를 드러내거나 실패할 수 없는 설계로 바꾼다
 - `state.md`. 서버 상태는 TanStack Query, 공유할 조건값은 URL, 나머지 클라이언트 상태만 Zustand. 서버 데이터를 스토어에 복제하지 않는다
 - `structure.md`. src/app은 라우팅, src/features는 기능, src/shared는 공용. 기능 폴더 안은 api와 ui, hooks, model 넷이다. 의존은 한 방향이고 배럴 파일을 만들지 않는다
-- `tailwind.md`. X-[value] 임의값을 쓰지 않는다. 값은 src/shared/styles/globals.css의 @theme inline 토큰과 @utility에서 온다. 어긋난 값을 옮기는 네 갈래
+- `tailwind.md`. X-[value] 임의값을 쓰지 않는다. 값은 src/shared/styles/tokens의 @theme inline 토큰과 utilities.css의 @utility에서 온다. 어긋난 값을 옮기는 네 갈래
 - `testing.md`. 테스팅 트로피가 전략이다. 기본 동작은 삭제이고 추가는 예외다. 도구는 미정. 층마다 소유하는 것과 지우는 기준
-- `typescript.md`. 추론되는 반환 타입을 적지 않는다. 이름은 흔한 동사와 목적어로 짓고 handle, on, is 같은 접두사를 역할대로 쓴다. return 앞과 블록 뒤 빈 줄. 리뷰에서 쓰는 grep
-- `ui.md`. 기성 UI 라이브러리 없음. 공용 컴포넌트는 src/shared/ui가 주인. 파일 이름과 선언 형식의 정본. 이벤트 핸들러는 JSX 밖으로 뺀다. 모바일 퍼스트, 키보드로 조작 가능, 토큰만 쓴다
+- `typescript.md`. 추론되는 반환 타입을 적지 않는다. props는 interface로 선언한다. 이름은 흔한 동사와 목적어로 짓고 handle, on, is 같은 접두사를 역할대로 쓴다. return 앞과 블록 뒤 빈 줄. 리뷰에서 쓰는 grep
+- `ui.md`. 기성 UI 라이브러리 없음. 공용 컴포넌트는 src/shared/ui와 components가 주인. 파일 이름과 선언 형식의 정본. 이벤트 핸들러는 JSX 밖으로 뺀다. 모바일 퍼스트, 키보드로 조작 가능, 토큰만 쓴다
 
 <!-- agents-sync:rules:end -->
 

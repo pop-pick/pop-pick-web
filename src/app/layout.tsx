@@ -3,8 +3,10 @@ import "@/shared/styles/globals.css";
 import type { Metadata } from "next";
 
 import { AuthProvider } from "@/features/auth/ui/AuthProvider";
+import { BottomTabBar } from "@/shared/components/BottomTabBar";
+import { cn } from "@/shared/lib/cn";
 import { QueryProvider } from "@/shared/providers/QueryProvider";
-import { BottomTabBar } from "@/shared/ui/BottomTabBar";
+import { pretendard } from "@/shared/styles/fonts";
 
 export const metadata: Metadata = {
 	title: "팝픽 POP PICK",
@@ -13,9 +15,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
 	return (
-		<html lang="ko" className="h-full antialiased">
-			<body className="bg-zinc-100 font-sans text-foreground">
-				<div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-background">
+		<html lang="ko" className={cn(pretendard.variable, "h-full antialiased")}>
+			<body className="bg-zinc-100 font-sans text-text-1">
+				<div className="mx-auto flex min-h-dvh w-full max-w-md flex-col bg-bg-1">
 					<QueryProvider>
 						<AuthProvider>
 							{children}
