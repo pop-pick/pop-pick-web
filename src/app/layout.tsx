@@ -2,7 +2,7 @@ import "@/shared/styles/globals.css";
 
 import type { Metadata } from "next";
 
-import { AuthProvider } from "@/features/auth/ui/AuthProvider";
+import { AuthProvider } from "@/features/auth/components/AuthProvider";
 import { BottomTabBar } from "@/shared/components/BottomTabBar";
 import { cn } from "@/shared/lib/cn";
 import { QueryProvider } from "@/shared/providers/QueryProvider";

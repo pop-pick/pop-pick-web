@@ -127,16 +127,16 @@ interface Me {
 **지금 있는 컴포넌트와 훅.** 로그인은 카카오만 있다. 구글 버튼은 로그인 화면에 비활성으로 자리만 있다.
 
 ```typescript
-// ui/KakaoLoginButton.tsx. state 생성과 next 보관, 카카오 인가 주소로 이동
+// components/KakaoLoginButton.tsx. state 생성과 next 보관, 카카오 인가 주소로 이동
 export function KakaoLoginButton({ next }: { next: string | null });
 
-// ui/KakaoCallback.tsx. 교환 중이면 role=status, 실패면 role=alert
+// components/KakaoCallback.tsx. 교환 중이면 role=status, 실패면 role=alert
 export function KakaoCallback();
 
-// ui/AuthProvider.tsx. 루트 레이아웃이 감싼다. 시작 재발급과 만료 이벤트 구독
+// components/AuthProvider.tsx. 루트 레이아웃이 감싼다. 시작 재발급과 만료 이벤트 구독
 export function AuthProvider({ children }: { children: ReactNode });
 
-// ui/LoginComplete.tsx. /login/complete. 완료 문구를 보이고 next로 넘긴다
+// components/LoginComplete.tsx. /login/complete. 완료 문구를 보이고 next로 넘긴다
 export function LoginComplete({ next }: { next: string | null });
 
 // hooks/useKakaoLogin.ts. code를 키로 하는 쿼리. retry 없음, staleTime Infinity

@@ -1,5 +1,5 @@
+import { LoginComplete } from "@/features/auth/components/LoginComplete";
 import { sanitizeNextPath } from "@/features/auth/model/next-path";
-import { LoginComplete } from "@/features/auth/ui/LoginComplete";
 
 export default async function LoginCompletePage({ searchParams }: PageProps<"/login/complete">) {
 	const { next } = await searchParams;

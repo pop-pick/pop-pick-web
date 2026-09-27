@@ -22,7 +22,7 @@ maxTurns: 30
 
 ```
 ## 만들 파일
-경로마다 한 줄로 무엇을 담는지. 기능 폴더는 api와 ui, hooks, model 넷 안에만 둔다
+경로마다 한 줄로 무엇을 담는지. 기능 폴더는 api와 components, hooks, model 넷 안에만 둔다
 
 ## 바꿀 파일
 경로와 무엇이 바뀌는지

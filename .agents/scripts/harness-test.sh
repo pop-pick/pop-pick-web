@@ -47,7 +47,7 @@ printf '=== 검사 스크립트 ===\n\n'
 
 fixture="$work/conventions"
 new_repo "$fixture"
-mkdir -p "$fixture/src/features/popup/api" "$fixture/src/features/popup/ui" "$fixture/src/shared/api" "$fixture/src/app" "$fixture/docs"
+mkdir -p "$fixture/src/features/popup/api" "$fixture/src/features/popup/components" "$fixture/src/shared/api" "$fixture/src/app" "$fixture/docs"
 cat >"$fixture/src/features/popup/api/get-popups.ts" <<'EOF'
 export const retrievePopups = (region: string): string[] => [region];
 
@@ -66,7 +66,7 @@ export function doublePopups(items: string[]) {
 	return size * 2;
 }
 EOF
-cat >"$fixture/src/features/popup/ui/PopupCard.tsx" <<'EOF'
+cat >"$fixture/src/features/popup/components/PopupCard.tsx" <<'EOF'
 export function PopupCard() {
 	return <article />;
 }
@@ -75,7 +75,7 @@ function PopupBadge() {
 	return <span />;
 }
 EOF
-cat >"$fixture/src/features/popup/ui/PopupToggle.tsx" <<'EOF'
+cat >"$fixture/src/features/popup/components/PopupToggle.tsx" <<'EOF'
 import { useState } from "react";
 
 export function PopupToggle() {
