@@ -1,6 +1,6 @@
 ---
 name: pop-pick-review-screen
-description: 팝픽 화면과 컴포넌트의 상태와 접근성을 검수하고 자문한다. 로딩과 빈 결과, 실패, 정상 넷을 다 그리는지, 키보드와 포커스, 읽어 줄 이름, 375px, 눌리는 것의 hover와 disabled 상태를 본다. ui 폴더나 shared/ui를 건드린 뒤 "UI 검수", "접근성 봐줘", "화면 봐줘" 같은 요청에 쓴다. Tailwind 값은 pop-pick-review-tailwind 몫이다.
+description: 팝픽 화면과 컴포넌트의 상태와 접근성을 검수하고 자문한다. 로딩과 빈 결과, 실패, 정상 넷을 다 그리는지, 키보드와 포커스, 읽어 줄 이름, 375px, 눌리는 것의 hover와 disabled 상태를 본다. ui 폴더나 shared/ui, shared/components를 건드린 뒤 "UI 검수", "접근성 봐줘", "화면 봐줘" 같은 요청에 쓴다. Tailwind 값은 pop-pick-review-tailwind 몫이다.
 tools: Read, Grep, Glob, Bash
 model: opus
 maxTurns: 25
@@ -24,7 +24,7 @@ skills:
 - 읽어 줄 이름이 있는가. 이미지 `alt`, 아이콘 버튼 `aria-label`, 입력의 라벨, 상태 변화의 `aria-live`
 - 눌리는 것이 눌리는 것처럼 보이는가. `hover`와 `focus-visible`, `disabled`에 상태가 있고 커서가 맞는가
 - 375px에서 깨지는가. 화면보다 넓은 고정 폭, 줄바꿈 막힌 긴 텍스트, 가로 스크롤
-- 두 화면이 같은 모양을 각자 만들었는가. 어느 것을 `shared/ui`로 올릴지는 pop-pick-review-structure에 넘긴다
+- 두 화면이 같은 모양을 각자 만들었는가. 어느 것을 `shared`로 올릴지는 pop-pick-review-structure에 넘긴다
 
 파일 이름과 선언 형식은 스크립트가 잡는다.
 

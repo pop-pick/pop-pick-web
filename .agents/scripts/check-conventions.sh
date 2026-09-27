@@ -135,6 +135,15 @@ printf '\n=== 값과 타입 (tailwind.md, typescript.md) ===\n\n'
 check "Tailwind 임의값을 썼다" \
 	'grep -rnoE "(^|[\" ])[a-z-]+-\[[^]]+\]" src --include="*.tsx" --include="*.ts"'
 
+check "shared/ui 가 앱을 안다. 경로나 도메인 타입이 필요하면 shared/components 에 둔다 (structure.md)" \
+	'grep -rnE "from \"(next/navigation|@/shared/(model|components)/|@/features/)" src/shared/ui --include="*.ts" --include="*.tsx"'
+
+check "styles/tokens 의 글자와 그림자 토큰이 cn.ts 의 tailwind-merge 목록과 다르다" \
+	'node "$SCRIPT_DIR/check-merge-tokens.mjs"'
+
+check "컴포넌트 props 를 type 으로 선언했다. interface 로 선언한다 (typescript.md)" \
+	'grep -rnE "^(export )?type [A-Za-z]+Props =" src --include="*.ts" --include="*.tsx" | grep -vE "= [A-Z][A-Za-z]*Props( \| [A-Z][A-Za-z]*Props)+;"'
+
 check "추론되는 반환 타입을 적었다" \
 	'{ grep -rnE "^[[:space:]]*(export )?(async )?function [A-Za-z_$][A-Za-z0-9_$]*(<[^>]*>)?\(.*\)[[:space:]]*:[[:space:]]*[A-Za-z]" src --include="*.ts" --include="*.tsx"; grep -rnE "^[[:space:]]*(export )?(const|let) [A-Za-z_$][A-Za-z0-9_$]* = (async )?(<[^>]*>)?\([^)]*\)[[:space:]]*:[[:space:]]*[A-Za-z]" src --include="*.ts" --include="*.tsx"; } | grep -v " is " | grep -v "\.d\.ts"'
 
