@@ -4,7 +4,7 @@
 
 ## R. Requirements
 
-**기능.** 랜딩에서 로그인을 거쳐 온보딩 세 단계로 가고 "둘러보기"는 비회원 홈으로 간다. 단계마다 무엇을 받고 어떻게 건너뛰는지는 `docs/product/SPEC.md`의 온보딩 취향 수집 절이 정본이다. 저장한 취향은 마이페이지에서 고칠 수 있고 코스 조건 입력이 첫 값으로 채운다. 동행 유형과 인원수는 코스 조건 입력과 같은 선택지이고 값은 `shared/model/trip-preference.ts`에 있다. 온보딩 화면의 라벨은 시안 문구라 `model/choice-labels.ts`에 따로 둔다. 선호 활동은 선택지 조회로 받은 id이고 조회가 붙기 전까지 코스 조건 입력은 `trip-preference.ts`의 임시 값 넷을 쓴다.
+**기능.** 랜딩에서 로그인을 거쳐 온보딩 세 단계로 가고 "둘러보기"는 비회원 홈으로 간다. 단계마다 무엇을 받고 어떻게 건너뛰는지는 `docs/product/SPEC.md`의 온보딩 취향 수집 절이 정본이다. 저장한 취향은 마이페이지에서 고칠 수 있고 코스 조건 입력이 첫 값으로 채운다. 동행 유형과 인원수는 코스 조건 입력과 선택지도 라벨도 같다. 값과 라벨(`COMPANION_TYPE_LABELS`, `PARTY_SIZE_LABELS`)은 `shared/model/trip-preference.ts`에 있고 온보딩이 그대로 쓴다. 선호 활동은 선택지 조회로 받은 id이고 조회가 붙기 전까지 코스 조건 입력은 `trip-preference.ts`의 임시 값 넷을 쓴다.
 
 **보장.**
 
@@ -12,7 +12,7 @@
 - 단계 이동은 서버를 부르지 않는다. 2단계와 3단계는 처음 들어올 때 선택지를 받는다
 - 아무것도 고르지 않고 "다음"을 누르면 넘어가지 않는다. "항목을 선택해주세요" 알럿이 뜨고 같은 단계에 머무른다
 - 건너뛰기는 1단계와 2단계에만 있고 언제나 다음 단계로 간다. 그 단계의 값은 빈 값으로 돌아간다
-- 추가 요청사항은 200자를 넘지 않는다. 남은 글자 수가 실시간으로 보인다
+- 이외의 좋아하는 것(자유 입력)은 200자를 넘지 않는다. 입력한 글자 수와 상한이 "12/200자"처럼 실시간으로 보인다
 - 온보딩을 마치면 답이 서버에 저장된다. 저장에 실패하면 화면에 드러내고 다시 시도할 길을 준다
 
 **설계를 가르는 질문.**
@@ -91,7 +91,7 @@ const EMPTY_STEP_ANSWERS: { [S in OnboardingStep]: OnboardingStepAnswers[S] };
 /** 세 단계의 빈 값을 합친 것 */
 const EMPTY_ANSWERS: OnboardingAnswers;
 
-/** 단계마다 고르는 항목. 추가 요청사항은 선택 입력이라 없다 */
+/** 단계마다 고르는 항목. 자유 입력은 선택이라 없다 */
 const STEP_CHOICE_FIELDS: {
 	1: ["companionType", "partySize"];
 	2: ["categoryIds", "areaIds"];
@@ -177,7 +177,9 @@ export function preferredActivitiesQueryOptions();
 **컴포넌트.** 전부 `features/onboarding/components/`에 있다.
 
 ```typescript
-/** 단계 제목과 답 복원 상태를 그리고 단계에 맞는 폼을 고른다 */
+/** 뒤로 가기와 "취향 분석 온보딩" 제목, 진행 표시 "1/3"의 한 줄 헤더 */
+export function OnboardingHeader({ step }: { step: OnboardingStep });
+/** 그림 자리와 단계 제목, 설명문(ONBOARDING_STEP_DESCRIPTIONS), 답 복원 상태를 그리고 단계에 맞는 폼을 고른다 */
 export function OnboardingStepScreen({ step }: { step: OnboardingStep });
 export function CompanionStepForm({ initialAnswers }: { initialAnswers: OnboardingStepAnswers[1] });
 export function InterestStepForm({ initialAnswers }: { initialAnswers: OnboardingStepAnswers[2] });
@@ -194,14 +196,17 @@ export function ChoiceChipGroup<T extends string | number>(props: {
 	/** fieldset에 붙는다. tabIndex={-1}이라 포커스를 받을 수 있다 */
 	ref?: Ref<HTMLFieldSetElement>;
 });
+/** 라벨과 설명문, 입력칸, "12/200자" 글자 수 카운터 */
 export function FreeTextField(props: {
 	label: string;
+	/** 라벨 아래 설명문. 줄바꿈을 그대로 그린다 */
+	description: string;
 	value: string;
 	maxLength: number;
 	placeholder: string;
 	onChange: (value: string) => void;
 });
-/** 1단계와 2단계의 하단 건너뛰기와 다음. 다음은 submit 버튼이다 */
+/** 1단계와 2단계의 하단 다음과 건너뛰기. 다음이 위에 오는 submit 버튼이다 */
 export function StepActions({ onSkip }: { onSkip: () => void });
 /** 선택지 조회 실패. 다시 시도는 실패한 쿼리만 다시 부른다. 다시 부르는 동안 버튼은 aria-disabled이고 누름을 무시한다 */
 export function OptionsLoadFailure({ isRetrying, onRetry }: { isRetrying: boolean; onRetry: () => void });
@@ -237,7 +242,7 @@ interface OnboardingRegisterRequest {
 
 **로그.** `[onboarding]` 접두사. 취향 저장 실패와 `sessionStorage` 복원 실패.
 
-**접근성.** 선택 칩은 `shared/ui`의 `ChoiceChip`이고 단일 선택 묶음은 radio, 다중 선택 묶음은 checkbox다. 묶음마다 `<fieldset>`과 `<legend>`가 질문 문구를 담고 다중 선택이면 legend에 "복수선택 가능"이 붙는다. 추가 요청사항의 글자 수 카운터는 `aria-describedby`로 입력칸과 잇는다. 남은 글자가 20자 이하일 때만 따로 둔 `aria-live="polite"` 영역이 남은 글자 수를 읽고 상한에 닿으면 문구가 바뀐다. 선택지 조회를 다시 시도해 성공하면 첫 칩 묶음의 fieldset으로 포커스를 옮긴다. 답 복원과 선택지 조회, 저장 중에는 `role="status"` 문구가 알리고 선택지 조회 실패와 저장 실패는 `role="alert"`다. 미입력 알럿과 환영 알럿은 `shared/ui`의 `AlertDialog`이고 확인 버튼 하나만 둔다.
+**접근성.** 선택 칩은 `shared/ui`의 `ChoiceChip`이고 단일 선택 묶음은 radio, 다중 선택 묶음은 checkbox다. 묶음마다 `<fieldset>`과 `<legend>`가 질문 문구를 담고 다중 선택이면 legend에 "복수선택 가능"이 붙는다. 자유 입력칸은 `aria-describedby`로 설명문과 글자 수 카운터 둘을 잇는다. 남은 글자가 20자 이하일 때만 따로 둔 `aria-live="polite"` 영역이 카운터와 같은 "n/200자"를 읽는다. 헤더의 진행 표시 "1/3"은 `aria-hidden`이고 화면 낭독기에는 `sr-only` 문구 "3단계 중 1단계"가 읽힌다. 단계 헤드의 그림 자리는 `aria-hidden`이다. 선택지 조회를 다시 시도해 성공하면 첫 칩 묶음의 fieldset으로 포커스를 옮긴다. 답 복원과 선택지 조회, 저장 중에는 `role="status"` 문구가 알리고 선택지 조회 실패와 저장 실패는 `role="alert"`다. 미입력 알럿과 환영 알럿은 `shared/ui`의 `AlertDialog`이고 확인 버튼 하나만 둔다.
 
 ## O. Optimization과 운영
 
