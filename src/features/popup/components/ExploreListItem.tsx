@@ -3,11 +3,11 @@ import Link from "next/link";
 import { BookmarkSlot } from "@/shared/components/BookmarkSlot";
 import { PopupImage } from "@/shared/components/PopupImage";
 import { POPUP_CATEGORY_LABELS } from "@/shared/model/popup";
+import { buildPopupDetailPath } from "@/shared/model/popup-path";
 import { SeparatedText } from "@/shared/ui/SeparatedText";
 
 import { buildListItemMetaParts } from "../model/explore-format";
 import type { ExplorePopup } from "../model/explore-popup";
-import { buildPopupDetailPath } from "../model/popup-id";
 import { PopupTagBadge } from "./PopupTagBadge";
 
 interface ExploreListItemProps {

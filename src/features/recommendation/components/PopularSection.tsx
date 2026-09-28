@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import ChevronRightIcon from "@/shared/assets/icons/chevron-right.svg";
+import { buildExploreListPath } from "@/shared/model/explore-state";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 import type { PopularPopupItem } from "../model/home-popup";
@@ -18,7 +19,7 @@ export function PopularSection({ popularPopups }: PopularSectionProps) {
 					지금 인기 있는 팝업
 				</h2>
 				<Link
-					href="/explore?view=list&sort=popular"
+					href={buildExploreListPath()}
 					aria-label="인기 팝업 전체보기"
 					className="rounded-sm text-icon-disabled focus-ring transition-colors hover:text-icon-2"
 				>

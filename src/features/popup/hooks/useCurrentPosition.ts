@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from "react";
 
 import type { KakaoLatLngLiteral } from "@/shared/lib/kakao-map/kakao-map-utils";
 
-export type PositionStatus = "idle" | "locating" | "granted" | "denied" | "unavailable";
+import type { PositionStatus } from "../model/position-status";
 
 const POSITION_OPTIONS: PositionOptions = {
 	enableHighAccuracy: false,

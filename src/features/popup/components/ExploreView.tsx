@@ -4,25 +4,26 @@ import * as m from "motion/react-m";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { cn } from "@/shared/lib/cn";
-import type { Region } from "@/shared/model/region";
-
-import { useCurrentPosition } from "../hooks/useCurrentPosition";
-import { buildExploreEmptyMessage } from "../model/explore-empty-message";
-import { filterExplorePopups } from "../model/explore-filter";
-import type { ExplorePopup } from "../model/explore-popup";
+import { tv } from "@/shared/lib/tv";
 import {
-	buildExploreSheetPath,
 	type ExploreSort,
 	type ExploreState,
 	type ExploreViewMode,
 	parseExploreState,
 	toExploreHref
-} from "../model/explore-state";
+} from "@/shared/model/explore-state";
+import type { Region } from "@/shared/model/region";
+import { Select } from "@/shared/ui/Select";
+
+import { useCurrentPosition } from "../hooks/useCurrentPosition";
+import { buildExploreEmptyMessage } from "../model/explore-empty-message";
+import { filterExplorePopups } from "../model/explore-filter";
+import type { ExplorePopup } from "../model/explore-popup";
+import { EXPLORE_REGION_OPTIONS, formatExploreRegionLabel } from "../model/explore-region";
+import { buildExploreSheetPath } from "../model/explore-sheet-path";
 import { ExploreSearchBar } from "./ExploreSearchBar";
 import { PopupList } from "./PopupList";
 import { PopupMap } from "./PopupMap";
-import { RegionSelect } from "./RegionSelect";
 import { SortToggle } from "./SortToggle";
 import { ViewToggle } from "./ViewToggle";
 
@@ -31,6 +32,15 @@ interface ExploreViewProps {
 }
 
 const SEARCH_DEBOUNCE_MS = 300;
+
+const exploreViewVariants = tv({
+	base: "flex flex-1 flex-col overflow-x-clip",
+	variants: {
+		isMapView: {
+			true: "-mb-tab-bar-gap"
+		}
+	}
+});
 
 const VIEW_TRANSITION = { duration: 0.25, ease: "easeOut" } as const;
 const MAP_ENTER_FROM = { opacity: 0 };
@@ -44,12 +54,12 @@ export function ExploreView({ popups }: ExploreViewProps) {
 
 	const state = useMemo(() => parseExploreState(searchParams), [searchParams]);
 	const [draftQuery, setDraftQuery] = useState(state.query);
-	const [urlQuerySync, setUrlQuerySync] = useState({ seen: state.query, written: state.query });
+	const [urlQuerySync, setUrlQuerySync] = useState({ seenQuery: state.query, writtenQuery: state.query });
 
-	if (state.query !== urlQuerySync.seen) {
-		setUrlQuerySync({ seen: state.query, written: urlQuerySync.written });
+	if (state.query !== urlQuerySync.seenQuery) {
+		setUrlQuerySync({ seenQuery: state.query, writtenQuery: urlQuerySync.writtenQuery });
 
-		if (state.query !== urlQuerySync.written) {
+		if (state.query !== urlQuerySync.writtenQuery) {
 			setDraftQuery(state.query);
 		}
 	}
@@ -66,7 +76,7 @@ export function ExploreView({ popups }: ExploreViewProps) {
 
 	const replaceExploreState = useCallback(
 		(nextState: ExploreState) => {
-			setUrlQuerySync((sync) => ({ ...sync, written: nextState.query }));
+			setUrlQuerySync((sync) => ({ ...sync, writtenQuery: nextState.query }));
 			window.history.replaceState(null, "", toExploreHref(nextState, pathname));
 		},
 		[pathname]
@@ -117,7 +127,7 @@ export function ExploreView({ popups }: ExploreViewProps) {
 	};
 
 	return (
-		<div className={cn("flex flex-1 flex-col overflow-x-clip", isMapView && "-mb-tab-bar-gap")}>
+		<div className={exploreViewVariants({ isMapView })}>
 			<p role="status" className="sr-only">
 				{resultAnnouncement}
 			</p>
@@ -159,7 +169,14 @@ export function ExploreView({ popups }: ExploreViewProps) {
 					className="flex flex-1 flex-col px-5 pt-5"
 				>
 					<div className="relative z-10 flex items-center justify-between">
-						<RegionSelect region={state.region} onChange={handleRegionChange} />
+						<Select
+							options={EXPLORE_REGION_OPTIONS}
+							value={state.region}
+							onChange={handleRegionChange}
+							formatOptionLabel={formatExploreRegionLabel}
+							label="지역"
+							size="compact"
+						/>
 						<SortToggle sort={state.sort} onChange={handleSortChange} />
 					</div>
 					<PopupList popups={filteredPopups} emptyMessage={emptyMessage} />

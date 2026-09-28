@@ -1,13 +1,12 @@
 import type { ReactNode } from "react";
 
 import { BookmarkSlot } from "@/shared/components/BookmarkSlot";
-import { cn } from "@/shared/lib/cn";
 import { POPUP_CATEGORY_LABELS } from "@/shared/model/popup";
+import { buildPopupDetailPath } from "@/shared/model/popup-path";
 import { REGION_LABELS } from "@/shared/model/region";
 
 import { formatViewCount } from "../model/detail-format";
 import type { PopupDetail } from "../model/popup-detail";
-import { buildPopupDetailPath } from "../model/popup-id";
 import { PopupImageCarousel } from "./PopupImageCarousel";
 import { PopupInfoCard } from "./PopupInfoCard";
 import { PopupTagBadge } from "./PopupTagBadge";
@@ -57,9 +56,9 @@ export function PopupDetailView({ popup, matchRateSlot, titleId }: PopupDetailVi
 					</div>
 					{matchRateSlot}
 				</div>
-				<div className={cn("flex items-center gap-2.5", popup.reservationUrl === null && "justify-end")}>
+				<div className="flex items-center gap-2.5">
 					{popup.reservationUrl !== null && <ReservationLink href={popup.reservationUrl} />}
-					<div className="flex shrink-0 gap-2">
+					<div className="ml-auto flex shrink-0 gap-2">
 						<BookmarkSlot popupId={popup.id} popupTitle={popup.title} size="lg" />
 						<SharePopupButton path={buildPopupDetailPath(popup.id)} />
 					</div>

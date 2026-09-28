@@ -1,23 +1,22 @@
 import type { ReactNode } from "react";
 
-import { cn } from "@/shared/lib/cn";
+import { tv, type VariantProps } from "@/shared/lib/tv";
 
-type PopupTagTone = "category" | "region";
-
-const TONE_CLASSES: Record<PopupTagTone, string> = {
-	category: "bg-primary-subtle text-primary",
-	region: "bg-region-subtle text-region"
-};
+const popupTagBadgeVariants = tv({
+	base: "inline-flex h-6 shrink-0 items-center rounded-lg px-2 text-b2-12",
+	variants: {
+		tone: {
+			category: "bg-primary-subtle text-primary",
+			region: "bg-region-subtle text-region"
+		}
+	}
+});
 
 interface PopupTagBadgeProps {
-	tone: PopupTagTone;
+	tone: NonNullable<VariantProps<typeof popupTagBadgeVariants>["tone"]>;
 	children: ReactNode;
 }
 
 export function PopupTagBadge({ tone, children }: PopupTagBadgeProps) {
-	return (
-		<span className={cn("inline-flex h-6 shrink-0 items-center rounded-lg px-2 text-b2-12", TONE_CLASSES[tone])}>
-			{children}
-		</span>
-	);
+	return <span className={popupTagBadgeVariants({ tone })}>{children}</span>;
 }

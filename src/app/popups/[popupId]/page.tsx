@@ -5,11 +5,14 @@ import { buildLoginPath } from "@/features/auth/model/next-path";
 import { readRefreshToken } from "@/features/auth/model/session-cookie";
 import { BookmarkSlotProvider } from "@/features/bookmark/components/BookmarkSlotProvider";
 import { MatchRateNote } from "@/features/popup/components/MatchRateNote";
-import { PopupDetailHeader } from "@/features/popup/components/PopupDetailHeader";
 import { PopupDetailView } from "@/features/popup/components/PopupDetailView";
 import { findPlaceholderPopupDetail } from "@/features/popup/model/placeholder-details";
-import { buildPopupDetailPath, parsePopupId } from "@/features/popup/model/popup-id";
+import { parsePopupId } from "@/features/popup/model/popup-id";
+import { PageHeader } from "@/shared/components/PageHeader";
 import { PLACEHOLDER_NICKNAME } from "@/shared/lib/placeholder-data";
+import { buildPopupDetailPath } from "@/shared/model/popup-path";
+
+const HOME_PATH = "/";
 
 async function findPopupDetailOrNotFound(params: PageProps<"/popups/[popupId]">["params"]) {
 	const popupId = parsePopupId((await params).popupId);
@@ -49,7 +52,7 @@ export default async function PopupDetailPage({ params }: PageProps<"/popups/[po
 
 	return (
 		<main className="flex flex-1 flex-col pb-tab-bar-clearance">
-			<PopupDetailHeader title={detail.title} />
+			<PageHeader title={detail.title} fallbackPath={HOME_PATH} />
 			<AuthStatusSwitch
 				views={{
 					authenticated: <BookmarkSlotProvider mode="member">{detailView}</BookmarkSlotProvider>,

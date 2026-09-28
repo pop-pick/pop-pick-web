@@ -2,16 +2,16 @@
 
 import { type FocusEvent, useEffect, useMemo, useRef, useState } from "react";
 
-import { cn } from "@/shared/lib/cn";
 import type { KakaoLatLngLiteral } from "@/shared/lib/kakao-map/kakao-map-utils";
 import { KakaoMap } from "@/shared/lib/kakao-map/KakaoMap";
+import { tv } from "@/shared/lib/tv";
 import { REGION_LABELS } from "@/shared/model/region";
 import { Button } from "@/shared/ui/Button";
 
-import type { PositionStatus } from "../hooks/useCurrentPosition";
 import type { ExplorePopup } from "../model/explore-popup";
 import { resolveMapView } from "../model/map-view";
 import { toPopupMarkers } from "../model/popup-markers";
+import { POSITION_STATUS_NOTICES, type PositionStatus } from "../model/position-status";
 import { CurrentPositionButton } from "./CurrentPositionButton";
 import { MapPopupCard } from "./MapPopupCard";
 
@@ -19,10 +19,23 @@ const CLUSTER_MIN_LEVEL = 5;
 const MY_POSITION_LEVEL = 5;
 const PICKED_POPUP_LEVEL = 4;
 
-const POSITION_NOTICES: Partial<Record<PositionStatus, string>> = {
-	denied: "위치 권한을 거부해 서울 기본 위치를 보여줍니다",
-	unavailable: "이 브라우저에서는 현재 위치를 쓸 수 없습니다"
-};
+const popupMapVariants = tv({
+	slots: {
+		positionNotice: "rounded-full bg-bg-1/90 px-3 py-1 text-b3-12 text-text-4 shadow-floating",
+		list: ""
+	},
+	variants: {
+		isNoticeHidden: {
+			true: { positionNotice: "sr-only" }
+		},
+		isListRevealed: {
+			true: {
+				list: "absolute inset-x-5 top-4 max-h-48 scrollbar-subtle overflow-y-auto rounded-2xl bg-bg-1 p-2 shadow-floating"
+			},
+			false: { list: "sr-only" }
+		}
+	}
+});
 
 interface PopupMapProps {
 	popups: readonly ExplorePopup[];
@@ -51,7 +64,7 @@ export function PopupMap({
 	const markers = useMemo(() => toPopupMarkers(popups), [popups]);
 	const positions = useMemo(() => markers.map((marker) => marker.position), [markers]);
 	const selectedPopup = popups.find((popup) => popup.id === selectedPopupId) ?? null;
-	const positionNotice = POSITION_NOTICES[positionStatus];
+	const positionNotice = POSITION_STATUS_NOTICES[positionStatus];
 	const cameraTarget = manualTarget ?? (shouldFollowPosition ? position : null);
 	const cameraLevel = manualTarget === null ? MY_POSITION_LEVEL : PICKED_POPUP_LEVEL;
 	const viewProps = resolveMapView(cameraTarget, cameraLevel, positions);
@@ -115,6 +128,11 @@ export function PopupMap({
 		}
 	};
 
+	const styles = popupMapVariants({
+		isNoticeHidden: positionNotice === undefined || selectedPopup !== null,
+		isListRevealed
+	});
+
 	return (
 		<div className="relative flex flex-1">
 			<KakaoMap
@@ -145,13 +163,7 @@ export function PopupMap({
 							onLocate={handleLocate}
 							className="pointer-events-auto"
 						/>
-						<p
-							role="status"
-							className={cn(
-								"rounded-full bg-bg-1/90 px-3 py-1 text-b3-12 text-text-4 shadow-floating",
-								(positionNotice === undefined || selectedPopup !== null) && "sr-only"
-							)}
-						>
+						<p role="status" className={styles.positionNotice()}>
 							{positionNotice}
 						</p>
 					</div>
@@ -162,16 +174,7 @@ export function PopupMap({
 					)}
 				</div>
 
-				<ul
-					aria-label="지도에 표시한 팝업"
-					onFocus={handleListFocus}
-					onBlur={handleListBlur}
-					className={cn(
-						isListRevealed
-							? "absolute inset-x-5 top-4 max-h-48 overflow-y-auto rounded-2xl bg-bg-1 p-2 shadow-floating"
-							: "sr-only"
-					)}
-				>
+				<ul aria-label="지도에 표시한 팝업" onFocus={handleListFocus} onBlur={handleListBlur} className={styles.list()}>
 					{popups.map((popup) => (
 						<li key={popup.id}>
 							<button

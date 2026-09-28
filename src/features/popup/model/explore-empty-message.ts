@@ -1,6 +1,5 @@
+import type { ExploreState } from "@/shared/model/explore-state";
 import { REGION_LABELS } from "@/shared/model/region";
-
-import type { ExploreState } from "./explore-state";
 
 export interface ExploreEmptyMessage {
 	title: string;
