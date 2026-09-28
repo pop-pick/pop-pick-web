@@ -23,6 +23,13 @@ expect() {
 		ng "$1 가 출력에 없다"
 	fi
 }
+expect_absent() {
+	if printf '%s' "$2" | grep -qF -- "$1"; then
+		ng "$1 가 출력에 있다"
+	else
+		ok "$1 는 걸리지 않는다"
+	fi
+}
 expect_status() {
 	if [ "$1" = "$2" ]; then
 		ok "$3 (exit $1)"
@@ -111,7 +118,12 @@ EOF
 	printf '`pop-pick-nothing` 스킬을 쓴다.\n'
 	printf '구현은 feature-builder 가 한다.\n'
 	printf '타입 검사\xc2\xb7빌드\n'
+	printf '주석 규칙은 `comments.md` 에 있다.\n'
 } >"$fixture/docs/guide.md"
+{
+	printf '# 정상\n\n'
+	printf '홈 룰은 `~/.agents/rules/typescript.md` 이고 저장소 룰은 `typescript-conventions.md` 와 `allowed-comments.md` 다.\n'
+} >"$fixture/docs/normal.md"
 
 output="$(CHECK_ROOT="$fixture" bash "$ROOT/.agents/scripts/check-conventions.sh" 2>&1)"
 expect_status "$?" 1 "위반이 있으면 1 로 끝난다"
@@ -132,6 +144,9 @@ expect "걸림  커밋되는 파일에 개인 절대 경로나 위키 경로를 
 expect "걸림  문서가 없는 스킬이나 에이전트를 가리킨다" "$output"
 expect "걸림  옛 에이전트 이름이나 폴더가 남아 있다" "$output"
 expect "docs/guide.md" "$output"
+expect "걸림  옛 룰 이름이 남아 있다" "$output"
+expect "docs/guide.md:8:" "$output"
+expect_absent "docs/normal.md" "$output"
 expect "볼것  격식체 동사로 시작하는 이름" "$output"
 expect "볼것  빈 값으로 받는 자리" "$output"
 expect "볼것  alert 나 confirm 을 부른다" "$output"
@@ -223,7 +238,7 @@ main|git -c x=y commit -m x|2
 main|git push|2
 main|git push -u origin HEAD|2
 feat|git switch main && git commit -m x|2
-feat|git switch develop && git commit -m x|2
+feat|git switch develop && git commit -m x|0
 feat|git add ./packages/a.ts|0
 feat|git add packages/a.ts packages/b.ts|0
 feat|git add .env.example|0
@@ -392,6 +407,14 @@ output="$(run_inject "$inject/node_modules/pkg/index.ts")"
 [ -z "$output" ] && ok "paths 밖의 파일은 알리지 않는다" || ng "node_modules 아래 파일을 알렸다"
 output="$(run_inject "$inject/README.md")"
 expect ".agents/rules/docs.md" "$output"
+cat >"$inject/.agents/rules/inline.md" <<'EOF'
+---
+description: 한 줄 배열에 중괄호가 든 룰
+paths: ['lib/**/*.{ts,tsx}', "scripts/*.mjs"]
+---
+EOF
+output="$(run_inject "$inject/lib/a/b.tsx")"
+expect ".agents/rules/inline.md" "$output"
 
 printf '\n=== 생성물 대조 ===\n\n'
 

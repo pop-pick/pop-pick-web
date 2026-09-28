@@ -1,7 +1,6 @@
 ---
 description: src/app은 라우팅, src/features는 기능, src/shared는 공용. 기능 폴더 안은 api와 components, hooks, model 넷이다. 의존은 한 방향이고 배럴 파일을 만들지 않는다
-paths:
-  - "src/**"
+paths: ["src/**"]
 ---
 
 # 폴더 구조
@@ -31,6 +30,13 @@ features/{기능}/
 **배럴 파일을 만들지 않는다.** `index.ts`로 모아 내보내지 않고 파일을 직접 부른다.
 
 **같은 기능 안은 상대 경로, 밖은 `@/` 별칭을 쓴다.** 상대 경로는 `../{세그먼트}`까지다.
+
+## app과 features 이름
+
+- `src/app`에는 Next가 이름을 정하는 라우트 파일만 두고 컴포넌트와 CSS는 `src/shared`나 `src/features`에서 import한다. 라우트 그룹을 두지 않는다
+- 하단 탭바는 루트 레이아웃이 그리고 탭바가 숨는 경로는 `BottomTabBar`의 `HIDDEN_PATHS`다
+- `features/` 하위 폴더는 기능 하나에 하나다. 이름은 백엔드 `feature/{이름}` 패키지와 맞춘다
+- 경로 별칭 `@/*`는 `./src/*`다
 
 ## shared 안
 

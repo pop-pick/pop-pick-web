@@ -1,8 +1,6 @@
 ---
 description: 기성 UI 라이브러리 없음(모양 없이 동작만 주는 부품은 예외). 공용 컴포넌트는 src/shared/ui와 components가 주인. 파일 이름과 선언 형식의 정본. 이벤트 핸들러는 JSX 밖으로 뺀다. 모바일 퍼스트, 키보드로 조작 가능, 토큰만 쓴다
-paths:
-  - "src/**/*.tsx"
-  - "src/**/use*.ts"
+paths: ["src/**/*.tsx", "src/**/use*.ts"]
 ---
 
 # UI 컴포넌트
@@ -11,7 +9,7 @@ paths:
 
 - 기성 UI 라이브러리를 쓰지 않는다. shadcn 같은 것을 깔지 않는다. 모양 없이 동작과 접근성만 주는 부품은 예외라 직접 만들지 않고 쓴다. 지금은 날짜 선택 달력의 react-day-picker 하나이고 모양은 `classNames`에 토큰 클래스를 넣어 시안에 맞춘다
 - 두 화면 이상이 쓰는 컴포넌트는 `src/shared`에 두고 디자인 시스템 담당 프론트엔드가 주인이다. 앱을 모르는 부품은 `ui`, 경로나 도메인 타입을 아는 조립품은 `components`다
-- 한 화면만 쓰는 컴포넌트는 그 기능의 `components` 폴더에 둔다. 두 번째 쓰임이 나오면 `src/shared`로 올린다. 둘을 가르는 기준과 폴더 규칙은 `structure.md`에 있다
+- 한 화면만 쓰는 컴포넌트는 그 기능의 `components` 폴더에 둔다. 두 번째 쓰임이 나오면 `src/shared`로 올린다. 둘을 가르는 기준과 폴더 규칙은 `architecture.md`에 있다
 - 아이콘은 SVG 원본을 import해 `SvgIcon`에 넘기고 SVG를 TSX로 옮겨 적지 않는다. 크기와 색, `label`, 새 아이콘을 넣는 법은 `docs/design/DESIGN.md`의 아이콘 절
 
 ## 이 규칙이 생긴 이유
@@ -53,9 +51,7 @@ export function SessionRetry() {
 ```
 
 - 목록에서 항목 값이 필요하면 항목을 받아 핸들러를 돌려주는 함수를 둔다. `const handleListItemClick = (popup: ExplorePopup) => () => { ... }`와 `onClick={handleListItemClick(popup)}`이다
-- 훅이나 props로 받은 함수는 감싸지 않고 그대로 넘긴다. `onClick={reset}`, `onLocate={requestCurrentPosition}`이다
 - ref 콜백은 이벤트 핸들러가 아니라 이 규칙의 대상이 아니다
-- 핸들러 이름은 `handle`로, 이벤트 props 이름은 `on`으로 시작한다
 
 ## 만들 때 지키는 것
 

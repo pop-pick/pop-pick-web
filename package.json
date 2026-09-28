@@ -30,6 +30,7 @@
 		"dev": "next dev",
 		"build": "next build",
 		"start": "next start",
+		"preview": "pnpm start",
 		"lint": "eslint",
 		"lint:fix": "eslint --fix",
 		"format": "prettier --write .",

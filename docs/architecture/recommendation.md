@@ -21,7 +21,7 @@
 - 주도권은 클라이언트다. 요청 응답이다
 - 추천 생성과 이유 문구는 백엔드 몫이다. 추천 기준은 PM이 정했고 AI가 그 위에서 돈다. FE는 결과를 그리기만 한다
 - "준비 중"은 실패가 아니라 상태다. 온보딩 답이 아직 없거나 임베딩이 끝나지 않은 사용자에게 서버가 `PREPARING`을 값으로 낸다. 실패(`ApiError`)와 준비 중을 화면은 같은 축소 동작으로 다루지만 로그는 다르게 남긴다
-- 축소 동작은 `no-fallback.md`의 조건 셋을 채운다. `docs/product/SPEC.md`에 적혀 있고 화면에서 라벨로 구분되고 `[recommendation]` 로그가 남는다
+- 축소 동작은 `~/.agents/rules/no-fallback.md`의 조건 셋을 채운다. `docs/product/SPEC.md`에 적혀 있고 화면에서 라벨로 구분되고 `[recommendation]` 로그가 남는다
 - 백엔드에 홈이 읽을 API가 아직 없다. 화면은 임시 데이터로 먼저 만들었고 없는 엔드포인트의 조회 함수와 `queryOptions`는 만들지 않았다. 출처가 정해지지 않은 값(일치율, 카드 배지 문구, 인기 한 줄 문구, 평점과 리뷰 수)은 `null`을 허용하고 값이 있을 때만 그린다. 임시 데이터에 시안 값을 넣어 지금 화면은 시안과 같다
 
 **범위 밖.** 추천 새로 고침 버튼, 추천 결과 저장, 카드 단위 "관심 없음" 피드백, 홈 카드의 찜 버튼(시안에 없다).
@@ -86,7 +86,7 @@ type RecommendationSectionMode = "skeleton" | "recommended" | "fallback-preparin
 function resolveSectionMode(query: UseQueryResult<RecommendationResult, ApiError>): RecommendationSectionMode;
 ```
 
-`PopupSummary`는 `shared/model/popup.ts`에 있고 필드는 `popup.md`가 갖는다. 인기 행 셋째 줄의 입장 방식은 같은 파일의 짧은 라벨(`RESERVATION_SHORT_LABELS`)이다. 시안의 지역 칩에는 개수가 없다. `resolveSectionMode`는 분기 있는 순수 함수라 `testing.md`의 값이 나는 자리다.
+`PopupSummary`는 `shared/model/popup.ts`에 있고 필드는 `popup.md`가 갖는다. 인기 행 셋째 줄의 입장 방식은 같은 파일의 짧은 라벨(`RESERVATION_SHORT_LABELS`)이다. 시안의 지역 칩에는 개수가 없다. `resolveSectionMode`는 분기 있는 순수 함수라 `testing-trophy.md`의 값이 나는 자리다.
 
 ## I. Interface
 

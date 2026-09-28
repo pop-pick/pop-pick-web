@@ -1,13 +1,12 @@
 #!/usr/bin/env node
-// guard-git 판정기. 훅 입력 JSON 의 명령을 셸처럼 나눠 git 호출만 git-workflow.md 금지 패턴으로 판정한다
+// guard-git 판정기. 훅 입력 JSON 의 명령을 셸처럼 나눠 git 호출만 git-workflow.md 브랜치 절이 적은 막는 것으로 판정한다
 
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-const COMMIT_PROTECTED = new Set(["main", "develop"]);
-const PUSH_PROTECTED = new Set(["main"]);
+const PROTECTED = new Set(["main"]);
 const KEYWORDS = new Set(["if", "then", "else", "elif", "do", "while", "until", "!", "{", "}", "fi", "done", "time"]);
 const HOOK_SKIPPING = new Set(["commit", "push", "merge", "rebase", "cherry-pick", "am", "pull", "revert"]);
 const OUTPUT_WRITING = new Set([
@@ -546,7 +545,7 @@ function judgeCommit(args, dir, ctx) {
 		}
 	}
 	const branch = currentBranch(dir, ctx);
-	if (COMMIT_PROTECTED.has(branch)) {
+	if (PROTECTED.has(branch)) {
 		deny(`${branch} 에서 직접 커밋하지 않는다. feature/ 브랜치를 딴다`);
 	}
 }
@@ -603,7 +602,7 @@ function judgePush(args, dir, ctx) {
 
 	const refspecs = positional.slice(1);
 	const protectedTarget = (branch) => {
-		if (PUSH_PROTECTED.has(branch)) {
+		if (PROTECTED.has(branch)) {
 			deny(`${branch} 에 직접 푸시하지 않는다. develop 에서 main 으로 PR 을 연다`);
 		}
 	};
@@ -749,6 +748,6 @@ try {
 	} else if (!(error instanceof Deny)) {
 		reason = `판정 중에 오류가 났다(${error.message}). 판정하지 못한 git 명령은 막는다`;
 	}
-	process.stderr.write(`${reason} (git-workflow.md 금지 패턴)\n막힌 명령: ${shownCommand}\n`);
+	process.stderr.write(`${reason} (git-workflow.md 브랜치 절)\n막힌 명령: ${shownCommand}\n`);
 	process.exit(2);
 }
