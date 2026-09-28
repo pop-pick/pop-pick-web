@@ -9,15 +9,18 @@ pre-commit:
     - rebase
   jobs:
     - name: lint
-      glob: "*.{js,cjs,mjs,jsx,ts,tsx,mts,cts}"
+      glob: "*.{js,cjs,mjs,jsx,ts,tsx,mts,cts,vue,svelte}"
       run: pnpm run lint
     - name: format
-      glob: "*.{js,cjs,mjs,jsx,ts,tsx,mts,cts,json,jsonc,yml,yaml,md,css,html}"
+      glob: "*.{js,cjs,mjs,jsx,ts,tsx,mts,cts,vue,svelte,json,jsonc,yml,yaml,md,css,scss,html}"
       run: pnpm run format:check
     - name: harness
       run: pnpm run harness:check
 
 pre-push:
+  parallel: false
   jobs:
     - name: typecheck
       run: pnpm run type:check
+    - name: build
+      run: pnpm run build
