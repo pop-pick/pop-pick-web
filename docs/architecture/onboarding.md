@@ -4,7 +4,7 @@
 
 ## R. Requirements
 
-**기능.** 랜딩에서 로그인을 거쳐 온보딩 세 단계로 가고 "둘러보기"는 비회원 홈으로 간다. 단계마다 무엇을 받고 어떻게 건너뛰는지는 `docs/product/SPEC.md`의 온보딩 취향 수집 절이 정본이다. 저장한 취향은 코스 조건 입력과 마이페이지에서 고칠 수 있고 세 화면이 같은 입력 컴포넌트를 쓴다.
+**기능.** 랜딩에서 로그인을 거쳐 온보딩 세 단계로 가고 "둘러보기"는 비회원 홈으로 간다. 단계마다 무엇을 받고 어떻게 건너뛰는지는 `docs/product/SPEC.md`의 온보딩 취향 수집 절이 정본이다. 저장한 취향은 마이페이지에서 고칠 수 있고 코스 조건 입력이 첫 값으로 채운다. 동행 유형과 인원수는 코스 조건 입력과 같은 선택지이고 값과 라벨은 `shared/model/trip-preference.ts`에 있다. 선호 활동은 선택지 조회로 받은 code 값이고 조회가 붙기 전까지 코스 조건 입력은 같은 파일의 임시 값 넷을 쓴다.
 
 **보장.**
 
@@ -21,6 +21,8 @@
 - 입력 중인 값은 폼이 들고 단계를 떠날 때 스토어에 쓴다. 스토어는 온보딩을 마치면 비운다
 
 **범위 밖.** 성별 항목. 추천 미리보기 화면은 존치 여부가 미결정이라 이 문서가 다루지 않는다.
+
+**지금 있는 것.** 홈 위 랜딩 모달(`components/LandingDialog`)과 단계 헤더(`components/OnboardingHeader`), 단계 번호 파싱(`model/steps.ts`)이 있다. 단계 본문은 `ScreenPlaceholder`이고 백엔드에 선택지와 취향 API가 없다. 아래 D와 I 절은 `OnboardingAnswers`가 쓰는 `shared/model/trip-preference.ts`를 빼면 전부 설계다.
 
 ## A. Architecture
 
@@ -49,19 +51,16 @@
 /                      둘러보기                랜딩 모달을 닫고 홈에 머문다
 ```
 
-단계 화면은 저장된 취향을 폼 기본값으로 읽고 "다음"이나 "건너뛰기"에서 폼 값을 스토어에 쓴다. 건너뛰기는 그 단계의 값을 비운 채 다음으로 간다. "다음"은 그 단계에 고른 것이 하나도 없으면 알럿을 띄우고 머무른다. 건너뛰려면 건너뛰기를 눌러야 한다는 것을 알럿이 알려주는 셈이라 문구는 기획이 준 "항목을 선택해주세요"를 그대로 쓴다.
+단계 화면은 저장된 취향을 폼 기본값으로 읽고 "다음"이나 "건너뛰기"에서 폼 값을 스토어에 쓴다. 건너뛰기는 그 단계의 값을 비운 채 다음으로 간다.
 
 3단계의 "시작하기"는 저장이 성공한 뒤 "POP PICK과 시작하는 여정을 환영합니다" 알럿을 띄우고 확인을 누르면 홈으로 간다. 저장이 실패하면 알럿을 띄우지 않는다.
-
-마지막 단계에서 저장이 실패하면 스토어를 비우지 않고 화면에 다시 시도할 길을 준다. 답을 잃지 않는다.
 
 ## D. Data Model
 
 ```typescript
 // features/onboarding/model/answers.ts
-type CompanionType = "ALONE" | "FRIEND" | "COUPLE" | "FAMILY";
-/** 4는 4명 이상 */
-type PartySize = 1 | 2 | 3 | 4;
+// CompanionType("ALONE" | "WITH_FRIEND" | "COUPLE" | "WITH_FAMILY")과 PartySize(1부터 4, 4는 4명 이상)는
+// shared/model/trip-preference.ts에서 가져온다. 동행 유형 값은 백엔드 AccompanyType과 같다
 
 interface OnboardingAnswers {
 	companionType: CompanionType | null;
@@ -108,7 +107,6 @@ interface OnboardingOptions {
 **컴포넌트와 훅.**
 
 ```typescript
-export function Landing(); // /. 두 버튼
 export function OnboardingStep({ step }: { step: 1 | 2 | 3 });
 export function StepProgress({ step, total }: { step: number; total: number });
 export function ChoiceChipGroup<T extends string>(props: {
