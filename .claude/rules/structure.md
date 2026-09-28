@@ -22,7 +22,7 @@ features/{기능}/
 └── model/    그 기능이 무엇인지. 값과 타입, 도메인 규칙, 스토어
 ```
 
-필요한 것만 만든다. 쓰지 않는 세그먼트 폴더를 미리 만들지 않는다. 지금 넷을 다 쓰는 기능은 `auth` 하나다. `popup`과 `recommendation`은 `components`와 `hooks`, `model`을 쓰고 `onboarding`은 `components`와 `model`, `bookmark`는 `components`만 쓴다. `course`와 `planner`는 설계 문서의 기능 표에 맞춰 만든 빈 기능 폴더다.
+필요한 것만 만든다. 쓰지 않는 세그먼트 폴더를 미리 만들지 않는다.
 
 **기능 안 컴포넌트 폴더는 `components`다.** 기능 안의 컴포넌트는 모두 자기 기능의 도메인을 알아서 `shared/components`와 성격이 같다. `ui`라는 이름은 저장소 전체에서 앱을 모르는 부품(`shared/ui`)에만 쓴다.
 
@@ -36,13 +36,13 @@ features/{기능}/
 
 | 폴더                               | 담는 것                                                                                                                                                                                                                     |
 | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ui`                               | 디자인 시스템 부품. `Button`, `Chip`, `Badge`, `IconButton`, `Skeleton`, `SvgIcon`처럼 props와 토큰만으로 그리고 앱을 모른다                                                                                                |
-| `components`                       | `ui`를 조립한 공용 컴포넌트. `BottomTabBar`, `SectionHeader`, `EmptyState`, `PopupImage`처럼 경로와 도메인 타입을 알아도 된다                                                                                               |
+| `ui`                               | 디자인 시스템 부품. `Button`, `Select`, `DropdownPanel`, `AlertDialog`, `Skeleton`, `SvgIcon`처럼 props와 토큰만으로 그리고 앱을 모른다                                                                                     |
+| `components`                       | `ui`를 조립한 공용 컴포넌트. `BottomTabBar`, `PageHeader`, `BackButton`, `EmptyState`, `PopupImage`처럼 경로와 도메인 타입을 알아도 된다                                                                                    |
 | `assets`                           | 코드가 아닌 원본 파일. `icons/`의 SVG는 SVGR이 빌드할 때 컴포넌트로 바꾸고 `fonts/`의 woff2는 `styles/fonts.ts`가 싣는다. 색이 고정되거나 그라디언트가 있는 SVG는 SVGR이 색을 바꿔서 `public/`에 두고 `next/image`로 싣는다 |
 | `styles`                           | Tailwind 진입점 `globals.css`와 디자인 토큰 `tokens/`                                                                                                                                                                       |
 | `api`, `lib`, `model`, `providers` | HTTP 층, 도메인 지식이 없는 도구, 여러 기능이 쓰는 값과 타입, 루트 레이아웃이 감싸는 Provider                                                                                                                               |
 
-**`ui`와 `components`는 무엇을 import하는지로 가른다.** 두 이름 모두 컴포넌트를 뜻해서 이름만 보고는 어디에 둘지 알 수 없다. `ui`는 `next/navigation`과 `@/shared/model`, `@/shared/components`, `@/features`를 부르지 않는다. 새 컴포넌트가 앱의 경로나 도메인 타입을 알아야 하면 `components`에 둔다. 의존은 `ui`에서 `components`로 한 방향이고 `check-conventions.sh`가 막는다.
+**`ui`와 `components`는 무엇을 import하는지로 가른다.** 두 이름 모두 컴포넌트를 뜻해서 이름만 보고는 어디에 둘지 알 수 없다. `ui`는 `next/navigation`과 `@/shared/model`, `@/shared/components`, `@/features`를 부르지 않는다. 새 컴포넌트가 앱의 경로나 도메인 타입을 알아야 하면 `components`에 둔다. 의존은 `ui`에서 `components`로 한 방향이다.
 
 ## model이 담는 것
 
@@ -69,7 +69,7 @@ export const REGION_LABELS: Record<Region, string> = { ... };
 
 ## 기능 폴더에 lib과 types를 두지 않는다
 
-**`lib`은 `src/shared`에만 있다.** 도메인 지식이 없는 도구를 담는다. 지금 다섯이다. 클래스 합치기(`cn.ts`), 플러그인과 서울 시간대를 한 번 설정한 날짜 라이브러리(`dayjs.ts`), 외부 SDK 어댑터(`kakao-map/`), 화면용 임시 데이터(`placeholder-data.ts`)와 임시 사진 목록(`placeholder-images.ts`)이다.
+**`lib`은 `src/shared`에만 있다.** 도메인 지식이 없는 도구를 담는다. 지금 여덟이다. 클래스 합치기(`cn.ts`), 같은 병합 설정으로 만든 변형 레시피 함수(`tv.ts`), 서울 시간대의 오늘과 엄격한 날짜 읽기(`date.ts`), 라우트 쿼리를 `URLSearchParams`로 바꾸기(`search-params.ts`), 앱 안에서 뒤로 갈 수 있는지 판정(`navigation.ts`), 외부 SDK 어댑터(`kakao-map/`), 화면용 임시 데이터(`placeholder-data.ts`)와 임시 사진 목록(`placeholder-images.ts`)이다.
 
 기능 폴더에 `lib`을 두지 않는 이유는 그 이름이 목적을 말하지 않아서다. `auth/lib/kakao-oauth.ts`에서 `lib`을 빼고 읽어도 아는 것이 같다. 폴더 한 겹이 경로만 늘리고 정보를 더하지 않으면 지운다.
 
@@ -85,41 +85,20 @@ export const REGION_LABELS: Record<Region, string> = { ... };
 
 **의존 방향을 정하지 않으면 기능이 서로를 부른다.** 프론트엔드 둘이 기능 일곱을 6주에 나눠 만든다. `course`가 `popup`의 내부 함수를 부르기 시작하면 둘 중 하나를 고칠 때마다 다른 하나를 열어야 한다. 한 방향으로 정해 두면 고칠 자리가 예측된다.
 
-**세그먼트가 많으면 파일 하나를 넣으려고 폴더를 만든다.** 여섯이던 때 여섯을 다 쓰는 기능은 하나뿐이었고 나머지는 파일 한둘짜리 폴더를 들고 있었다. 폴더는 파일이 여럿일 때 값이 생긴다.
+**세그먼트가 많으면 파일 하나를 넣으려고 폴더를 만든다.** 여섯이던 때 여섯을 다 쓰는 기능은 하나뿐이었다.
 
 **배럴 파일은 값보다 비용이 크다.** `index.ts` 하나를 부르면 그 폴더의 모든 파일이 모듈 그래프에 들어온다. 개발 서버가 느려지고 트리 셰이킹이 막히며 순환 import가 생긴다. bulletproof-react도 과거의 배럴 권장을 철회했다.
 
-**Next.js는 이 구조에 개입하지 않는다.** 공식 문서가 `app` 밖의 배치에 대해 unopinionated라고 직접 적는다. 예시에 쓴 `components`와 `lib`은 자리 표시일 뿐이며 다른 이름을 써도 된다고 못 박는다. 그래서 이 규칙은 프레임워크가 정해 준 것이 아니라 우리가 고른 것이다.
+**Next.js는 `app` 밖의 배치를 정하지 않는다.** 공식 문서가 unopinionated라고 적고 예시의 `components`와 `lib`은 다른 이름을 써도 된다고 적는다.
 
 **서버와 클라이언트를 폴더로 가르지 않는다.** `"use client"`는 파일 하나에 붙는 모듈 그래프 경계다. 그 파일이 import하는 것이 클라이언트 번들에 들어가고 `children`으로 넘긴 서버 컴포넌트는 들어가지 않는다. 경계를 정하는 것은 파일의 위치가 아니라 import 관계라서 폴더로 나누면 실제 번들 경계와 어긋난다.
 
-## 자주 나오는 실수와 막는 법
+## 기계로 막는 것
 
-lint 규칙으로 막지 않는다. 사람이 읽고 지킨다. 아래 넷이 실제로 반복되는 실수라 코드를 쓰기 전에 한 번 지나간다.
-
-**다른 기능을 직접 부른다.** `features/course`에서 `@/features/popup/...`를 import하는 것이다. 둘이 같이 필요하면 `src/app`의 라우트 파일이 둘을 가져다 놓거나, 공용이 된 조각을 `src/shared`로 올린다.
-
-**기능 밖을 상대 경로로 부른다.** `../../popup/...`처럼 점 둘이 나오면 기능을 벗어난 것이다. 기능 밖은 `@/shared` 별칭으로 부른다.
-
-**shared가 features를 부른다.** 의존이 거꾸로 흐르면 공용 코드가 특정 기능에 묶인다. `shared`에서 기능 이름이 보이면 그 코드는 기능 폴더로 내려가야 한다.
-
-**index.ts를 만든다.** 모아 내보내면 부르는 쪽이 짧아지지만 폴더 전체가 모듈 그래프에 들어온다. 파일을 직접 부른다.
-
-찾을 때는 이렇게 본다.
-
-```bash
-grep -rn "@/features/" src/features src/shared --include="*.ts" --include="*.tsx"
-grep -rn "from \"\.\./\.\./" src/features --include="*.ts" --include="*.tsx"
-find src -name "index.ts" -o -name "index.tsx"
-find src/features -mindepth 2 -maxdepth 2 -type d ! -name api ! -name components ! -name hooks ! -name model
-```
-
-네 명령 모두 아무것도 내지 않아야 한다. `src/app`은 검사 대상이 아니다.
+다른 기능 import와 기능 밖 상대 경로, 배럴 파일, 기능 폴더 루트의 파일, 넷 밖의 세그먼트, `shared/ui`가 앱을 아는 import는 `check-conventions.sh`가 막는다. `src/app`은 검사 대상이 아니다.
 
 ## 리뷰에서 볼 것
 
-- 기능 폴더 루트에 있는 파일과 넷 밖의 세그먼트
-- 새로 생긴 `index.ts`
 - `src/app` 라우트 파일 안의 로직. 조립만 한다
 - 값과 그 값에서 파생된 타입이 다른 파일에 있는 자리
 - 한 기능에만 있는데 다른 기능도 쓰기 시작한 컴포넌트. 앱을 모르면 `src/shared/ui`, 경로나 도메인 타입을 알면 `src/shared/components`로 올린다

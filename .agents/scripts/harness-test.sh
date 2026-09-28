@@ -86,6 +86,19 @@ EOF
 cat >"$fixture/src/shared/api/client.ts" <<'EOF'
 export const client = 1;
 EOF
+cat >"$fixture/src/features/popup/components/PopupChip.tsx" <<'EOF'
+import { tv } from "tailwind-variants";
+
+import { cn } from "@/shared/lib/cn";
+
+interface PopupChipProps {
+	isSelected: boolean;
+}
+
+export function PopupChip({ isSelected }: PopupChipProps) {
+	return <span className={cn("rounded-lg", isSelected && "bg-primary")} />;
+}
+EOF
 cat >"$fixture/src/app/page.tsx" <<'EOF'
 export default function Page() {
 	return <button onClick={() => alert("저장")} />;
@@ -111,6 +124,8 @@ expect "걸림  boolean 상태 이름에 is, has, can, should 가 없다" "$outp
 expect "걸림  return 앞 빈 줄이나 블록 뒤 빈 줄이 규칙과 다르다" "$output"
 expect "PopupToggle.tsx:5: JSX 를 돌려주는 return 앞에 빈 줄이 없다" "$output"
 expect "get-popups.ts:15: 블록이 2줄인데 return 앞에 빈 줄이 있다" "$output"
+expect "걸림  tailwind-variants 를 직접 부른다" "$output"
+expect "PopupChip.tsx:10: cn() 안에서 조건으로 클래스를 고른다" "$output"
 expect "걸림  금지 기호나 한자를 썼다" "$output"
 expect "걸림  번역 은유를 썼다" "$output"
 expect "걸림  커밋되는 파일에 개인 절대 경로나 위키 경로를 적었다" "$output"
