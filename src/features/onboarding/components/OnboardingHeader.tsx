@@ -20,7 +20,7 @@ export function OnboardingHeader({ step }: OnboardingHeaderProps) {
 				<SvgIcon icon={ArrowLeftIcon} size={20} />
 			</Link>
 			<p className="min-w-0 flex-1 text-base font-semibold">
-				{step}단계
+				{step}
 				<span className="ml-1 text-sm font-normal text-zinc-500">/ {ONBOARDING_STEPS.length}</span>
 			</p>
 		</header>
