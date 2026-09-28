@@ -6,7 +6,8 @@ import {
 	CLUSTER_STYLES,
 	createMyPositionElement,
 	fillClusterElement,
-	formatClusterText
+	formatClusterText,
+	resolvePinYAnchor
 } from "./kakao-map-pins";
 import type {
 	KakaoClusterInstance,
@@ -23,6 +24,9 @@ export type KakaoMarkerData = {
 	position: KakaoLatLngLiteral;
 	title: string;
 	label?: string;
+	variant?: "labeled" | "icon";
+	/** icon 모양 핀이 그리는 그림 주소. icon이면 반드시 있어야 한다 */
+	iconUrl?: string;
 };
 
 export type KakaoClusterOptions = {
@@ -51,7 +55,7 @@ const SELECTED_PIN_Z_INDEX = 2;
 const MY_POSITION_Z_INDEX = 3;
 
 function isSamePinData(a: KakaoMarkerData, b: KakaoMarkerData) {
-	return a.title === b.title && a.label === b.label;
+	return a.title === b.title && a.label === b.label && a.variant === b.variant && a.iconUrl === b.iconUrl;
 }
 
 export class KakaoMapSession {
@@ -342,7 +346,7 @@ export class KakaoMapSession {
 		const overlay = new this.sdk.maps.CustomOverlay({
 			position: toLatLng(this.sdk, marker.position),
 			content: element,
-			yAnchor: 1,
+			yAnchor: resolvePinYAnchor(marker),
 			zIndex: marker.id === this.selectedId ? SELECTED_PIN_Z_INDEX : PIN_Z_INDEX,
 			clickable: true
 		});

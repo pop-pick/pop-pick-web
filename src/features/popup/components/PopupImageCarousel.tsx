@@ -4,10 +4,20 @@ import useEmblaCarousel from "embla-carousel-react";
 import { type KeyboardEvent, useEffect, useState } from "react";
 
 import { PopupImage } from "@/shared/components/PopupImage";
-import { cn } from "@/shared/lib/cn";
+import { tv } from "@/shared/lib/tv";
 import type { PopupCategory } from "@/shared/model/popup";
 
 const IMAGE_SIZES = "(max-width: 430px) calc(100vw - 40px), 390px";
+
+const carouselDotVariants = tv({
+	base: "size-1.5 rounded-full",
+	variants: {
+		isSelected: {
+			true: "bg-icon",
+			false: "bg-divider-2/80"
+		}
+	}
+});
 
 interface PopupImageCarouselProps {
 	label: string;
@@ -98,10 +108,7 @@ export function PopupImageCarousel({ label, images, category }: PopupImageCarous
 			</p>
 			<div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-5 flex justify-center gap-2">
 				{images.map((image, index) => (
-					<span
-						key={image}
-						className={cn("size-1.5 rounded-full", index === selectedIndex ? "bg-icon" : "bg-divider-2/80")}
-					/>
+					<span key={image} className={carouselDotVariants({ isSelected: index === selectedIndex })} />
 				))}
 			</div>
 		</div>

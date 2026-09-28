@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import SearchIcon from "@/shared/assets/icons/search.svg";
+import { buildExploreListPath } from "@/shared/model/explore-state";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 const LOGO_WIDTH = 150;
@@ -14,7 +15,7 @@ export function HomeHeader() {
 				<Image src="/brand/logo.svg" alt="POP PICK" width={LOGO_WIDTH} height={LOGO_HEIGHT} loading="eager" />
 			</h1>
 			<Link
-				href="/explore?view=list"
+				href={buildExploreListPath()}
 				aria-label="팝업 검색"
 				className="rounded-sm text-icon focus-ring transition-opacity hover:opacity-70"
 			>

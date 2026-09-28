@@ -14,11 +14,7 @@ export function Chip({ isSelected = false, className, type = "button", ...props 
 			type={type}
 			aria-pressed={isSelected}
 			className={cn(
-				"rounded-xl border px-4 py-2 text-sm font-medium transition-colors",
-				"focus-ring",
-				isSelected
-					? "border-blue-600 bg-blue-50 text-blue-700"
-					: "border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50",
+				"rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 focus-ring transition-colors not-aria-pressed:hover:bg-zinc-50 aria-pressed:border-blue-600 aria-pressed:bg-blue-50 aria-pressed:text-blue-700",
 				className
 			)}
 			{...props}

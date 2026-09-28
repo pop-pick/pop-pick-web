@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { type MouseEvent, type SyntheticEvent, useEffect, useId, useRef, useState } from "react";
 
-import { cn } from "@/shared/lib/cn";
+import { tv } from "@/shared/lib/tv";
 
 import { isLandingDismissed, markLandingDismissed } from "../model/landing-dismissal";
 
@@ -15,8 +15,15 @@ const CARD_TRANSITION = { type: "spring", bounce: 0.3, duration: 0.5 } as const;
 const PIN_FLOAT_KEYFRAMES = { y: [0, -6, 0] };
 const PIN_FLOAT_TRANSITION = { duration: 3, ease: "easeInOut", repeat: Infinity } as const;
 
-const ACTION_CLASS =
-	"flex h-10 items-center justify-center rounded-xl text-b1-14 transition-colors focus-ring focus-visible:outline-bg-1";
+const landingActionVariants = tv({
+	base: "flex h-10 items-center justify-center rounded-xl text-b1-14 focus-ring transition-colors focus-visible:outline-bg-1",
+	variants: {
+		tone: {
+			solid: "bg-bg-1 text-primary hover:bg-primary-subtle",
+			ghost: "text-text-w hover:bg-bg-1/10"
+		}
+	}
+});
 
 interface LandingDialogProps {
 	loginHref: string;
@@ -76,7 +83,7 @@ export function LandingDialog({ loginHref }: LandingDialogProps) {
 			data-closing={isClosing ? "" : undefined}
 			onCancel={handleDialogCancel}
 			onClick={handleDialogClick}
-			className="m-auto w-full max-w-83.75 overflow-visible overflow-y-auto-when-short bg-transparent p-0 backdrop-fade backdrop:bg-black/40"
+			className="m-auto scrollbar-subtle w-full max-w-83.75 overflow-visible overflow-y-auto-when-short bg-transparent p-0 backdrop-fade backdrop:bg-dim"
 		>
 			<m.div
 				initial={HIDDEN_CARD_STYLE}
@@ -105,14 +112,10 @@ export function LandingDialog({ loginHref }: LandingDialogProps) {
 					오늘 갈 팝업 PICK 해드릴게요!
 				</p>
 				<div className="absolute inset-x-4 top-93 flex flex-col gap-2.5">
-					<Link href={loginHref} className={cn(ACTION_CLASS, "bg-bg-1 text-primary hover:bg-primary-subtle")}>
+					<Link href={loginHref} className={landingActionVariants({ tone: "solid" })}>
 						나에게 맞는 팝업 찾기
 					</Link>
-					<button
-						type="button"
-						onClick={handleBrowseClick}
-						className={cn(ACTION_CLASS, "text-text-w hover:bg-bg-1/10")}
-					>
+					<button type="button" onClick={handleBrowseClick} className={landingActionVariants({ tone: "ghost" })}>
 						둘러보기
 					</button>
 				</div>

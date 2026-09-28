@@ -1,20 +1,33 @@
 "use client";
 
+import { tv } from "@/shared/lib/tv";
+
 import type { KakaoClusterStyle } from "./kakao-map-sdk";
 import type { KakaoMarkerData } from "./kakao-map-session";
 
 const SELECTED_PIN_ICON_PATH = "/pins/selected.svg";
+const PIN_BOTTOM_Y_ANCHOR = 1;
+const ICON_PIN_Y_ANCHOR = 0.5;
 
 const PIN_CLASS = "group relative flex size-10 cursor-pointer items-center justify-center";
 const PIN_CIRCLE_CLASS =
 	"flex size-6 items-center justify-center rounded-full border-2 border-text-2 bg-bg-3 group-aria-pressed:size-10 group-aria-pressed:border-0 group-aria-pressed:bg-primary group-aria-pressed:shadow-floating";
 const PIN_DOT_CLASS = "size-3 rounded-full bg-icon group-aria-pressed:hidden";
 const PIN_ICON_CLASS = "hidden size-5 group-aria-pressed:block";
-const LABEL_CLASS = "absolute top-full left-1/2 -translate-x-1/2 rounded-xl px-3 py-1 whitespace-nowrap";
-const PIN_LABEL_CLASS = `${LABEL_CLASS} bg-bg-1/50 text-b1-14 text-text-1 shadow-floating backdrop-blur-xs group-aria-pressed:mt-2 group-aria-pressed:backdrop-blur-sm group-aria-pressed:text-primary group-aria-pressed:shadow-on-map`;
+const ICON_PIN_CLASS = "flex size-10 items-center justify-center rounded-full bg-bg-1 shadow-floating";
+const ICON_PIN_ICON_CLASS = "size-5";
 const CLUSTER_CLASS =
 	"relative flex size-7 cursor-pointer items-center justify-center rounded-xl border border-primary-strong bg-bg-3/50 text-b2-12 text-primary shadow-floating";
-const CLUSTER_LABEL_CLASS = `${LABEL_CLASS} mt-2 bg-bg-1/50 text-b2-12 text-primary shadow-on-map backdrop-blur-sm`;
+
+const markerLabelVariants = tv({
+	base: "absolute top-full left-1/2 -translate-x-1/2 rounded-xl bg-bg-1/50 px-3 py-1 whitespace-nowrap",
+	variants: {
+		kind: {
+			pin: "text-b1-14 text-text-1 shadow-floating backdrop-blur-xs group-aria-pressed:mt-2 group-aria-pressed:text-primary group-aria-pressed:shadow-on-map group-aria-pressed:backdrop-blur-sm",
+			cluster: "mt-2 text-b2-12 text-primary shadow-on-map backdrop-blur-sm"
+		}
+	}
+});
 
 /** 클러스터러가 content 요소에 이 값을 인라인 스타일로 넣는다. 모양은 `fillClusterElement`가 클래스로 준다 */
 export const CLUSTER_STYLES: KakaoClusterStyle[] = [{ width: "28px", height: "28px" }];
@@ -23,7 +36,35 @@ export function formatClusterText(size: number) {
 	return `+${String(size - 1)}`;
 }
 
+export function resolvePinYAnchor(marker: KakaoMarkerData) {
+	return marker.variant === "icon" ? ICON_PIN_Y_ANCHOR : PIN_BOTTOM_Y_ANCHOR;
+}
+
+function buildIconPinElement(marker: KakaoMarkerData) {
+	if (marker.iconUrl === undefined) {
+		throw new Error(`[kakao-map] icon 핀에 iconUrl이 없다: ${marker.id}`);
+	}
+
+	const root = document.createElement("div");
+	root.className = ICON_PIN_CLASS;
+	root.setAttribute("aria-hidden", "true");
+	root.title = marker.title;
+
+	const icon = document.createElement("img");
+	icon.src = marker.iconUrl;
+	icon.alt = "";
+	icon.className = ICON_PIN_ICON_CLASS;
+
+	root.appendChild(icon);
+
+	return root;
+}
+
 export function buildPinElement(marker: KakaoMarkerData) {
+	if (marker.variant === "icon") {
+		return buildIconPinElement(marker);
+	}
+
 	const root = document.createElement("div");
 	root.className = PIN_CLASS;
 	root.setAttribute("aria-hidden", "true");
@@ -45,7 +86,7 @@ export function buildPinElement(marker: KakaoMarkerData) {
 
 	if (marker.label !== undefined) {
 		const label = document.createElement("span");
-		label.className = PIN_LABEL_CLASS;
+		label.className = markerLabelVariants({ kind: "pin" });
 		label.textContent = marker.label;
 		root.appendChild(label);
 	}
@@ -60,7 +101,7 @@ export function fillClusterElement(element: HTMLElement, size: number, label: st
 
 	if (label !== undefined) {
 		const labelElement = document.createElement("span");
-		labelElement.className = CLUSTER_LABEL_CLASS;
+		labelElement.className = markerLabelVariants({ kind: "cluster" });
 		labelElement.textContent = label;
 		element.appendChild(labelElement);
 	}

@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { PopupImage } from "@/shared/components/PopupImage";
 import { RESERVATION_SHORT_LABELS } from "@/shared/model/popup";
+import { buildPopupDetailPath } from "@/shared/model/popup-path";
 import { REGION_LABELS } from "@/shared/model/region";
 import { SeparatedText } from "@/shared/ui/SeparatedText";
 
@@ -30,7 +31,7 @@ export function PopularPopupRow({ item }: PopularPopupRowProps) {
 
 	return (
 		<Link
-			href={`/popups/${String(item.popup.id)}`}
+			href={buildPopupDetailPath(item.popup.id)}
 			className="flex items-center gap-3 rounded-lg focus-ring transition-opacity hover:opacity-80"
 		>
 			<PopupImage

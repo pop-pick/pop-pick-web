@@ -5,8 +5,8 @@ import { AuthStatusSwitch } from "@/features/auth/components/AuthStatusSwitch";
 import { buildLoginPath } from "@/features/auth/model/next-path";
 import { BookmarkSlotProvider } from "@/features/bookmark/components/BookmarkSlotProvider";
 import { ExploreView } from "@/features/popup/components/ExploreView";
-import { EXPLORE_PATH } from "@/features/popup/model/explore-state";
 import { PLACEHOLDER_EXPLORE_POPUPS } from "@/features/popup/model/placeholder-explore";
+import { EXPLORE_PATH } from "@/shared/model/explore-state";
 import { Skeleton } from "@/shared/ui/Skeleton";
 
 export const metadata: Metadata = {

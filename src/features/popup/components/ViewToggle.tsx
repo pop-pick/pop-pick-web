@@ -3,9 +3,7 @@
 import * as m from "motion/react-m";
 import { type KeyboardEvent, useRef } from "react";
 
-import { cn } from "@/shared/lib/cn";
-
-import { EXPLORE_VIEW_LABELS, EXPLORE_VIEW_MODES, type ExploreViewMode } from "../model/explore-state";
+import { EXPLORE_VIEW_LABELS, EXPLORE_VIEW_MODES, type ExploreViewMode } from "@/shared/model/explore-state";
 
 interface ViewToggleProps {
 	view: ExploreViewMode;
@@ -73,10 +71,7 @@ export function ViewToggle({ view, onChange }: ViewToggleProps) {
 							aria-checked={isCurrent}
 							tabIndex={isCurrent ? 0 : -1}
 							onClick={handleOptionClick(value)}
-							className={cn(
-								"relative h-10 flex-1 rounded-lg text-h4 focus-ring transition-colors",
-								isCurrent ? "text-text-1" : "text-text-4 hover:text-text-2"
-							)}
+							className="relative h-10 flex-1 rounded-lg text-h4 text-text-4 focus-ring transition-colors not-aria-checked:hover:text-text-2 aria-checked:text-text-1"
 						>
 							{EXPLORE_VIEW_LABELS[value]}
 						</button>

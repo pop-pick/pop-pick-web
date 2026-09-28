@@ -3,20 +3,24 @@
 import { useRouter } from "next/navigation";
 
 import ArrowLeftIcon from "@/shared/assets/icons/arrow-left.svg";
+import { canGoBackInApp } from "@/shared/lib/navigation";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
-const FALLBACK_PATH = "/";
+interface BackButtonProps {
+	/** 앱 안에 돌아갈 기록이 없을 때 갈 주소 */
+	fallbackPath: string;
+}
 
-export function BackButton() {
+export function BackButton({ fallbackPath }: BackButtonProps) {
 	const router = useRouter();
 
 	const handleBack = () => {
-		if (window.history.length > 1) {
+		if (canGoBackInApp()) {
 			router.back();
 			return;
 		}
 
-		router.push(FALLBACK_PATH);
+		router.replace(fallbackPath);
 	};
 
 	return (

@@ -63,9 +63,11 @@
 
 지도 카드와 목록 카드는 카드 전체가 상세를 여는 링크처럼 보인다. 찜 버튼은 링크 안에 넣지 않고 링크의 형제로 두어 링크가 덮는 영역 위에 쌓는다. 클릭이 링크로 번질 경로가 없어 `stopPropagation`을 부르지 않는다.
 
-**카드와 상세에 버튼을 넣는 법.** 탐색 카드는 여러 개이고 `features/popup` 안에서 그려져 라우트가 슬롯 prop으로 하나씩 넘길 수 없다. popup이 bookmark를 부르면 기능끼리 부르지 않는 규칙에 걸린다. 그래서 `shared/components/BookmarkSlot`이 컨텍스트를 두고 탐색 카드와 상세 본문은 `<BookmarkSlot popupId popupTitle size />` 자리만 그린다. 라우트가 `AuthStatusSwitch`로 인증 상태마다 `BookmarkSlotProvider`의 `mode`를 바꿔 화면을 감싸고 Provider가 그 모드의 `BookmarkButton`을 그린다. 탐색과 두 상세 라우트(`/popups/[popupId]`, `/explore/@sheet/popups/[popupId]`)가 이렇게 감싼다. Provider 밖에서 `BookmarkSlot`을 그리면 예외를 낸다. 라우트가 감싸는 것을 빠뜨리면 조용히 빈칸이 되지 않고 바로 드러난다.
+**카드와 상세에 버튼을 넣는 법.** 탐색 카드는 여러 개이고 `features/popup` 안에서 그려져 라우트가 슬롯 prop으로 하나씩 넘길 수 없다. popup이 bookmark를 부르면 기능끼리 부르지 않는 규칙에 걸린다. 그래서 `shared/components/BookmarkSlot`이 컨텍스트를 두고 탐색 카드와 상세 본문은 `<BookmarkSlot popupId popupTitle size />` 자리만 그린다. 위에 적은 대로 라우트가 감싼 `BookmarkSlotProvider`가 그 모드의 `BookmarkButton`을 그린다. 탐색과 두 상세 라우트(`/popups/[popupId]`, `/explore/@sheet/popups/[popupId]`)가 이렇게 감싼다. Provider 밖에서 `BookmarkSlot`을 그리면 예외를 낸다. 라우트가 감싸는 것을 빠뜨리면 조용히 빈칸이 되지 않고 바로 드러난다.
 
 ## D. Data Model
+
+아래는 전부 설계다. API가 열리면 만든다.
 
 ```typescript
 // features/bookmark/model/bookmark.ts
@@ -123,7 +125,7 @@ export function useToggleBookmark(): UseMutationResult<null, ApiError, BookmarkT
 export function useBookmarkList(): UseInfiniteQueryResult<InfiniteData<PageResponse<PopupSummary>>, ApiError>;
 ```
 
-`BookmarkButton`은 알럿을 자기 안에 들고 있다. API가 열리면 `isBookmarked`를 그대로 그리고 뮤테이션이 진행 중이면 `disabled`다. 확인 대화상자는 `shared/ui`의 `AlertDialog`를 쓴다. 취소 버튼은 `onCancel`을 줄 때만 생긴다. `closeLabel`을 주면 취소 버튼 대신 오른쪽 위 닫기 버튼이 취소를 맡고 딤이 투명해진다. 로그인 유도 알럿이 이 모양이고 확인 문구 "로그인 하러가기"와 메시지는 `shared/model/login-prompt.ts`에서 하단 탭바와 함께 쓴다. 코스 삭제 확인도 같은 컴포넌트를 쓴다.
+`BookmarkButton`은 알럿을 자기 안에 들고 있다. API가 열리면 `isBookmarked`를 그대로 그리고 뮤테이션이 진행 중이면 `disabled`다. 알럿은 `shared/ui`의 `AlertDialog`이고 모양은 `docs/design/DESIGN-SPEC.md`의 공통 컴포넌트 표에 있다. 로그인 유도 알럿의 메시지와 확인 문구 "로그인 하러가기"는 `shared/model/login-prompt.ts`에 있고 하단 탭바와 코스 조건 입력도 같은 값을 쓴다.
 
 **서버 API.** 전부 백엔드 요구다.
 

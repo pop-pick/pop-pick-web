@@ -6,7 +6,7 @@ import GpsFixIcon from "@/shared/assets/icons/gps-fix.svg";
 import { cn } from "@/shared/lib/cn";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
-import type { PositionStatus } from "../hooks/useCurrentPosition";
+import type { PositionStatus } from "../model/position-status";
 
 interface CurrentPositionButtonProps {
 	status: PositionStatus;
@@ -34,8 +34,7 @@ export function CurrentPositionButton({ status, onLocate, className, ref }: Curr
 			disabled={isDisabled}
 			onClick={handleClick}
 			className={cn(
-				"flex size-10 items-center justify-center rounded-full bg-bg-1 text-icon-2 shadow-floating focus-ring transition-colors not-disabled:hover:bg-bg-2 disabled:text-icon-disabled",
-				isBusy && "animate-pulse",
+				"flex size-10 items-center justify-center rounded-full bg-bg-1 text-icon-2 shadow-floating focus-ring transition-colors not-disabled:hover:bg-bg-2 disabled:text-icon-disabled aria-busy:animate-pulse",
 				className
 			)}
 		>

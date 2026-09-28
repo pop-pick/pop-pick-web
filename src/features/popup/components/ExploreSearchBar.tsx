@@ -39,7 +39,7 @@ export function ExploreSearchBar({ value, onChange, onSubmit }: ExploreSearchBar
 				enterKeyHint="search"
 				aria-label="팝업 검색"
 				placeholder="지역, 팝업, 브랜드를 검색해보세요."
-				className="h-10.5 w-full rounded-xl border border-divider-2 bg-bg-1 pr-3 pl-11 text-b3-14 text-text-1 transition-colors outline-none placeholder:text-text-5 not-focus:hover:border-divider-3 focus:border-primary"
+				className="h-10.5 w-full rounded-xl border border-divider-2 bg-bg-1 pr-3 pl-11 text-b3-14 text-text-1 outline-hidden transition-colors placeholder:text-text-5 not-focus:hover:border-divider-3 focus:border-primary"
 			/>
 		</form>
 	);

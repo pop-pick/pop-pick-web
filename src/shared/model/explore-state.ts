@@ -78,7 +78,7 @@ export function toExploreHref(state: ExploreState, pathname = EXPLORE_PATH) {
 	return query === "" ? pathname : `${pathname}?${query}`;
 }
 
-export function buildExploreSheetPath(popupId: number, state?: ExploreState) {
-	const pathname = `${EXPLORE_PATH}/popups/${String(popupId)}`;
-	return state === undefined ? pathname : toExploreHref(state, pathname);
+/** 목록 보기로 여는 탐색 주소. 검색어 없이 지역과 정렬만 고른다 */
+export function buildExploreListPath(region: Region | null = null) {
+	return toExploreHref({ view: "list", query: "", region, sort: DEFAULT_SORT });
 }

@@ -1,10 +1,12 @@
+import { format } from "date-fns";
+
+import { parseDateOnlyOrThrow } from "@/shared/lib/date";
 import type { KnownPopupReservationType } from "@/shared/model/popup";
-import { parsePopupDate } from "@/shared/model/popup-format";
 import { REGION_LABELS } from "@/shared/model/region";
 
 import type { ExplorePopup } from "./explore-popup";
 
-const MONTH_DAY_FORMAT = "MM.DD";
+const MONTH_DAY_FORMAT = "MM.dd";
 const ALWAYS_OPEN_LABEL = "상시운영";
 
 const EXPLORE_RESERVATION_LABELS: Record<KnownPopupReservationType, string> = {
@@ -15,7 +17,7 @@ const EXPLORE_RESERVATION_LABELS: Record<KnownPopupReservationType, string> = {
 };
 
 function formatEndLabel(endDate: string | null) {
-	return endDate === null ? ALWAYS_OPEN_LABEL : `${parsePopupDate(endDate).format(MONTH_DAY_FORMAT)} 종료`;
+	return endDate === null ? ALWAYS_OPEN_LABEL : `${format(parseDateOnlyOrThrow(endDate), MONTH_DAY_FORMAT)} 종료`;
 }
 
 function formatReservationLabel(popup: ExplorePopup) {

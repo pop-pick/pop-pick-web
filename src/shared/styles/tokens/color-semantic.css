@@ -32,6 +32,7 @@
 	--color-like: #dc4c4c;
 	--color-region: #bd6ccf;
 	--color-region-subtle: #fcf0ff;
+	--color-dim: rgb(0 0 0 / 0.4);
 	--color-error: var(--red-500);
 	--color-error-bg: var(--red-10);
 

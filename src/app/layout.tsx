@@ -29,7 +29,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 	return (
 		<html
 			lang="ko"
-			className={cn(pretendard.variable, "h-full scrollbar-subtle scroll-pb-tab-bar-clearance antialiased")}
+			className={cn(
+				pretendard.variable,
+				"h-full scrollbar-subtle scroll-pb-tab-bar-clearance scrollbar-gutter-stable antialiased"
+			)}
 		>
 			<body className="bg-bg-3 font-sans text-text-1">
 				<div className="mx-auto flex min-h-dvh w-full max-w-app flex-col bg-bg-1">

@@ -4,14 +4,39 @@ import * as m from "motion/react-m";
 import { type FocusEvent, type SyntheticEvent, useEffect, useId, useRef } from "react";
 
 import CloseIcon from "@/shared/assets/icons/close.svg";
-import { cn } from "@/shared/lib/cn";
+import { tv } from "@/shared/lib/tv";
 
 import { SvgIcon } from "./SvgIcon";
 
-const DIALOG_HIDDEN = { opacity: 0, y: 24, scale: 0.96 };
-const DIALOG_SHOWN = { opacity: 1, y: 0, scale: 1 };
+const DIALOG_HIDDEN_STYLE = { opacity: 0, y: 24, scale: 0.96 };
+const DIALOG_SHOWN_STYLE = { opacity: 1, y: 0, scale: 1 };
 const DIALOG_ENTER_TRANSITION = { type: "spring", bounce: 0.3, duration: 0.4 } as const;
 const DIALOG_EXIT_TRANSITION = { duration: 0.18, ease: "easeIn" } as const;
+
+const alertDialogVariants = tv({
+	slots: {
+		dialog: "m-auto w-full rounded-2xl bg-bg-1 backdrop-fade shadow-modal data-closing:pointer-events-none",
+		message: "text-center whitespace-pre-line text-text-1",
+		actions: "flex gap-2",
+		confirmButton: "flex-1 rounded-xl bg-primary text-text-w focus-ring transition-colors hover:bg-primary-strong"
+	},
+	variants: {
+		hasCloseButton: {
+			true: {
+				dialog: "max-w-75 px-5 pt-6 pb-5 backdrop:bg-transparent",
+				message: "px-10 text-b1-16",
+				actions: "mt-5.5",
+				confirmButton: "h-10.5 text-b1-14"
+			},
+			false: {
+				dialog: "max-w-80 p-5 backdrop:bg-dim",
+				message: "text-b2-16",
+				actions: "mt-5",
+				confirmButton: "h-12 text-b1-16"
+			}
+		}
+	}
+});
 
 interface AlertDialogProps {
 	open: boolean;
@@ -40,6 +65,7 @@ export function AlertDialog({
 	const detailId = useId();
 	const hasCloseButton = closeLabel !== undefined;
 	const dismissDialog = onCancel ?? onConfirm;
+	const styles = alertDialogVariants({ hasCloseButton });
 
 	useEffect(() => {
 		const dialog = dialogRef.current;
@@ -82,8 +108,8 @@ export function AlertDialog({
 	return (
 		<m.dialog
 			ref={dialogRef}
-			initial={DIALOG_HIDDEN}
-			animate={open ? DIALOG_SHOWN : DIALOG_HIDDEN}
+			initial={DIALOG_HIDDEN_STYLE}
+			animate={open ? DIALOG_SHOWN_STYLE : DIALOG_HIDDEN_STYLE}
 			transition={open ? DIALOG_ENTER_TRANSITION : DIALOG_EXIT_TRANSITION}
 			onAnimationComplete={handleAnimationComplete}
 			data-closing={open ? undefined : ""}
@@ -93,18 +119,9 @@ export function AlertDialog({
 			aria-describedby={detail === undefined ? undefined : detailId}
 			onCancel={handleCancel}
 			onClose={handleClose}
-			className={cn(
-				"m-auto w-full rounded-2xl bg-bg-1 backdrop-fade shadow-modal data-closing:pointer-events-none",
-				hasCloseButton ? "max-w-75 px-5 pt-6 pb-5 backdrop:bg-transparent" : "max-w-80 p-5 backdrop:bg-black/40"
-			)}
+			className={styles.dialog()}
 		>
-			<p
-				id={messageId}
-				className={cn(
-					"text-center whitespace-pre-line text-text-1",
-					hasCloseButton ? "px-10 text-b1-16" : "text-b2-16"
-				)}
-			>
+			<p id={messageId} className={styles.message()}>
 				{message}
 			</p>
 			{hasCloseButton && (
@@ -125,10 +142,10 @@ export function AlertDialog({
 					value={detail}
 					aria-label="복사할 링크"
 					onFocus={handleDetailFocus}
-					className="mt-3 w-full rounded-lg border border-transparent bg-bg-2 p-3 text-center text-b3-14 text-text-2 outline-none focus:border-primary"
+					className="mt-3 w-full rounded-lg border border-transparent bg-bg-2 p-3 text-center text-b3-14 text-text-2 outline-hidden focus:border-primary"
 				/>
 			)}
-			<div className={cn("flex gap-2", hasCloseButton ? "mt-5.5" : "mt-5")}>
+			<div className={styles.actions()}>
 				{onCancel && !hasCloseButton && (
 					<button
 						type="button"
@@ -138,15 +155,7 @@ export function AlertDialog({
 						{cancelLabel}
 					</button>
 				)}
-				<button
-					type="button"
-					ref={confirmButtonRef}
-					onClick={onConfirm}
-					className={cn(
-						"flex-1 rounded-xl bg-primary text-text-w focus-ring transition-colors hover:bg-primary-strong",
-						hasCloseButton ? "h-10.5 text-b1-14" : "h-12 text-b1-16"
-					)}
-				>
+				<button type="button" ref={confirmButtonRef} onClick={onConfirm} className={styles.confirmButton()}>
 					{confirmLabel}
 				</button>
 			</div>

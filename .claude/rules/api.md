@@ -32,7 +32,7 @@ paths:
 - 공통 응답 구조를 벗겨 `data`만 돌려준다
 - 실패를 `ApiError`로 바꾼다. `kind`가 `http`, `network`, `timeout`, `invalid-body` 넷이다
 
-**하지 않는 일이 더 중요하다.** 엔드포인트 목록과 쿼리 키, 특정 기능의 타입을 갖지 않는다. 여기에 `popup`이나 `course` 같은 이름이 나타나면 그 코드는 기능 폴더로 내려가야 한다.
+**하지 않는 일도 있다.** 엔드포인트 목록과 쿼리 키, 특정 기능의 타입을 갖지 않는다. 여기에 `popup`이나 `course` 같은 이름이 나타나면 그 코드는 기능 폴더로 내려가야 한다.
 
 `types.ts`는 예외다. `ApiResponse`와 `PageResponse`는 모든 엔드포인트가 같은 모양으로 쓰는 공통 응답 구조라 HTTP 층의 지식이다.
 
@@ -169,19 +169,13 @@ Next 서버는 프록시로만 쓴다. Route Handler로 프록시를 손으로 �
 
 `ApiError`의 `kind`로 네트워크와 타임아웃을 가르고 `errorCode`로 백엔드가 정한 실패를 가른다. 원문 메시지를 화면에 그대로 내지 않고 기능이 가진 문구 표로 옮긴다.
 
-## 정해진 것과 미정
+## 정해진 것
 
-응답 공통 구조와 에러 코드 체계, 커서 기반 페이지네이션, camelCase 필드 이름은 백엔드가 정했다. 상세는 백엔드 Swagger(https://prod.poppick.shop/swagger-ui/index.html)와 백엔드 저장소의 `global/response`, `global/exception` 패키지에 있다.
-
-토큰 보관도 정해졌다. 액세스 토큰은 Zustand 메모리, 리프레시 토큰은 httpOnly 쿠키이고 쿠키는 백엔드가 아니라 Next Route Handler가 심는다. 아직 정해지지 않은 것은 날짜와 시간 포맷이다. 미결정 항목은 `docs/product/ROADMAP.md`의 미결정 절이 갖는다.
+응답 공통 구조와 에러 코드 체계, 커서 기반 페이지네이션, camelCase 필드 이름은 백엔드가 정했다. 어디서 확인하는지는 `pop-pick-dev` 스킬의 `references/contract-lookup.md`, 토큰 보관은 `docs/architecture/auth.md`에 있다.
 
 ## 리뷰에서 볼 것
 
-- 컴포넌트나 훅 안의 `fetch`
-- `shared/api`에 나타난 기능 이름
-- `api` 폴더 안의 `invalidateQueries`
-- 호출하는 자리에서 손으로 만든 `authorization` 헤더
-- `?? []`와 `?? 0`, `?? ""`, 빈 `catch`로 실패를 삼키는 자리
+층 경계와 실패를 삼키는 자리 대부분은 `check-conventions.sh`의 실패를 감추는 자리 검사가 막는다. 사람이 볼 것은 둘이다.
+
 - 화면 파일에서 새로 정의한 서버 응답 타입
-- 브라우저 코드에서 `API_BASE_URL`을 읽거나 백엔드 절대 주소를 적은 자리
-- `app/api` 아래 동적 세그먼트 Route Handler
+- 스크립트가 볼것으로 낸 `?? []`와 `?? 0`, `?? ""`가 실패를 삼키는지

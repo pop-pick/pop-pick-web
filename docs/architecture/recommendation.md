@@ -65,27 +65,9 @@
 
 ## D. Data Model
 
+`RecommendedPopupItem`(팝업과 추천 이유, 일치율, 카드 배지)과 `PopularPopupItem`(팝업과 인기 한 줄, 평점과 리뷰 수)은 `model/home-popup.ts`에 있다. 출처가 정해지지 않은 필드는 `null`을 허용한다. 아래는 추천 API가 열리면 만드는 설계다.
+
 ```typescript
-// 있는 것. features/recommendation/model/home-popup.ts
-interface RecommendedPopupItem {
-	popup: PopupSummary;
-	/** 펼친 카드의 설명. 두 줄 말줄임. 글자 수 상한은 백엔드와 맞춘다 */
-	reason: string | null;
-	/** 취향 일치율. 0부터 100까지의 정수. 출처 미정 */
-	matchRate: number | null;
-	/** 카드 오른쪽 위 배지 문구. "성수동 오늘 오픈". 출처 미정 */
-	badge: string | null;
-}
-
-interface PopularPopupItem {
-	popup: PopupSummary;
-	/** "실시간 인기 1위" 같은 한 줄. 출처 미정 */
-	highlight: string | null;
-	/** 후기 출처 미정 */
-	reviewSummary: { rating: number; count: number } | null;
-}
-
-// 설계. 추천 API가 열리면
 type RecommendationStatus = "READY" | "PREPARING";
 
 interface RecommendationResult {
@@ -102,12 +84,6 @@ type RecommendationSectionMode = "skeleton" | "recommended" | "fallback-preparin
 
 // features/recommendation/model/section-mode.ts
 function resolveSectionMode(query: UseQueryResult<RecommendationResult, ApiError>): RecommendationSectionMode;
-
-// 있는 것. features/recommendation/model/home-format.ts
-/** "10.12 ~ 10.26". 한쪽이 없으면 있는 쪽만, 둘 다 없으면 null */
-function formatPopupPeriod(startDate: string | null, endDate: string | null): string | null;
-/** "{이름}님의 팝업 PICK". 이름이 없을 때의 문구는 DESIGN-SPEC 홈 절 */
-function formatPickTitle(nickname: string | null): string;
 ```
 
 `PopupSummary`는 `shared/model/popup.ts`에 있고 필드는 `popup.md`가 갖는다. 인기 행 셋째 줄의 입장 방식은 같은 파일의 짧은 라벨(`RESERVATION_SHORT_LABELS`)이다. 시안의 지역 칩에는 개수가 없다. `resolveSectionMode`는 분기 있는 순수 함수라 `testing.md`의 값이 나는 자리다.
@@ -116,29 +92,17 @@ function formatPickTitle(nickname: string | null): string;
 
 **컴포넌트.** 전부 `features/recommendation/components`에 있다. 데이터는 props로 받고 라우트가 `features/recommendation/model/placeholder-home.ts`의 임시 데이터를 넘긴다.
 
-```typescript
-export function HomeHeader(); // 워드마크가 페이지 <h1>이고 alt는 POP PICK. 돋보기가 /explore?view=list 링크
-export function TasteBanner(); // 회원과 비회원 모두. "나에게 맞는 팝업 찾기"가 /onboarding/1
-export function PickSection({
-	nickname,
-	recommendations
-}: {
-	nickname: string | null;
-	recommendations: RecommendedPopupItem[];
-});
-export function PickCard(props: {
-	recommendation: RecommendedPopupItem;
-	nickname: string | null;
-	isExpanded: boolean;
-	onToggle: () => void;
-}); // 펼쳤을 때만 설명과 일치율
-export function OnImageBadge({ label }: { label: string }); // 이미지 위 반투명 배지. 카테고리와 badge
-export function MatchRatePill({ nickname, matchRate }: { nickname: string | null; matchRate: number });
-export function PickSectionSkeleton(); // restoring에서 PICK 자리를 지킨다
-export function PopularSection({ popularPopups }: { popularPopups: PopularPopupItem[] }); // 전체보기가 /explore?view=list&sort=popular
-export function PopularPopupRow({ item }: { item: PopularPopupItem }); // 72px 썸네일과 세 줄. 행 전체가 상세 링크
-export function TrendingRegions({ regions }: { regions: Region[] }); // 칩이 /explore?view=list&region=
-```
+| 컴포넌트              | 계약                                                                                       |
+| --------------------- | ------------------------------------------------------------------------------------------ |
+| `HomeHeader`          | 워드마크가 페이지 `<h1>`이고 alt는 POP PICK. 돋보기가 탐색 목록(`/explore?view=list`) 링크 |
+| `TasteBanner`         | 회원과 비회원 모두. "나에게 맞는 팝업 찾기"가 `/onboarding/1` 링크                         |
+| `PickSection`         | 닉네임과 `RecommendedPopupItem[]`을 받는다. 펼친 카드와 자동 넘김을 갖는다                 |
+| `PickCard`            | 펼쳤을 때만 설명과 일치율을 그린다                                                         |
+| `OnImageBadge`        | 이미지 위 반투명 배지. 카테고리와 `badge` 문구                                             |
+| `PickSectionSkeleton` | `restoring`에서 PICK 자리를 지킨다                                                         |
+| `PopularSection`      | 전체보기가 탐색 목록 인기순. 인기순이 탐색의 기본 정렬이라 주소에 `sort`가 붙지 않는다     |
+| `PopularPopupRow`     | 72px 썸네일과 세 줄. 행 전체가 상세 링크                                                   |
+| `TrendingRegions`     | 칩이 `/explore?view=list&region=`                                                          |
 
 PICK 카드와 인기 행은 시안에서 탐색 카드와 모양이 달라 이 기능 안에 있다. 배너 목적지는 회원과 비회원 모두 `/onboarding/1`이라 배너가 인증 상태를 모른다. 로그인하지 않은 사용자는 `proxy.ts`가 `/login?next=/onboarding/1`로 보내고 로그인이 끝나면 온보딩 1단계로 온다.
 

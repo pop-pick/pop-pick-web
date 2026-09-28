@@ -6,7 +6,7 @@ description: main과 develop, feature 세 브랜치. 커밋 메시지는 <타입
 
 ## 규칙
 
-- 통합 브랜치는 `develop`, 프로덕션은 `main`이다. 둘에 직접 커밋하지 않고 `feature/{슬러그}`나 `fix/{슬러그}`에서 PR로 올린다
+- 통합 브랜치는 `develop`, 프로덕션은 `main`이다. 둘에 직접 커밋하지 않고 `feature/{슬러그}`나 `fix/{슬러그}`에서 PR로 올린다. GitHub 기본 브랜치가 `main`이라 PR의 base를 `develop`으로 적는다
 - 커밋 메시지는 `<타입>: <제목>`이다. 제목은 50자 이내 한국어이고 괄호 scope와 한자를 쓰지 않는다. 타입은 `scripts/commit-template.txt`의 여덟이다
 - 사용자가 요청할 때만 커밋하고 푸시한다
 - squash 머지를 쓰지 않는다. merge commit이나 rebase merge만 쓴다

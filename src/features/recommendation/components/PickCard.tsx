@@ -4,6 +4,7 @@ import ChevronDownIcon from "@/shared/assets/icons/chevron-down.svg";
 import ChevronUpIcon from "@/shared/assets/icons/chevron-up.svg";
 import { PopupImage } from "@/shared/components/PopupImage";
 import { POPUP_CATEGORY_LABELS } from "@/shared/model/popup";
+import { buildPopupDetailPath } from "@/shared/model/popup-path";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 import { formatPopupPeriod } from "../model/home-format";
@@ -45,7 +46,7 @@ export function PickCard({ recommendation, nickname, isExpanded, imageLoading, o
 					<div className="flex items-center justify-between gap-5.5">
 						<h3 className="min-w-0 truncate text-b1-16 text-text-w text-shadow-on-image">
 							<Link
-								href={`/popups/${String(popup.id)}`}
+								href={buildPopupDetailPath(popup.id)}
 								className="before:absolute before:inset-0 before:-z-10 before:bg-black/10 before:opacity-0 before:transition-opacity after:absolute after:inset-0 after:rounded-lg hover:before:opacity-100 focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:-outline-offset-2 focus-visible:after:outline-primary"
 							>
 								{popup.title}

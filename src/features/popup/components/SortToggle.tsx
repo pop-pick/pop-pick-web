@@ -1,8 +1,6 @@
 "use client";
 
-import { cn } from "@/shared/lib/cn";
-
-import { EXPLORE_SORT_LABELS, EXPLORE_SORTS, type ExploreSort } from "../model/explore-state";
+import { EXPLORE_SORT_LABELS, EXPLORE_SORTS, type ExploreSort } from "@/shared/model/explore-state";
 
 interface SortToggleProps {
 	sort: ExploreSort;
@@ -23,10 +21,7 @@ export function SortToggle({ sort, onChange }: SortToggleProps) {
 						type="button"
 						aria-pressed={sort === value}
 						onClick={handleSortClick(value)}
-						className={cn(
-							"-my-2 rounded-sm py-2 text-b2-14 focus-ring transition-colors",
-							sort === value ? "text-text-1" : "text-text-5 hover:text-text-3"
-						)}
+						className="-my-2 rounded-sm py-2 text-b2-14 text-text-5 focus-ring transition-colors not-aria-pressed:hover:text-text-3 aria-pressed:text-text-1"
 					>
 						{EXPLORE_SORT_LABELS[value]}
 					</button>

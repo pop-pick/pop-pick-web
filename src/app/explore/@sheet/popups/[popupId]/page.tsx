@@ -7,7 +7,7 @@ import { BookmarkSlotProvider } from "@/features/bookmark/components/BookmarkSlo
 import { MatchRateNote } from "@/features/popup/components/MatchRateNote";
 import { PopupDetailView } from "@/features/popup/components/PopupDetailView";
 import { PopupSheet } from "@/features/popup/components/PopupSheet";
-import { buildExploreSheetPath } from "@/features/popup/model/explore-state";
+import { buildExploreSheetPath } from "@/features/popup/model/explore-sheet-path";
 import { findPlaceholderPopupDetail } from "@/features/popup/model/placeholder-details";
 import { parsePopupId } from "@/features/popup/model/popup-id";
 import { PLACEHOLDER_NICKNAME } from "@/shared/lib/placeholder-data";

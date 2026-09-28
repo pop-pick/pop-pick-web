@@ -24,7 +24,7 @@ description: 팝픽 QA 하네스. QA 테스트 케이스(TC)를 받아 화면별
 
 ## 에이전트
 
-`.claude/agents/verifiers/`에 `pop-pick-integration-qa` 하나다. 브라우저 에이전트는 TC 형식과 도구가 정해진 뒤 여기에 만든다. 도구는 `testing.md`가 미정으로 둔 자리다. 지금까지는 Playwright MCP를 손으로 썼다.
+`pop-pick-integration-qa` 하나다. 브라우저 에이전트는 TC 형식과 도구가 정해진 뒤 만든다. 도구는 `testing.md`가 미정으로 둔 자리다.
 
 ## 미결정
 

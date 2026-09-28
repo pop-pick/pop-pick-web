@@ -1,8 +1,8 @@
+import type { ExploreSort, ExploreState } from "@/shared/model/explore-state";
 import { POPUP_CATEGORY_LABELS } from "@/shared/model/popup";
 import { REGION_LABELS } from "@/shared/model/region";
 
 import type { ExplorePopup } from "./explore-popup";
-import type { ExploreSort, ExploreState } from "./explore-state";
 
 type ExploreFilters = Pick<ExploreState, "query" | "region" | "sort">;
 
