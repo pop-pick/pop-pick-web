@@ -1,6 +1,6 @@
 ---
 name: pop-pick-dev
-description: 팝픽 프론트엔드 개발 하네스. 변경 규모로 다섯 에이전트 중 누구를 부를지, 바뀐 곳으로 리뷰어 여섯 중 누구를 부를지 정한다. 기능이나 화면을 만들 때, 리뷰를 맡길 때, 만들기 전에 토큰이나 배치를 자문할 때, "다시 리뷰해줘", "아까 것 이어서", "지적한 것 고쳐줘" 같은 후속 요청과 "팝픽 작업", "하네스", "절차" 같은 말에 쓴다. QA 테스트 케이스로 검증하는 일은 pop-pick-qa다.
+description: 팝픽 프론트엔드 개발 하네스. 변경 규모로 다섯 에이전트 중 누구를 부를지, 바뀐 곳으로 리뷰어 여덟 중 누구를 부를지 정한다. 기능이나 화면을 만들 때, 리뷰를 맡길 때, 만들기 전에 토큰이나 배치를 자문할 때, "다시 리뷰해줘", "아까 것 이어서", "지적한 것 고쳐줘" 같은 후속 요청과 "팝픽 작업", "하네스", "절차" 같은 말에 쓴다. QA 테스트 케이스로 검증하는 일은 pop-pick-qa다.
 ---
 
 # 팝픽 개발 하네스
@@ -18,7 +18,7 @@ description: 팝픽 프론트엔드 개발 하네스. 변경 규모로 다섯 �
 - `pop-pick-implementer`. 승인된 범위 안에서 데이터 층과 화면을 만들고 게이트를 통과시킨다
 - `pop-pick-integration-qa`. 백엔드 계약과 설계 대비 동작을 경계에서 교차 비교한다
 - `pop-pick-docs-curator`. 구현이 바꾼 동작을 `docs/`에 옮긴다
-- 리뷰어 여섯. 룰을 하나씩 소유하고 스크립트가 못 잡는 판단을 한다. `review-protocol` 스킬이 미리 실려 검수와 자문 두 모드로 같은 모양의 보고를 낸다
+- 리뷰어 여덟. 룰을 하나씩 소유하고 스크립트가 못 잡는 판단을 한다. `review-protocol` 스킬이 미리 실려 검수와 자문 두 모드로 같은 모양의 보고를 낸다
 
 spec-navigator와 architect, integration-qa, 리뷰어는 코드를 고치지 않는다.
 
@@ -45,14 +45,16 @@ git status --short
 git diff -U0 -- src | grep -E '^\+.*(className=|export |"use (client|server)"|/\*\*)'
 ```
 
-| 바뀐 곳                                                                    | 리뷰어                       |
-| -------------------------------------------------------------------------- | ---------------------------- |
-| 파일이 생기거나 옮겨지거나 지워졌다                                        | `pop-pick-review-structure`  |
-| export가 생기거나 이름이 바뀌었다, JSDoc을 적었다                          | `pop-pick-review-typescript` |
-| `className`이 바뀌었다, `src/shared/styles`                                | `pop-pick-review-tailwind`   |
-| `features/*/components`, `shared/ui`, `shared/components`                  | `pop-pick-review-screen`     |
-| `features/*/api`, `hooks`, `model`의 스토어, `shared/api`                  | `pop-pick-review-data`       |
-| `src/app`, `next.config.ts`, `"use client"`나 `"use server"`를 새로 붙였다 | `pop-pick-review-nextjs`     |
+| 바뀐 곳                                                                                                                                         | 리뷰어                       |
+| ----------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| 파일이 생기거나 옮겨지거나 지워졌다                                                                                                             | `pop-pick-review-structure`  |
+| export가 생기거나 이름이 바뀌었다, JSDoc을 적었다                                                                                               | `pop-pick-review-typescript` |
+| `className`이 바뀌었다, `src/shared/styles`                                                                                                     | `pop-pick-review-tailwind`   |
+| `features/*/components`, `shared/ui`, `shared/components`                                                                                       | `pop-pick-review-screen`     |
+| `features/*/api`, `hooks`, `model`의 스토어, `shared/api`                                                                                       | `pop-pick-review-data`       |
+| `src/app`, `next.config.ts`, `"use client"`나 `"use server"`를 새로 붙였다                                                                      | `pop-pick-review-nextjs`     |
+| 라우트 경로, `shared/ui`와 `shared/components`의 props, `shared/api`의 export 시그니처, 화면이 분기하는 에러 코드                               | `pop-pick-review-api`        |
+| `package.json`, `pnpm-workspace.yaml`, `next.config.ts`, `tsconfig.json`, eslint와 prettier, postcss 설정, `lefthook.yaml`, `.github/workflows` | `pop-pick-review-build`      |
 
 해당하는 곳이 없으면 부르지 않는다. 한 변경이 여러 줄에 걸리면 그 리뷰어를 다 부른다. 서로 판단하는 것이 다르다.
 
@@ -98,7 +100,7 @@ bash .agents/scripts/check-conventions.sh
 
 ## 끝낼 때
 
-`AGENTS.md`의 게이트를 그 순서대로 돌리고 출력을 함께 낸다. 어느 단계도 커밋하거나 푸시하거나 PR을 만들지 않는다.
+`change-process.md`의 게이트를 그 순서대로 돌리고 출력을 함께 낸다. 어느 단계도 커밋하거나 푸시하거나 PR을 만들지 않는다.
 
 ## 이어서 할 때
 

@@ -89,7 +89,7 @@ def read_paths(text):
             continue
         inline = found.group(1).strip()
         if inline.startswith("["):
-            return [item.strip().strip("'\"") for item in inline.strip("[]").split(",") if item.strip()]
+            return [quoted or bare.strip() for quoted, bare in re.findall(r"""['"]([^'"]*)['"]|([^,\[\]'"]+)""", inline) if (quoted or bare.strip())]
         if inline:
             return [inline.strip("'\"")]
         items = []

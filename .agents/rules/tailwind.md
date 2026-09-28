@@ -1,8 +1,6 @@
 ---
 description: X-[value] 임의값을 쓰지 않는다. 값은 src/shared/styles/tokens의 @theme inline 토큰과 utilities.css의 @utility에서 온다. 어긋난 값을 옮기는 네 갈래. 값에 따라 갈리는 모양은 aria 변형과 @/shared/lib/tv 레시피로 적는다
-paths:
-  - "src/**/*.tsx"
-  - "src/**/*.css"
+paths: ["src/**/*.tsx", "src/**/*.css"]
 ---
 
 # Tailwind 클래스
