@@ -95,7 +95,7 @@ rewrite는 `/api/v1/:path*`로 좁힌다. 백엔드 API가 전부 `/api/v1/**`�
 
 홈과 마이페이지처럼 여러 기능이 한 화면에 놓이는 자리는 `src/app`의 라우트 파일이 조립한다. 홈은 recommendation과 auth의 인증 슬롯을, 상세와 탐색은 popup과 bookmark, auth의 인증 슬롯을, 마이페이지는 bookmark와 popup을 가져다 놓는다. 라우트 파일은 조립만 하고 로직을 갖지 않는다.
 
-기능 폴더 안을 어떻게 나누는지는 `.agents/rules/structure.md`에 있다. MSW를 도입하면 기능마다 `api/handlers.ts`가 하나씩 더 생긴다.
+기능 폴더 안을 어떻게 나누는지는 `.agents/rules/architecture.md`에 있다. MSW를 도입하면 기능마다 `api/handlers.ts`가 하나씩 더 생긴다.
 
 여러 기능이 함께 쓰는 것은 `src/shared`에 둔다. 기능끼리 부르지 않으므로 한 기능이 다른 기능의 화면으로 링크를 걸 때 그 주소를 `shared/model`에 둔다. `popup-path.ts`와 `planner-path.ts`, `onboarding-path.ts`, 탐색 조건을 URL과 오가는 `explore-state.ts`가 그렇다. `trip-preference.ts`는 코스 조건 입력과 온보딩이 같은 선택지를 쓰려고 여기 있다. `region.ts`와 `popup.ts`의 카테고리 라벨은 온보딩 선택지 조회가 열리면 서버 목록으로 옮기고 지운다.
 
