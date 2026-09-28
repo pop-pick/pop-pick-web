@@ -5,10 +5,12 @@ import { REFRESH_COOKIE_NAME } from "@/features/auth/model/session-cookie";
 
 const PROTECTED_PATHS = new Set(["/my", "/planner"]);
 const ONBOARDING_STEP_PATH = /^\/onboarding\/\d+$/;
+const COURSE_PATH = /^\/courses\/[^/]+(\/saved)?$/;
 
 export function proxy(request: NextRequest) {
 	const { pathname, search } = request.nextUrl;
-	const isProtected = PROTECTED_PATHS.has(pathname) || ONBOARDING_STEP_PATH.test(pathname);
+	const isProtected =
+		PROTECTED_PATHS.has(pathname) || ONBOARDING_STEP_PATH.test(pathname) || COURSE_PATH.test(pathname);
 
 	if (!isProtected || request.cookies.has(REFRESH_COOKIE_NAME)) {
 		return NextResponse.next();
@@ -18,5 +20,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-	matcher: ["/my", "/planner", "/onboarding/:step(\\d+)"]
+	matcher: ["/my", "/planner", "/onboarding/:step(\\d+)", "/courses/:courseId", "/courses/:courseId/saved"]
 };

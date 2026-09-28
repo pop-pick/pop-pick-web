@@ -5,9 +5,11 @@
 	}
 }
 
-@utility scrollbar-subtle {
+@utility scrollbar-gutter-stable {
 	scrollbar-gutter: stable both-edges;
+}
 
+@utility scrollbar-subtle {
 	&::-webkit-scrollbar {
 		width: 6px;
 		background: transparent;

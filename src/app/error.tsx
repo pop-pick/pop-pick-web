@@ -4,7 +4,12 @@ import { useEffect } from "react";
 
 import { Button } from "@/shared/ui/Button";
 
-export default function RouteError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+interface RouteErrorProps {
+	error: Error & { digest?: string };
+	reset: () => void;
+}
+
+export default function RouteError({ error, reset }: RouteErrorProps) {
 	useEffect(() => {
 		console.error("[route] 화면을 그리다 실패했습니다", error);
 	}, [error]);
