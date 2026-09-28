@@ -11,3 +11,6 @@ bracketSameLine: false
 plugins:
   - prettier-plugin-tailwindcss
 tailwindStylesheet: ./src/shared/styles/globals.css
+tailwindFunctions:
+  - tv
+  - cn
