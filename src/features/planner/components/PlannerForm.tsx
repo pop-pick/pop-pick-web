@@ -22,6 +22,7 @@ import {
 	type TripDuration
 } from "@/shared/model/trip-preference";
 import { AlertDialog } from "@/shared/ui/AlertDialog";
+import { ChoiceChip } from "@/shared/ui/ChoiceChip";
 import { Select } from "@/shared/ui/Select";
 
 import {
@@ -36,7 +37,6 @@ import {
 	buildPlannerNewPath,
 	PENDING_COURSE_JOB_ID
 } from "../model/planner-path";
-import { ChoiceChip } from "./ChoiceChip";
 import { ConditionSection } from "./ConditionSection";
 import { DateField } from "./DateField";
 import { NoteSection } from "./NoteSection";
