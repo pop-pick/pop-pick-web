@@ -1,11 +1,17 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import CloseIcon from "@/shared/assets/icons/close.svg";
-import { Button } from "@/shared/ui/Button";
 import { iconButtonVariants } from "@/shared/ui/IconButton";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
+import { GoogleLoginButton } from "./GoogleLoginButton";
 import { KakaoLoginButton } from "./KakaoLoginButton";
+
+const LOGO_MARK_WIDTH = 51;
+const LOGO_MARK_HEIGHT = 55;
+const WORDMARK_WIDTH = 178;
+const WORDMARK_HEIGHT = 32;
 
 interface LoginScreenProps {
 	nextPath: string | null;
@@ -13,7 +19,7 @@ interface LoginScreenProps {
 
 export function LoginScreen({ nextPath }: LoginScreenProps) {
 	return (
-		<main className="relative flex flex-1 flex-col justify-center gap-10 px-6 py-16">
+		<main className="relative flex flex-1 flex-col px-5 pt-16 pb-13">
 			<Link
 				href="/"
 				aria-label="닫고 홈으로 가기"
@@ -21,27 +27,22 @@ export function LoginScreen({ nextPath }: LoginScreenProps) {
 			>
 				<SvgIcon icon={CloseIcon} size={24} />
 			</Link>
-			<section className="flex flex-col items-center gap-3 text-center">
-				<p className="text-sm font-bold tracking-widest text-blue-600">POP PICK</p>
-				<h1 className="text-2xl leading-snug font-bold tracking-tight">
-					AI와 함께 떠나는 여정
-					<br />
-					지금 시작해보세요
+			<section className="flex flex-1 flex-col items-center justify-center gap-7.5 py-10">
+				<Image src="/brand/logo-mark.svg" alt="" width={LOGO_MARK_WIDTH} height={LOGO_MARK_HEIGHT} loading="eager" />
+				<h1>
+					<Image src="/brand/logo.svg" alt="POP PICK" width={WORDMARK_WIDTH} height={WORDMARK_HEIGHT} loading="eager" />
 				</h1>
 			</section>
 
-			<section className="flex flex-col gap-3">
+			<section className="flex flex-col gap-2.5">
 				<KakaoLoginButton nextPath={nextPath} />
-				<Button variant="secondary" size="lg" disabled>
-					구글로 계속하기
-				</Button>
-				<p className="text-center text-xs text-zinc-400">구글 로그인은 준비 중입니다.</p>
+				<GoogleLoginButton />
 			</section>
 
-			<section className="flex flex-col gap-2 text-center">
-				<p className="text-xs text-zinc-400">로그인 시 이용약관 및 개인정보 처리방침에 동의한 것으로 간주됩니다.</p>
-				<p className="text-sm text-zinc-500">로그인하면 개인화 홈으로 이동해 추천 결과를 확인할 수 있어요.</p>
-			</section>
+			<ul className="mt-8 list-disc space-y-5 rounded-2xl bg-bg-2 p-5 pl-11 text-b3-14 whitespace-pre-line text-text-3 marker:text-text-6">
+				<li>{"로그인 시 이용약관 및 개인정보 처리방침에\n동의합니다."}</li>
+				<li>{"로그인 완료 후 개인화 홈으로 이동해 추천\n결과를 확인할 수 있습니다."}</li>
+			</ul>
 		</main>
 	);
 }
