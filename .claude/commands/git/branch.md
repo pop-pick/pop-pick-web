@@ -1,5 +1,6 @@
 ---
 description: 새 브랜치를 생성하고 전환해주세요.
+argument-hint: [브랜치 이름]
 disable-model-invocation: true
 ---
 

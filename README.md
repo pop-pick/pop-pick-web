@@ -60,6 +60,7 @@ pnpm dev
 | `pnpm dev`           | 개발 서버를 연다                                                                       |
 | `pnpm build`         | 프로덕션 빌드를 만든다                                                                 |
 | `pnpm start`         | 빌드 결과를 실행한다                                                                   |
+| `pnpm preview`       | `pnpm start`를 부른다                                                                  |
 | `pnpm lint`          | ESLint로 저장소 전체를 검사한다                                                        |
 | `pnpm lint:fix`      | ESLint가 자동으로 고칠 수 있는 것을 고친다. import 정렬 등                             |
 | `pnpm format`        | Prettier로 저장소 전체를 고쳐 쓴다                                                     |
@@ -93,7 +94,7 @@ src/
     └── model/      여러 기능이 함께 쓰는 값과 타입, 라벨
 ```
 
-어떤 라우트가 있는지는 `docs/architecture/ARCHITECTURE.md`에, 기능 폴더 안을 어떻게 나누는지는 `.agents/rules/structure.md`에 있다.
+어떤 라우트가 있는지는 `docs/architecture/ARCHITECTURE.md`에, 기능 폴더 안을 어떻게 나누는지는 `.agents/rules/architecture.md`에 있다.
 
 ## API 주소
 

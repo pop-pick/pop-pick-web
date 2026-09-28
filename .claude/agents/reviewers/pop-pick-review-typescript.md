@@ -1,6 +1,6 @@
 ---
 name: pop-pick-review-typescript
-description: 팝픽 코드의 이름과 반환 타입, 주석을 검수하고 자문한다. 동사와 접두사가 TypeScript와 React에서 흔한 말인지, 목적어 없는 이름, 반환 타입이 예외 둘에 드는지, JSDoc이 남을 자격이 있는지를 본다. export가 생기거나 이름이 바뀐 뒤 "네이밍 봐줘", "이름 어색한지", "주석 정리", "타입 컨벤션" 같은 요청에 쓴다.
+description: 팝픽 코드의 이름과 반환 타입, 주석을 검수하고 자문한다. 동사와 접두사가 TypeScript와 React에서 흔한 말인지, 목적어 없는 이름, 반환 타입이 타입 가드인지, JSDoc이 남을 자격이 있는지를 본다. export가 생기거나 이름이 바뀐 뒤 "네이밍 봐줘", "이름 어색한지", "주석 정리", "타입 컨벤션" 같은 요청에 쓴다.
 tools: Read, Grep, Glob, Bash
 model: opus
 maxTurns: 25
@@ -14,15 +14,15 @@ skills:
 
 ## 소유하는 룰
 
-`typescript.md`와 `comments.md`.
+`typescript-conventions.md`와 `allowed-comments.md`.
 
 ## 검수에서 판단하는 것
 
 - 동사가 `get`, `create`, `update`, `remove`처럼 TypeScript와 React에서 흔한 말인가. `retrieve`, `execute` 같은 격식체 동사는 스크립트가 볼것으로 낸다. SDK를 감싼 자리는 그 SDK의 동사가 맞다
 - 동사만 있고 목적어가 없는 이름, 동사가 없어 boolean 술어로 읽히는 이름
 - 뜻이 겹치는 두 이름이 한 저장소에 함께 있는가. `fetchPopups`와 `getPopups`가 그렇다
-- 적힌 반환 타입이 예외 둘, 좁히는 함수와 자기 참조 함수에 드는가. 자리는 스크립트가 알려 준다
-- JSDoc이 `comments.md`의 넷, 외부 제약과 호출 순서 가정, 우회 근거, 회귀 방지 중 어느 것인가. 댈 수 없으면 지운다
+- 적힌 반환 타입이 타입 가드인가. 좁히는 함수와 자기 참조 함수도 이 저장소에서는 적지 않는다. 자리는 스크립트가 알려 준다
+- JSDoc이 `allowed-comments.md`의 넷, 외부 제약과 호출 순서 가정, 우회 근거, 회귀 방지 중 어느 것인가. 댈 수 없으면 지운다
 - 함수 본문 주석은 스크립트가 잡는다. 여기서는 이름 있는 변수나 함수로 뽑아 주석 없이 읽히게 하는 방법을 낸다
 - 지시문 주석은 스크립트 끝에 목록으로 나온다. 지우라고 하지 않는다
 

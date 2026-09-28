@@ -87,7 +87,7 @@ missing_skill_refs() {
 		done
 }
 
-printf '\n=== 구조와 경계 (structure.md) ===\n\n'
+printf '\n=== 구조와 경계 (architecture.md) ===\n\n'
 
 check "기능이 다른 기능을 부른다" \
 	'grep -rn "@/features/" src/features src/shared --include="*.ts" --include="*.tsx"'
@@ -121,21 +121,21 @@ check "화살표 함수에 대입한 컴포넌트다" \
 check "이벤트 핸들러를 JSX 안에 인라인으로 적었다 (ui.md)" \
 	'grep -rnE "\bon[A-Z][A-Za-z]*=\{[[:space:]]*(async[[:space:]]*)?(\(|[a-z][A-Za-z0-9_]*[[:space:]]*=>|function|$)" src --include="*.tsx"'
 
-check "boolean 상태 이름에 is, has, can, should 가 없다 (typescript.md)" \
+check "boolean 상태 이름에 is, has, can, should 가 없다 (typescript-conventions.md)" \
 	'grep -rnE "const \[[a-z][A-Za-z0-9]*, set[A-Za-z0-9]*\] = useState(<boolean>)?\((true|false)\)" src --include="*.ts" --include="*.tsx" | grep -vE "const \[(is|has|can|should)[A-Z][A-Za-z0-9]*, set(Is|Has|Can|Should)[A-Z]"'
 
-check "return 앞 빈 줄이나 블록 뒤 빈 줄이 규칙과 다르다. check-return-spacing.mjs src --fix 로 고친다 (typescript.md)" \
+check "return 앞 빈 줄이나 블록 뒤 빈 줄이 규칙과 다르다. check-return-spacing.mjs src --fix 로 고친다 (typescript-conventions.md)" \
 	'node "$SCRIPT_DIR/check-return-spacing.mjs" src'
 
-soft_check "on 프롭에 handle 로 시작하지 않는 이름을 넘긴다. 훅이나 프롭에서 받은 함수면 그대로 둔다 (ui.md)" \
+soft_check "on 프롭에 handle 로 시작하지 않는 이름을 넘긴다. 훅이나 프롭에서 받은 함수면 그대로 둔다 (~/.agents/rules/react.md)" \
 	'grep -rnoE "\bon[A-Z][A-Za-z]*=\{[a-z][A-Za-z0-9]*\}" src --include="*.tsx" | grep -vE "=\{(handle|on)[A-Z]"'
 
-printf '\n=== 값과 타입 (tailwind.md, typescript.md) ===\n\n'
+printf '\n=== 값과 타입 (tailwind.md, typescript-conventions.md) ===\n\n'
 
 check "Tailwind 임의값을 썼다" \
 	'grep -rnoE "(^|[\" ])[a-z-]+-\[[^]]+\]" src --include="*.tsx" --include="*.ts"'
 
-check "shared/ui 가 앱을 안다. 경로나 도메인 타입이 필요하면 shared/components 에 둔다 (structure.md)" \
+check "shared/ui 가 앱을 안다. 경로나 도메인 타입이 필요하면 shared/components 에 둔다 (architecture.md)" \
 	'[ ! -d src/shared/ui ] || grep -rnE "from \"(next/navigation|@/shared/(model|components)/|@/features/)" src/shared/ui --include="*.ts" --include="*.tsx"'
 
 check "styles/tokens 의 글자와 그림자 토큰이 cn.ts 의 tailwind-merge 목록과 다르다" \
@@ -147,7 +147,7 @@ check "tailwind-variants 를 직접 부른다. 토큰 병합 설정이 걸린 @/
 check "cn() 안에서 조건으로 클래스를 고른다. aria 변형이나 tv 레시피로 옮긴다 (tailwind.md)" \
 	'node "$SCRIPT_DIR/check-conditional-classes.mjs" src'
 
-check "컴포넌트 props 를 type 으로 선언했다. interface 로 선언한다 (typescript.md)" \
+check "컴포넌트 props 를 type 으로 선언했다. interface 로 선언한다 (typescript-conventions.md)" \
 	'grep -rnE "^(export )?type [A-Za-z]+Props =" src --include="*.ts" --include="*.tsx" | grep -vE "= [A-Z][A-Za-z]*Props( \| [A-Z][A-Za-z]*Props)+;"'
 
 check "추론되는 반환 타입을 적었다" \
@@ -162,7 +162,7 @@ check "dayjs 를 부른다. 날짜는 date-fns 로 다룬다 (AGENTS.md)" \
 check "현재 시각을 Date 나 TZDate 로 직접 만든다. @/shared/lib/date 의 getSeoulNow, getSeoulToday 를 쓴다 (AGENTS.md)" \
 	'grep -rnE "new Date\(|Date\.now\(|TZDate\.tz\(" src --include="*.ts" --include="*.tsx" | grep -v "^src/shared/lib/date.ts:"'
 
-printf '\n=== 실패를 감추는 자리 (no-fallback.md, api.md) ===\n\n'
+printf '\n=== 실패를 감추는 자리 (failure-handling.md, api.md) ===\n\n'
 
 check "비어 있는 catch 다" \
 	'grep -rnE "catch[^{]*\{\s*\}" src --include="*.ts" --include="*.tsx"'
@@ -188,12 +188,12 @@ check "브라우저 코드가 백엔드 절대 주소를 안다" \
 check "app/api 아래 동적 세그먼트 라우트 핸들러가 있다" \
 	'find src/app/api -type d -name "\[*\]" 2>/dev/null'
 
-printf '\n=== 주석 (comments.md) ===\n\n'
+printf '\n=== 주석 (allowed-comments.md) ===\n\n'
 
 check "함수 본문에 주석을 적었다" \
 	'{ grep -rnE "^[[:space:]]+//" src --include="*.ts" --include="*.tsx"; grep -rnE "[^[:space:]:][[:space:]]+//([[:space:]]|$)" src --include="*.ts" --include="*.tsx"; grep -rnE "^[[:space:]]+/\*[^*]" src --include="*.ts" --include="*.tsx"; } | grep -vE "eslint-|@ts-|prettier-ignore|@jsxImportSource"'
 
-printf '\n=== 한국어 표기 (AGENTS.md) ===\n\n'
+printf '\n=== 한국어 표기 (~/.agents/rules/korean-writing.md) ===\n\n'
 
 check "금지 기호나 한자를 썼다" \
 	'tracked src docs scripts .agents .claude ":(glob)*.md" | xargs -0 perl -CSD -ne '"'"'close ARGV if eof; print "$ARGV:$.: $_" if /[\x{00B7}\x{2022}\x{2027}\x{30FB}\x{2013}\x{2014}\x{2190}-\x{21FF}\x{2460}-\x{24FF}\x{2700}-\x{27BF}\x{2B00}-\x{2BFF}\x{FE0F}\x{1F300}-\x{1FAFF}\x{3400}-\x{4DBF}\x{4E00}-\x{9FFF}]/'"'"' /dev/null'
@@ -212,12 +212,15 @@ check "문서가 없는 스킬이나 에이전트를 가리킨다" \
 check "옛 에이전트 이름이나 폴더가 남아 있다" \
 	'tracked "$SELF_EXCLUDE" "$TEST_EXCLUDE" ":!.claude" ":!.codex" | xargs -0 perl -ne '"'"'close ARGV if eof; print "$ARGV:$.: $_" if /(?<!pop-pick-)\b(feature-builder|ui-builder|plan-architect|qa-verifier|review-(?:data|nextjs|screen|structure|tailwind|typescript))\b|agents\/(?:build|review|qa)\//'"'"' /dev/null'
 
+check "옛 룰 이름이 남아 있다. 저장소 룰은 새 이름으로, 사용자 홈 룰은 ~/.agents/rules/ 경로로 적는다" \
+	'tracked "$SELF_EXCLUDE" "$TEST_EXCLUDE" ":!.claude" ":!.codex" | xargs -0 perl -ne '"'"'print "$ARGV:$.: $_" if /(?<![~\w\/.-])(?:\.agents\/rules\/)?(?:structure|comments|testing|typescript|no-fallback)\.md\b/; close ARGV if eof'"'"' /dev/null'
+
 printf '\n=== 판단이 필요한 자리 (막지 않는다) ===\n\n'
 
 soft_check "빈 값으로 받는 자리. 실패를 삼키는지 본다" \
 	'grep -rnE "\?\? (\[\]|0|\"\"|\x27\x27|\{\})" src --include="*.ts" --include="*.tsx"'
 
-soft_check "격식체 동사로 시작하는 이름. get, create, remove, run 처럼 흔한 동사로 바꾼다 (typescript.md)" \
+soft_check "격식체 동사로 시작하는 이름. get, create, remove, run 처럼 흔한 동사로 바꾼다 (~/.agents/rules/typescript.md)" \
 	'grep -rnE "\b(acquire|obtain|retrieve|release|dispose|terminate|invoke|execute|perform|instantiate|materialize|initialize|utilize|leverage|populate|traverse)[A-Z(]" src --include="*.ts" --include="*.tsx"'
 
 soft_check "alert 나 confirm 을 부른다. 브라우저 도구로 누르면 그 뒤로 응답하지 않는다" \

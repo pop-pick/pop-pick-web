@@ -20,4 +20,4 @@ disable-model-invocation: true
 
 ## 규칙
 
-`.agents/skills/pop-pick-git/SKILL.md`의 머지 방식과 `.agents/rules/git-workflow.md`의 금지 패턴을 따른다. squash를 쓰지 않는 이유는 그 스킬에 있다.
+`.agents/skills/pop-pick-git/SKILL.md`의 머지 방식과 `.agents/rules/git-workflow.md`를 따른다. squash를 쓰지 않는 이유는 그 스킬에 있다.

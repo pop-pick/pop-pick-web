@@ -1,10 +1,6 @@
 ---
 description: 층이 넷이다. shared/api는 HTTP만 알고 features/{기능}/api는 엔드포인트를, hooks는 변경을, components는 화면을 안다. 브라우저는 같은 출처 /api를, 서버는 API_BASE_URL을 부른다
-paths:
-  - "src/**/api/**"
-  - "src/**/hooks/**"
-  - "src/app/**/route.ts"
-  - "next.config.ts"
+paths: ["src/**/api/**", "src/**/hooks/**", "src/app/**/route.ts", "next.config.ts"]
 ---
 
 # API 호출
@@ -165,7 +161,7 @@ Next 서버는 프록시로만 쓴다. Route Handler로 프록시를 손으로 �
 
 ## 실패를 감추지 않는다
 
-실패는 TanStack Query의 `error` 상태로 드러낸다. 빈 배열이나 기본값으로 바꾸지 않는다. 기준은 `no-fallback.md`다.
+실패는 TanStack Query의 `error` 상태로 드러낸다. 기준은 `~/.agents/rules/no-fallback.md`와 `failure-handling.md`다.
 
 `ApiError`의 `kind`로 네트워크와 타임아웃을 가르고 `errorCode`로 백엔드가 정한 실패를 가른다. 원문 메시지를 화면에 그대로 내지 않고 기능이 가진 문구 표로 옮긴다.
 

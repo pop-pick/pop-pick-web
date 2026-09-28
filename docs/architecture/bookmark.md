@@ -55,7 +55,7 @@
   onError     하트는 그대로. 토스트로 이유, [bookmark] 로그
 ```
 
-**로그인 여부를 아는 곳.** `BookmarkButton`은 `auth`의 `useAuthStore`를 부르지 않는다. 기능끼리 부르지 않는 규칙(`structure.md`) 때문이다. 대신 라우트가 `features/auth`의 `AuthStatusSwitch`에 인증 상태마다 다른 `mode`의 `BookmarkSlotProvider`를 넣는다. `anonymous`는 `mode="guest"`와 `buildLoginPath`로 만든 `loginHref`, `authenticated`는 `mode="member"`, `restoring`과 `unavailable`은 `mode="pending"`이다. `member`와 `pending`은 `aria-disabled`라 눌러도 아무 일이 없다.
+**로그인 여부를 아는 곳.** `BookmarkButton`은 `auth`의 `useAuthStore`를 부르지 않는다. 기능끼리 부르지 않는 규칙(`architecture.md`) 때문이다. 대신 라우트가 `features/auth`의 `AuthStatusSwitch`에 인증 상태마다 다른 `mode`의 `BookmarkSlotProvider`를 넣는다. `anonymous`는 `mode="guest"`와 `buildLoginPath`로 만든 `loginHref`, `authenticated`는 `mode="member"`, `restoring`과 `unavailable`은 `mode="pending"`이다. `member`와 `pending`은 `aria-disabled`라 눌러도 아무 일이 없다.
 
 캐시를 바꾸는 자리는 `patchBookmarkInCaches` 하나다. `["popups"]`, `["recommendations"]`, `["bookmarks"]`로 시작하는 모든 쿼리 데이터를 훑어 `id`가 같은 `PopupSummary`를 찾아 바꾼다. 무한 쿼리는 페이지 배열 안을 훑는다. 상세 캐시(`PopupDetail`)도 `PopupSummary`를 확장하므로 같은 함수가 다룬다.
 
@@ -88,7 +88,7 @@ function getConfirmMessage(intent: BookmarkIntent): string;
 function patchBookmarkInCaches(queryClient: QueryClient, popupId: number, isBookmarked: boolean): void;
 ```
 
-`resolveIntent`는 분기 있는 순수 함수라 `testing.md`의 값이 나는 자리다. 문구를 코드 여기저기에 흩지 않고 `getConfirmMessage` 한 곳에 둔다. 네 문구가 기획 명세에서 온 값이라 바뀌면 고칠 자리가 하나여야 한다.
+`resolveIntent`는 분기 있는 순수 함수라 `testing-trophy.md`의 값이 나는 자리다. 문구를 코드 여기저기에 흩지 않고 `getConfirmMessage` 한 곳에 둔다. 네 문구가 기획 명세에서 온 값이라 바뀌면 고칠 자리가 하나여야 한다.
 
 찜 목록의 항목은 `PopupSummary` 그대로다. 종료 여부와 종료 임박은 `popup.md`의 `getPopupStatus`로 파생한다. 목록 응답에 별도 필드를 두지 않는다.
 
