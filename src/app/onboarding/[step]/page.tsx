@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 
+import { RequireAuth } from "@/features/auth/components/RequireAuth";
 import { OnboardingHeader } from "@/features/onboarding/components/OnboardingHeader";
+import { OnboardingStepScreen } from "@/features/onboarding/components/OnboardingStepScreen";
 import { parseStep } from "@/features/onboarding/model/steps";
-import { ScreenPlaceholder } from "@/shared/components/ScreenPlaceholder";
+import { buildOnboardingStepPath } from "@/shared/model/onboarding-path";
 
 export default async function OnboardingStepPage({ params }: PageProps<"/onboarding/[step]">) {
 	const { step: stepParam } = await params;
@@ -15,10 +17,11 @@ export default async function OnboardingStepPage({ params }: PageProps<"/onboard
 	return (
 		<>
 			<OnboardingHeader step={step} />
-			<ScreenPlaceholder
-				title={`온보딩 ${String(step)}단계`}
-				description="동행 유형과 인원수, 관심 카테고리와 지역, 선호 활동과 자유 입력을 세 단계로 받는 화면입니다."
-			/>
+			<main className="flex flex-1 flex-col">
+				<RequireAuth nextPath={buildOnboardingStepPath(step)}>
+					<OnboardingStepScreen step={step} />
+				</RequireAuth>
+			</main>
 		</>
 	);
 }
