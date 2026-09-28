@@ -1,72 +1,110 @@
 "use client";
 
+import { tv } from "@/shared/lib/tv";
+
 import type { KakaoClusterStyle } from "./kakao-map-sdk";
 import type { KakaoMarkerData } from "./kakao-map-session";
 
-const PIN_CLASS = "group flex cursor-pointer flex-col items-center gap-0.5";
-const ICON_WRAP_CLASS =
-	"flex size-8 items-center justify-center rounded-full border-2 border-white bg-white shadow-md transition-transform group-aria-pressed:scale-125 group-aria-pressed:border-primary";
-const ICON_IMAGE_CLASS = "size-5";
-const DEFAULT_DOT_CLASS = "size-3 rounded-full bg-primary";
-const LABEL_CLASS =
-	"max-w-24 truncate rounded-full bg-bg-1/90 px-2 py-0.5 text-xs font-medium text-zinc-800 shadow-sm group-aria-pressed:bg-primary group-aria-pressed:text-white";
+const SELECTED_PIN_ICON_PATH = "/pins/selected.svg";
+const PIN_BOTTOM_Y_ANCHOR = 1;
+const ICON_PIN_Y_ANCHOR = 0.5;
 
-export const CLUSTER_STYLES: KakaoClusterStyle[] = [
-	{
-		width: "40px",
-		height: "40px",
-		background: "var(--blue-500)",
-		border: "2px solid var(--gray-0)",
-		borderRadius: "20px",
-		boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
-		color: "var(--gray-0)",
-		fontSize: "var(--text-sm)",
-		fontWeight: "600",
-		lineHeight: "36px",
-		textAlign: "center"
+const PIN_CLASS = "group relative flex size-10 cursor-pointer items-center justify-center";
+const PIN_CIRCLE_CLASS =
+	"flex size-6 items-center justify-center rounded-full border-2 border-text-2 bg-bg-3 group-aria-pressed:size-10 group-aria-pressed:border-0 group-aria-pressed:bg-primary group-aria-pressed:shadow-floating";
+const PIN_DOT_CLASS = "size-3 rounded-full bg-icon group-aria-pressed:hidden";
+const PIN_ICON_CLASS = "hidden size-5 group-aria-pressed:block";
+const ICON_PIN_CLASS = "flex size-10 items-center justify-center rounded-full bg-bg-1 shadow-floating";
+const ICON_PIN_ICON_CLASS = "size-5";
+const CLUSTER_CLASS =
+	"relative flex size-7 cursor-pointer items-center justify-center rounded-xl border border-primary-strong bg-bg-3/50 text-b2-12 text-primary shadow-floating";
+
+const markerLabelVariants = tv({
+	base: "absolute top-full left-1/2 -translate-x-1/2 rounded-xl bg-bg-1/50 px-3 py-1 whitespace-nowrap",
+	variants: {
+		kind: {
+			pin: "text-b1-14 text-text-1 shadow-floating backdrop-blur-xs group-aria-pressed:mt-2 group-aria-pressed:text-primary group-aria-pressed:shadow-on-map group-aria-pressed:backdrop-blur-sm",
+			cluster: "mt-2 text-b2-12 text-primary shadow-on-map backdrop-blur-sm"
+		}
 	}
-];
+});
+
+/** 클러스터러가 content 요소에 이 값을 인라인 스타일로 넣는다. 모양은 `fillClusterElement`가 클래스로 준다 */
+export const CLUSTER_STYLES: KakaoClusterStyle[] = [{ width: "28px", height: "28px" }];
 
 export function formatClusterText(size: number) {
-	return `+${String(size)}`;
+	return `+${String(size - 1)}`;
 }
 
-function buildIcon(iconUrl: string | undefined) {
-	const wrap = document.createElement("div");
-	wrap.className = ICON_WRAP_CLASS;
+export function resolvePinYAnchor(marker: KakaoMarkerData) {
+	return marker.variant === "icon" ? ICON_PIN_Y_ANCHOR : PIN_BOTTOM_Y_ANCHOR;
+}
 
-	if (iconUrl === undefined) {
-		const dot = document.createElement("span");
-		dot.className = DEFAULT_DOT_CLASS;
-		wrap.appendChild(dot);
-
-		return wrap;
+function buildIconPinElement(marker: KakaoMarkerData) {
+	if (marker.iconUrl === undefined) {
+		throw new Error(`[kakao-map] icon 핀에 iconUrl이 없다: ${marker.id}`);
 	}
 
-	const image = document.createElement("img");
-	image.src = iconUrl;
-	image.alt = "";
-	image.className = ICON_IMAGE_CLASS;
-	wrap.appendChild(image);
+	const root = document.createElement("div");
+	root.className = ICON_PIN_CLASS;
+	root.setAttribute("aria-hidden", "true");
+	root.title = marker.title;
 
-	return wrap;
+	const icon = document.createElement("img");
+	icon.src = marker.iconUrl;
+	icon.alt = "";
+	icon.className = ICON_PIN_ICON_CLASS;
+
+	root.appendChild(icon);
+
+	return root;
 }
 
 export function buildPinElement(marker: KakaoMarkerData) {
+	if (marker.variant === "icon") {
+		return buildIconPinElement(marker);
+	}
+
 	const root = document.createElement("div");
 	root.className = PIN_CLASS;
 	root.setAttribute("aria-hidden", "true");
 	root.title = marker.title;
-	root.appendChild(buildIcon(marker.iconUrl));
+
+	const circle = document.createElement("span");
+	circle.className = PIN_CIRCLE_CLASS;
+
+	const dot = document.createElement("span");
+	dot.className = PIN_DOT_CLASS;
+
+	const icon = document.createElement("img");
+	icon.src = SELECTED_PIN_ICON_PATH;
+	icon.alt = "";
+	icon.className = PIN_ICON_CLASS;
+
+	circle.append(dot, icon);
+	root.appendChild(circle);
 
 	if (marker.label !== undefined) {
 		const label = document.createElement("span");
-		label.className = LABEL_CLASS;
+		label.className = markerLabelVariants({ kind: "pin" });
 		label.textContent = marker.label;
 		root.appendChild(label);
 	}
 
 	return root;
+}
+
+export function fillClusterElement(element: HTMLElement, size: number, label: string | undefined) {
+	element.className = CLUSTER_CLASS;
+	element.setAttribute("aria-hidden", "true");
+	element.textContent = formatClusterText(size);
+
+	if (label !== undefined) {
+		const labelElement = document.createElement("span");
+		labelElement.className = markerLabelVariants({ kind: "cluster" });
+		labelElement.textContent = label;
+		element.appendChild(labelElement);
+	}
 }
 
 function buildMyPositionElement() {
@@ -75,10 +113,10 @@ function buildMyPositionElement() {
 	root.setAttribute("aria-hidden", "true");
 
 	const ring = document.createElement("span");
-	ring.className = "absolute inset-0 animate-ping rounded-full bg-blue-400/40";
+	ring.className = "absolute inset-0 animate-ping rounded-full bg-primary/40";
 
 	const dot = document.createElement("span");
-	dot.className = "relative size-3.5 rounded-full border-2 border-white bg-primary shadow-md";
+	dot.className = "relative size-3.5 rounded-full border-2 border-bg-1 bg-primary shadow-floating";
 
 	root.append(ring, dot);
 

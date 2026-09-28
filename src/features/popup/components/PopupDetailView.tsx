@@ -1,24 +1,26 @@
 import type { ReactNode } from "react";
 
-import { cn } from "@/shared/lib/cn";
+import { BookmarkSlot } from "@/shared/components/BookmarkSlot";
 import { POPUP_CATEGORY_LABELS } from "@/shared/model/popup";
+import { buildPopupDetailPath } from "@/shared/model/popup-path";
 import { REGION_LABELS } from "@/shared/model/region";
 
 import { formatViewCount } from "../model/detail-format";
 import type { PopupDetail } from "../model/popup-detail";
 import { PopupImageCarousel } from "./PopupImageCarousel";
 import { PopupInfoCard } from "./PopupInfoCard";
+import { PopupTagBadge } from "./PopupTagBadge";
 import { ReliabilityNotice } from "./ReliabilityNotice";
 import { ReservationLink } from "./ReservationLink";
 import { SharePopupButton } from "./SharePopupButton";
 
 interface PopupDetailViewProps {
 	popup: PopupDetail;
-	bookmarkSlot: ReactNode;
 	matchRateSlot: ReactNode;
+	titleId?: string;
 }
 
-export function PopupDetailView({ popup, bookmarkSlot, matchRateSlot }: PopupDetailViewProps) {
+export function PopupDetailView({ popup, matchRateSlot, titleId }: PopupDetailViewProps) {
 	const hasBadgeRow = popup.category !== null || popup.region !== null || popup.viewCount !== null;
 
 	return (
@@ -32,14 +34,10 @@ export function PopupDetailView({ popup, bookmarkSlot, matchRateSlot }: PopupDet
 								{hasBadgeRow && (
 									<div className="flex items-center gap-1">
 										{popup.category !== null && (
-											<span className="flex h-6 items-center rounded-lg bg-primary-subtle px-2 text-b2-12 text-primary">
-												{POPUP_CATEGORY_LABELS[popup.category]}
-											</span>
+											<PopupTagBadge tone="category">{POPUP_CATEGORY_LABELS[popup.category]}</PopupTagBadge>
 										)}
 										{popup.region !== null && (
-											<span className="flex h-6 items-center rounded-lg bg-region-subtle px-2 text-b2-12 text-region">
-												{REGION_LABELS[popup.region]}
-											</span>
+											<PopupTagBadge tone="region">{REGION_LABELS[popup.region]}</PopupTagBadge>
 										)}
 										{popup.viewCount !== null && (
 											<span className="ml-auto text-b3-12 text-text-4">{formatViewCount(popup.viewCount)}</span>
@@ -47,7 +45,9 @@ export function PopupDetailView({ popup, bookmarkSlot, matchRateSlot }: PopupDet
 									</div>
 								)}
 								<div className="flex flex-col gap-3">
-									<h1 className="text-h2 text-text-1">{popup.title}</h1>
+									<h1 id={titleId} tabIndex={titleId === undefined ? undefined : -1} className="text-h2 text-text-1">
+										{popup.title}
+									</h1>
 									{popup.description !== null && <p className="text-b3-14 text-text-2">{popup.description}</p>}
 								</div>
 							</div>
@@ -56,11 +56,11 @@ export function PopupDetailView({ popup, bookmarkSlot, matchRateSlot }: PopupDet
 					</div>
 					{matchRateSlot}
 				</div>
-				<div className={cn("flex items-center gap-2.5", popup.reservationUrl === null && "justify-end")}>
+				<div className="flex items-center gap-2.5">
 					{popup.reservationUrl !== null && <ReservationLink href={popup.reservationUrl} />}
-					<div className="flex shrink-0 gap-2">
-						{bookmarkSlot}
-						<SharePopupButton />
+					<div className="ml-auto flex shrink-0 gap-2">
+						<BookmarkSlot popupId={popup.id} popupTitle={popup.title} size="lg" />
+						<SharePopupButton path={buildPopupDetailPath(popup.id)} />
 					</div>
 				</div>
 			</div>

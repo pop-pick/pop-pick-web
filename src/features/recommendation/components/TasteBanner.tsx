@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import ArrowUpRightIcon from "@/shared/assets/icons/arrow-up-right.svg";
+import { ONBOARDING_FIRST_STEP_PATH } from "@/shared/model/onboarding-path";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 const PINS_WIDTH = 105;
@@ -34,7 +35,7 @@ export function TasteBanner() {
 				</p>
 			</div>
 			<Link
-				href="/onboarding/1"
+				href={ONBOARDING_FIRST_STEP_PATH}
 				className="relative flex h-10 items-center justify-center gap-1 rounded-xl bg-text-2 px-3 text-b1-14 text-text-w focus-ring transition-colors hover:bg-text-1"
 			>
 				나에게 맞는 팝업 찾기

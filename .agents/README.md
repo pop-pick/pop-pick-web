@@ -14,6 +14,7 @@
     check-conventions.sh   룰에 적힌 grep 검사
     agents-sync.mjs        원본을 도구 자리로 복사하고 변환하는 생성기
     harness-test.sh        검사 스크립트와 훅의 회귀 테스트
+    check-*.mjs            check-conventions.sh 가 부르는 판정기. return 빈 줄, cn() 안의 조건, 병합 토큰 목록
     harness-check.sh       검사와 생성물 대조 둘, 회귀 테스트를 한 번에. lefthook 과 CI 가 돌린다
 .claude/
   rules/               생성. .agents/rules 복사본
@@ -23,7 +24,7 @@
   commands/            슬래시 커맨드. Claude 전용. 직접 고친다
 .codex/
   agents/              생성. .agents/agents 를 TOML 로 변환
-AGENTS.md              늘 지켜야 하는 것. 룰 절의 표식 사이만 생성
+AGENTS.md              늘 지켜야 하는 것. 룰 절과 하네스 절의 표식 사이만 생성
 CLAUDE.md              첫 줄 @AGENTS.md. 아래는 Claude Code 전용
 ```
 

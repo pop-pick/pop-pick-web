@@ -1,12 +1,30 @@
-import { ScreenPlaceholder } from "@/shared/components/ScreenPlaceholder";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-export default async function CourseGeneratingPage({ params }: PageProps<"/planner/generating/[jobId]">) {
-	const { jobId } = await params;
+import { buildCoursePath } from "@/features/course/model/course-path";
+import { PLACEHOLDER_GENERATED_COURSE_ID } from "@/features/course/model/placeholder-courses";
+import { GeneratingView } from "@/features/planner/components/GeneratingView";
+import {
+	parseCourseRequestDraft,
+	serializeCourseRequestDraft,
+	toCourseRequest
+} from "@/features/planner/model/course-request";
+import { buildPlannerNewPath } from "@/features/planner/model/planner-path";
+import { toUrlSearchParams } from "@/shared/lib/search-params";
 
-	return (
-		<ScreenPlaceholder
-			title="코스 생성 중"
-			description={`작업 ${jobId}의 단계별 체크리스트와 취소 버튼이 놓이는 화면입니다.`}
-		/>
-	);
+export const metadata: Metadata = {
+	title: "코스 만드는 중"
+};
+
+export default async function CourseGeneratingPage({ searchParams }: PageProps<"/planner/generating/[jobId]">) {
+	const draft = parseCourseRequestDraft(toUrlSearchParams(await searchParams));
+	const editHref = buildPlannerNewPath(draft);
+
+	if (toCourseRequest(draft) === null) {
+		redirect(editHref);
+	}
+
+	const resultHref = `${buildCoursePath(PLACEHOLDER_GENERATED_COURSE_ID)}?${serializeCourseRequestDraft(draft).toString()}`;
+
+	return <GeneratingView editHref={editHref} resultHref={resultHref} />;
 }

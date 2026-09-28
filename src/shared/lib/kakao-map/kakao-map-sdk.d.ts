@@ -58,6 +58,7 @@ export type KakaoCustomOverlayInstance = {
 	setPosition(position: KakaoLatLng): void;
 	getPosition(): KakaoLatLng;
 	setContent(content: string | HTMLElement): void;
+	getContent(): string | HTMLElement;
 	setVisible(visible: boolean): void;
 	setZIndex(zIndex: number): void;
 };
@@ -83,6 +84,8 @@ export type KakaoClusterInstance = {
 	getBounds(): KakaoLatLngBounds;
 	getSize(): number;
 	getMarkers(): KakaoClusterable[];
+	/** 클러스터 마커는 CustomOverlay다. content 요소에 클러스터러가 클릭 확대를 걸어 두므로 요소를 바꾸지 않고 안을 채운다 */
+	getClusterMarker(): KakaoCustomOverlayInstance;
 };
 
 export type KakaoMarkerClustererInstance = {
@@ -115,23 +118,33 @@ export type KakaoMapEventType =
 
 export type KakaoMarkerEventType = "click" | "dragend" | "dragstart" | "mouseout" | "mouseover" | "rightclick";
 
-export type KakaoClustererEventType =
-	"clusterclick" | "clusterover" | "clusterout" | "clusterdblclick" | "clusterrightclick" | "clustered";
+export type KakaoClusterEventType =
+	"clusterclick" | "clusterover" | "clusterout" | "clusterdblclick" | "clusterrightclick";
 
 export type KakaoMapsEventNamespace = {
 	addListener(target: KakaoMapInstance, type: KakaoMapEventType, handler: () => void): void;
 	addListener(target: KakaoMarkerInstance, type: KakaoMarkerEventType, handler: () => void): void;
 	addListener(
 		target: KakaoMarkerClustererInstance,
-		type: KakaoClustererEventType,
+		type: KakaoClusterEventType,
 		handler: (cluster: KakaoClusterInstance) => void
+	): void;
+	addListener(
+		target: KakaoMarkerClustererInstance,
+		type: "clustered",
+		handler: (clusters: KakaoClusterInstance[]) => void
 	): void;
 	removeListener(target: KakaoMapInstance, type: KakaoMapEventType, handler: () => void): void;
 	removeListener(target: KakaoMarkerInstance, type: KakaoMarkerEventType, handler: () => void): void;
 	removeListener(
 		target: KakaoMarkerClustererInstance,
-		type: KakaoClustererEventType,
+		type: KakaoClusterEventType,
 		handler: (cluster: KakaoClusterInstance) => void
+	): void;
+	removeListener(
+		target: KakaoMarkerClustererInstance,
+		type: "clustered",
+		handler: (clusters: KakaoClusterInstance[]) => void
 	): void;
 };
 

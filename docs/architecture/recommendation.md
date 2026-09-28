@@ -65,27 +65,9 @@
 
 ## D. Data Model
 
+`RecommendedPopupItem`(팝업과 추천 이유, 일치율, 카드 배지)과 `PopularPopupItem`(팝업과 인기 한 줄, 평점과 리뷰 수)은 `model/home-popup.ts`에 있다. 출처가 정해지지 않은 필드는 `null`을 허용한다. 아래는 추천 API가 열리면 만드는 설계다.
+
 ```typescript
-// 있는 것. features/recommendation/model/home-popup.ts
-interface RecommendedPopupItem {
-	popup: PopupSummary;
-	/** 펼친 카드의 설명. 두 줄 말줄임. 글자 수 상한은 백엔드와 맞춘다 */
-	reason: string | null;
-	/** 취향 일치율. 0부터 100까지의 정수. 출처 미정 */
-	matchRate: number | null;
-	/** 카드 오른쪽 위 배지 문구. "성수동 오늘 오픈". 출처 미정 */
-	badge: string | null;
-}
-
-interface PopularPopupItem {
-	popup: PopupSummary;
-	/** "실시간 인기 1위" 같은 한 줄. 출처 미정 */
-	highlight: string | null;
-	/** 후기 출처 미정 */
-	reviewSummary: { rating: number; count: number } | null;
-}
-
-// 설계. 추천 API가 열리면
 type RecommendationStatus = "READY" | "PREPARING";
 
 interface RecommendationResult {
@@ -102,12 +84,6 @@ type RecommendationSectionMode = "skeleton" | "recommended" | "fallback-preparin
 
 // features/recommendation/model/section-mode.ts
 function resolveSectionMode(query: UseQueryResult<RecommendationResult, ApiError>): RecommendationSectionMode;
-
-// 있는 것. features/recommendation/model/home-format.ts
-/** "10.12 ~ 10.26". 한쪽이 없으면 있는 쪽만, 둘 다 없으면 null */
-function formatPopupPeriod(startDate: string | null, endDate: string | null): string | null;
-/** "{이름}님의 팝업 PICK". 이름이 없을 때의 문구는 DESIGN-SPEC 홈 절 */
-function formatPickTitle(nickname: string | null): string;
 ```
 
 `PopupSummary`는 `shared/model/popup.ts`에 있고 필드는 `popup.md`가 갖는다. 인기 행 셋째 줄의 입장 방식은 같은 파일의 짧은 라벨(`RESERVATION_SHORT_LABELS`)이다. 시안의 지역 칩에는 개수가 없다. `resolveSectionMode`는 분기 있는 순수 함수라 `testing.md`의 값이 나는 자리다.
@@ -116,31 +92,19 @@ function formatPickTitle(nickname: string | null): string;
 
 **컴포넌트.** 전부 `features/recommendation/components`에 있다. 데이터는 props로 받고 라우트가 `features/recommendation/model/placeholder-home.ts`의 임시 데이터를 넘긴다.
 
-```typescript
-export function HomeHeader(); // 워드마크가 페이지 <h1>이고 alt는 POP PICK. 돋보기가 /explore?view=list 링크
-export function TasteBanner(); // 회원과 비회원 모두. "나에게 맞는 팝업 찾기"가 /onboarding/1
-export function PickSection({
-	nickname,
-	recommendations
-}: {
-	nickname: string | null;
-	recommendations: RecommendedPopupItem[];
-});
-export function PickCard(props: {
-	recommendation: RecommendedPopupItem;
-	nickname: string | null;
-	isExpanded: boolean;
-	onToggle: () => void;
-}); // 펼쳤을 때만 설명과 일치율
-export function OnImageBadge({ label }: { label: string }); // 이미지 위 반투명 배지. 카테고리와 badge
-export function MatchRatePill({ nickname, matchRate }: { nickname: string | null; matchRate: number });
-export function PickSectionSkeleton(); // restoring에서 PICK 자리를 지킨다
-export function PopularSection({ popularPopups }: { popularPopups: PopularPopupItem[] }); // 전체보기가 /explore?view=list
-export function PopularPopupRow({ item }: { item: PopularPopupItem }); // 72px 썸네일과 세 줄. 행 전체가 상세 링크
-export function TrendingRegions({ regions }: { regions: Region[] }); // 칩이 /explore?region=
-```
+| 컴포넌트              | 계약                                                                                       |
+| --------------------- | ------------------------------------------------------------------------------------------ |
+| `HomeHeader`          | 워드마크가 페이지 `<h1>`이고 alt는 POP PICK. 돋보기가 탐색 목록(`/explore?view=list`) 링크 |
+| `TasteBanner`         | 회원과 비회원 모두. "나에게 맞는 팝업 찾기"가 `/onboarding/1` 링크                         |
+| `PickSection`         | 닉네임과 `RecommendedPopupItem[]`을 받는다. 펼친 카드와 자동 넘김을 갖는다                 |
+| `PickCard`            | 펼쳤을 때만 설명과 일치율을 그린다                                                         |
+| `OnImageBadge`        | 이미지 위 반투명 배지. 카테고리와 `badge` 문구                                             |
+| `PickSectionSkeleton` | `restoring`에서 PICK 자리를 지킨다                                                         |
+| `PopularSection`      | 전체보기가 탐색 목록 인기순. 인기순이 탐색의 기본 정렬이라 주소에 `sort`가 붙지 않는다     |
+| `PopularPopupRow`     | 72px 썸네일과 세 줄. 행 전체가 상세 링크                                                   |
+| `TrendingRegions`     | 칩이 `/explore?view=list&region=`                                                          |
 
-홈은 `shared/components/PopupCard`를 쓰지 않는다. PICK 카드와 인기 행이 시안에서 모양이 달라 이 기능 안에 있다. 배너 목적지는 회원과 비회원 모두 `/onboarding/1`이라 배너가 인증 상태를 모른다. 로그인하지 않은 사용자는 `proxy.ts`가 `/login?next=/onboarding/1`로 보내고 로그인이 끝나면 온보딩 1단계로 온다.
+PICK 카드와 인기 행은 시안에서 탐색 카드와 모양이 달라 이 기능 안에 있다. 배너 목적지는 회원과 비회원 모두 `/onboarding/1`이라 배너가 인증 상태를 모른다. 로그인하지 않은 사용자는 `proxy.ts`가 `/login?next=/onboarding/1`로 보내고 로그인이 끝나면 온보딩 1단계로 온다.
 
 **서버 API.** 전부 백엔드 요구다.
 
@@ -171,7 +135,7 @@ export function TrendingRegions({ regions }: { regions: Region[] }); // 칩이 /
 - `placeholder-home.ts`의 상수 셋을 쿼리로 바꾸고 파일을 지운다. 조회 함수와 `queryOptions`는 엔드포인트가 생길 때 `api`에 만든다
 - 닉네임 자리의 `PLACEHOLDER_NICKNAME`(`shared/lib/placeholder-data.ts`)을 `["me"]`의 `nickname`으로 바꾼다
 - `RecommendedPopupItem`과 `PopularPopupItem`을 응답 모양에 맞추고 `null`을 허용한 필드 중 출처가 정해진 것은 `null`을 뺀다. 두 타입은 이미 이 기능의 `model`에 있다
-- 지역 칩을 `RegionSummary`로 바꾼다. 인기 전체보기 링크는 이미 `sort=popular`를 넘기고 탐색이 정렬을 읽기 시작하면 인기순으로 열린다
+- 지역 칩을 `RegionSummary`로 바꾼다
 - **추천 API가 토큰을 요구하면 서버 슬롯 방식을 다시 본다.** 지금은 서버 컴포넌트인 라우트가 임시 데이터를 넣은 `PickSection`을 `authenticated` 슬롯에 넘긴다. 서버 컴포넌트는 토큰이 없어 인증이 필요한 API를 부르지 못한다. 추천 쿼리는 클라이언트 컴포넌트 안에서 돌아야 하고 `PickSection`이 쿼리를 직접 부르는 모양으로 바뀐다
 
 **운영.** 추천 이유의 글자 수 상한을 백엔드와 정하면 카드의 줄 수 제한은 그대로 두고 상한만 문서에 적는다. 두 줄 말줄임은 상한과 무관하게 남는다.

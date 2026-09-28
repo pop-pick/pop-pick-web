@@ -1,9 +1,9 @@
-import { cva, type VariantProps } from "class-variance-authority";
 import type { ReactNode } from "react";
 
-import { cn } from "@/shared/lib/cn";
+import { tv, type VariantProps } from "@/shared/lib/tv";
 
-const badgeVariants = cva("inline-flex items-center rounded-lg px-2 py-1 text-xs font-semibold", {
+const badgeVariants = tv({
+	base: "inline-flex items-center rounded-lg px-2 py-1 text-xs font-semibold",
 	variants: {
 		tone: {
 			neutral: "bg-zinc-100 text-zinc-700",
@@ -22,5 +22,5 @@ interface BadgeProps extends VariantProps<typeof badgeVariants> {
 }
 
 export function Badge({ tone, className, children }: BadgeProps) {
-	return <span className={cn(badgeVariants({ tone }), className)}>{children}</span>;
+	return <span className={badgeVariants({ tone, class: className })}>{children}</span>;
 }

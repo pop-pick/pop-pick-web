@@ -36,7 +36,7 @@ PR은 CI(`.github/workflows/ci.yaml`) 통과 뒤에만 머지된다. Vercel 배�
 | `NEXT_PUBLIC_KAKAO_MAP_KEY`   | 카카오맵 JavaScript 키                                                                                                                                  | 백엔드 담당자 계정의 카카오 앱에서 받는다                         |
 | `NEXT_PUBLIC_KAKAO_CLIENT_ID` | 카카오 로그인 REST API 키                                                                                                                               | 백엔드 담당자 계정의 카카오 앱에서 받는다                         |
 
-`API_BASE_URL`은 Vercel 대시보드의 Settings 아래 Environment Variables에 Production과 Preview 둘 다로 들어가 있다. 둘 다 있어야 미리보기 배포도 빌드된다. 값이 없으면 `next.config.ts`가 로드되는 시점에 던져 Vercel 빌드가 실패한다.
+`API_BASE_URL`은 Vercel 대시보드의 Settings 아래 Environment Variables에 Production과 Preview 둘 다로 들어가 있다. 둘 다 있어야 미리보기 배포도 빌드된다. 값이 없으면 `next.config.ts`가 로드되는 시점에 예외를 내서 Vercel 빌드가 실패한다.
 
 `NEXT_PUBLIC_` 변수는 빌드 시점에 번들에 박힌다. 로컬에서 값을 바꾸면 개발 서버를 다시 띄워야 반영된다. `API_BASE_URL`도 빌드 시점 변수다. 이름에 `NEXT_PUBLIC_`이 없지만 `next.config.ts`가 로드될 때 읽히므로 값을 바꾸면 다시 빌드해야 하고 개발 서버도 다시 띄워야 한다.
 

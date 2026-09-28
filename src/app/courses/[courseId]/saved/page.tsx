@@ -1,10 +1,18 @@
-import { ScreenPlaceholder } from "@/shared/components/ScreenPlaceholder";
+import { notFound } from "next/navigation";
 
-export default function CourseSavedPage() {
-	return (
-		<ScreenPlaceholder
-			title="캘린더 저장 완료"
-			description="보낸 일정 요약과 저장된 일정 보기, 홈으로 가는 링크가 놓이는 화면입니다."
-		/>
-	);
+import { SavedCourseView } from "@/features/course/components/SavedCourseView";
+import { parseCourseId } from "@/features/course/model/course-path";
+
+export const metadata = {
+	title: "플래너 등록 완료"
+};
+
+export default async function CourseSavedPage({ params }: PageProps<"/courses/[courseId]/saved">) {
+	const courseId = parseCourseId((await params).courseId);
+
+	if (courseId === null) {
+		notFound();
+	}
+
+	return <SavedCourseView courseId={courseId} view="registered" />;
 }

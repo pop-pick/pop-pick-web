@@ -12,9 +12,11 @@ import { SessionRetry } from "./SessionRetry";
 interface RequireAuthProps {
 	children: ReactNode;
 	nextPath: string;
+	/** 로그인 상태를 확인하는 동안 그릴 것. 화면마다 도착할 모양과 같게 넘겨야 배치가 튀지 않는다 */
+	fallback?: ReactNode;
 }
 
-export function RequireAuth({ children, nextPath }: RequireAuthProps) {
+export function RequireAuth({ children, nextPath, fallback }: RequireAuthProps) {
 	const router = useRouter();
 	const status = useAuthStore((state) => state.status);
 
@@ -30,6 +32,10 @@ export function RequireAuth({ children, nextPath }: RequireAuthProps) {
 				<SessionRetry />
 			</div>
 		);
+	}
+
+	if (status !== "authenticated" && fallback !== undefined) {
+		return <>{fallback}</>;
 	}
 
 	if (status !== "authenticated") {

@@ -124,7 +124,7 @@ check "이벤트 핸들러를 JSX 안에 인라인으로 적었다 (ui.md)" \
 check "boolean 상태 이름에 is, has, can, should 가 없다 (typescript.md)" \
 	'grep -rnE "const \[[a-z][A-Za-z0-9]*, set[A-Za-z0-9]*\] = useState(<boolean>)?\((true|false)\)" src --include="*.ts" --include="*.tsx" | grep -vE "const \[(is|has|can|should)[A-Z][A-Za-z0-9]*, set(Is|Has|Can|Should)[A-Z]"'
 
-check "return 앞 빈 줄이나 블록 뒤 빈 줄이 규칙과 다르다 (typescript.md)" \
+check "return 앞 빈 줄이나 블록 뒤 빈 줄이 규칙과 다르다. check-return-spacing.mjs src --fix 로 고친다 (typescript.md)" \
 	'node "$SCRIPT_DIR/check-return-spacing.mjs" src'
 
 soft_check "on 프롭에 handle 로 시작하지 않는 이름을 넘긴다. 훅이나 프롭에서 받은 함수면 그대로 둔다 (ui.md)" \
@@ -141,17 +141,26 @@ check "shared/ui 가 앱을 안다. 경로나 도메인 타입이 필요하면 s
 check "styles/tokens 의 글자와 그림자 토큰이 cn.ts 의 tailwind-merge 목록과 다르다" \
 	'node "$SCRIPT_DIR/check-merge-tokens.mjs"'
 
+check "tailwind-variants 를 직접 부른다. 토큰 병합 설정이 걸린 @/shared/lib/tv 를 쓴다 (tailwind.md)" \
+	'grep -rnE "from \"tailwind-variants\"" src --include="*.ts" --include="*.tsx" | grep -v "^src/shared/lib/tv.ts:"'
+
+check "cn() 안에서 조건으로 클래스를 고른다. aria 변형이나 tv 레시피로 옮긴다 (tailwind.md)" \
+	'node "$SCRIPT_DIR/check-conditional-classes.mjs" src'
+
 check "컴포넌트 props 를 type 으로 선언했다. interface 로 선언한다 (typescript.md)" \
 	'grep -rnE "^(export )?type [A-Za-z]+Props =" src --include="*.ts" --include="*.tsx" | grep -vE "= [A-Z][A-Za-z]*Props( \| [A-Z][A-Za-z]*Props)+;"'
 
 check "추론되는 반환 타입을 적었다" \
 	'{ grep -rnE "^[[:space:]]*(export )?(async )?function [A-Za-z_$][A-Za-z0-9_$]*(<[^>]*>)?\(.*\)[[:space:]]*:[[:space:]]*[A-Za-z]" src --include="*.ts" --include="*.tsx"; grep -rnE "^[[:space:]]*(export )?(const|let) [A-Za-z_$][A-Za-z0-9_$]* = (async )?(<[^>]*>)?\([^)]*\)[[:space:]]*:[[:space:]]*[A-Za-z]" src --include="*.ts" --include="*.tsx"; } | grep -v " is " | grep -v "\.d\.ts"'
 
-check "dayjs 를 직접 import 한다. @/shared/lib/dayjs 에서 가져온다 (AGENTS.md)" \
-	'grep -rnE "from \"dayjs(/[^\"]*)?\"" src --include="*.ts" --include="*.tsx" | grep -v "^src/shared/lib/dayjs.ts:"'
+check "스크롤 영역에 공용 스크롤바가 없다. overflow-auto 와 overflow-scroll 옆에 scrollbar-subtle 을 붙인다 (DESIGN.md)" \
+	'grep -rnE "overflow(-[xy])?-(auto|scroll)" src --include="*.tsx" | grep -v "scrollbar-subtle"'
 
-check "Date 로 현재 시각이나 날짜를 만든다. dayjs.tz() 를 쓴다 (AGENTS.md)" \
-	'grep -rnE "new Date\(|Date\.now\(" src --include="*.ts" --include="*.tsx"'
+check "dayjs 를 부른다. 날짜는 date-fns 로 다룬다 (AGENTS.md)" \
+	'grep -rnE "from \"dayjs(/[^\"]*)?\"" src --include="*.ts" --include="*.tsx"'
+
+check "현재 시각을 Date 나 TZDate 로 직접 만든다. @/shared/lib/date 의 getSeoulNow, getSeoulToday 를 쓴다 (AGENTS.md)" \
+	'grep -rnE "new Date\(|Date\.now\(|TZDate\.tz\(" src --include="*.ts" --include="*.tsx" | grep -v "^src/shared/lib/date.ts:"'
 
 printf '\n=== 실패를 감추는 자리 (no-fallback.md, api.md) ===\n\n'
 
@@ -208,7 +217,7 @@ printf '\n=== 판단이 필요한 자리 (막지 않는다) ===\n\n'
 soft_check "빈 값으로 받는 자리. 실패를 삼키는지 본다" \
 	'grep -rnE "\?\? (\[\]|0|\"\"|\x27\x27|\{\})" src --include="*.ts" --include="*.tsx"'
 
-soft_check "격식체 동사로 시작하는 이름. typescript.md 이름 절의 표 오른쪽으로 바꿀 자리" \
+soft_check "격식체 동사로 시작하는 이름. get, create, remove, run 처럼 흔한 동사로 바꾼다 (typescript.md)" \
 	'grep -rnE "\b(acquire|obtain|retrieve|release|dispose|terminate|invoke|execute|perform|instantiate|materialize|initialize|utilize|leverage|populate|traverse)[A-Z(]" src --include="*.ts" --include="*.tsx"'
 
 soft_check "alert 나 confirm 을 부른다. 브라우저 도구로 누르면 그 뒤로 응답하지 않는다" \

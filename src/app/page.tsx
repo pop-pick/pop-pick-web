@@ -15,6 +15,7 @@ import {
 	PLACEHOLDER_TRENDING_REGIONS
 } from "@/features/recommendation/model/placeholder-home";
 import { PLACEHOLDER_NICKNAME } from "@/shared/lib/placeholder-data";
+import { ONBOARDING_FIRST_STEP_PATH } from "@/shared/model/onboarding-path";
 
 export default async function HomePage() {
 	const hasSessionCookie = (await readRefreshToken()) !== null;
@@ -38,7 +39,9 @@ export default async function HomePage() {
 					<TrendingRegions regions={PLACEHOLDER_TRENDING_REGIONS} />
 				</div>
 			</div>
-			<AuthStatusSwitch views={{ anonymous: <LandingDialog loginHref={buildLoginPath("/onboarding/1")} /> }} />
+			<AuthStatusSwitch
+				views={{ anonymous: <LandingDialog loginHref={buildLoginPath(ONBOARDING_FIRST_STEP_PATH)} /> }}
+			/>
 		</main>
 	);
 }

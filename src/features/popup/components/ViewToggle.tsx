@@ -1,10 +1,9 @@
 "use client";
 
+import * as m from "motion/react-m";
 import { type KeyboardEvent, useRef } from "react";
 
-import { cn } from "@/shared/lib/cn";
-
-import { EXPLORE_VIEW_LABELS, EXPLORE_VIEW_MODES, type ExploreViewMode } from "../model/explore-state";
+import { EXPLORE_VIEW_LABELS, EXPLORE_VIEW_MODES, type ExploreViewMode } from "@/shared/model/explore-state";
 
 interface ViewToggleProps {
 	view: ExploreViewMode;
@@ -12,6 +11,7 @@ interface ViewToggleProps {
 }
 
 const ARROW_STEPS: Record<string, number> = { ArrowRight: 1, ArrowLeft: -1 };
+const INDICATOR_TRANSITION = { type: "spring", bounce: 0.25, duration: 0.4 } as const;
 
 function resolveNextIndex(key: string, currentIndex: number, count: number) {
 	if (key === "Home") {
@@ -48,30 +48,36 @@ export function ViewToggle({ view, onChange }: ViewToggleProps) {
 	};
 
 	return (
-		<div role="radiogroup" aria-label="보기 방식" onKeyDown={handleKeyDown} className="flex rounded-xl bg-zinc-100 p-1">
-			{EXPLORE_VIEW_MODES.map((value, index) => {
-				const isCurrent = view === value;
+		<div role="radiogroup" aria-label="보기 방식" onKeyDown={handleKeyDown} className="rounded-xl bg-bg-2 p-1">
+			<div className="relative flex">
+				<m.span
+					aria-hidden
+					initial={false}
+					animate={{ x: `${String(EXPLORE_VIEW_MODES.indexOf(view) * 100)}%` }}
+					transition={INDICATOR_TRANSITION}
+					className="absolute inset-y-0 left-0 w-1/2 rounded-lg bg-bg-1 shadow-subtle"
+				/>
+				{EXPLORE_VIEW_MODES.map((value, index) => {
+					const isCurrent = view === value;
 
-				return (
-					<button
-						key={value}
-						ref={(element) => {
-							buttonsRef.current[index] = element;
-						}}
-						type="button"
-						role="radio"
-						aria-checked={isCurrent}
-						tabIndex={isCurrent ? 0 : -1}
-						onClick={handleOptionClick(value)}
-						className={cn(
-							"rounded-lg px-3 py-1.5 text-sm font-medium focus-ring transition-colors",
-							isCurrent ? "bg-white text-zinc-900 shadow-sm hover:bg-zinc-50" : "text-zinc-500 hover:text-zinc-700"
-						)}
-					>
-						{EXPLORE_VIEW_LABELS[value]}
-					</button>
-				);
-			})}
+					return (
+						<button
+							key={value}
+							ref={(element) => {
+								buttonsRef.current[index] = element;
+							}}
+							type="button"
+							role="radio"
+							aria-checked={isCurrent}
+							tabIndex={isCurrent ? 0 : -1}
+							onClick={handleOptionClick(value)}
+							className="relative h-10 flex-1 rounded-lg text-h4 text-text-4 focus-ring transition-colors not-aria-checked:hover:text-text-2 aria-checked:text-text-1"
+						>
+							{EXPLORE_VIEW_LABELS[value]}
+						</button>
+					);
+				})}
+			</div>
 		</div>
 	);
 }

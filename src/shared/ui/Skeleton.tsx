@@ -1,5 +1,9 @@
 import { cn } from "@/shared/lib/cn";
 
-export function Skeleton({ className }: { className?: string }) {
-	return <div aria-hidden className={cn("animate-pulse rounded-2xl bg-zinc-100", className)} />;
+interface SkeletonProps {
+	className?: string;
+}
+
+export function Skeleton({ className }: SkeletonProps) {
+	return <div aria-hidden className={cn("animate-pulse rounded-2xl bg-bg-3", className)} />;
 }

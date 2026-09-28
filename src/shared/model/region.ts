@@ -1,13 +1,13 @@
-export const REGIONS = ["seongsu", "yeouido", "hongdae", "sinchon", "yongsan"] as const;
+export const REGIONS = ["yeouido", "hongdae", "jamsil", "yongsan", "seongsu"] as const;
 
 export type Region = (typeof REGIONS)[number];
 
 export const REGION_LABELS: Record<Region, string> = {
-	seongsu: "성수",
 	yeouido: "여의도",
 	hongdae: "홍대",
-	sinchon: "신촌",
-	yongsan: "용산"
+	jamsil: "잠실",
+	yongsan: "용산",
+	seongsu: "성수"
 };
 
 export function isRegion(value: string | null): value is Region {

@@ -9,16 +9,22 @@ import CalendarFillIcon from "@/shared/assets/icons/calendar-fill.svg";
 import HomeFillIcon from "@/shared/assets/icons/home-fill.svg";
 import SearchFillIcon from "@/shared/assets/icons/search-fill.svg";
 import UserFillIcon from "@/shared/assets/icons/user-fill.svg";
-import { cn } from "@/shared/lib/cn";
-import { LOGIN_REQUIRED_MESSAGE } from "@/shared/model/login-prompt";
+import { tv } from "@/shared/lib/tv";
+import { LOGIN_CONFIRM_LABEL, LOGIN_REQUIRED_MESSAGE } from "@/shared/model/login-prompt";
 import { AlertDialog } from "@/shared/ui/AlertDialog";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 const TABS = [
-	{ href: "/", label: "홈", icon: HomeFillIcon, widthClass: "w-8.75" },
-	{ href: "/explore", label: "탐색", icon: SearchFillIcon, widthClass: "w-10.5" },
-	{ href: "/planner", label: "플래너", icon: CalendarFillIcon, widthClass: "w-6" },
-	{ href: "/my", label: "마이", icon: UserFillIcon, widthClass: "w-11.5" }
+	{ href: "/", activePaths: ["/"], label: "홈", icon: HomeFillIcon, widthClass: "w-8.75" },
+	{ href: "/explore", activePaths: ["/explore"], label: "탐색", icon: SearchFillIcon, widthClass: "w-10.5" },
+	{
+		href: "/planner",
+		activePaths: ["/planner", "/courses"],
+		label: "플래너",
+		icon: CalendarFillIcon,
+		widthClass: "w-6"
+	},
+	{ href: "/my", activePaths: ["/my"], label: "마이", icon: UserFillIcon, widthClass: "w-11.5" }
 ] as const;
 
 type TabHref = (typeof TABS)[number]["href"];
@@ -27,6 +33,19 @@ const HIDDEN_PATHS = ["/onboarding", "/login", "/auth", "/planner/new", "/planne
 
 const ICON_SCALE_KEYFRAMES = [0.8, 1];
 const ICON_TRANSITION = { type: "spring", bounce: 0.5, duration: 0.4 } as const;
+
+const tabVariants = tv({
+	slots: {
+		link: "group -mx-5 flex flex-col items-center gap-2 rounded-lg px-5 text-b2-12 leading-5 whitespace-nowrap focus-ring transition-colors",
+		icon: "transition-colors"
+	},
+	variants: {
+		isHighlighted: {
+			true: { link: "text-primary", icon: "text-icon-primary" },
+			false: { link: "text-text-5 hover:text-text-3", icon: "text-icon-disabled group-hover:text-icon-2" }
+		}
+	}
+});
 
 function isWithinPath(pathname: string, path: string) {
 	return pathname === path || pathname.startsWith(`${path}/`);
@@ -42,7 +61,7 @@ export function BottomTabBar({ loginHrefByTab }: BottomTabBarProps) {
 	const [pendingTab, setPendingTab] = useState<{ index: number; fromPathname: string } | null>(null);
 	const [loginPromptHref, setLoginPromptHref] = useState<string | null>(null);
 
-	const currentIndex = TABS.findIndex((tab) => isWithinPath(pathname, tab.href));
+	const currentIndex = TABS.findIndex((tab) => tab.activePaths.some((path) => isWithinPath(pathname, path)));
 	const highlightedIndex = pendingTab?.fromPathname === pathname ? pendingTab.index : currentIndex;
 
 	const handleTabNavigate = (index: number) => () => {
@@ -81,11 +100,12 @@ export function BottomTabBar({ loginHrefByTab }: BottomTabBarProps) {
 		<>
 			<nav
 				aria-label="주요 화면"
-				className="sticky bottom-float-gap z-10 mx-5 mt-10 mb-float-gap rounded-3xl bg-bg-1/80 px-8.5 py-3 shadow-floating backdrop-blur-floating"
+				className="sticky bottom-float-gap z-10 mx-5 mt-tab-bar-gap mb-float-gap rounded-3xl bg-bg-1/80 px-8.5 py-3 shadow-floating backdrop-blur-floating"
 			>
 				<ul className="flex justify-between pt-1">
 					{TABS.map((tab, index) => {
 						const isHighlighted = index === highlightedIndex;
+						const styles = tabVariants({ isHighlighted });
 
 						return (
 							<li key={tab.href} className={tab.widthClass}>
@@ -95,11 +115,7 @@ export function BottomTabBar({ loginHrefByTab }: BottomTabBarProps) {
 									aria-haspopup={loginHrefByTab?.[tab.href] === undefined ? undefined : "dialog"}
 									onClick={handleTabClick(tab.href)}
 									onNavigate={handleTabNavigate(index)}
-									className={cn(
-										"group -mx-5 flex flex-col items-center gap-2 rounded-lg px-5 text-b2-12 leading-5 whitespace-nowrap transition-colors",
-										"focus-ring",
-										isHighlighted ? "text-primary" : "text-text-5 hover:text-text-3"
-									)}
+									className={styles.link()}
 								>
 									<m.span
 										initial={false}
@@ -107,14 +123,7 @@ export function BottomTabBar({ loginHrefByTab }: BottomTabBarProps) {
 										transition={ICON_TRANSITION}
 										className="flex"
 									>
-										<SvgIcon
-											icon={tab.icon}
-											size={24}
-											className={cn(
-												"transition-colors",
-												isHighlighted ? "text-icon-primary" : "text-icon-disabled group-hover:text-icon-2"
-											)}
-										/>
+										<SvgIcon icon={tab.icon} size={24} className={styles.icon()} />
 									</m.span>
 									{tab.label}
 								</Link>
@@ -126,6 +135,8 @@ export function BottomTabBar({ loginHrefByTab }: BottomTabBarProps) {
 			<AlertDialog
 				open={loginPromptHref !== null}
 				message={LOGIN_REQUIRED_MESSAGE}
+				confirmLabel={LOGIN_CONFIRM_LABEL}
+				closeLabel="닫기"
 				onConfirm={handleLoginConfirm}
 				onCancel={handleLoginCancel}
 			/>

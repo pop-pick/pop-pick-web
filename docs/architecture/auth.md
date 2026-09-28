@@ -2,7 +2,7 @@
 
 `features/auth`. 카카오와 구글 소셜 로그인, 토큰 보관과 재발급, 내 정보, 로그인 필요 동작의 가드를 다룬다.
 
-카카오 로그인과 토큰 보관은 코드에 있다. 액세스 토큰은 Zustand 메모리, 리프레시 토큰은 httpOnly 쿠키이고 쿠키는 Next Route Handler가 심는다. 인가 요청의 `state` 대조와 콜백 이중 실행 방지, 앱 시작 재발급, 만료 뒤 재발급과 재요청, `next` 경로 복귀, 로그아웃, 로그인 가드가 선다. 로컬에서 prod 백엔드에 붙여 로그인과 새로고침 복원, 로그아웃이 끝까지 통과했다. Vercel의 `NEXT_PUBLIC_KAKAO_CLIENT_ID`는 아직 백엔드가 쓰는 앱과 다른 키라 미리보기와 운영에서는 교환이 막힌다. 내 정보와 구글 로그인은 아직 설계다. 아래에서 설계라고 표시한 것이 그것이다.
+카카오 로그인과 토큰 보관은 코드에 있다. 액세스 토큰은 Zustand 메모리, 리프레시 토큰은 httpOnly 쿠키이고 쿠키는 Next Route Handler가 심는다. 인가 요청의 `state` 대조와 콜백 이중 실행 방지, 앱 시작 재발급, 만료 뒤 재발급과 재요청, `next` 경로 복귀, 로그아웃, 로그인 가드가 선다. 내 정보와 구글 로그인은 아직 설계이고 아래에서 설계라고 표시했다.
 
 ## R. Requirements
 
@@ -12,7 +12,7 @@
 
 - 인가 코드 교환 요청은 코드 하나에 한 번만 나간다. 개발 모드 StrictMode의 이펙트 이중 실행에서도 그렇다
 - 액세스 토큰 만료가 화면의 실패로 드러나지 않는다. 만료된 요청은 재발급 한 번 뒤 다시 보내 성공한다. 재발급까지 실패하면 3초 안에 로그인 화면이 보인다
-- 새로고침해도 로그인 상태가 남는다. 앱 시작 때 재발급을 한 번 불러 액세스 토큰을 되살린다(설계)
+- 새로고침해도 로그인 상태가 남는다. 앱 시작 때 재발급을 한 번 불러 액세스 토큰을 되살린다
 - 리프레시 토큰이 자바스크립트에서 보이지 않는다. httpOnly 쿠키라 `document.cookie`로 읽히지 않는다
 - 액세스 토큰이 `localStorage`와 `sessionStorage`에 남지 않는다. 메모리에만 둔다
 - 로그인이 끝나면 `next`에 적힌 경로로 돌아간다. `next`가 없으면 홈(`/`)이다
@@ -22,10 +22,10 @@
 
 - 주도권은 클라이언트에 있다. 프론트가 공급자에서 인가 코드를 받아 백엔드에 넘기고 백엔드가 교환한다. 지속 연결이 없다
 - 토큰을 어디에 두는가. 액세스 토큰은 Zustand 메모리, 리프레시 토큰은 httpOnly 쿠키다. 로컬 스토리지는 XSS에 그대로 노출되고 서버가 읽지 못한다. 메모리에만 두면 새로고침에서 세션이 사라진다. 둘을 갈라 액세스는 짧게 살고 노출돼도 만료되는 값으로, 리프레시는 자바스크립트가 닿지 못하는 값으로 둔다
-- 쿠키를 누가 굽는가. 백엔드가 `Set-Cookie`로 내려주는 쪽이 정석이지만 백엔드는 토큰을 응답 본문으로 주게 이미 만들어져 있다. 프론트의 Next Route Handler가 그 본문을 받아 쿠키로 굽는다. 아래 "쿠키를 Next가 굽는 이유" 절에 근거가 있다
+- 쿠키를 누가 굽는가. 프론트의 Next Route Handler가 백엔드 응답 본문의 토큰을 받아 쿠키로 굽는다. 근거는 아래 "쿠키를 Next가 굽는 이유" 절에 있다
 - 실패는 종류마다 다른 문구로 드러낸다. 공급자 화면에서 취소하면 `error=access_denied`로 돌아오고 백엔드 실패는 `errorCode`로 갈린다. 원문 메시지를 화면에 내지 않는다
 - 서버 컴포넌트는 인증이 필요한 요청을 보내지 않는다. 쿠키에 있는 것은 리프레시 토큰뿐이고 액세스 토큰은 브라우저 메모리에 있다. `RequireAuth`가 감싼 서버 컴포넌트도 비로그인 사용자에게 RSC 페이로드로 내려가므로 사용자 데이터는 가드 안의 클라이언트 컴포넌트가 받는다
-- `src/proxy.ts`가 `/my`와 `/planner`, 온보딩 단계(`/onboarding/1`처럼 숫자로 끝나는 경로) 요청에 리프레시 쿠키가 없으면 페이지를 그리기 전에 `/login?next=`로 보낸다. 쿠키가 있는지만 보는 검사라 쿠키가 있어도 토큰이 거절되면 `RequireAuth`가 보낸다. 데이터를 지키는 검사는 백엔드가 Bearer로 한다
+- `src/proxy.ts`가 `/my`와 `/planner`, 온보딩 단계(`/onboarding/1`처럼 숫자로 끝나는 경로), 코스(`/courses/{courseId}`와 그 아래 `/saved`) 요청에 리프레시 쿠키가 없으면 페이지를 그리기 전에 `/login?next=`로 보낸다. 쿠키가 있는지만 보는 검사라 쿠키가 있어도 토큰이 거절되면 `RequireAuth`가 보낸다. 데이터를 지키는 검사는 백엔드가 Bearer로 한다
 
 **범위 밖.** 네이버 로그인, 로컬 회원가입, 프로필 편집, 회원 탈퇴, 약관 동의 화면. 약관은 로그인 버튼 아래 고지문으로 갈음한다.
 
@@ -48,7 +48,7 @@
 
 `/api` 아래 동적 세그먼트 Route Handler는 rewrite에 밀려 닿지 않으므로 정적 경로만 쓴다(`.agents/rules/api.md`).
 
-이 셋이 Next 서버에 코드가 처음 생기는 자리다. "Next 서버는 프록시로만 쓰고 비즈니스 로직을 두지 않는다"는 원칙은 그대로다. 세션 쿠키를 굽는 것은 도메인 규칙이 아니라 전달 계층 일이다. 추천 계산이나 코스 순서 같은 것이 이 폴더로 들어오면 그때는 원칙이 깨진 것이다.
+"Next 서버는 프록시로만 쓰고 비즈니스 로직을 두지 않는다"는 원칙은 이 셋에도 그대로다. 세션 쿠키를 굽는 것은 도메인 규칙이 아니라 전달 계층 일이다. 추천 계산이나 코스 순서 같은 것이 이 폴더로 들어오면 그때는 원칙이 깨진 것이다.
 
 ### rewrite 경로
 
@@ -72,7 +72,7 @@
 
 ### 쿠키를 Next가 굽는 이유
 
-백엔드가 `Set-Cookie`로 내려주는 쪽이 더 정석이다. 그쪽으로 가지 않은 까닭은 둘이다. 백엔드는 이미 토큰을 응답 본문으로 주게 만들어져 있고, 인증을 맡은 백엔드 개발자가 다른 기능 개발에 들어갔다. 협의하고 고치는 데 며칠이 든다. 개발 마감이 2026-10-04다.
+백엔드가 `Set-Cookie`로 내려주는 방식도 있다. 백엔드는 이미 토큰을 응답 본문으로 주게 만들어져 있고, 바꾸려면 백엔드와 협의하고 고치는 데 며칠이 들어 개발 마감(2026-10-04) 안에 끝나지 않는다.
 
 보안 효과는 같다. 리프레시 토큰이 자바스크립트에서 보이지 않는 것이 핵심이고 그 토큰을 누가 쿠키로 굽든 결과가 다르지 않다. 브라우저가 같은 출처로만 나가기 때문에 쿠키도 자연스럽게 붙는다.
 
@@ -126,56 +126,26 @@ interface Me {
 
 **지금 있는 컴포넌트와 훅.** 로그인은 카카오만 있다. 구글 버튼은 로그인 화면에 비활성으로 자리만 있다.
 
-```typescript
-// components/KakaoLoginButton.tsx. state 생성과 next 보관, 카카오 인가 주소로 이동
-export function KakaoLoginButton({ next }: { next: string | null });
-
-// components/KakaoCallback.tsx. 교환 중이면 role=status, 실패면 role=alert
-export function KakaoCallback();
-
-// components/AuthProvider.tsx. 루트 레이아웃이 감싼다. 시작 재발급과 만료 이벤트 구독
-export function AuthProvider({ children }: { children: ReactNode });
-
-// hooks/useKakaoLogin.ts. code를 키로 하는 쿼리. retry 없음, staleTime Infinity
-export function useKakaoLogin(params: {
-	code: string | null;
-	state: string | null;
-}): UseQueryResult<{ nextPath: string }, Error>;
-
-export function useLogout(): UseMutationResult<void, Error, void>;
-export function useAuthStore(): AuthState;
-
-// /my와 /planner처럼 화면 전체가 로그인 필요일 때 본문을 감싼다. 제목은 밖에 둔다. 비로그인이면 router.replace로 로그인 화면으로 보낸다
-export function RequireAuth({ children, next }: { children: ReactNode; next: string });
-```
+| 이름               | 계약                                                                                                                                                                                                                                                                |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AuthProvider`     | 루트 레이아웃이 감싼다. 시작 재발급과 만료 이벤트 구독을 맡는다                                                                                                                                                                                                     |
+| `AuthStatusSwitch` | 인증 상태 넷 중 지금 상태에 해당하는 것을 `views`에서 골라 그린다. 인증 상태를 읽지 못하는 서버 컴포넌트 라우트가 쓴다                                                                                                                                              |
+| `RequireAuth`      | `/my`와 `/planner`처럼 화면 전체가 로그인 필요일 때 본문을 감싼다. 제목은 밖에 둔다. 비로그인이면 `nextPath`를 실어 `router.replace`로 로그인 화면에 보내고, `unavailable`이면 `SessionRetry`를 그린다. 확인하는 동안은 `fallback`을, 없으면 기본 스켈레톤을 그린다 |
+| `KakaoLoginButton` | `state`를 만들고 `nextPath`를 보관한 뒤 카카오 인가 주소로 이동한다                                                                                                                                                                                                 |
+| `KakaoCallback`    | 교환 중이면 `role="status"`, 실패면 `role="alert"`                                                                                                                                                                                                                  |
+| `useKakaoLogin`    | `code`를 키로 하는 쿼리. 재시도 없음, `staleTime` Infinity                                                                                                                                                                                                          |
 
 **설계.** 아래는 아직 코드에 없다. 공급자가 둘이 될 때 위의 카카오 전용 이름이 공급자를 받는 이름으로 바뀐다.
 
 ```typescript
-export function SocialLoginButton({ provider, next }: { provider: OAuthProvider; next: string | null });
+export function SocialLoginButton({ provider, nextPath }: { provider: OAuthProvider; nextPath: string | null });
 export function OAuthCallback({ provider }: { provider: OAuthProvider });
 
 // 로그인 상태일 때만 조회한다. 비로그인이면 data는 undefined이고 요청이 나가지 않는다
 export function useMe(): UseQueryResult<Me, ApiError>;
 ```
 
-**`shared/api`의 계약.** `auth`는 기본 `true`이고 `false`면 Bearer를 붙이지 않는다. `accessToken`을 넘기면 그 값으로 Bearer를 만든다. 서버에는 토큰 소스가 없어 Route Handler가 브라우저에서 받은 토큰을 이 옵션으로 넘긴다.
-
-```typescript
-// shared/api/auth-token.ts
-export function setAccessTokenSource(next: AccessTokenSource | null): void;
-export function setRefreshHandler(handler: RefreshHandler | null): void;
-/** 진행 중인 재발급이 있으면 그 결과를 함께 기다린다 */
-export function refreshAccessToken(): Promise<boolean>;
-export function subscribeAuthExpired(listener: () => void): () => void;
-export function notifyAuthExpired(): void;
-
-// shared/api/route-handler.ts. Route Handler가 쓴다
-export function toSuccessResponse<T>(data: T): NextResponse;
-export function toErrorResponse(params: { status: number; errorCode: string; message: string }): NextResponse;
-export function toBackendErrorResponse(error: unknown): NextResponse;
-export function readBearerToken(request: Request): string | null;
-```
+**`shared/api`의 계약.** `auth`는 기본 `true`이고 `false`면 Bearer를 붙이지 않는다. `accessToken`을 넘기면 그 값으로 Bearer를 만든다. 서버에는 토큰 소스가 없어 Route Handler가 브라우저에서 받은 토큰을 이 옵션으로 넘긴다. 토큰 소스와 재발급 함수, 만료 이벤트는 `shared/api/auth-token.ts`가, Route Handler의 응답 조립과 Bearer 읽기는 `shared/api/route-handler.ts`가 갖는다.
 
 `request`가 `auth: true`인데 토큰 소스가 `null`을 돌려주면 요청을 보내지 않고 `ApiError`(`kind` http, `status` 401, `errorCode` `E1000`)를 던진다. 화면이 비로그인 상태에서 인증 요청을 보내는 실수를 서버까지 가지 않고 잡는다.
 
@@ -191,12 +161,12 @@ export function readBearerToken(request: Request): string | null;
 
 **서버 API.** Route Handler가 부르는 백엔드 주소다. 브라우저는 이 셋을 직접 부르지 않는다.
 
-| 메서드와 경로               | 요청                                        | 응답         | 상태                                          |
-| --------------------------- | ------------------------------------------- | ------------ | --------------------------------------------- |
-| `POST /api/v1/auth/login`   | `{ oAuthProvider, authToken, redirectUri }` | `AuthTokens` | 붙였다. 필드 이름 불일치는 요구 목록          |
-| `POST /api/v1/auth/refresh` | `{ refreshToken }`                          | `AuthTokens` | 함수는 있고 부르는 자리는 설계다              |
-| `POST /api/v1/auth/logout`  | Bearer, `{ refreshToken }`                  | `null`       | 붙였다                                        |
-| `GET /api/v1/me`            | Bearer                                      | `Me`         | 백엔드 요구. 브라우저가 rewrite로 직접 부른다 |
+| 메서드와 경로               | 요청                                        | 응답         | 상태                                                            |
+| --------------------------- | ------------------------------------------- | ------------ | --------------------------------------------------------------- |
+| `POST /api/v1/auth/login`   | `{ oAuthProvider, authToken, redirectUri }` | `AuthTokens` | 붙였다. 필드 이름 불일치는 `ARCHITECTURE.md`의 백엔드 요구 목록 |
+| `POST /api/v1/auth/refresh` | `{ refreshToken }`                          | `AuthTokens` | 붙였다                                                          |
+| `POST /api/v1/auth/logout`  | Bearer, `{ refreshToken }`                  | `null`       | 붙였다                                                          |
+| `GET /api/v1/me`            | Bearer                                      | `Me`         | 백엔드 요구. 브라우저가 rewrite로 직접 부른다                   |
 
 **에러 코드와 문구.**
 

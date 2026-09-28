@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import CloseIcon from "@/shared/assets/icons/close.svg";
-import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/Button";
 import { iconButtonVariants } from "@/shared/ui/IconButton";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
@@ -18,7 +17,7 @@ export function LoginScreen({ nextPath }: LoginScreenProps) {
 			<Link
 				href="/"
 				aria-label="닫고 홈으로 가기"
-				className={cn(iconButtonVariants({ variant: "ghost" }), "absolute top-3 right-3 text-icon")}
+				className={iconButtonVariants({ variant: "ghost", class: "absolute top-3 right-3 text-icon" })}
 			>
 				<SvgIcon icon={CloseIcon} size={24} />
 			</Link>

@@ -1,32 +1,28 @@
 import { EmptyState } from "@/shared/components/EmptyState";
-import { PopupCard } from "@/shared/components/PopupCard";
-import type { PopupCardItem } from "@/shared/model/popup";
-import { type Region, REGION_LABELS } from "@/shared/model/region";
-import { LinkButton } from "@/shared/ui/LinkButton";
+
+import type { ExploreEmptyMessage } from "../model/explore-empty-message";
+import type { ExplorePopup } from "../model/explore-popup";
+import { ExploreListItem } from "./ExploreListItem";
 
 interface PopupListProps {
-	popups: readonly PopupCardItem[];
-	region: Region | null;
+	popups: readonly ExplorePopup[];
+	emptyMessage: ExploreEmptyMessage;
 }
 
-export function PopupList({ popups, region }: PopupListProps) {
+export function PopupList({ popups, emptyMessage }: PopupListProps) {
 	if (popups.length === 0) {
 		return (
-			<div className="px-5 py-4">
-				<EmptyState
-					title={region === null ? "보여줄 팝업이 없어요" : `${REGION_LABELS[region]}에 진행 중인 팝업이 없어요`}
-					description={region === null ? "잠시 뒤 다시 확인해 주세요" : "다른 지역의 팝업을 둘러보세요"}
-					action={region === null ? undefined : <LinkButton href="/explore?view=list">전체 보기</LinkButton>}
-				/>
+			<div className="flex flex-1 items-center justify-center py-10">
+				<EmptyState title={emptyMessage.title} description={emptyMessage.description} hasWarningIcon />
 			</div>
 		);
 	}
 
 	return (
-		<ul aria-label="팝업 목록" className="flex flex-col gap-3 px-5 pb-6">
+		<ul aria-label="팝업 목록" className="flex flex-col gap-3 pt-4">
 			{popups.map((popup) => (
 				<li key={popup.id}>
-					<PopupCard popup={popup} />
+					<ExploreListItem popup={popup} />
 				</li>
 			))}
 		</ul>
