@@ -38,6 +38,12 @@ export function buildCourseTabId(tab: CourseTab) {
 	return `course-tab-${tab}`;
 }
 
+export const COURSE_TAB_ITEMS = COURSE_TABS.map((value) => ({
+	value,
+	id: buildCourseTabId(value),
+	label: COURSE_TAB_LABELS[value]
+}));
+
 /** today는 서울 기준 "yyyy-MM-dd"다. 같은 모양의 날짜 문자열은 사전 순서가 날짜 순서와 같다 */
 export function classifyCourseTab(course: Course, today: string) {
 	if (course.cancelledAt !== null) {
