@@ -1,6 +1,8 @@
 "use client";
 
+import KakaoTalkIcon from "@/shared/assets/icons/kakao-talk.svg";
 import { Button } from "@/shared/ui/Button";
+import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 import { buildKakaoAuthorizeUrl, buildKakaoRedirectUri } from "../model/kakao-oauth";
 import { storeNextPath } from "../model/next-path";
@@ -18,7 +20,8 @@ export function KakaoLoginButton({ nextPath }: KakaoLoginButtonProps) {
 
 	return (
 		<Button variant="kakao" size="lg" onClick={handleLogin}>
-			카카오로 계속하기
+			<SvgIcon icon={KakaoTalkIcon} size={16} />
+			카카오 계정으로 로그인
 		</Button>
 	);
 }
