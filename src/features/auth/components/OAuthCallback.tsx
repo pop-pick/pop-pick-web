@@ -2,7 +2,8 @@
 
 import { redirect, useSearchParams } from "next/navigation";
 
-import { useKakaoLogin } from "../hooks/useKakaoLogin";
+import { useOAuthLogin } from "../hooks/useOAuthLogin";
+import type { OAuthProvider } from "../model/auth";
 import {
 	LOGIN_PENDING_MESSAGE,
 	MISSING_CODE_MESSAGE,
@@ -12,17 +13,21 @@ import {
 import { LoginFailure } from "./LoginFailure";
 import { LoginStatus } from "./LoginStatus";
 
-export function KakaoCallback() {
+interface OAuthCallbackProps {
+	provider: OAuthProvider;
+}
+
+export function OAuthCallback({ provider }: OAuthCallbackProps) {
 	const searchParams = useSearchParams();
 	const code = searchParams.get("code");
 	const state = searchParams.get("state");
 	const providerError = searchParams.get("error");
-	const loginQuery = useKakaoLogin({ code, state });
+	const loginQuery = useOAuthLogin(provider, { code, state });
 
 	if (providerError !== null) {
 		return (
 			<LoginFailure isCanceled={providerError === "access_denied"}>
-				{toProviderErrorMessage(providerError)}
+				{toProviderErrorMessage(provider, providerError)}
 			</LoginFailure>
 		);
 	}
@@ -32,7 +37,7 @@ export function KakaoCallback() {
 	}
 
 	if (loginQuery.isError) {
-		return <LoginFailure>{toLoginFailureMessage(loginQuery.error)}</LoginFailure>;
+		return <LoginFailure>{toLoginFailureMessage(provider, loginQuery.error)}</LoginFailure>;
 	}
 
 	if (loginQuery.isSuccess) {

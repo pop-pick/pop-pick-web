@@ -36,7 +36,7 @@ export function LoginScreen({ nextPath }: LoginScreenProps) {
 
 			<section className="flex flex-col gap-2.5">
 				<KakaoLoginButton nextPath={nextPath} />
-				<GoogleLoginButton />
+				<GoogleLoginButton nextPath={nextPath} />
 			</section>
 
 			<ul className="mt-8 list-disc space-y-5 rounded-2xl bg-bg-2 p-5 pl-11 text-b3-14 whitespace-pre-line text-text-3 marker:text-text-6">

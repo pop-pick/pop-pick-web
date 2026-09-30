@@ -4,8 +4,8 @@ import KakaoTalkIcon from "@/shared/assets/icons/kakao-talk.svg";
 import { Button } from "@/shared/ui/Button";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
-import { buildKakaoAuthorizeUrl, buildKakaoRedirectUri } from "../model/kakao-oauth";
 import { storeNextPath } from "../model/next-path";
+import { buildOAuthAuthorizeUrl, buildOAuthRedirectUri } from "../model/oauth-provider";
 import { createOAuthState } from "../model/oauth-state";
 
 interface KakaoLoginButtonProps {
@@ -15,7 +15,7 @@ interface KakaoLoginButtonProps {
 export function KakaoLoginButton({ nextPath }: KakaoLoginButtonProps) {
 	const handleLogin = () => {
 		storeNextPath(nextPath);
-		window.location.href = buildKakaoAuthorizeUrl(buildKakaoRedirectUri(), createOAuthState());
+		window.location.href = buildOAuthAuthorizeUrl("KAKAO", buildOAuthRedirectUri("KAKAO"), createOAuthState());
 	};
 
 	return (
