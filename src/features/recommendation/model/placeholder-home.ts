@@ -87,4 +87,4 @@ export const PLACEHOLDER_POPULAR_POPUPS: PopularPopupItem[] = [
 	}
 ];
 
-export const PLACEHOLDER_TRENDING_REGIONS: Region[] = ["seongsu", "yongsan", "hongdae", "yeouido"];
+export const PLACEHOLDER_TRENDING_REGIONS: Region[] = ["seongsu", "yongsan", "hongdae", "jamsil"];
