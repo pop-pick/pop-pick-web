@@ -4,6 +4,7 @@ import * as m from "motion/react-m";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { PopupSearchForm } from "@/shared/components/PopupSearchForm";
 import { tv } from "@/shared/lib/tv";
 import {
 	type ExploreSort,
@@ -21,7 +22,6 @@ import { filterExplorePopups } from "../model/explore-filter";
 import type { ExplorePopup } from "../model/explore-popup";
 import { EXPLORE_REGION_OPTIONS, formatExploreRegionLabel } from "../model/explore-region";
 import { buildExploreSheetPath } from "../model/explore-sheet-path";
-import { ExploreSearchBar } from "./ExploreSearchBar";
 import { PopupList } from "./PopupList";
 import { PopupMap } from "./PopupMap";
 import { SortToggle } from "./SortToggle";
@@ -132,7 +132,7 @@ export function ExploreView({ popups }: ExploreViewProps) {
 				{resultAnnouncement}
 			</p>
 			<div className="flex flex-col gap-4 px-5 pt-17">
-				<ExploreSearchBar value={draftQuery} onChange={setDraftQuery} onSubmit={handleSearchSubmit} />
+				<PopupSearchForm value={draftQuery} onChange={setDraftQuery} onSubmit={handleSearchSubmit} />
 				<ViewToggle view={state.view} onChange={handleViewChange} />
 			</div>
 

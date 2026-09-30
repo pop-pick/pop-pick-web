@@ -5,13 +5,13 @@ import { type ChangeEvent, type SubmitEvent, useRef } from "react";
 import SearchIcon from "@/shared/assets/icons/search.svg";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
-interface ExploreSearchBarProps {
+interface PopupSearchFormProps {
 	value: string;
 	onChange: (value: string) => void;
 	onSubmit: () => void;
 }
 
-export function ExploreSearchBar({ value, onChange, onSubmit }: ExploreSearchBarProps) {
+export function PopupSearchForm({ value, onChange, onSubmit }: PopupSearchFormProps) {
 	const inputRef = useRef<HTMLInputElement>(null);
 
 	const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -29,7 +29,7 @@ export function ExploreSearchBar({ value, onChange, onSubmit }: ExploreSearchBar
 			<SvgIcon
 				icon={SearchIcon}
 				size={20}
-				className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-icon-2"
+				className="pointer-events-none absolute top-1/2 left-3.25 -translate-y-1/2 text-icon-2"
 			/>
 			<input
 				ref={inputRef}
