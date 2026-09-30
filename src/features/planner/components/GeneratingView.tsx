@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 
 import { buildProgressPlan, type ProgressPlan } from "../model/generating-progress";
 import { GENERATING_STEPS, toStepState } from "../model/generating-steps";
+import { GeneratingSpinner } from "./GeneratingSpinner";
 import { GeneratingStepItem } from "./GeneratingStepItem";
 
 interface GeneratingViewProps {
@@ -15,8 +16,6 @@ interface GeneratingViewProps {
 }
 
 const MS_PER_SECOND = 1000;
-const FLOAT_ANIMATION = { y: [0, -8, 0] };
-const FLOAT_TRANSITION = { duration: 2.4, ease: "easeInOut", repeat: Infinity } as const;
 const SHIMMER_ANIMATION = { x: ["-100%", "250%"] };
 const SHIMMER_TRANSITION = { duration: 1.4, ease: "easeInOut", repeat: Infinity, repeatDelay: 0.4 } as const;
 
@@ -81,14 +80,9 @@ export function GeneratingView({ editHref, resultHref }: GeneratingViewProps) {
 
 	return (
 		<main className="flex flex-1 flex-col">
-			<div className="flex flex-col items-center px-5 pt-38 text-center">
-				<m.div
-					aria-hidden
-					animate={shouldReduceMotion ? undefined : FLOAT_ANIMATION}
-					transition={FLOAT_TRANSITION}
-					className="size-29.5 bg-bg-5"
-				/>
-				<h1 className="mt-8 text-h1 text-text-1">팝업 코스를 만들고 있어요.</h1>
+			<div className="flex flex-col items-center px-5 pt-30.5 text-center">
+				<GeneratingSpinner />
+				<h1 className="mt-11.25 text-h1 text-text-1">팝업 코스를 만들고 있어요.</h1>
 				<p className="mt-3 text-b2-14 text-text-4">10초 정도 소요될 수 있어요.</p>
 			</div>
 			<section aria-label="코스 생성 단계" className="mx-5 mt-17 rounded-2xl bg-bg-2 px-6 pt-7 pb-6">
