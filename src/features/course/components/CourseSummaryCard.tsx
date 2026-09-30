@@ -25,7 +25,7 @@ export function CourseSummaryCard({ course, registeredAt, href }: CourseSummaryC
 		<>
 			<p className="text-b1-14 text-text-3">일정 요약</p>
 			<CourseSummaryRows course={course} />
-			<p className="border-t border-divider-1 pt-3 text-b3-12 text-text-4">등록일 {registeredAt}</p>
+			<p className="border-t border-divider-1 pt-2.75 text-b3-12 text-text-4">등록일 {registeredAt}</p>
 		</>
 	);
 

@@ -38,13 +38,13 @@ export function PlannerHome() {
 	};
 
 	return (
-		<div className="flex flex-1 flex-col pt-17">
+		<div className="flex flex-1 flex-col pt-6">
 			<CourseTabs tab={tab} panelId={panelId} onChange={handleTabChange} />
 			<div
 				id={panelId}
 				role="tabpanel"
 				aria-labelledby={buildCourseTabId(tab)}
-				className="flex flex-1 flex-col px-5 pt-5 pb-tab-bar-clearance"
+				className="flex flex-1 flex-col px-5 pt-5"
 			>
 				{loadStatus === "failed" && (
 					<div className="flex flex-1 items-center justify-center py-10">
@@ -60,7 +60,7 @@ export function PlannerHome() {
 				)}
 				{loadStatus === "ready" && tabCourses.length === 0 && (
 					<>
-						<div className="flex flex-1 items-center justify-center py-10">
+						<div className="flex flex-1 items-center justify-center pt-11.75 pb-10">
 							<EmptyState hasWarningIcon title={COURSE_TAB_EMPTY_TITLES[tab]} description={EMPTY_DESCRIPTION} />
 						</div>
 						<CourseStartBanner actionLabel="나에게 맞는 팝업 찾기" isActionWide />
