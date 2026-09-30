@@ -30,8 +30,8 @@ const selectVariants = tv({
 				root: "min-w-0 flex-1",
 				button: "h-12 w-full py-3 pr-3 pl-4",
 				panel: "w-full pt-13 pr-3 pb-3 pl-4 shadow-sheet",
-				listbox: "max-h-83 scrollbar-subtle gap-5 overflow-y-auto overscroll-contain",
-				option: "h-6 shrink-0 text-b2-16"
+				listbox: "-mx-2 -my-1 max-h-86 scrollbar-subtle gap-3 overflow-y-auto overscroll-contain px-2",
+				option: "-mx-2 h-8 shrink-0 px-2 text-b2-16"
 			}
 		},
 		hasValue: {
