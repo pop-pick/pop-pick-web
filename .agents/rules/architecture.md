@@ -75,7 +75,7 @@ export const REGION_LABELS: Record<Region, string> = { ... };
 
 ## 기능 폴더에 lib과 types를 두지 않는다
 
-**`lib`은 `src/shared`에만 있다.** 도메인 지식이 없는 도구를 담는다. 지금 여덟이다. 클래스 합치기(`cn.ts`), 같은 병합 설정으로 만든 변형 레시피 함수(`tv.ts`), 서울 시간대의 오늘과 엄격한 날짜 읽기(`date.ts`), 라우트 쿼리를 `URLSearchParams`로 바꾸기(`search-params.ts`), 앱 안에서 뒤로 갈 수 있는지 판정(`navigation.ts`), 외부 SDK 어댑터(`kakao-map/`), 화면용 임시 데이터(`placeholder-data.ts`)와 임시 사진 목록(`placeholder-images.ts`)이다.
+**`lib`은 `src/shared`에만 있다.** 도메인 지식이 없는 도구를 담는다. 지금 아홉이다. 클래스 합치기(`cn.ts`), 같은 병합 설정으로 만든 변형 레시피 함수(`tv.ts`), 서울 시간대의 오늘과 엄격한 날짜 읽기(`date.ts`), 렌더 중에 쓰는 분 단위 서울 시각(`useSeoulNow.ts`), 라우트 쿼리를 `URLSearchParams`로 바꾸기(`search-params.ts`), 앱 안에서 뒤로 갈 수 있는지 판정(`navigation.ts`), 외부 SDK 어댑터(`kakao-map/`), 화면용 임시 데이터(`placeholder-data.ts`)와 임시 사진 목록(`placeholder-images.ts`)이다.
 
 기능 폴더에 `lib`을 두지 않는 이유는 그 이름이 목적을 말하지 않아서다. `auth/lib/kakao-oauth.ts`에서 `lib`을 빼고 읽어도 아는 것이 같다. 폴더 한 겹이 경로만 늘리고 정보를 더하지 않으면 지운다.
 
