@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { type SubmitEvent, useId, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
@@ -142,14 +143,14 @@ export function PlannerForm({ mode, initialDraft, loginHref }: PlannerFormProps)
 		<>
 			<PageHeader title={PLANNER_FORM_TITLE} fallbackPath={PLANNER_PATH} isSticky />
 			<form onSubmit={handleSubmit} className="flex flex-1 flex-col">
-				<div className="flex flex-col items-center px-5 pt-5.5 text-center">
-					<div aria-hidden className="size-20 bg-bg-5" />
-					<h1 className="mt-6 text-h1 leading-8 text-text-1">어떤 코스를 원하세요?</h1>
+				<div className="flex flex-col items-center px-5 pt-1.75 text-center">
+					<Image src="/illustrations/planner-map-pin.svg" alt="" width={111} height={111} loading="eager" />
+					<h1 className="mt-2 text-h1 leading-8 text-text-1">어떤 코스를 원하세요?</h1>
 					<p className="mt-3 text-b2-14 whitespace-pre-line text-text-4">
 						{"조건을 알려주면 AI가\n이동 동선까지 계획해드려요."}
 					</p>
 				</div>
-				<div className="flex flex-col gap-10 px-5 pt-10 pb-12">
+				<div className="flex flex-col gap-10 px-5 pt-10 pb-12.25">
 					<ConditionSection titleId={companionTitleId} title="동행 유형">
 						<div role="radiogroup" aria-labelledby={companionTitleId} className="grid grid-cols-2 gap-1.75">
 							{COMPANION_TYPES.map((companion) => (
@@ -183,7 +184,11 @@ export function PlannerForm({ mode, initialDraft, loginHref }: PlannerFormProps)
 					<ConditionSection
 						titleId={activityTitleId}
 						title="선호 활동"
-						trailing={<p className="text-caption text-text-4">* 복수선택 가능</p>}
+						trailing={
+							<p className="text-caption text-text-4">
+								<span className="text-primary">*</span> 복수선택 가능
+							</p>
+						}
 					>
 						<div role="group" aria-labelledby={activityTitleId} className="grid grid-cols-2 gap-1.75">
 							{PREFERRED_ACTIVITIES.map((activity) => (
