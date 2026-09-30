@@ -20,7 +20,7 @@ export default function ExplorePage() {
 			<h1 className="sr-only">탐색</h1>
 			<Suspense
 				fallback={
-					<div role="status" className="flex flex-col gap-4 px-5 pt-17">
+					<div role="status" className="flex flex-col gap-4 px-5 pt-6">
 						<span className="sr-only">탐색 화면을 준비하고 있습니다</span>
 						<Skeleton className="h-10.5 rounded-xl" />
 						<Skeleton className="h-12 rounded-xl" />

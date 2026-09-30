@@ -131,7 +131,7 @@ export function ExploreView({ popups }: ExploreViewProps) {
 			<p role="status" className="sr-only">
 				{resultAnnouncement}
 			</p>
-			<div className="flex flex-col gap-4 px-5 pt-17">
+			<div className="flex flex-col gap-4 px-5 pt-6">
 				<PopupSearchForm value={draftQuery} onChange={setDraftQuery} onSubmit={handleSearchSubmit} />
 				<ViewToggle view={state.view} onChange={handleViewChange} />
 			</div>
