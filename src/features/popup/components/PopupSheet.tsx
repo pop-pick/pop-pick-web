@@ -71,7 +71,7 @@ export function PopupSheet({ labelledBy, children }: PopupSheetProps) {
 				initial={SLIDE_FROM}
 				animate={SLIDE_TO}
 				style={{ y: offsetY }}
-				className="absolute inset-x-0 top-37 bottom-0 flex flex-col rounded-t-3xl bg-bg-1 shadow-sheet"
+				className="absolute inset-x-0 top-26 bottom-0 flex flex-col rounded-t-3xl bg-bg-1 shadow-sheet"
 			>
 				<DragHandle dragHandleProps={dragHandleProps} />
 				<div className="min-h-0 scrollbar-subtle flex-1 overflow-y-auto overscroll-contain">{children}</div>
