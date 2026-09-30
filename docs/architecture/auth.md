@@ -25,20 +25,20 @@
 - 쿠키를 누가 굽는가. 프론트의 Next Route Handler가 백엔드 응답 본문의 토큰을 받아 쿠키로 굽는다. 근거는 아래 "쿠키를 Next가 굽는 이유" 절에 있다
 - 실패는 종류마다 다른 문구로 드러낸다. 공급자 화면에서 취소하면 `error=access_denied`로 돌아오고 백엔드 실패는 `errorCode`로 갈린다. 원문 메시지를 화면에 내지 않는다
 - 서버 컴포넌트는 인증이 필요한 요청을 보내지 않는다. 쿠키에 있는 것은 리프레시 토큰뿐이고 액세스 토큰은 브라우저 메모리에 있다. `RequireAuth`가 감싼 서버 컴포넌트도 비로그인 사용자에게 RSC 페이로드로 내려가므로 사용자 데이터는 가드 안의 클라이언트 컴포넌트가 받는다
-- `src/proxy.ts`가 `/my`와 `/planner`, 온보딩 단계(`/onboarding/1`처럼 숫자로 끝나는 경로), 코스(`/courses/{courseId}`와 그 아래 `/saved`) 요청에 리프레시 쿠키가 없으면 페이지를 그리기 전에 `/login?next=`로 보낸다. 쿠키가 있는지만 보는 검사라 쿠키가 있어도 토큰이 거절되면 `RequireAuth`가 보낸다. 데이터를 지키는 검사는 백엔드가 Bearer로 한다
+- `src/proxy.ts`가 `/my`와 `/planner`, 온보딩 단계(`/onboarding/1`처럼 숫자로 끝나는 경로), 코스 생성 중(`/planner/generating/{jobId}`), 코스(`/courses/{courseId}`와 그 아래 `/saved`) 요청에 리프레시 쿠키가 없으면 페이지를 그리기 전에 `/login?next=`로 보낸다. 쿠키가 있는지만 보는 검사라 쿠키가 있어도 토큰이 거절되면 `RequireAuth`가 보낸다. 데이터를 지키는 검사는 백엔드가 Bearer로 한다
 
 **범위 밖.** 네이버 로그인, 로컬 회원가입, 프로필 편집, 회원 탈퇴, 약관 동의 화면. 약관은 로그인 버튼 아래 안내 상자의 문구로 갈음한다.
 
 ## A. Architecture
 
-| 상태                           | 원천                                           | 비고                                                                                    |
-| ------------------------------ | ---------------------------------------------- | --------------------------------------------------------------------------------------- |
-| 액세스 토큰                    | Zustand 메모리 스토어                          | persist 없음. 새로고침하면 사라지고 앱 시작 때 재발급으로 되살린다                      |
-| 리프레시 토큰                  | httpOnly 쿠키 `pp_refresh`                     | Next Route Handler가 심고 지운다. 브라우저 코드와 화면 코드는 값을 보지 못한다          |
-| 인가 코드 교환                 | Server. `["auth", "kakao-login", code, state]` | `hooks/useKakaoLogin.ts`. 코드가 키라 코드 하나에 요청이 한 번만 나간다                 |
-| 내 정보(닉네임, 프로필 이미지) | Server. `["me"]`                               | 설계. 로그인 상태일 때만 조회                                                           |
-| 돌아갈 경로 `next`             | URL `/login?next=`와 `sessionStorage`          | 같은 출처 경로만 허용하고 절대 주소와 `//`로 시작하는 값은 버린다. `model/next-path.ts` |
-| OAuth `state`                  | `sessionStorage`                               | 인가 흐름 동안만 산다. `model/oauth-state.ts`                                           |
+| 상태               | 원천                                           | 비고                                                                                                                                            |
+| ------------------ | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| 액세스 토큰        | Zustand 메모리 스토어                          | persist 없음. 새로고침하면 사라지고 앱 시작 때 재발급으로 되살린다                                                                              |
+| 리프레시 토큰      | httpOnly 쿠키 `pp_refresh`                     | Next Route Handler가 심고 지운다. 브라우저 코드와 화면 코드는 값을 보지 못한다                                                                  |
+| 인가 코드 교환     | Server. `["auth", "kakao-login", code, state]` | `hooks/useKakaoLogin.ts`. 코드가 키라 코드 하나에 요청이 한 번만 나간다                                                                         |
+| 내 정보(닉네임)    | Server. `["me"]`                               | 설계. 로그인 상태일 때만 조회                                                                                                                   |
+| 돌아갈 경로 `next` | URL `/login?next=`와 `sessionStorage`          | 같은 출처 경로만 허용하고 절대 주소와 `//`로 시작하는 값은 버린다. 주소 규칙은 `shared/model/login-path.ts`, 세션 저장소는 `model/next-path.ts` |
+| OAuth `state`      | `sessionStorage`                               | 인가 흐름 동안만 산다. `model/oauth-state.ts`                                                                                                   |
 
 통신은 요청 응답이다. 브라우저가 부르는 자리는 셋으로 나뉜다. 인가 코드 교환과 재발급, 로그아웃은 같은 출처 Route Handler를 부르고 내 정보는 rewrite를 지나 백엔드로 간다.
 
@@ -112,7 +112,6 @@ interface Me {
 	memberKey: string;
 	email: string;
 	nickname: string | null;
-	profileImageUrl: string | null;
 }
 ```
 
@@ -120,7 +119,7 @@ interface Me {
 
 콜백이 받는 `code`와 `state`, `error`는 `useSearchParams`로 읽고 실패를 문구로 가르는 것은 `model/login-messages.ts`다. 어떤 코드가 어떤 문구가 되는지는 아래 에러 코드 표에 있다.
 
-`nickname`이 `null`이면 "회원님"으로 쓴다. 백엔드 엔티티에 닉네임이 아직 없어 `null`이 정상 상태일 수 있다.
+`nickname`이 `null`이면 "회원님"으로 쓴다. 팀은 9/28에 로그인 응답에 닉네임을 넣고 프로필 이미지는 받지 않기로 했다. 백엔드 응답에 아직 닉네임이 없어 지금은 `null`이다. 응답이 나오면 닉네임을 로그인 응답에서 받고 `["me"]` 조회를 남길지 이 절에서 정한다.
 
 ## I. Interface
 
