@@ -2,7 +2,7 @@
 
 `features/auth`. 카카오와 구글 소셜 로그인, 토큰 보관과 재발급, 내 정보, 로그인 필요 동작의 가드를 다룬다.
 
-카카오와 구글 로그인, 토큰 보관은 코드에 있다. 액세스 토큰은 Zustand 메모리, 리프레시 토큰은 httpOnly 쿠키이고 쿠키는 Next Route Handler가 심는다. 인가 요청의 `state` 대조와 콜백 이중 실행 방지, 앱 시작 재발급, 만료 뒤 재발급과 재요청, `next` 경로 복귀, 로그아웃, 로그인 가드가 선다. 구글은 백엔드가 고치기 전에는 교환이 실패한다. 고칠 것은 `docs/architecture/ARCHITECTURE.md`의 백엔드 요구 목록에 있다. 내 정보는 아직 설계이고 아래에서 설계라고 표시했다.
+카카오와 구글 로그인, 토큰 보관은 코드에 있다. 액세스 토큰은 Zustand 메모리, 리프레시 토큰은 httpOnly 쿠키이고 쿠키는 Next Route Handler가 심는다. 인가 요청의 `state` 대조와 콜백 이중 실행 방지, 앱 시작 재발급, 만료 뒤 재발급과 재요청, `next` 경로 복귀, 로그아웃, 로그인 가드가 선다. 내 정보는 아직 설계이고 아래에서 설계라고 표시했다.
 
 ## R. Requirements
 
@@ -143,7 +143,7 @@ interface Me {
 | `OAuthCallback`     | `provider`를 받는다. 교환 중이면 `role="status"`, 실패면 `role="alert"`                                                                                                                                                                                             |
 | `useOAuthLogin`     | `provider`와 `code`, `state`를 키로 하는 쿼리. 재시도 없음, `staleTime` Infinity                                                                                                                                                                                    |
 
-**인가 요청 파라미터.** 둘 다 `client_id`와 `redirect_uri`, `response_type=code`, `state`를 싣는다. 구글은 `scope=openid email profile`을 더한다. 구글의 `access_type`과 `prompt`는 붙이지 않는다(사용자 결정). 그래서 구글은 리프레시 토큰을 주지 않는다.
+**인가 요청 파라미터.** 둘 다 `client_id`와 `redirect_uri`, `response_type=code`, `state`를 싣는다. 구글은 `scope=openid email profile`을 더한다. 구글의 `access_type`과 `prompt`는 붙이지 않는다(사용자 결정). 백엔드는 구글 토큰으로 사용자 정보만 읽으므로 구글 리프레시 토큰이 필요 없다.
 
 **설계.** 아래는 아직 코드에 없다.
 
