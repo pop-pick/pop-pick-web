@@ -1,14 +1,20 @@
 "use client";
 
 import * as m from "motion/react-m";
-import { type KeyboardEvent, useEffect, useRef, useState } from "react";
+import { type KeyboardEvent, type ReactNode, useEffect, useRef, useState } from "react";
 
-import { buildCourseTabId, COURSE_TAB_LABELS, COURSE_TABS, type CourseTab } from "../model/course-tab";
+export interface TabItem<T extends string> {
+	value: T;
+	id: string;
+	label: ReactNode;
+}
 
-interface CourseTabsProps {
-	tab: CourseTab;
+interface TabsProps<T extends string> {
+	items: readonly TabItem<T>[];
+	value: T;
 	panelId: string;
-	onChange: (tab: CourseTab) => void;
+	ariaLabel: string;
+	onChange: (value: T) => void;
 }
 
 interface IndicatorBox {
@@ -33,11 +39,11 @@ function resolveNextIndex(key: string, currentIndex: number, count: number) {
 	return step === undefined ? null : (currentIndex + step + count) % count;
 }
 
-export function CourseTabs({ tab, panelId, onChange }: CourseTabsProps) {
+export function Tabs<T extends string>({ items, value, panelId, ariaLabel, onChange }: TabsProps<T>) {
 	const listRef = useRef<HTMLDivElement>(null);
 	const buttonsRef = useRef<(HTMLButtonElement | null)[]>([]);
 	const [indicator, setIndicator] = useState<IndicatorBox | null>(null);
-	const currentIndex = COURSE_TABS.indexOf(tab);
+	const currentIndex = items.findIndex((item) => item.value === value);
 
 	useEffect(() => {
 		const list = listRef.current;
@@ -52,6 +58,7 @@ export function CourseTabs({ tab, panelId, onChange }: CourseTabsProps) {
 		});
 
 		observer.observe(list);
+		observer.observe(button);
 
 		return () => {
 			observer.disconnect();
@@ -59,49 +66,49 @@ export function CourseTabs({ tab, panelId, onChange }: CourseTabsProps) {
 	}, [currentIndex]);
 
 	const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-		const nextIndex = resolveNextIndex(event.key, currentIndex, COURSE_TABS.length);
-		const nextTab = nextIndex === null ? undefined : COURSE_TABS[nextIndex];
+		const nextIndex = resolveNextIndex(event.key, currentIndex, items.length);
+		const nextItem = nextIndex === null ? undefined : items[nextIndex];
 
-		if (nextIndex === null || nextTab === undefined) {
+		if (nextIndex === null || nextItem === undefined) {
 			return;
 		}
 
 		event.preventDefault();
-		onChange(nextTab);
+		onChange(nextItem.value);
 		buttonsRef.current[nextIndex]?.focus();
 	};
 
-	const handleTabClick = (value: CourseTab) => () => {
-		onChange(value);
+	const handleTabClick = (nextValue: T) => () => {
+		onChange(nextValue);
 	};
 
 	return (
 		<div
 			ref={listRef}
 			role="tablist"
-			aria-label="일정 구분"
+			aria-label={ariaLabel}
 			onKeyDown={handleKeyDown}
 			className="relative flex gap-3 border-b border-divider-2 px-5"
 		>
-			{COURSE_TABS.map((value, index) => {
-				const isCurrent = value === tab;
+			{items.map((item, index) => {
+				const isCurrent = item.value === value;
 
 				return (
 					<button
-						key={value}
+						key={item.value}
 						ref={(element) => {
 							buttonsRef.current[index] = element;
 						}}
-						id={buildCourseTabId(value)}
+						id={item.id}
 						type="button"
 						role="tab"
 						aria-selected={isCurrent}
 						aria-controls={panelId}
 						tabIndex={isCurrent ? 0 : -1}
-						onClick={handleTabClick(value)}
+						onClick={handleTabClick(item.value)}
 						className="h-10 px-1 text-b2-16 text-text-4 focus-ring transition-colors not-aria-selected:hover:text-text-2 aria-selected:text-b1-16 aria-selected:text-primary"
 					>
-						{COURSE_TAB_LABELS[value]}
+						{item.label}
 					</button>
 				);
 			})}

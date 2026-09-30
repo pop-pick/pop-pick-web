@@ -13,7 +13,7 @@
 | `docs/design/DESIGN-SPEC.md`        | 각 화면에 무엇이 어떻게 놓이는가. 공통 컴포넌트는 무엇이 있는가                                                                 |
 | `docs/architecture/ARCHITECTURE.md` | 라우트와 상태의 원천, 데이터 흐름, 폴더는 어떻게 잡았고 백엔드에 무엇을 요구하는가                                              |
 | `docs/architecture/{기능}.md`       | 기능 하나가 무엇을 보장하고 어떤 타입과 계약으로 움직이는가. auth, onboarding, recommendation, popup, bookmark, planner, course |
-| `docs/release/RUNBOOK.md`           | 배포와 환경 변수, 카카오 콘솔 설정, 장애 대응을 어떻게 하는가                                                                   |
+| `docs/release/RUNBOOK.md`           | 배포와 환경 변수, 카카오와 구글 콘솔 설정, 장애 대응을 어떻게 하는가                                                            |
 | `docs/release/SEO.md`               | 코드로 할 수 없는 검색 유입 작업은 무엇인가                                                                                     |
 | `docs/release/PRIVACY.md`           | 어떤 정보를 모으고 어떻게 다루는가                                                                                              |
 | `docs/harness/AI_WORKFLOW.md`       | 에이전트 하네스가 어떻게 돌고 어떻게 고치는가                                                                                   |

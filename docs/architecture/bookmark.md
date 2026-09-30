@@ -116,6 +116,9 @@ export function BookmarkSlot(props: BookmarkSlotProps); // 가장 가까운 Prov
 // 있는 것. features/bookmark/components/BookmarkSlotProvider.tsx
 export function BookmarkSlotProvider(props: { mode: "guest" | "member" | "pending"; children: ReactNode });
 
+// 있는 것. features/bookmark/components/BookmarkListPreparing.tsx
+export function BookmarkListPreparing(); // 찜 API가 열리기 전 마이페이지 찜한 팝업 탭의 준비 중 안내. BookmarkList가 생기면 지운다
+
 // 설계
 export function BookmarkList(); // 마이페이지의 찜한 팝업 탭. 종료 항목 흐림 처리
 

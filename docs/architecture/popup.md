@@ -1,6 +1,6 @@
 # 팝업 탐색과 상세 설계
 
-`features/popup`. 탐색의 지도 뷰와 목록 뷰, 검색과 지역, 정렬, 지도의 위치 권한과 클러스터 핀, 지도 팝업 카드와 상세 바텀시트, 팝업 상세와 최근 본 팝업 기록을 다룬다. 팝업 타입과 사진, 찜 버튼 자리는 여러 기능이 쓰므로 `shared`에 있다.
+`features/popup`. 탐색의 지도 뷰와 목록 뷰, 검색과 지역, 정렬, 지도의 위치 권한과 클러스터 핀, 지도 팝업 카드와 상세 바텀시트, 팝업 상세, 최근 본 팝업의 기록과 마이페이지 목록을 다룬다. 팝업 타입과 사진, 찜 버튼 자리는 여러 기능이 쓰므로 `shared`에 있다.
 
 ## R. Requirements
 
@@ -46,7 +46,7 @@
 | 갤러리 현재 장                   | `PopupImageCarousel`의 `useState`                       | Embla의 `select` 이벤트에서 `selectedScrollSnap()`을 받는다                                            |
 | 찜 버튼과 일치율 한 줄           | 인증 상태. `AuthStatusSwitch` 슬롯                      | 라우트가 상태마다 그릴 것을 넘긴다. 일치율은 슬롯 prop, 찜은 `BookmarkSlotProvider` 컨텍스트다         |
 | 입력 중인 검색어                 | 컴포넌트 `useState`                                     | 300ms 뒤 URL에 쓴다                                                                                    |
-| 최근 본 팝업 열 개               | 미결정. 메모리나 `sessionStorage`                       | 상세를 열 때 기록한다                                                                                  |
+| 최근 본 팝업 열 개               | Zustand 스토어(`sessionStorage`)                        | `shared/model/useRecentPopupsStore.ts`. 상세를 열 때 기록하고 로그아웃하면 비운다                      |
 | 팝업 상태(진행, 종료 임박, 종료) | Derived. 시작일과 종료일, 오늘                          | 설계. `getPopupStatus`                                                                                 |
 
 **흐름.** 검색어 입력과 지역, 정렬 변경은 `window.history.replaceState`로 URL만 바꾼다. Next가 이 변경을 `useSearchParams`에 반영하고 서버 컴포넌트를 다시 부르지 않는다. 화면은 URL을 읽어 `filters`를 만들고 쿼리 키로 쓴다. 뷰 전환도 URL의 `view`만 바꾼다. 검색창에서 엔터를 누르면 검색어를 바로 쓰고 목록 뷰로 바꾼다. 목록에서 상세로 가는 것은 `push`다. 뒤로 오면 목록 쿼리가 캐시에 있어 다시 그려지고 스크롤은 브라우저가 복원한다.
@@ -104,7 +104,7 @@ type PopupStatus = "upcoming" | "ongoing" | "endingSoon" | "ended";
 function getPopupStatus(popup: Pick<PopupSummary, "startDate" | "endDate">, today: string): PopupStatus;
 ```
 
-탐색 카드가 쓰는 `ExplorePopup`(`model/explore-popup.ts`)은 `PopupSummary`에 좌표와 조회수, 등록일을 임시로 더한 것이다. 서버가 거르고 정렬하기 전까지 `filterExplorePopups`가 지역으로 거르고 팝업명과 지역, 카테고리 라벨에서 검색어를 찾는다. 인기순은 `viewCount`, 최신순은 `registeredAt` 내림차순이고 값이 없으면 뒤로, 같으면 id순이다.
+탐색 카드가 쓰는 `ExplorePopup`(`model/explore-popup.ts`)은 `PopupSummary`에 좌표와 조회수, 등록일을 임시로 더한 것이다. 서버가 거르고 정렬하기 전까지 `filterExplorePopups`가 지역으로 거르고 팝업명과 지역, 카테고리 라벨에서 검색어를 찾는다. 인기순은 `viewCount`, 최신순은 `registeredAt` 내림차순이고 값이 없으면 뒤로, 같으면 id순이다. 목록 카드 `ExploreListItem`은 더한 필드를 쓰지 않아 `PopupSummary`만 받는다. 최근 본 팝업 목록이 같은 카드를 쓴다.
 
 `category`와 `region`은 서버가 주는 코드 문자열이다. 목록은 온보딩 선택지 테이블에 있고 라벨도 거기서 온다(`onboarding.md`). 지금 `shared/model/popup.ts`에는 카테고리 여덟이 유니온으로 들어 있고 선택지 조회가 열리면 없어진다. 입장 방식 라벨은 둘이다. 홈 인기 행의 짧은 라벨은 `shared/model/popup.ts`, 상세 정보 카드의 긴 라벨은 `popup-detail.ts`에 있다. `UNKNOWN`은 두 곳 모두 그 줄을 그리지 않는다.
 
@@ -130,10 +130,34 @@ export function usePopupList(
 ): UseInfiniteQueryResult<InfiniteData<PageResponse<PopupSummary>>, ApiError>;
 export function usePopupsForMap(filters: PopupListFilters): UseQueryResult<PopupSummary[], ApiError>;
 export function usePopupDetail(popupId: number, initial?: PopupDetail): UseQueryResult<PopupDetail, ApiError>;
-export function useRecentPopups(): { items: PopupSummary[]; record: (popup: PopupSummary) => void };
 ```
 
-**최근 본 팝업.** `useRecentPopups().record`를 상세 본문이 마운트될 때 부른다. 최신 열 개만 남기고 열한 번째가 들어오면 가장 오래된 것을 버린다. 서버에 보내지 않는다. 보여주는 곳은 마이페이지라 두 기능이 같은 훅을 쓴다. 훅을 `shared`로 올릴지는 보관 방식이 정해질 때 다시 본다.
+**최근 본 팝업.** 있는 것이다. 서버에 보내지 않고 이 탭의 `sessionStorage`에 최신 열 개를 둔다. 같은 팝업을 다시 열면 맨 앞으로 옮기고 열한 번째가 들어오면 가장 오래된 것을 버린다(`shared/model/recent-popups.ts`의 `prependRecentPopup`).
+
+```typescript
+// shared/model/useRecentPopupsStore.ts
+type RecentPopupsLoadStatus = "loading" | "ready" | "failed";
+interface RecentPopupsState {
+	items: PopupSummary[];
+	loadStatus: RecentPopupsLoadStatus;
+	addRecentPopup: (popup: PopupSummary) => void;
+	clearRecentPopups: () => void;
+}
+export function loadRecentPopups(): void;
+
+// features/popup/hooks/useRecentPopups.ts
+export function useRecentPopups(): {
+	items: PopupSummary[];
+	loadStatus: RecentPopupsLoadStatus;
+	addRecentPopup: (popup: PopupSummary) => void;
+};
+```
+
+스토어는 `shared/model`에 있다. popup이 기록하고 보여주지만 auth의 `useLogout`이 로그아웃 때 `clearRecentPopups`를 불러야 한다. 기능끼리 import하지 않으려면 둘 다 닿는 `shared`여야 한다. 화면 코드는 스토어 대신 `useRecentPopups`를 쓴다. 서버 렌더에는 `sessionStorage`가 없어 스토어는 복원을 건너뛰고 시작하고, 훅이 마운트된 뒤 `loadRecentPopups`로 한 번 불러온다.
+
+기록 자리는 `components/PopupDetailView.tsx`다. 본문 끝에 `RecentPopupRecorder`를 붙이고 `model/popup-detail.ts`의 `toPopupSummary`로 줄인 `PopupSummary`만 넘긴다. `PopupDetail` 전체를 저장하지 않는다. 페이지와 바텀시트가 같은 본문을 쓰므로 두 껍데기 모두 기록한다. 마이페이지의 최근 본 팝업 탭은 `RecentPopupList`가 탐색 목록 카드 `ExploreListItem`으로 그리고 비었으면 `MyPageEmptyState`를 보인다. 탭 옆에 개수는 없다.
+
+**불러오기 실패.** 시크릿 모드나 사이트 데이터를 막은 브라우저처럼 세션 저장소를 읽지 못하면 `loadStatus`가 `"failed"`가 되고 `[recent-popups]` 로그를 남긴다. 이때 `RecentPopupRecorder`는 기록하지 않고 로그만 남긴다. 목록은 빈 목록과 구분되는 실패 문구를 보인다. `loadStatus`가 `"ready"`가 아닐 때 `addRecentPopup`을 부르면 스토어가 던진다. 복원 전에 쓰면 복원될 기록을 빈 목록 위에 쓴 값으로 덮어쓰기 때문이다. `clearRecentPopups`는 덮어쓰는 것이 목적이라 복원 전에도 막지 않는다.
 
 **서버 API.** 전부 백엔드 요구다.
 

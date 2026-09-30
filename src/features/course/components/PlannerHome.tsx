@@ -6,12 +6,14 @@ import { useId, useMemo, useState } from "react";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { getSeoulToday } from "@/shared/lib/date";
 import { Skeleton } from "@/shared/ui/Skeleton";
+import { Tabs } from "@/shared/ui/Tabs";
 
 import { useSavedCourses } from "../hooks/useSavedCourses";
 import { buildCoursePath } from "../model/course-path";
 import {
 	buildCourseTabId,
 	COURSE_TAB_EMPTY_TITLES,
+	COURSE_TAB_ITEMS,
 	type CourseTab,
 	filterCoursesByTab,
 	parseCourseTab,
@@ -19,7 +21,6 @@ import {
 } from "../model/course-tab";
 import { CourseStartBanner } from "./CourseStartBanner";
 import { CourseSummaryCard } from "./CourseSummaryCard";
-import { CourseTabs } from "./CourseTabs";
 import { SavedCoursesLoadFailure } from "./SavedCoursesLoadFailure";
 
 const EMPTY_DESCRIPTION = "AI POP PICK으로\n나에게 꼭 맞는 팝업 코스를 만들어보세요.";
@@ -39,12 +40,13 @@ export function PlannerHome() {
 
 	return (
 		<div className="flex flex-1 flex-col pt-6">
-			<CourseTabs tab={tab} panelId={panelId} onChange={handleTabChange} />
+			<Tabs items={COURSE_TAB_ITEMS} value={tab} panelId={panelId} ariaLabel="일정 구분" onChange={handleTabChange} />
 			<div
 				id={panelId}
 				role="tabpanel"
 				aria-labelledby={buildCourseTabId(tab)}
-				className="flex flex-1 flex-col px-5 pt-5"
+				tabIndex={0}
+				className="flex flex-1 flex-col px-5 pt-5 focus-ring"
 			>
 				{loadStatus === "failed" && (
 					<div className="flex flex-1 items-center justify-center py-10">

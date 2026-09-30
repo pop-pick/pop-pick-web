@@ -7,10 +7,11 @@ import { buildPopupDetailPath } from "@/shared/model/popup-path";
 import { REGION_LABELS } from "@/shared/model/region";
 
 import { formatViewCount } from "../model/detail-format";
-import type { PopupDetail } from "../model/popup-detail";
+import { type PopupDetail, toPopupSummary } from "../model/popup-detail";
 import { PopupImageCarousel } from "./PopupImageCarousel";
 import { PopupInfoCard } from "./PopupInfoCard";
 import { PopupTagBadge } from "./PopupTagBadge";
+import { RecentPopupRecorder } from "./RecentPopupRecorder";
 import { ReliabilityNotice } from "./ReliabilityNotice";
 import { ReservationLink } from "./ReservationLink";
 import { SharePopupButton } from "./SharePopupButton";
@@ -82,6 +83,7 @@ export function PopupDetailView({ popup, matchRateSlot, variant, titleId }: Popu
 				</div>
 			</div>
 			<ReliabilityNotice />
+			<RecentPopupRecorder summary={toPopupSummary(popup)} />
 		</div>
 	);
 }

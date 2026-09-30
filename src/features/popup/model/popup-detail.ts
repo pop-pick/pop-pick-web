@@ -17,3 +17,16 @@ export const RESERVATION_DETAIL_LABELS: Record<KnownPopupReservationType, string
 	WAITING: "현장 대기",
 	BOTH: "사전 예약 및 현장 대기 가능"
 };
+
+export function toPopupSummary(popup: PopupDetail) {
+	return {
+		id: popup.id,
+		title: popup.title,
+		category: popup.category,
+		region: popup.region,
+		startDate: popup.startDate,
+		endDate: popup.endDate,
+		reservationType: popup.reservationType,
+		imageUrl: popup.imageUrl
+	} satisfies PopupSummary;
+}

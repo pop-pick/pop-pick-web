@@ -1,10 +1,8 @@
 import { format } from "date-fns";
 
 import { parseDateOnlyOrThrow } from "@/shared/lib/date";
-import type { KnownPopupReservationType } from "@/shared/model/popup";
+import type { KnownPopupReservationType, PopupSummary } from "@/shared/model/popup";
 import { REGION_LABELS } from "@/shared/model/region";
-
-import type { ExplorePopup } from "./explore-popup";
 
 const MONTH_DAY_FORMAT = "MM.dd";
 const ALWAYS_OPEN_LABEL = "상시운영";
@@ -20,15 +18,15 @@ function formatEndLabel(endDate: string | null) {
 	return endDate === null ? ALWAYS_OPEN_LABEL : `${format(parseDateOnlyOrThrow(endDate), MONTH_DAY_FORMAT)} 종료`;
 }
 
-function formatReservationLabel(popup: ExplorePopup) {
+function formatReservationLabel(popup: PopupSummary) {
 	return popup.reservationType === "UNKNOWN" ? null : EXPLORE_RESERVATION_LABELS[popup.reservationType];
 }
 
-export function buildMapCardMetaParts(popup: ExplorePopup) {
+export function buildMapCardMetaParts(popup: PopupSummary) {
 	return [formatEndLabel(popup.endDate), formatReservationLabel(popup)].filter((part) => part !== null);
 }
 
-export function buildListItemMetaParts(popup: ExplorePopup) {
+export function buildListItemMetaParts(popup: PopupSummary) {
 	const region = popup.region === null ? null : REGION_LABELS[popup.region];
 	return [region, ...buildMapCardMetaParts(popup)].filter((part) => part !== null);
 }

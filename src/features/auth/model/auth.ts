@@ -8,3 +8,9 @@ export interface AuthTokens {
 }
 
 export type OAuthProvider = "KAKAO" | "GOOGLE";
+
+export interface LoginBody {
+	oAuthProvider: OAuthProvider;
+	authToken: string;
+	redirectUri: string;
+}
