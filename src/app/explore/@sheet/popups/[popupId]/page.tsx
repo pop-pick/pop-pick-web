@@ -44,6 +44,7 @@ export default async function PopupSheetPage({ params }: PageProps<"/explore/pop
 		<PopupDetailView
 			popup={detail}
 			titleId={SHEET_TITLE_ID}
+			variant="sheet"
 			matchRateSlot={<AuthStatusSwitch views={{ authenticated: matchRateNote, restoring: restoringMatchRateNote }} />}
 		/>
 	);

@@ -43,13 +43,14 @@ export default async function PopupDetailPage({ params }: PageProps<"/popups/[po
 	const detailView = (
 		<PopupDetailView
 			popup={detail}
+			variant="page"
 			matchRateSlot={<AuthStatusSwitch views={{ authenticated: matchRateNote, restoring: restoringMatchRateNote }} />}
 		/>
 	);
 	const pendingDetailView = <BookmarkSlotProvider mode="pending">{detailView}</BookmarkSlotProvider>;
 
 	return (
-		<main className="flex flex-1 flex-col pb-tab-bar-clearance">
+		<main className="flex flex-1 flex-col">
 			<PageHeader title={detail.title} fallbackPath={HOME_PATH} />
 			<AuthStatusSwitch
 				views={{
