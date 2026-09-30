@@ -118,6 +118,24 @@ export function Select<T>({ options, value, onChange, formatOptionLabel, label, 
 		setActiveIndex(hasValue ? Math.max(options.indexOf(value), 0) : 0);
 	};
 
+	const handleButtonKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+		const isOpenKey = event.key === "ArrowDown" || event.key === "ArrowUp";
+
+		if (isOpen || !isOpenKey) {
+			return;
+		}
+
+		event.preventDefault();
+		setIsActiveHighlighted(true);
+
+		if (hasValue) {
+			setActiveIndex(Math.max(options.indexOf(value), 0));
+			return;
+		}
+
+		setActiveIndex(event.key === "ArrowUp" ? Math.max(options.length - 1, 0) : 0);
+	};
+
 	const handleButtonMouseDown = (event: MouseEvent<HTMLButtonElement>) => {
 		if (isOpen) {
 			event.preventDefault();
@@ -186,7 +204,8 @@ export function Select<T>({ options, value, onChange, formatOptionLabel, label, 
 				aria-haspopup="listbox"
 				aria-expanded={isOpen}
 				aria-controls={isOpen ? listboxId : undefined}
-				aria-labelledby={`${labelIds} ${listboxId}-value`}
+				aria-labelledby={hasValue ? `${labelIds} ${listboxId}-value` : labelIds}
+				onKeyDown={handleButtonKeyDown}
 				onMouseDown={handleButtonMouseDown}
 				onClick={handleButtonClick}
 				className={styles.button()}
