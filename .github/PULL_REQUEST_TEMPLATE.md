@@ -12,9 +12,10 @@
 
 ## 검증
 
-<!-- CI가 아래 넷과 하네스 검사 `pnpm harness:check`를 돌린다. 로컬에서도 돌렸으면 표시한다 -->
+<!-- CI가 아래 다섯과 하네스 검사 `pnpm harness:check`를 돌린다. 로컬에서도 돌렸으면 표시한다 -->
 
 - [ ] `pnpm type:check`
+- [ ] `pnpm test`
 - [ ] `pnpm build`
 - [ ] `pnpm lint`
 - [ ] `pnpm format:check`

@@ -2,8 +2,7 @@
 
 import { useReducedMotion } from "motion/react";
 import * as m from "motion/react-m";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { type MouseEvent, useEffect, useId, useRef, useState } from "react";
 
 import { buildProgressPlan, type ProgressPlan } from "../model/generating-progress";
 import { GENERATING_STEPS, toStepState } from "../model/generating-steps";
@@ -11,11 +10,11 @@ import { GeneratingSpinner } from "./GeneratingSpinner";
 import { GeneratingStepItem } from "./GeneratingStepItem";
 
 interface GeneratingViewProps {
-	editHref: string;
-	resultHref: string;
+	onCancel: () => void;
 }
 
 const MS_PER_SECOND = 1000;
+const SINGLE_CLICK_DETAIL = 1;
 const SHIMMER_ANIMATION = { x: ["-100%", "250%"] };
 const SHIMMER_TRANSITION = { duration: 1.4, ease: "easeInOut", repeat: Infinity, repeatDelay: 0.4 } as const;
 
@@ -32,25 +31,30 @@ function toBarAnimation({ keyframes, stepEndsAtMs }: ProgressPlan) {
 	};
 }
 
-/** 조건 입력에서 왔으면 뒤로 가서 기록에 입력 화면이 두 번 쌓이지 않게 한다. Navigation API가 없으면 알 수 없어 주소를 바꾼다 */
-function isPreviousEntryPath(pathname: string) {
-	const navigation: Navigation | undefined = window.navigation;
-	const currentIndex = navigation?.currentEntry?.index ?? -1;
-	const previousUrl = currentIndex > 0 ? navigation?.entries()[currentIndex - 1]?.url : undefined;
-
-	return previousUrl !== undefined && previousUrl !== null && new URL(previousUrl).pathname === pathname;
-}
-
-export function GeneratingView({ editHref, resultHref }: GeneratingViewProps) {
-	const router = useRouter();
+export function GeneratingView({ onCancel }: GeneratingViewProps) {
 	const shouldReduceMotion = useReducedMotion() === true;
 	const [plan] = useState(() => buildProgressPlan(Math.random));
 	const [activeIndex, setActiveIndex] = useState(0);
-	const activeStep = GENERATING_STEPS[activeIndex];
+	const activeStepLabel = GENERATING_STEPS[activeIndex]?.label;
 	const barAnimation = toBarAnimation(plan);
+	const titleId = useId();
+	const titleRef = useRef<HTMLHeadingElement>(null);
+
+	const handleCancelClick = (event: MouseEvent<HTMLButtonElement>) => {
+		const isRepeatedClick = event.detail > SINGLE_CLICK_DETAIL;
+		if (isRepeatedClick) {
+			return;
+		}
+
+		onCancel();
+	};
 
 	useEffect(() => {
-		const timers = plan.stepEndsAtMs.map((endsAtMs, stepIndex) =>
+		titleRef.current?.focus();
+	}, []);
+
+	useEffect(() => {
+		const timers = plan.stepEndsAtMs.slice(0, -1).map((endsAtMs, stepIndex) =>
 			window.setTimeout(() => {
 				setActiveIndex(stepIndex + 1);
 			}, endsAtMs)
@@ -63,26 +67,13 @@ export function GeneratingView({ editHref, resultHref }: GeneratingViewProps) {
 		};
 	}, [plan]);
 
-	useEffect(() => {
-		if (activeStep === undefined) {
-			router.replace(resultHref);
-		}
-	}, [activeStep, resultHref, router]);
-
-	const handleCancel = () => {
-		if (isPreviousEntryPath(new URL(editHref, window.location.origin).pathname)) {
-			router.back();
-			return;
-		}
-
-		router.replace(editHref);
-	};
-
 	return (
-		<main className="flex flex-1 flex-col">
+		<section aria-labelledby={titleId} className="flex flex-1 flex-col">
 			<div className="flex flex-col items-center px-5 pt-30.5 text-center">
 				<GeneratingSpinner />
-				<h1 className="mt-11.25 text-h1 text-text-1">팝업 코스를 만들고 있어요.</h1>
+				<h1 ref={titleRef} id={titleId} tabIndex={-1} className="mt-11.25 text-h1 text-text-1 outline-none">
+					팝업 코스를 만들고 있어요.
+				</h1>
 				<p className="mt-3 text-b2-14 text-text-4">10초 정도 소요될 수 있어요.</p>
 			</div>
 			<section aria-label="코스 생성 단계" className="mx-5 mt-17 rounded-2xl bg-bg-2 px-6 pt-7 pb-6">
@@ -109,18 +100,18 @@ export function GeneratingView({ editHref, resultHref }: GeneratingViewProps) {
 					))}
 				</ol>
 				<p role="status" className="sr-only">
-					{activeStep === undefined ? "코스를 다 만들었어요" : `${activeStep.label} 진행 중`}
+					{`${activeStepLabel} 진행 중`}
 				</p>
 			</section>
 			<div className="sticky bottom-0 mt-auto rounded-t-3xl bg-bg-1 px-4 pt-4 pb-float-gap shadow-bar">
 				<button
 					type="button"
-					onClick={handleCancel}
+					onClick={handleCancelClick}
 					className="flex h-13 w-full items-center justify-center rounded-xl border border-divider-2 bg-bg-1 text-h4 text-text-3 focus-ring transition-colors hover:bg-bg-2"
 				>
 					취소하기
 				</button>
 			</div>
-		</main>
+		</section>
 	);
 }

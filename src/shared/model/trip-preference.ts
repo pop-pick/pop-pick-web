@@ -20,17 +20,6 @@ export const PARTY_SIZE_LABELS: Record<PartySize, string> = {
 	4: "4명 이상"
 };
 
-export const PREFERRED_ACTIVITIES = ["GOODS", "PHOTO", "EXPERIENCE", "FOOD"] as const;
-
-export type PreferredActivity = (typeof PREFERRED_ACTIVITIES)[number];
-
-export const PREFERRED_ACTIVITY_LABELS: Record<PreferredActivity, string> = {
-	GOODS: "굿즈 구경",
-	PHOTO: "사진 찍기",
-	EXPERIENCE: "체험하기",
-	FOOD: "맛있는 것 먹기"
-};
-
 export const TRIP_DURATIONS = ["SHORT", "HALF_DAY"] as const;
 
 export type TripDuration = (typeof TRIP_DURATIONS)[number];
@@ -40,22 +29,12 @@ export const TRIP_DURATION_LABELS: Record<TripDuration, string> = {
 	HALF_DAY: "반나절(4-5시간)"
 };
 
-/** 명세: 간편은 팝업 2곳, 반나절은 3곳 이상 */
-export const TRIP_DURATION_STOP_COUNTS: Record<TripDuration, number> = {
-	SHORT: 2,
-	HALF_DAY: 3
-};
-
 export function isCompanionType(value: string | null): value is CompanionType {
 	return value !== null && COMPANION_TYPES.includes(value as CompanionType);
 }
 
 export function isPartySize(value: number): value is PartySize {
 	return PARTY_SIZES.includes(value as PartySize);
-}
-
-export function isPreferredActivity(value: string): value is PreferredActivity {
-	return PREFERRED_ACTIVITIES.includes(value as PreferredActivity);
 }
 
 export function isTripDuration(value: string | null): value is TripDuration {

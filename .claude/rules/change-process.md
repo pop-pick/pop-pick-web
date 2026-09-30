@@ -13,20 +13,23 @@ description: 이 저장소에서 먼저 물을 것(미결정 정본, 공개 표�
 
 ## 게이트
 
-구현이 끝나면 이 순서로 돌린다. 테스트 실행 명령이 없어 테스트 게이트는 없다.
+구현이 끝나면 이 순서로 돌린다. `pnpm check`가 이 순서대로 돌린다.
 
 1. `pnpm type:check`
-2. `pnpm build`
-3. `pnpm lint`와 `pnpm format:check`
+2. `pnpm test`
+3. `pnpm build`
+4. `pnpm lint`와 `pnpm format:check`
+
+테스트를 빌드 앞에 두는 이유는 수 초 안에 끝나서다. 빌드는 분 단위라 테스트가 실패할 변경을 빌드까지 기다리지 않는다.
 
 하네스 원본을 고쳤으면 `pnpm harness:check`도 돌린다.
 
-lefthook이 pre-commit에서 스테이징된 파일 종류에 따라 lint와 format:check를, 늘 harness:check를 돌린다. pre-push에서 type:check와 build를 차례로 돌린다. 내가 건드리지 않은 파일 때문에 커밋이 막히면 그 파일을 고치는 커밋을 따로 만든다.
+lefthook이 pre-commit에서 스테이징된 파일 종류에 따라 lint와 format:check를, 늘 harness:check를 돌린다. pre-push에서 type:check와 build를 차례로 돌린다. 테스트는 lefthook에 없다. 내가 건드리지 않은 파일 때문에 커밋이 막히면 그 파일을 고치는 커밋을 따로 만든다.
 
-CI(`.github/workflows/ci.yaml`)가 PR마다 type:check와 build, lint, format:check, harness:check를 돌린다.
+CI(`.github/workflows/ci.yaml`)가 PR마다 type:check와 test, build, lint, format:check, harness:check를 돌린다.
 
 ## 완료 판정
 
-- 게이트 셋이 통과한다
+- 게이트 넷이 통과한다
 - 공개 표면을 바꿨으면 `docs/architecture/{기능}.md`와 `docs/product/SPEC.md`의 해당 절을 같은 PR에서 고친다
 - CI가 빨간불이면 머지하지 않는다

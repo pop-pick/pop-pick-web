@@ -1,4 +1,8 @@
 @layer base {
+	body {
+		overflow-wrap: break-word;
+	}
+
 	button:not(:disabled),
 	[role="button"]:not(:disabled) {
 		cursor: pointer;

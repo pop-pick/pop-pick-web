@@ -29,7 +29,7 @@ const TABS = [
 
 type TabHref = (typeof TABS)[number]["href"];
 
-const HIDDEN_PATHS = ["/onboarding", "/login", "/auth", "/planner/new", "/planner/generating"] as const;
+const HIDDEN_PATHS = ["/onboarding", "/login", "/auth", "/planner/new"] as const;
 
 const ICON_SCALE_KEYFRAMES = [0.8, 1];
 const ICON_TRANSITION = { type: "spring", bounce: 0.5, duration: 0.4 } as const;

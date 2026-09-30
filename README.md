@@ -66,7 +66,9 @@ pnpm dev
 | `pnpm format`        | Prettier로 저장소 전체를 고쳐 쓴다                                                     |
 | `pnpm format:check`  | Prettier 검사만 한다                                                                   |
 | `pnpm type:check`    | `next typegen`과 `tsc --noEmit`                                                        |
-| `pnpm check`         | 게이트 넷(`type:check`와 `build`, `lint`, `format:check`)을 차례로 돌린다              |
+| `pnpm test`          | Vitest로 `tests/`의 테스트를 한 번 돌린다                                              |
+| `pnpm test:watch`    | 파일을 고칠 때마다 테스트를 다시 돌린다                                                |
+| `pnpm check`         | 게이트 다섯(`type:check`와 `test`, `build`, `lint`, `format:check`)을 차례로 돌린다    |
 | `pnpm harness:sync`  | `.agents/` 원본을 `.claude`와 `.codex` 자리에 복사하고 변환한다. 원본을 고친 뒤 돌린다 |
 | `pnpm harness:check` | 컨벤션 검사와 생성물 대조, 회귀 테스트를 한 번에 돌린다. lefthook과 CI가 돌린다        |
 | `pnpm prepare`       | lefthook 설치와 `harness:sync`. `pnpm install` 때 자동으로 돈다                        |

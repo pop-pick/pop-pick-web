@@ -6,11 +6,11 @@ import TicketIcon from "@/shared/assets/icons/ticket.svg";
 import { SeparatedText } from "@/shared/ui/SeparatedText";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
-import type { Course } from "../model/course";
+import type { CourseSummary } from "../model/course";
 import { formatCourseDate, toCourseDurationParts } from "../model/course-format";
 
 interface CourseSummaryRowsProps {
-	course: Course;
+	course: CourseSummary;
 }
 
 interface SummaryRow {
