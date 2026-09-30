@@ -82,3 +82,7 @@ export function toExploreHref(state: ExploreState, pathname = EXPLORE_PATH) {
 export function buildExploreListPath(region: Region | null = null) {
 	return toExploreHref({ view: "list", query: "", region, sort: DEFAULT_SORT });
 }
+
+export function buildExploreSearchPath(query: string) {
+	return toExploreHref({ view: "list", query: query.trim(), region: null, sort: DEFAULT_SORT });
+}

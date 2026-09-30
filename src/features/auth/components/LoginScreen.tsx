@@ -10,7 +10,7 @@ import { KakaoLoginButton } from "./KakaoLoginButton";
 
 const LOGO_MARK_WIDTH = 51;
 const LOGO_MARK_HEIGHT = 55;
-const WORDMARK_WIDTH = 178;
+const WORDMARK_WIDTH = 186;
 const WORDMARK_HEIGHT = 32;
 
 interface LoginScreenProps {
