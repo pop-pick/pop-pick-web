@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 
-import { parseCourseRequestDraft, serializeCourseRequestDraft } from "../model/course-request";
+import { parseCourseRequestDraft } from "../model/course-request";
 import { PlannerForm } from "./PlannerForm";
 
 interface GuestPlannerFormFromUrlProps {
@@ -21,11 +21,10 @@ type PlannerFormFromUrlProps = GuestPlannerFormFromUrlProps | InactivePlannerFor
 export function PlannerFormFromUrl({ mode, loginHref }: PlannerFormFromUrlProps) {
 	const searchParams = useSearchParams();
 	const initialDraft = parseCourseRequestDraft(new URLSearchParams(searchParams.toString()));
-	const formKey = serializeCourseRequestDraft(initialDraft).toString();
 
 	if (mode === "guest") {
-		return <PlannerForm key={formKey} mode="guest" initialDraft={initialDraft} loginHref={loginHref} />;
+		return <PlannerForm mode="guest" initialDraft={initialDraft} loginHref={loginHref} />;
 	}
 
-	return <PlannerForm key={formKey} mode={mode} initialDraft={initialDraft} />;
+	return <PlannerForm mode={mode} initialDraft={initialDraft} />;
 }

@@ -26,18 +26,14 @@ import { AlertDialog } from "@/shared/ui/AlertDialog";
 import { ChoiceChip } from "@/shared/ui/ChoiceChip";
 import { Select } from "@/shared/ui/Select";
 
+import { useCourseDraftUrlSync } from "../hooks/useCourseDraftUrlSync";
 import {
 	COURSE_START_TIMES,
 	type CourseRequestDraft,
 	formatStartTimeLabel,
 	toCourseRequest
 } from "../model/course-request";
-import {
-	appendDraftToLoginHref,
-	buildGeneratingPath,
-	buildPlannerNewPath,
-	PENDING_COURSE_JOB_ID
-} from "../model/planner-path";
+import { appendDraftToLoginHref, buildGeneratingPath, PENDING_COURSE_JOB_ID } from "../model/planner-path";
 import { ConditionSection } from "./ConditionSection";
 import { DateField } from "./DateField";
 import { NoteSection } from "./NoteSection";
@@ -61,12 +57,13 @@ type PlannerFormProps = GuestPlannerFormProps | InactivePlannerFormProps;
 
 export function PlannerForm({ mode, initialDraft, loginHref }: PlannerFormProps) {
 	const router = useRouter();
-	const { control, setValue, getValues } = useForm<CourseRequestDraft>({ defaultValues: initialDraft });
+	const { control, setValue, getValues, reset } = useForm<CourseRequestDraft>({ defaultValues: initialDraft });
 	const [companion, partySize, activities, date, startAt, duration, note] = useWatch({
 		control,
 		name: ["companion", "partySize", "activities", "date", "startAt", "duration", "note"]
 	});
 	const draft = { companion, partySize, activities, date, startAt, duration, note };
+	useCourseDraftUrlSync(draft, reset);
 	const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
 	const companionTitleId = useId();
 	const partyTitleId = useId();
@@ -123,7 +120,6 @@ export function PlannerForm({ mode, initialDraft, loginHref }: PlannerFormProps)
 			return;
 		}
 
-		window.history.replaceState(null, "", buildPlannerNewPath(draft));
 		router.push(buildGeneratingPath(PENDING_COURSE_JOB_ID, draft));
 	};
 
