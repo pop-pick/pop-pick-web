@@ -9,10 +9,9 @@ import { CourseSummaryCard } from "./CourseSummaryCard";
 
 interface CourseSavedProps {
 	course: Course;
-	registeredAt: string;
 }
 
-export function CourseSaved({ course, registeredAt }: CourseSavedProps) {
+export function CourseSaved({ course }: CourseSavedProps) {
 	useBackToPlanner();
 
 	return (
@@ -25,7 +24,7 @@ export function CourseSaved({ course, registeredAt }: CourseSavedProps) {
 				</p>
 			</div>
 			<div className="mt-10.5">
-				<CourseSummaryCard course={course} registeredAt={registeredAt} />
+				<CourseSummaryCard course={course} />
 			</div>
 			<div className="mt-8">
 				<CourseCalendarActions course={course} />

@@ -27,7 +27,7 @@ export function CourseDetail({ course }: CourseDetailProps) {
 				</div>
 			</section>
 			<div className="mt-8 px-5">
-				<CourseDetailActions courseId={course.id} canDelete={course.cancelledAt === null} />
+				<CourseDetailActions courseId={course.id} canDelete={course.status === "SCHEDULED"} />
 			</div>
 		</main>
 	);
