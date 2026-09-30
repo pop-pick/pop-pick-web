@@ -18,7 +18,7 @@ const TEXT_SIZE_TOKENS = [
 	"b3-12",
 	"caption"
 ];
-const SHADOW_TOKENS = ["subtle", "bar", "floating", "on-map", "sheet", "modal"];
+const SHADOW_TOKENS = ["subtle", "bar", "control", "floating", "on-map", "sheet", "modal"];
 const TEXT_SHADOW_TOKENS = ["on-image"];
 const SPACING_TOKENS = ["tab-bar-gap", "float-gap", "tab-bar-clearance"];
 const CONTAINER_TOKENS = ["app"];
