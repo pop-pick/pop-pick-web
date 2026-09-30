@@ -1,5 +1,5 @@
-import { TZDate } from "@date-fns/tz";
-import { format, isValid, parse } from "date-fns";
+import { tz, TZDate } from "@date-fns/tz";
+import { format, isValid, parse, parseISO } from "date-fns";
 
 export const SEOUL_TIME_ZONE = "Asia/Seoul";
 
@@ -41,4 +41,8 @@ export function parseTimeOnlyOrThrow(value: string, baseDate: Date) {
 	}
 
 	return parsed;
+}
+
+export function toSeoulDateOnly(isoDateTime: string) {
+	return format(parseISO(isoDateTime), DATE_ONLY_FORMAT, { in: tz(SEOUL_TIME_ZONE) });
 }
