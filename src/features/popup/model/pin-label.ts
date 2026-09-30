@@ -8,5 +8,5 @@ export function truncatePinLabel(title: string) {
 		return title;
 	}
 
-	return `${chars.slice(0, PIN_LABEL_MAX_CHARS).join("")}${ELLIPSIS}`;
+	return `${chars.slice(0, PIN_LABEL_MAX_CHARS).join("").trimEnd()}${ELLIPSIS}`;
 }
