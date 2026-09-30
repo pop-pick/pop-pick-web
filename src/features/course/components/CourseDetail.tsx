@@ -10,9 +10,9 @@ interface CourseDetailProps {
 
 export function CourseDetail({ course }: CourseDetailProps) {
 	return (
-		<main className="flex flex-1 flex-col pt-20 pb-tab-bar-clearance">
+		<main className="flex flex-1 flex-col pt-9">
 			<h1 className="px-5 text-center text-h3 text-text-1">일정 요약</h1>
-			<div className="mx-5 mt-6 rounded-2xl bg-bg-2 p-4">
+			<div className="mx-5 mt-6.25 rounded-2xl bg-bg-2 p-4">
 				<CourseSummaryRows course={course} />
 			</div>
 			<section aria-labelledby="course-route-title" className="mt-6 flex flex-col">

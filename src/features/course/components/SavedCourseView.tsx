@@ -21,7 +21,7 @@ export function SavedCourseView({ courseId, view }: SavedCourseViewProps) {
 
 	if (loadStatus === "failed") {
 		return (
-			<main className="flex flex-1 flex-col items-center justify-center px-5 pb-tab-bar-clearance">
+			<main className="flex flex-1 flex-col items-center justify-center px-5">
 				<SavedCoursesLoadFailure />
 			</main>
 		);
@@ -29,7 +29,7 @@ export function SavedCourseView({ courseId, view }: SavedCourseViewProps) {
 
 	if (loadStatus === "loading") {
 		return (
-			<div role="status" className="flex flex-1 flex-col gap-5 px-5 pt-17">
+			<div role="status" className="flex flex-1 flex-col gap-5 px-5 pt-6">
 				<span className="sr-only">일정을 불러오고 있습니다</span>
 				<Skeleton className="h-38 rounded-2xl" />
 				<Skeleton className="h-70 rounded-2xl" />
@@ -39,7 +39,7 @@ export function SavedCourseView({ courseId, view }: SavedCourseViewProps) {
 
 	if (course?.savedAt == null) {
 		return (
-			<main className="flex flex-1 flex-col items-center justify-center px-5 pb-tab-bar-clearance">
+			<main className="flex flex-1 flex-col items-center justify-center px-5">
 				<EmptyState
 					hasWarningIcon
 					title="일정을 찾을 수 없어요."

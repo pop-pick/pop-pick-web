@@ -3,8 +3,8 @@ import { Suspense } from "react";
 
 import { AuthStatusSwitch } from "@/features/auth/components/AuthStatusSwitch";
 import { SessionRetry } from "@/features/auth/components/SessionRetry";
-import { buildLoginPath } from "@/features/auth/model/next-path";
 import { PlannerFormFromUrl } from "@/features/planner/components/PlannerFormFromUrl";
+import { buildLoginPath } from "@/shared/model/login-path";
 import { PLANNER_NEW_PATH } from "@/shared/model/planner-path";
 
 export const metadata: Metadata = {

@@ -17,7 +17,7 @@ export function ExploreListItem({ popup }: ExploreListItemProps) {
 	const metaParts = buildListItemMetaParts(popup);
 
 	return (
-		<article className="relative flex items-center gap-3 rounded-2xl border border-divider-2 bg-bg-1 p-3 transition-colors hover:bg-bg-2">
+		<article className="relative flex items-center gap-3 rounded-2xl bg-bg-1 p-3 outline outline-divider-2 transition-colors hover:bg-bg-2">
 			<PopupImage
 				src={popup.imageUrl}
 				alt=""
@@ -40,7 +40,7 @@ export function ExploreListItem({ popup }: ExploreListItemProps) {
 					<h2 className="truncate text-b1-16 text-text-1">
 						<Link
 							href={buildPopupDetailPath(popup.id)}
-							className="rounded-sm focus-ring after:absolute after:inset-0 after:rounded-2xl"
+							className="after:absolute after:inset-0 after:rounded-2xl focus-visible:outline-none focus-visible:after:outline-2 focus-visible:after:-outline-offset-2 focus-visible:after:outline-primary"
 						>
 							{popup.title}
 						</Link>

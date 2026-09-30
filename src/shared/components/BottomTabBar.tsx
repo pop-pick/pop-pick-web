@@ -60,9 +60,16 @@ export function BottomTabBar({ loginHrefByTab }: BottomTabBarProps) {
 	const router = useRouter();
 	const [pendingTab, setPendingTab] = useState<{ index: number; fromPathname: string } | null>(null);
 	const [loginPromptHref, setLoginPromptHref] = useState<string | null>(null);
+	const [originIndex, setOriginIndex] = useState(0);
 
 	const currentIndex = TABS.findIndex((tab) => tab.activePaths.some((path) => isWithinPath(pathname, path)));
-	const highlightedIndex = pendingTab?.fromPathname === pathname ? pendingTab.index : currentIndex;
+
+	if (currentIndex !== -1 && currentIndex !== originIndex) {
+		setOriginIndex(currentIndex);
+	}
+
+	const tabIndex = currentIndex === -1 ? originIndex : currentIndex;
+	const highlightedIndex = pendingTab?.fromPathname === pathname ? pendingTab.index : tabIndex;
 
 	const handleTabNavigate = (index: number) => () => {
 		setPendingTab({ index, fromPathname: pathname });

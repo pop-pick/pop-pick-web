@@ -6,21 +6,14 @@ import { useState } from "react";
 import HeartIcon from "@/shared/assets/icons/heart.svg";
 import type { BookmarkButtonSize } from "@/shared/components/BookmarkSlot";
 import { tv } from "@/shared/lib/tv";
+import { buildLoginPath } from "@/shared/model/login-path";
 import { LOGIN_CONFIRM_LABEL, LOGIN_REQUIRED_MESSAGE } from "@/shared/model/login-prompt";
 import { AlertDialog } from "@/shared/ui/AlertDialog";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
-interface GuestBookmarkButtonProps {
-	mode: "guest";
+interface BookmarkButtonProps {
+	mode: "guest" | "member" | "pending";
 	popupTitle: string;
-	loginHref: string;
-	size?: BookmarkButtonSize;
-}
-
-interface InactiveBookmarkButtonProps {
-	mode: "member" | "pending";
-	popupTitle: string;
-	loginHref?: never;
 	size?: BookmarkButtonSize;
 }
 
@@ -41,9 +34,7 @@ const ICON_SIZES: Record<BookmarkButtonSize, 20 | 24> = {
 	lg: 24
 };
 
-type BookmarkButtonProps = GuestBookmarkButtonProps | InactiveBookmarkButtonProps;
-
-export function BookmarkButton({ mode, popupTitle, loginHref, size = "lg" }: BookmarkButtonProps) {
+export function BookmarkButton({ mode, popupTitle, size = "lg" }: BookmarkButtonProps) {
 	const router = useRouter();
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
 	const isGuest = mode === "guest";
@@ -56,10 +47,7 @@ export function BookmarkButton({ mode, popupTitle, loginHref, size = "lg" }: Boo
 
 	const handleLoginConfirm = () => {
 		setIsDialogOpen(false);
-
-		if (loginHref !== undefined) {
-			router.push(loginHref);
-		}
+		router.push(buildLoginPath(`${window.location.pathname}${window.location.search}`));
 	};
 
 	const handleLoginCancel = () => {

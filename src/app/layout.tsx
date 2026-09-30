@@ -4,9 +4,9 @@ import type { Metadata, Viewport } from "next";
 
 import { AuthProvider } from "@/features/auth/components/AuthProvider";
 import { AuthStatusSwitch } from "@/features/auth/components/AuthStatusSwitch";
-import { buildLoginPath } from "@/features/auth/model/next-path";
 import { BottomTabBar } from "@/shared/components/BottomTabBar";
 import { cn } from "@/shared/lib/cn";
+import { buildLoginPath } from "@/shared/model/login-path";
 import { MotionProvider } from "@/shared/providers/MotionProvider";
 import { QueryProvider } from "@/shared/providers/QueryProvider";
 import { pretendard } from "@/shared/styles/fonts";

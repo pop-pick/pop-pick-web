@@ -1,13 +1,11 @@
 import { notFound } from "next/navigation";
 
 import { AuthStatusSwitch } from "@/features/auth/components/AuthStatusSwitch";
-import { buildLoginPath } from "@/features/auth/model/next-path";
 import { readRefreshToken } from "@/features/auth/model/session-cookie";
 import { BookmarkSlotProvider } from "@/features/bookmark/components/BookmarkSlotProvider";
 import { MatchRateNote } from "@/features/popup/components/MatchRateNote";
 import { PopupDetailView } from "@/features/popup/components/PopupDetailView";
 import { PopupSheet } from "@/features/popup/components/PopupSheet";
-import { buildExploreSheetPath } from "@/features/popup/model/explore-sheet-path";
 import { findPlaceholderPopupDetail } from "@/features/popup/model/placeholder-details";
 import { parsePopupId } from "@/features/popup/model/popup-id";
 import { PLACEHOLDER_NICKNAME } from "@/shared/lib/placeholder-data";
@@ -46,6 +44,7 @@ export default async function PopupSheetPage({ params }: PageProps<"/explore/pop
 		<PopupDetailView
 			popup={detail}
 			titleId={SHEET_TITLE_ID}
+			variant="sheet"
 			matchRateSlot={<AuthStatusSwitch views={{ authenticated: matchRateNote, restoring: restoringMatchRateNote }} />}
 		/>
 	);
@@ -56,11 +55,7 @@ export default async function PopupSheetPage({ params }: PageProps<"/explore/pop
 			<AuthStatusSwitch
 				views={{
 					authenticated: <BookmarkSlotProvider mode="member">{detailView}</BookmarkSlotProvider>,
-					anonymous: (
-						<BookmarkSlotProvider mode="guest" loginHref={buildLoginPath(buildExploreSheetPath(detail.id))}>
-							{detailView}
-						</BookmarkSlotProvider>
-					),
+					anonymous: <BookmarkSlotProvider mode="guest">{detailView}</BookmarkSlotProvider>,
 					restoring: pendingDetailView,
 					unavailable: pendingDetailView
 				}}

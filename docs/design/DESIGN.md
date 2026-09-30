@@ -158,8 +158,9 @@ Tailwind 기본 팔레트(`zinc`, `blue` 등)는 지우지 않았다. 기존 화
 
 | 클래스                   | 값                  | 시안에서 쓰인 곳            |
 | ------------------------ | ------------------- | --------------------------- |
-| `shadow-subtle`          | `0 0 4px` 검정 4%   | 탐색 검색창                 |
+| `shadow-subtle`          | `0 0 4px` 검정 4%   | 탐색 지도와 목록 전환       |
 | `shadow-bar`             | `0 0 14px` 검정 8%  | 화면 아래 고정 버튼 영역    |
+| `shadow-control`         | `0 0 12px` 검정 8%  | 지도 핀, 현재 위치 버튼     |
 | `shadow-floating`        | `0 0 12px` 검정 10% | 떠 있는 하단 탭바, 드롭다운 |
 | `shadow-on-map`          | `0 0 12px` 검정 16% | 지도 위 칩                  |
 | `shadow-sheet`           | `0 0 20px` 검정 12% | 바텀시트, 날짜와 시간 선택  |
@@ -175,18 +176,17 @@ Tailwind 기본 팔레트(`zinc`, `blue` 등)는 지우지 않았다. 기존 화
 
 간격 토큰은 셋이고 `layout.css`에 있다. `tab-bar-gap`은 스크롤 끝에서 본문과 탭바 사이 40px이다. 탐색 지도 뷰는 지도가 화면 바닥까지 닿도록 이 값만큼 아래 여백을 거둔다. 나머지 둘은 기기 안전 영역이 들어간다. `float-gap`은 떠 있는 요소와 화면 바닥 사이로 시안의 42px이다. 홈 인디케이터가 있는 기기에서는 인디케이터 위 8px이 42px보다 크면 그 값을 쓴다. `max(42px, 8px + env(safe-area-inset-bottom))`이다. `tab-bar-clearance`는 탭바 높이 80px에 `float-gap`을 더한 값이고 루트 `html`의 `scroll-padding-bottom`이 쓴다. 그래서 키보드로 옮긴 포커스가 탭바 뒤에 가려지지 않는다. 안전 영역 값을 받으려고 루트 레이아웃이 `viewport-fit=cover`를 켠다.
 
-모서리 반경도 Tailwind 기본 척도를 쓴다. 시안 값과 같다. 40px(랜딩 카드)은 기본 척도 위에 `tokens/radius.css`의 `--radius-5xl`(`rounded-5xl`)로 이었다.
+모서리 반경도 Tailwind 기본 척도를 쓴다. 시안 값과 같다. 기본 척도에 없는 두 값은 `tokens/radius.css`에 두었다. 20px(바텀시트와 지도 하단 카드의 윗모서리, 코스 타임라인의 팝업 카드)은 `--radius-panel`(`rounded-panel`), 40px(랜딩 카드)은 `--radius-5xl`(`rounded-5xl`)이다.
 
-| 시안 반경 | 클래스         |
-| --------- | -------------- |
-| 4px       | `rounded-sm`   |
-| 8px       | `rounded-lg`   |
-| 12px      | `rounded-xl`   |
-| 16px      | `rounded-2xl`  |
-| 24px      | `rounded-3xl`  |
-| 999px     | `rounded-full` |
-
-20px 반경(바텀시트 윗모서리, 지도 버튼, 코스 타임라인의 팝업 카드)은 Tailwind 기본 척도에 없다. 코스 타임라인 카드는 결정 전까지 `rounded-2xl`(16px)이다. 토큰으로 둘지 16px이나 24px로 맞출지는 미정이고 `docs/product/ROADMAP.md`의 미결정 절에 있다.
+| 시안 반경 | 클래스          |
+| --------- | --------------- |
+| 4px       | `rounded-sm`    |
+| 8px       | `rounded-lg`    |
+| 12px      | `rounded-xl`    |
+| 16px      | `rounded-2xl`   |
+| 20px      | `rounded-panel` |
+| 24px      | `rounded-3xl`   |
+| 999px     | `rounded-full`  |
 
 값은 Tailwind 토큰으로 정의한다. `p-[18px]` 같은 임의값을 클래스에 직접 박지 않는다. 이 규칙은 `.agents/rules/tailwind.md`에 있다.
 
@@ -217,7 +217,7 @@ import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 카카오 로그인 버튼의 말풍선 `kakao-talk.svg`도 이 폴더에 있는 한 가지 색 아이콘이라 버튼 글자색 `kakao-foreground`로 칠해진다.
 
-색이 정해진 그림은 이 폴더에 넣지 않는다. 로고 워드마크 `public/brand/logo.svg`는 흰 타원이, 로그인 화면의 로고 마크 `public/brand/logo-mark.svg`와 홈 배너의 핀 그림 `public/illustrations/banner-pins.svg`는 그라디언트가 있어 SVGR이 색을 `currentColor`로 바꾸면 깨진다. 이런 파일은 `public/`에 두고 `next/image`에 경로 문자열과 `width`, `height`를 준다. 로컬 경로라 `images.remotePatterns`가 필요 없고 Next는 SVG를 최적화하지 않고 그대로 보낸다. `src/` 아래 다른 폴더에 두고 import하면 Next의 전역 타입 선언이 `any`라 타입 검사가 잘못된 경로를 잡지 못한다. 로그인 화면 구글 버튼의 G 로고 `public/brand/google-g.png`는 여러 색의 PNG라 같은 방식으로 둔다. 시안 애셋에 있던 원형 테두리는 파일에서 잘라 냈고 G 둘레에 시안과 같은 여백만 남겼다. 바탕은 투명이라 hover로 버튼 바탕이 바뀌어도 G 둘레에 흰 사각이 보이지 않는다. 이미지가 없는 팝업의 대체 표시가 쓰는 카테고리 아이콘도 같은 방식으로 `public/pins/`에 있다. 등록 완료 화면의 체크 그림 `public/illustrations/course-saved-check.svg`도 파란 원에서 체크를 오려 낸 색 고정 그림이라 `public/`에 있다. 지도 핀은 SDK에 넘기는 DOM 요소라 React 컴포넌트를 쓸 수 없어 `public/pins/`의 파일을 `img`로 싣는다. 선택 핀의 `selected.svg`와 코스 핀의 `course.svg`가 그렇다.
+색이 정해진 그림은 이 폴더에 넣지 않는다. 로고 워드마크 `public/brand/logo.svg`는 브랜드 파랑이 고정된 그림이고, 로그인 화면의 로고 마크 `public/brand/logo-mark.svg`와 홈 배너의 핀 그림 `public/illustrations/banner-pins.svg`는 그라디언트가 있어 SVGR이 색을 `currentColor`로 바꾸면 깨진다. 이런 파일은 `public/`에 두고 `next/image`에 경로 문자열과 `width`, `height`를 준다. 로컬 경로라 `images.remotePatterns`가 필요 없고 Next는 SVG를 최적화하지 않고 그대로 보낸다. `src/` 아래 다른 폴더에 두고 import하면 Next의 전역 타입 선언이 `any`라 타입 검사가 잘못된 경로를 잡지 못한다. 로그인 화면 구글 버튼의 G 로고 `public/brand/google-g.png`는 여러 색의 PNG라 같은 방식으로 둔다. 시안 애셋에 있던 원형 테두리는 파일에서 잘라 냈고 G 둘레에 시안과 같은 여백만 남겼다. 바탕은 투명이라 hover로 버튼 바탕이 바뀌어도 G 둘레에 흰 사각이 보이지 않는다. 이미지가 없는 팝업의 대체 표시가 쓰는 카테고리 아이콘도 같은 방식으로 `public/pins/`에 있다. 등록 완료 화면의 체크 그림 `public/illustrations/course-saved-check.svg`도 파란 원에서 체크를 오려 낸 색 고정 그림이라 `public/`에 있다. 코스 조건 입력의 지도 핀 그림 `public/illustrations/planner-map-pin.svg`와 코스 생성 중의 로딩 링 `public/illustrations/planner-generating-ring.svg`도 여러 색이 고정된 그림이라 같은 방식이다. 이 링은 Lottie 애니메이션의 23프레임을 뜬 포스터로, 애니메이션을 불러오기 전과 움직임 줄이기 설정에서 보이고, 애니메이션 JSON은 `src/shared/assets/lottie/`에 두고 재생기와 함께 동적 import로 싣는다. 지도 핀은 SDK에 넘기는 DOM 요소라 React 컴포넌트를 쓸 수 없어 `public/pins/`의 파일을 `img`로 싣는다. 선택 핀의 `selected.svg`와 코스 핀의 `course.svg`가 그렇다.
 
 ## 다크 모드
 

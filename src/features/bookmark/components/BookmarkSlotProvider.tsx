@@ -6,29 +6,15 @@ import { BookmarkSlotContext, type BookmarkSlotProps } from "@/shared/components
 
 import { BookmarkButton } from "./BookmarkButton";
 
-interface GuestBookmarkSlotProviderProps {
-	mode: "guest";
-	loginHref: string;
+interface BookmarkSlotProviderProps {
+	mode: "guest" | "member" | "pending";
 	children: ReactNode;
 }
 
-interface InactiveBookmarkSlotProviderProps {
-	mode: "member" | "pending";
-	loginHref?: never;
-	children: ReactNode;
-}
-
-type BookmarkSlotProviderProps = GuestBookmarkSlotProviderProps | InactiveBookmarkSlotProviderProps;
-
-export function BookmarkSlotProvider({ mode, loginHref, children }: BookmarkSlotProviderProps) {
+export function BookmarkSlotProvider({ mode, children }: BookmarkSlotProviderProps) {
 	const renderBookmark = useCallback(
-		({ popupTitle, size }: BookmarkSlotProps) =>
-			mode === "guest" ? (
-				<BookmarkButton mode="guest" popupTitle={popupTitle} loginHref={loginHref} size={size} />
-			) : (
-				<BookmarkButton mode={mode} popupTitle={popupTitle} size={size} />
-			),
-		[mode, loginHref]
+		({ popupTitle, size }: BookmarkSlotProps) => <BookmarkButton mode={mode} popupTitle={popupTitle} size={size} />,
+		[mode]
 	);
 
 	return <BookmarkSlotContext value={renderBookmark}>{children}</BookmarkSlotContext>;

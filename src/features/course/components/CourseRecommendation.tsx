@@ -12,7 +12,7 @@ interface CourseRecommendationProps {
 
 export function CourseRecommendation({ course, regenerateHref }: CourseRecommendationProps) {
 	return (
-		<main className="flex flex-1 flex-col pt-19 pb-tab-bar-clearance">
+		<main className="flex flex-1 flex-col pt-8">
 			<header className="flex flex-col gap-3 px-5 text-center">
 				<h1 className="text-h1 whitespace-pre-line text-text-1">{`${course.regionLabel}\n추천 동선입니다.`}</h1>
 				<p className="text-b2-14 text-text-4">팝픽이 계획한 맞춤 동선으로 팝업을 즐겨보세요.</p>

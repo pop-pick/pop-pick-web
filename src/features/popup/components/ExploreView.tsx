@@ -4,6 +4,7 @@ import * as m from "motion/react-m";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { PopupSearchForm } from "@/shared/components/PopupSearchForm";
 import { tv } from "@/shared/lib/tv";
 import {
 	type ExploreSort,
@@ -21,7 +22,6 @@ import { filterExplorePopups } from "../model/explore-filter";
 import type { ExplorePopup } from "../model/explore-popup";
 import { EXPLORE_REGION_OPTIONS, formatExploreRegionLabel } from "../model/explore-region";
 import { buildExploreSheetPath } from "../model/explore-sheet-path";
-import { ExploreSearchBar } from "./ExploreSearchBar";
 import { PopupList } from "./PopupList";
 import { PopupMap } from "./PopupMap";
 import { SortToggle } from "./SortToggle";
@@ -72,7 +72,9 @@ export function ExploreView({ popups }: ExploreViewProps) {
 	const emptyMessage = buildExploreEmptyMessage(state);
 	const isMapView = state.view === "map";
 	const resultAnnouncement =
-		filteredPopups.length === 0 ? emptyMessage.title : `팝업 ${String(filteredPopups.length)}곳`;
+		filteredPopups.length === 0
+			? `${emptyMessage.title} ${emptyMessage.description}`
+			: `팝업 ${String(filteredPopups.length)}곳`;
 
 	const replaceExploreState = useCallback(
 		(nextState: ExploreState) => {
@@ -131,8 +133,8 @@ export function ExploreView({ popups }: ExploreViewProps) {
 			<p role="status" className="sr-only">
 				{resultAnnouncement}
 			</p>
-			<div className="flex flex-col gap-4 px-5 pt-17">
-				<ExploreSearchBar value={draftQuery} onChange={setDraftQuery} onSubmit={handleSearchSubmit} />
+			<div className="flex flex-col gap-4 px-5 pt-6">
+				<PopupSearchForm value={draftQuery} onChange={setDraftQuery} onSubmit={handleSearchSubmit} />
 				<ViewToggle view={state.view} onChange={handleViewChange} />
 			</div>
 

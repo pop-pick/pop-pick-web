@@ -3,9 +3,9 @@
 import { useRouter } from "next/navigation";
 import { type ReactNode, useEffect, useRef } from "react";
 
+import { buildLoginPath } from "@/shared/model/login-path";
 import { Skeleton } from "@/shared/ui/Skeleton";
 
-import { buildLoginPath } from "../model/next-path";
 import { useAuthStore } from "../model/useAuthStore";
 import { SessionRetry } from "./SessionRetry";
 

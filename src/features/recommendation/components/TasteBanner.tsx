@@ -3,12 +3,24 @@ import Link from "next/link";
 
 import ArrowUpRightIcon from "@/shared/assets/icons/arrow-up-right.svg";
 import { ONBOARDING_FIRST_STEP_PATH } from "@/shared/model/onboarding-path";
+import { PLANNER_NEW_PATH } from "@/shared/model/planner-path";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 const PINS_WIDTH = 105;
 const PINS_HEIGHT = 102;
 
-export function TasteBanner() {
+const BANNER_ACTIONS = {
+	member: { label: "AI POP PICK 시작하기", href: PLANNER_NEW_PATH },
+	guest: { label: "나에게 맞는 팝업 찾기", href: ONBOARDING_FIRST_STEP_PATH }
+} as const;
+
+interface TasteBannerProps {
+	audience: keyof typeof BANNER_ACTIONS;
+}
+
+export function TasteBanner({ audience }: TasteBannerProps) {
+	const action = BANNER_ACTIONS[audience];
+
 	return (
 		<section
 			aria-labelledby="taste-banner-title"
@@ -35,10 +47,10 @@ export function TasteBanner() {
 				</p>
 			</div>
 			<Link
-				href={ONBOARDING_FIRST_STEP_PATH}
+				href={action.href}
 				className="relative flex h-10 items-center justify-center gap-1 rounded-xl bg-text-2 px-3 text-b1-14 text-text-w focus-ring transition-colors hover:bg-text-1"
 			>
-				나에게 맞는 팝업 찾기
+				{action.label}
 				<SvgIcon icon={ArrowUpRightIcon} size={16} className="text-icon-w" />
 			</Link>
 		</section>

@@ -4,10 +4,23 @@ import useEmblaCarousel from "embla-carousel-react";
 import { type KeyboardEvent, useEffect, useState } from "react";
 
 import { PopupImage } from "@/shared/components/PopupImage";
-import { tv } from "@/shared/lib/tv";
+import { tv, type VariantProps } from "@/shared/lib/tv";
 import type { PopupCategory } from "@/shared/model/popup";
 
 const IMAGE_SIZES = "(max-width: 430px) calc(100vw - 40px), 390px";
+
+const carouselFrameVariants = tv({
+	slots: {
+		image: "rounded-2xl",
+		viewport: "overflow-hidden rounded-2xl focus-ring"
+	},
+	variants: {
+		variant: {
+			page: { image: "h-50", viewport: "h-50" },
+			sheet: { image: "h-35", viewport: "h-35" }
+		}
+	}
+});
 
 const carouselDotVariants = tv({
 	base: "size-1.5 rounded-full",
@@ -23,11 +36,13 @@ interface PopupImageCarouselProps {
 	label: string;
 	images: string[];
 	category: PopupCategory | null;
+	variant: NonNullable<VariantProps<typeof carouselFrameVariants>["variant"]>;
 }
 
-export function PopupImageCarousel({ label, images, category }: PopupImageCarouselProps) {
+export function PopupImageCarousel({ label, images, category, variant }: PopupImageCarouselProps) {
 	const [viewportRef, emblaApi] = useEmblaCarousel();
 	const [selectedIndex, setSelectedIndex] = useState(0);
+	const frameStyles = carouselFrameVariants({ variant });
 
 	useEffect(() => {
 		if (!emblaApi) {
@@ -67,7 +82,7 @@ export function PopupImageCarousel({ label, images, category }: PopupImageCarous
 				category={category}
 				sizes={IMAGE_SIZES}
 				loading="eager"
-				className="h-50 rounded-2xl"
+				className={frameStyles.image()}
 			/>
 		);
 	}
@@ -81,7 +96,7 @@ export function PopupImageCarousel({ label, images, category }: PopupImageCarous
 				aria-roledescription="carousel"
 				aria-label={label}
 				onKeyDown={handleViewportKeyDown}
-				className="h-50 overflow-hidden rounded-2xl focus-ring"
+				className={frameStyles.viewport()}
 			>
 				<ul className="flex h-full touch-pan-y">
 					{images.map((image, index) => (

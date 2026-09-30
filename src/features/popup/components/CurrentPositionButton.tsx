@@ -34,7 +34,7 @@ export function CurrentPositionButton({ status, onLocate, className, ref }: Curr
 			disabled={isDisabled}
 			onClick={handleClick}
 			className={cn(
-				"flex size-10 items-center justify-center rounded-full bg-bg-1 text-icon-2 shadow-floating focus-ring transition-colors not-disabled:hover:bg-bg-2 disabled:text-icon-disabled aria-busy:animate-pulse",
+				"flex size-10 items-center justify-center rounded-full bg-bg-1 text-icon-2 shadow-control focus-ring transition-colors not-disabled:hover:bg-bg-2 disabled:text-icon-disabled aria-busy:motion-safe:animate-pulse",
 				className
 			)}
 		>

@@ -21,18 +21,19 @@ const CALENDAR_FORMATTERS = {
 	formatWeekdayName: (weekday: Date) => format(weekday, "EEEEE", { locale: ko })
 };
 
+const NAV_BUTTON_CLASS =
+	"mx-0.5 flex size-6 items-center justify-center rounded-md text-icon-disabled focus-ring transition-colors not-aria-disabled:hover:bg-bg-3 not-aria-disabled:hover:text-icon-2 aria-disabled:opacity-40";
+
 const CALENDAR_CLASS_NAMES = {
-	root: "w-full px-6 pt-6.75 pb-5.5",
+	root: "w-full px-5.5 pt-6.75 pb-5.5",
 	months: "flex",
 	month: "flex w-full flex-wrap items-center justify-between",
 	month_caption: "flex",
-	caption_label: "rounded-xl border border-divider-2 px-3 py-1 text-b2-16 text-text-1",
-	button_previous:
-		"flex size-6 items-center justify-center rounded-md text-icon-2 focus-ring transition-colors not-aria-disabled:hover:bg-bg-3 aria-disabled:text-icon-disabled",
-	button_next:
-		"flex size-6 items-center justify-center rounded-md text-icon-2 focus-ring transition-colors not-aria-disabled:hover:bg-bg-3 aria-disabled:text-icon-disabled",
+	caption_label: "flex h-9.75 items-center rounded-xl border border-divider-2 px-3 text-b2-16 text-text-1",
+	button_previous: NAV_BUTTON_CLASS,
+	button_next: NAV_BUTTON_CLASS,
 	month_grid: "mt-5.5 w-full table-fixed border-collapse",
-	weekday: "h-10 text-b3-12 text-text-5",
+	weekday: "h-10 text-b2-12 text-text-5",
 	day: "group h-10 p-0 text-center text-text-1",
 	day_button:
 		"mx-auto flex size-10 items-center justify-center rounded-xl border border-transparent text-b3-14 focus-ring transition-colors not-disabled:hover:bg-bg-2 group-aria-selected:border-primary group-aria-selected:bg-primary-subtle",

@@ -4,7 +4,7 @@ import { COURSE_TABS } from "../model/course-tab";
 
 export function PlannerHomeSkeleton() {
 	return (
-		<div role="status" className="flex flex-1 flex-col pt-17">
+		<div role="status" className="flex flex-1 flex-col pt-6">
 			<span className="sr-only">플래너를 불러오고 있습니다</span>
 			<div className="flex gap-3 border-b border-divider-2 px-5 py-2">
 				{COURSE_TABS.map((tab) => (
