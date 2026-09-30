@@ -41,7 +41,7 @@
 ```
 하트 클릭
   비로그인    "로그인 후 이용이 가능합니다. 로그인하시겠습니까?"
-                로그인 하러가기  라우트가 넘긴 loginHref(/login?next=현재 경로)로 이동
+                로그인 하러가기  /login?next=누른 순간의 경로와 쿼리로 이동
                 닫기(X)          알럿만 닫힌다
   찜 안 함    "해당 팝업을 찜하시겠습니까?"
                 확인  POST /bookmarks/{popupId}
@@ -55,7 +55,7 @@
   onError     하트는 그대로. 토스트로 이유, [bookmark] 로그
 ```
 
-**로그인 여부를 아는 곳.** `BookmarkButton`은 `auth`의 `useAuthStore`를 부르지 않는다. 기능끼리 부르지 않는 규칙(`architecture.md`) 때문이다. 대신 라우트가 `features/auth`의 `AuthStatusSwitch`에 인증 상태마다 다른 `mode`의 `BookmarkSlotProvider`를 넣는다. `anonymous`는 `mode="guest"`와 `buildLoginPath`로 만든 `loginHref`, `authenticated`는 `mode="member"`, `restoring`과 `unavailable`은 `mode="pending"`이다. `member`와 `pending`은 `aria-disabled`라 눌러도 아무 일이 없다.
+**로그인 여부를 아는 곳.** `BookmarkButton`은 `auth`의 `useAuthStore`를 부르지 않는다. 기능끼리 부르지 않는 규칙(`architecture.md`) 때문이다. 대신 라우트가 `features/auth`의 `AuthStatusSwitch`에 인증 상태마다 다른 `mode`의 `BookmarkSlotProvider`를 넣는다. `anonymous`는 `mode="guest"`, `authenticated`는 `mode="member"`, `restoring`과 `unavailable`은 `mode="pending"`이다. `member`와 `pending`은 `aria-disabled`라 눌러도 아무 일이 없다. `guest`의 로그인 주소는 알럿에서 로그인 하러가기를 누른 순간의 주소(`location.pathname`과 `search`)로 `shared/model/login-path`의 `buildLoginPath`가 만든다. 탐색은 검색어와 지역, 정렬을 서버를 다시 부르지 않고 주소에만 쓰기 때문에 라우트가 미리 만든 주소로는 그 조건이 돌아오지 않는다.
 
 캐시를 바꾸는 자리는 `patchBookmarkInCaches` 하나다. `["popups"]`, `["recommendations"]`, `["bookmarks"]`로 시작하는 모든 쿼리 데이터를 훑어 `id`가 같은 `PopupSummary`를 찾아 바꾼다. 무한 쿼리는 페이지 배열 안을 훑는다. 상세 캐시(`PopupDetail`)도 `PopupSummary`를 확장하므로 같은 함수가 다룬다.
 
@@ -99,11 +99,11 @@ function patchBookmarkInCaches(queryClient: QueryClient, popupId: number, isBook
 ```typescript
 // 있는 것. 테두리 버튼. isBookmarked는 API가 열리면 더한다
 type BookmarkButtonSize = "sm" | "md" | "lg"; // shared/components/BookmarkSlot.tsx. 32px, 40px, 48px이고 아이콘은 20, 24, 24
-export function BookmarkButton(
-	props:
-		| { mode: "guest"; popupTitle: string; loginHref: string; size?: BookmarkButtonSize }
-		| { mode: "member" | "pending"; popupTitle: string; size?: BookmarkButtonSize }
-); // size 기본 lg. 상세는 lg, 지도 카드는 md, 목록 카드는 sm
+export function BookmarkButton(props: {
+	mode: "guest" | "member" | "pending";
+	popupTitle: string;
+	size?: BookmarkButtonSize;
+}); // size 기본 lg. 상세는 lg, 지도 카드는 md, 목록 카드는 sm
 
 // 있는 것. shared/components/BookmarkSlot.tsx
 interface BookmarkSlotProps {
@@ -114,9 +114,10 @@ interface BookmarkSlotProps {
 export function BookmarkSlot(props: BookmarkSlotProps); // 가장 가까운 Provider가 준 함수로 그린다
 
 // 있는 것. features/bookmark/components/BookmarkSlotProvider.tsx
-export function BookmarkSlotProvider(
-	props: { mode: "guest"; loginHref: string; children: ReactNode } | { mode: "member" | "pending"; children: ReactNode }
-);
+export function BookmarkSlotProvider(props: { mode: "guest" | "member" | "pending"; children: ReactNode });
+
+// 있는 것. features/bookmark/components/BookmarkListPreparing.tsx
+export function BookmarkListPreparing(); // 찜 API가 열리기 전 마이페이지 찜한 팝업 탭의 준비 중 안내. BookmarkList가 생기면 지운다
 
 // 설계
 export function BookmarkList(); // 마이페이지의 찜한 팝업 탭. 종료 항목 흐림 처리

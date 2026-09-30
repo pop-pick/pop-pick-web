@@ -1,9 +1,12 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
-import { SavedCourseView } from "@/features/course/components/SavedCourseView";
-import { parseCourseId } from "@/features/course/model/course-path";
+import { RequireAuth } from "@/features/auth/components/RequireAuth";
+import { CourseView } from "@/features/course/components/CourseView";
+import { buildCourseSavedPath, parseCourseId } from "@/shared/model/course-path";
 
-export const metadata = {
+export const metadata: Metadata = {
 	title: "플래너 등록 완료"
 };
 
@@ -14,5 +17,11 @@ export default async function CourseSavedPage({ params }: PageProps<"/courses/[c
 		notFound();
 	}
 
-	return <SavedCourseView courseId={courseId} view="registered" />;
+	return (
+		<RequireAuth nextPath={buildCourseSavedPath(courseId)}>
+			<Suspense>
+				<CourseView courseId={courseId} view="saved" />
+			</Suspense>
+		</RequireAuth>
+	);
 }

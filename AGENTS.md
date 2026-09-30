@@ -27,7 +27,7 @@
 - `git-workflow.md`. 커밋 메시지는 <타입>: <한국어 제목>. main과 develop, feature 브랜치이고 직접 커밋을 막는 것은 main 하나. 커밋 전 MM과 RM 확인, PR base는 develop이고 squash를 쓰지 않는다. 절차는 pop-pick-git 스킬에 있다
 - `state.md`. 서버 상태는 TanStack Query, 공유할 조건값은 URL, 나머지 클라이언트 상태만 Zustand. 서버 데이터를 스토어에 복제하지 않는다
 - `tailwind.md`. X-[value] 임의값을 쓰지 않는다. 값은 src/shared/styles/tokens의 @theme inline 토큰과 utilities.css의 @utility에서 온다. 어긋난 값을 옮기는 네 갈래. 값에 따라 갈리는 모양은 aria 변형과 @/shared/lib/tv 레시피로 적는다
-- `testing-trophy.md`. 테스팅 트로피가 전략이다. 기본 동작은 삭제이고 추가는 예외다. 도구는 미정. 층마다 소유하는 것과 지우는 기준
+- `testing-trophy.md`. 테스팅 트로피가 전략이다. 기본 동작은 삭제이고 추가는 예외다. 도구는 Vitest와 Testing Library, MSW이고 테스트는 tests/에 둔다. 층마다 소유하는 것과 지우는 기준, 덜 깨지게 쓰는 법
 - `typescript-conventions.md`. 이 저장소에서 타입스크립트 규칙을 기계로 막는 것과 그 규칙의 본문. 추론되는 반환 타입, props는 interface, return 앞과 블록 뒤 빈 줄, boolean 상태 이름
 - `ui.md`. 기성 UI 라이브러리 없음(모양 없이 동작만 주는 부품은 예외). 공용 컴포넌트는 src/shared/ui와 components가 주인. 파일 이름과 선언 형식의 정본. 이벤트 핸들러는 JSX 밖으로 뺀다. 모바일 퍼스트, 키보드로 조작 가능, 토큰만 쓴다
 
@@ -65,6 +65,6 @@ bash .agents/scripts/check-conventions.sh
 
 ## 자주 틀리는 것
 
-- 날짜는 date-fns로 다루고 달력 부품은 react-day-picker다. 서버가 UTC로 돌아서 오늘과 현재 시각은 `@/shared/lib/date`의 `getSeoulNow`와 `getSeoulToday`로 서울 기준을 구한다. `new Date()`와 `Date.now()`는 쓰지 않는다. `"yyyy-MM-dd"`와 `"HH:mm"` 문자열은 같은 파일의 `parseDateOnly`나 `parseDateOnlyOrThrow`, `parseTimeOnlyOrThrow`로 읽는다. date-fns의 `parse`는 `2026-2-3`도 받아 주기 때문이다
+- 날짜는 date-fns로 다루고 달력 부품은 react-day-picker다. 서버가 UTC로 돌아서 오늘과 현재 시각은 `@/shared/lib/date`의 `getSeoulNow`와 `getSeoulToday`로 서울 기준을 구한다. `new Date()`와 `Date.now()`는 쓰지 않는다. 렌더 중에 지금 시각이 필요하면 `@/shared/lib/useSeoulNow`를 쓴다. React Compiler가 켜져 있어 렌더에서 `getSeoulNow`를 부르면 첫 값이 기억되고 시간이 흘러도 화면이 바뀌지 않는다. `"yyyy-MM-dd"`와 `"HH:mm"` 문자열은 같은 파일의 `parseDateOnly`나 `parseDateOnlyOrThrow`, `parseTimeOnlyOrThrow`로 읽는다. date-fns의 `parse`는 `2026-2-3`도 받아 주기 때문이다
 - `pnpm build`와 `pnpm type:check`는 `API_BASE_URL`이 비어 있으면 실패한다. `next.config.ts`가 설정을 읽을 때 예외를 낸다
 - `.claude/`와 `.codex/` 아래 생성물을 손으로 고치면 다음 `pnpm harness:sync`가 지운다. `.agents/` 원본을 고친다

@@ -20,6 +20,7 @@ import {
 } from "../model/answers";
 import {
 	EMPTY_SELECTION_MESSAGE,
+	FREE_TEXT_DESCRIPTION,
 	FREE_TEXT_PLACEHOLDER,
 	ONBOARDING_QUESTION_LABELS,
 	OPTIONS_LOADING_MESSAGE,
@@ -137,6 +138,7 @@ export function ActivityStepForm({ initialAnswers }: ActivityStepFormProps) {
 					/>
 					<FreeTextField
 						label={ONBOARDING_QUESTION_LABELS.freeText}
+						description={FREE_TEXT_DESCRIPTION}
 						value={freeText}
 						maxLength={ONBOARDING_FREE_TEXT_MAX_LENGTH}
 						placeholder={FREE_TEXT_PLACEHOLDER}

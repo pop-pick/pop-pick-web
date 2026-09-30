@@ -5,9 +5,9 @@ import { type ReactNode, useEffect } from "react";
 
 import { refreshAccessToken, setRefreshHandler, subscribeAuthExpired } from "@/shared/api/auth-token";
 import { ApiError } from "@/shared/api/errors";
+import { buildLoginPath } from "@/shared/model/login-path";
 
 import { refreshAuthTokens } from "../api/refresh-auth-tokens";
-import { buildLoginPath } from "../model/next-path";
 import { isTokenRejectedError } from "../model/session-rejection";
 import { useAuthStore } from "../model/useAuthStore";
 

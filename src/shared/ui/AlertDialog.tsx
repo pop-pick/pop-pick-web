@@ -47,6 +47,7 @@ interface AlertDialogProps {
 	closeLabel?: string;
 	onConfirm: () => void;
 	onCancel?: () => void;
+	onClosed?: () => void;
 }
 
 export function AlertDialog({
@@ -57,7 +58,8 @@ export function AlertDialog({
 	cancelLabel = "취소",
 	closeLabel,
 	onConfirm,
-	onCancel
+	onCancel,
+	onClosed
 }: AlertDialogProps) {
 	const dialogRef = useRef<HTMLDialogElement>(null);
 	const confirmButtonRef = useRef<HTMLButtonElement>(null);
@@ -96,8 +98,9 @@ export function AlertDialog({
 	};
 
 	const handleAnimationComplete = () => {
-		if (!open) {
-			dialogRef.current?.close();
+		if (!open && dialogRef.current?.open === true) {
+			dialogRef.current.close();
+			onClosed?.();
 		}
 	};
 

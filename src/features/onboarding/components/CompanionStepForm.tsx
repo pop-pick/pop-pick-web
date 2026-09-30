@@ -5,22 +5,25 @@ import { type SubmitEvent, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
 import { buildOnboardingStepPath } from "@/shared/model/onboarding-path";
-import { COMPANION_TYPES, type CompanionType, PARTY_SIZES, type PartySize } from "@/shared/model/trip-preference";
+import {
+	COMPANION_TYPE_LABELS,
+	COMPANION_TYPES,
+	type CompanionType,
+	PARTY_SIZE_LABELS,
+	PARTY_SIZES,
+	type PartySize
+} from "@/shared/model/trip-preference";
 import { AlertDialog } from "@/shared/ui/AlertDialog";
 
 import { isStepIncomplete, type OnboardingStepAnswers, type StepOptionCounts } from "../model/answers";
-import { ONBOARDING_COMPANION_TYPE_LABELS, ONBOARDING_PARTY_SIZE_LABELS } from "../model/choice-labels";
 import { EMPTY_SELECTION_MESSAGE, ONBOARDING_QUESTION_LABELS } from "../model/messages";
 import { useOnboardingStore } from "../model/useOnboardingStore";
 import { ChoiceChipGroup } from "./ChoiceChipGroup";
 import { StepActions } from "./StepActions";
 
-const COMPANION_TYPE_OPTIONS = COMPANION_TYPES.map((value) => ({
-	value,
-	label: ONBOARDING_COMPANION_TYPE_LABELS[value]
-}));
+const COMPANION_TYPE_OPTIONS = COMPANION_TYPES.map((value) => ({ value, label: COMPANION_TYPE_LABELS[value] }));
 
-const PARTY_SIZE_OPTIONS = PARTY_SIZES.map((value) => ({ value, label: ONBOARDING_PARTY_SIZE_LABELS[value] }));
+const PARTY_SIZE_OPTIONS = PARTY_SIZES.map((value) => ({ value, label: PARTY_SIZE_LABELS[value] }));
 
 const NEXT_STEP_PATH = buildOnboardingStepPath(2);
 

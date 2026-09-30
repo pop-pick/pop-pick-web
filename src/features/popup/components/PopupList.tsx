@@ -12,7 +12,7 @@ interface PopupListProps {
 export function PopupList({ popups, emptyMessage }: PopupListProps) {
 	if (popups.length === 0) {
 		return (
-			<div className="flex flex-1 items-center justify-center py-10">
+			<div className="flex justify-center pt-31.75 pb-10">
 				<EmptyState title={emptyMessage.title} description={emptyMessage.description} hasWarningIcon />
 			</div>
 		);

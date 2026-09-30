@@ -2,7 +2,7 @@
 
 import { type ChangeEvent, useId } from "react";
 
-import { COURSE_NOTE_MAX_LENGTH } from "../model/course-request";
+import { PLANNER_NOTE_MAX_LENGTH } from "@/shared/model/planner-path";
 
 interface NoteSectionProps {
 	note: string;
@@ -35,14 +35,14 @@ export function NoteSection({ note, onChange }: NoteSectionProps) {
 					aria-labelledby={titleId}
 					aria-describedby={`${descriptionId} ${counterId}`}
 					value={note}
-					maxLength={COURSE_NOTE_MAX_LENGTH}
+					maxLength={PLANNER_NOTE_MAX_LENGTH}
 					placeholder={NOTE_PLACEHOLDER}
 					onChange={handleNoteChange}
 					rows={2}
 					className="h-22 scrollbar-subtle w-full resize-none rounded-2xl border border-transparent bg-bg-2 p-5 text-b3-16 text-text-1 transition-colors placeholder:text-text-4 focus:border-primary focus:outline-hidden"
 				/>
 				<p id={counterId} className="text-b3-14 text-text-4">
-					{`${String(note.length)}/${String(COURSE_NOTE_MAX_LENGTH)}자`}
+					{`${String(note.length)}/${String(PLANNER_NOTE_MAX_LENGTH)}자`}
 				</p>
 			</div>
 		</section>

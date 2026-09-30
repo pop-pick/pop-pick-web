@@ -1,9 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-import { buildLoginPath } from "@/features/auth/model/next-path";
 import { REFRESH_COOKIE_NAME } from "@/features/auth/model/session-cookie";
+import { buildLoginPath } from "@/shared/model/login-path";
 
-const PROTECTED_PATHS = new Set(["/my", "/planner"]);
+const PROTECTED_PATHS = new Set(["/my", "/planner", "/planner/new"]);
 const ONBOARDING_STEP_PATH = /^\/onboarding\/\d+$/;
 const COURSE_PATH = /^\/courses\/[^/]+(\/saved)?$/;
 
@@ -20,5 +20,12 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-	matcher: ["/my", "/planner", "/onboarding/:step(\\d+)", "/courses/:courseId", "/courses/:courseId/saved"]
+	matcher: [
+		"/my",
+		"/planner",
+		"/planner/new",
+		"/onboarding/:step(\\d+)",
+		"/courses/:courseId",
+		"/courses/:courseId/saved"
+	]
 };

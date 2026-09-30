@@ -27,6 +27,18 @@ export type KakaoMapInstance = {
 		paddingLeft?: number
 	): void;
 	relayout(): void;
+	panBy(dx: number, dy: number): void;
+	getProjection(): KakaoMapProjection;
+	getNode(): HTMLElement;
+};
+
+export type KakaoPoint = {
+	x: number;
+	y: number;
+};
+
+export type KakaoMapProjection = {
+	containerPointFromCoords(latlng: KakaoLatLng): KakaoPoint;
 };
 
 export type KakaoMarkerOptions = {

@@ -19,7 +19,7 @@ skills:
 ## 검수에서 판단하는 것
 
 - 의존이 늘거나 줄었는가. `package.json`과 `pnpm-lock.yaml`이 같이 바뀌었는가. 승인이 기록되지 않은 의존 추가는 막음으로 낸다
-- `package.json` scripts의 이름이 바뀌었는가. `change-process.md`와 CI, lefthook이 부르는 이름(`type:check`, `build`, `lint`, `format:check`, `harness:check`)이 그대로 있어야 한다
+- `package.json` scripts의 이름이 바뀌었는가. `change-process.md`와 CI, lefthook이 부르는 이름(`type:check`, `test`, `test:watch`, `build`, `lint`, `format:check`, `harness:check`)이 그대로 있어야 한다
 - `next.config.ts`가 `API_BASE_URL`을 읽는 방식이 바뀌었는가. 비어 있을 때 예외를 내는 동작이 빠지면 빈 주소로 배포된다
 - `tsconfig.json`의 `strict`와 `noUncheckedIndexedAccess`, `paths`가 바뀌었는가. `paths`가 바뀌면 `architecture.md`의 별칭 줄도 함께 바뀌어야 한다
 - eslint나 prettier 설정이 규칙을 끄거나 대상을 줄였는가. 걸린 코드를 고치지 않고 설정을 느슨하게 만든 변경이면 막음으로 낸다

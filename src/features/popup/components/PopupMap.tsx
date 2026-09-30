@@ -14,6 +14,7 @@ import { toPopupMarkers } from "../model/popup-markers";
 import { POSITION_STATUS_NOTICES, type PositionStatus } from "../model/position-status";
 import { CurrentPositionButton } from "./CurrentPositionButton";
 import { MapPopupCard } from "./MapPopupCard";
+import { SelectedPinReveal } from "./SelectedPinReveal";
 
 const CLUSTER_MIN_LEVEL = 5;
 const MY_POSITION_LEVEL = 5;
@@ -60,6 +61,7 @@ export function PopupMap({
 	const [manualTarget, setManualTarget] = useState<KakaoLatLngLiteral | null>(null);
 	const [isListRevealed, setIsListRevealed] = useState(false);
 	const positionButtonRef = useRef<HTMLButtonElement | null>(null);
+	const overlayRef = useRef<HTMLDivElement | null>(null);
 
 	const markers = useMemo(() => toPopupMarkers(popups), [popups]);
 	const positions = useMemo(() => markers.map((marker) => marker.position), [markers]);
@@ -154,8 +156,12 @@ export function PopupMap({
 				<p role="status" className="sr-only">
 					{selectedPopup === null ? "" : `${selectedPopup.title} 선택됨`}
 				</p>
+				<SelectedPinReveal position={selectedPopup === null ? null : selectedPopup.position} overlayRef={overlayRef} />
 
-				<div className="pointer-events-none fixed inset-x-0 bottom-0 z-0 mx-auto flex max-w-app flex-col">
+				<div
+					ref={overlayRef}
+					className="pointer-events-none fixed inset-x-0 bottom-0 z-0 mx-auto flex max-w-app flex-col"
+				>
 					<div className="flex items-center gap-2 px-5 pb-6">
 						<CurrentPositionButton
 							ref={positionButtonRef}

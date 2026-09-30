@@ -1,34 +1,52 @@
 import type { ReactNode } from "react";
 
 import { BookmarkSlot } from "@/shared/components/BookmarkSlot";
+import { tv, type VariantProps } from "@/shared/lib/tv";
 import { POPUP_CATEGORY_LABELS } from "@/shared/model/popup";
 import { buildPopupDetailPath } from "@/shared/model/popup-path";
 import { REGION_LABELS } from "@/shared/model/region";
 
 import { formatViewCount } from "../model/detail-format";
-import type { PopupDetail } from "../model/popup-detail";
+import { type PopupDetail, toPopupSummary } from "../model/popup-detail";
 import { PopupImageCarousel } from "./PopupImageCarousel";
 import { PopupInfoCard } from "./PopupInfoCard";
 import { PopupTagBadge } from "./PopupTagBadge";
+import { RecentPopupRecorder } from "./RecentPopupRecorder";
 import { ReliabilityNotice } from "./ReliabilityNotice";
 import { ReservationLink } from "./ReservationLink";
 import { SharePopupButton } from "./SharePopupButton";
 
+const popupDetailViewVariants = tv({
+	base: "flex flex-col gap-5 px-5",
+	variants: {
+		variant: {
+			page: "pt-1.25",
+			sheet: "pb-10"
+		}
+	}
+});
+
 interface PopupDetailViewProps {
 	popup: PopupDetail;
 	matchRateSlot: ReactNode;
+	variant: NonNullable<VariantProps<typeof popupDetailViewVariants>["variant"]>;
 	titleId?: string;
 }
 
-export function PopupDetailView({ popup, matchRateSlot, titleId }: PopupDetailViewProps) {
+export function PopupDetailView({ popup, matchRateSlot, variant, titleId }: PopupDetailViewProps) {
 	const hasBadgeRow = popup.category !== null || popup.region !== null || popup.viewCount !== null;
 
 	return (
-		<div className="flex flex-col gap-5 px-5 pt-1.25 pb-10">
+		<div className={popupDetailViewVariants({ variant })}>
 			<div className="flex flex-col gap-8">
 				<div className="flex flex-col gap-6">
 					<div className="flex flex-col gap-5">
-						<PopupImageCarousel label={`${popup.title} 사진`} images={popup.imageUrls} category={popup.category} />
+						<PopupImageCarousel
+							label={`${popup.title} 사진`}
+							images={popup.imageUrls}
+							category={popup.category}
+							variant={variant}
+						/>
 						<div className="flex flex-col gap-5">
 							<div className="flex flex-col gap-3">
 								{hasBadgeRow && (
@@ -65,6 +83,7 @@ export function PopupDetailView({ popup, matchRateSlot, titleId }: PopupDetailVi
 				</div>
 			</div>
 			<ReliabilityNotice />
+			<RecentPopupRecorder summary={toPopupSummary(popup)} />
 		</div>
 	);
 }

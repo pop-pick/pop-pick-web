@@ -1,11 +1,11 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { type ReactNode, useEffect } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 
+import { buildLoginPath } from "@/shared/model/login-path";
 import { Skeleton } from "@/shared/ui/Skeleton";
 
-import { buildLoginPath } from "../model/next-path";
 import { useAuthStore } from "../model/useAuthStore";
 import { SessionRetry } from "./SessionRetry";
 
@@ -16,12 +16,17 @@ interface RequireAuthProps {
 	fallback?: ReactNode;
 }
 
+/** 로그인에서 비로그인으로 바뀌는 전이는 원인 쪽이 이동을 맡는다. 로그아웃은 useLogout이 홈으로, 토큰 만료는 AuthProvider가 로그인 화면으로 보낸다. 여기서도 보내면 두 이동이 겹친다 */
 export function RequireAuth({ children, nextPath, fallback }: RequireAuthProps) {
 	const router = useRouter();
 	const status = useAuthStore((state) => state.status);
+	const previousStatusRef = useRef(status);
 
 	useEffect(() => {
-		if (status === "anonymous") {
+		const previousStatus = previousStatusRef.current;
+		previousStatusRef.current = status;
+
+		if (status === "anonymous" && previousStatus !== "authenticated") {
 			router.replace(buildLoginPath(nextPath));
 		}
 	}, [status, nextPath, router]);

@@ -1,14 +1,8 @@
 import { api } from "@/shared/api/client";
 import { readBearerToken, toBackendErrorResponse, toSuccessResponse } from "@/shared/api/route-handler";
 
-import type { AuthTokens, OAuthProvider } from "../model/auth";
+import type { AuthTokens, LoginBody } from "../model/auth";
 import { clearRefreshCookie, readRefreshToken, setRefreshCookie } from "../model/session-cookie";
-
-interface LoginBody {
-	oAuthProvider: OAuthProvider;
-	authToken: string;
-	redirectUri: string;
-}
 
 export async function postSession(request: Request) {
 	const body = (await request.json()) as LoginBody;

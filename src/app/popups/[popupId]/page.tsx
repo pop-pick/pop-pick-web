@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 
 import { AuthStatusSwitch } from "@/features/auth/components/AuthStatusSwitch";
-import { buildLoginPath } from "@/features/auth/model/next-path";
 import { readRefreshToken } from "@/features/auth/model/session-cookie";
 import { BookmarkSlotProvider } from "@/features/bookmark/components/BookmarkSlotProvider";
 import { MatchRateNote } from "@/features/popup/components/MatchRateNote";
@@ -10,7 +9,6 @@ import { findPlaceholderPopupDetail } from "@/features/popup/model/placeholder-d
 import { parsePopupId } from "@/features/popup/model/popup-id";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { PLACEHOLDER_NICKNAME } from "@/shared/lib/placeholder-data";
-import { buildPopupDetailPath } from "@/shared/model/popup-path";
 
 const HOME_PATH = "/";
 
@@ -45,22 +43,19 @@ export default async function PopupDetailPage({ params }: PageProps<"/popups/[po
 	const detailView = (
 		<PopupDetailView
 			popup={detail}
+			variant="page"
 			matchRateSlot={<AuthStatusSwitch views={{ authenticated: matchRateNote, restoring: restoringMatchRateNote }} />}
 		/>
 	);
 	const pendingDetailView = <BookmarkSlotProvider mode="pending">{detailView}</BookmarkSlotProvider>;
 
 	return (
-		<main className="flex flex-1 flex-col pb-tab-bar-clearance">
+		<main className="flex flex-1 flex-col">
 			<PageHeader title={detail.title} fallbackPath={HOME_PATH} />
 			<AuthStatusSwitch
 				views={{
 					authenticated: <BookmarkSlotProvider mode="member">{detailView}</BookmarkSlotProvider>,
-					anonymous: (
-						<BookmarkSlotProvider mode="guest" loginHref={buildLoginPath(buildPopupDetailPath(detail.id))}>
-							{detailView}
-						</BookmarkSlotProvider>
-					),
+					anonymous: <BookmarkSlotProvider mode="guest">{detailView}</BookmarkSlotProvider>,
 					restoring: pendingDetailView,
 					unavailable: pendingDetailView
 				}}

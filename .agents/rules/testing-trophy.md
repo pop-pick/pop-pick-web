@@ -1,5 +1,5 @@
 ---
-description: 테스팅 트로피가 전략이다. 기본 동작은 삭제이고 추가는 예외다. 도구는 미정. 층마다 소유하는 것과 지우는 기준
+description: 테스팅 트로피가 전략이다. 기본 동작은 삭제이고 추가는 예외다. 도구는 Vitest와 Testing Library, MSW이고 테스트는 tests/에 둔다. 층마다 소유하는 것과 지우는 기준, 덜 깨지게 쓰는 법
 paths: ["**/*.test.*", "**/*.spec.*", "e2e/**", "tests/**", "vitest.config.*", "playwright.config.*"]
 ---
 
@@ -15,9 +15,31 @@ paths: ["**/*.test.*", "**/*.spec.*", "e2e/**", "tests/**", "vitest.config.*", "
 
 ## 도구
 
-단위와 컴포넌트, e2e 도구는 미정이다. 지금 저장소에는 테스트 실행 명령이 없다. 아래 절의 원칙은 어떤 도구를 고르든 그대로 적용된다.
+| 쓰임        | 도구                                                                                        |
+| ----------- | ------------------------------------------------------------------------------------------- |
+| 실행기      | Vitest 5.0. 설정은 `vitest.config.mts`, 환경은 jsdom 30                                     |
+| 렌더와 조회 | `@testing-library/react` 16.3, `@testing-library/dom` 10.4, `@testing-library/jest-dom` 7.0 |
+| 사용자 동작 | `@testing-library/user-event` 14.6                                                          |
+| 네트워크    | MSW 2.15의 `msw/node`                                                                       |
+| App Router  | `next-router-mock` 1.0의 `next-router-mock/navigation`                                      |
 
-도구를 도입하면 이 절에 도구 이름과 버전, `package.json`의 실행 스크립트 이름, 파일을 대상 코드 옆에 두는지 따로 모으는지를 적는다. 도입은 의존성 추가라서 사용자 승인이 필요하다.
+e2e 도구는 없다. 아래 e2e가 소유하는 것이 테스트로 필요해지면 그때 들인다.
+
+`pnpm test`는 한 번 돌고 끝난다. 게이트와 CI가 이 이름을 부른다. `pnpm test:watch`는 파일을 고칠 때마다 다시 돈다.
+
+**테스트는 저장소 루트 `tests/`에 기능 이름 폴더로 모은다.** `tests/recommendation/home-search.test.tsx`처럼 `tests/{기능}/{흐름}.test.tsx`로 둔다. 대상 옆 `src` 안에 두지 않는 이유는 `check-conventions.sh`가 `src`의 파일 이름과 `export default`, 본문 주석을 검사해 테스트 파일과 테스트용 대체 모듈이 걸리기 때문이다. `vitest.config.mts`도 `tests/**/*.test.{ts,tsx}`만 모은다.
+
+**헬퍼는 `tests/support/`에 있다.**
+
+| 파일            | 내보내는 것                                                                                                                          |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `render.tsx`    | `renderWithProviders(ui, { url })`. 테스트마다 새 QueryClient와 `MotionProvider`로 감싸고 `user`, `router`, `queryClient`를 돌려준다 |
+| `msw.ts`        | `server`와 `ApiResponse` 모양을 만드는 `apiSuccess(data)`, `apiError(status, errorCode, message)`                                    |
+| `auth.ts`       | 회원으로 만드는 `signInAsMember()`와 비회원으로 만드는 `signOutAsGuest()`                                                            |
+| `clock.ts`      | `freezeSeoulTime("2026-10-01T09:00:00+09:00")`. `Date`만 가짜로 바꿔 user-event와 `findBy*`는 실제 타이머로 돈다                     |
+| `next-link.tsx` | `next/link` 대체. 누르면 `router`의 주소를 바꾼다                                                                                    |
+
+`tests/setup.ts`가 파일마다 먼저 돈다. jest-dom 매처를 싣고, MSW를 `onUnhandledRequest: "error"`로 켜서 핸들러 없는 요청을 실패로 만든다. `next/navigation`의 훅을 `next-router-mock`으로 바꾸고 `redirect`와 `notFound`는 원본을 둔다. 테스트가 끝날 때마다 화면을 지우고 핸들러와 인증 스토어, 주소를 `/`로, 타이머를 원래대로 돌린다. 시간대는 서버처럼 UTC로 돈다.
 
 ## 값이 나는 자리
 
@@ -45,21 +67,28 @@ paths: ["**/*.test.*", "**/*.spec.*", "e2e/**", "tests/**", "vitest.config.*", "
 
 하나라도 걸리면 삭제 후보다.
 
-1. 구현 상세를 단언한다. 내부 상태, 클래스명, DOM을 직접 뒤지는 조회, 호출 횟수
+1. 구현 상세를 단언한다. 내부 상태, 클래스명, DOM을 직접 뒤지는 조회, 호출 횟수. `container.querySelector`, `toHaveClass`, `useAuthStore.getState()`나 `queryClient.getQueryData`로 읽은 값, `toHaveBeenCalledTimes`가 여기에 든다. 상태는 `toBeChecked`, `toHaveAttribute("aria-selected", "true")`처럼 화면이 드러내는 값으로 본다
 2. role이나 텍스트로 잡을 수 있는데 test id로 잡는다
 3. 하위 층이 이미 같은 보장을 낸다. 지울 때 그 파일과 케이스 이름을 근거로 댄다
 4. 같은 부류를 여러 개 두고 있다. 부류마다 하나면 충분하다
 5. 정적 분석 셋 중 하나가 이미 막는다
 6. 상수나 설정값을 그대로 다시 적는다
 7. 라이브러리나 프레임워크가 하는 일을 확인한다
-8. 요청 가로채기 도구로 요청이 발생했는지나 요청 형태를 단언한다
+8. 요청 가로채기 도구로 요청이 발생했는지나 요청 형태를 단언한다. MSW 핸들러의 `request`를 모아 두고 단언하거나 `server.events.on("request:start")`로 요청을 센다. 요청이 맞았는지는 핸들러가 준 응답을 화면이 그리는지로 본다
 9. 스냅샷이다
 10. async 서버 컴포넌트를 렌더해 단언한다. Next 문서가 e2e로 하라고 명시한다
-11. 사용자 동작을 흉내내는 유틸리티가 있는데 DOM 이벤트를 직접 발사하거나 렌더 갱신을 손으로 감싼다
+11. 사용자 동작을 흉내내는 유틸리티가 있는데 DOM 이벤트를 직접 발사하거나 렌더 갱신을 손으로 감싼다. `fireEvent`를 부르거나 `act()`로 감싼다. `renderWithProviders`가 돌려준 `user`로 조작하고 기다림은 `findBy*`와 `waitFor`로 한다
 12. 단언 없이 조회만 하거나 항상 참인 단언이다
 13. e2e인데 브라우저가 필요 없다
 
-도구를 도입하면 구현 상세 단언과 요청 가로채기 단언, 직접 이벤트 발사 항목을 그 도구의 API 이름으로 구체화한다.
+## 요구사항이 바뀌어도 덜 깨지게 쓰는 법
+
+- 요소는 `getByRole`과 접근 가능한 이름으로 찾는다. 역할과 이름으로 찾을 수 없으면 화면에 접근성 이름이 없는 것이니 테스트보다 화면을 먼저 본다
+- 이름으로는 버튼과 입력의 라벨처럼 동작을 가리키는 문구만 쓴다. 안내 문장과 카피는 자주 바뀌니 역할과 개수, 상태로 확인한다
+- 이동은 `router`의 `pathname`과 `query`를 `toMatchObject`로 본다. 주소 문자열 전체를 비교하면 쿼리 순서나 기본값 생략 규칙이 바뀔 때도 실패한다
+- 여러 케이스가 같은 조작을 반복하면(날짜 고르기, 단계 넘기기) 그 조작을 테스트 파일 안 함수 하나로 모은다. 화면이 바뀌면 그 함수만 고친다
+- 응답은 테스트마다 `server.use`로 그 케이스에 필요한 것만 둔다. 기본 핸들러를 쌓아 두지 않는다
+- 오늘에 따라 결과가 갈리면 `freezeSeoulTime`으로 시각을 고정한다
 
 ## 지우면 안 되는 것
 

@@ -1,10 +1,10 @@
 # 홈 추천 설계
 
-`features/recommendation`. 홈의 헤더와 취향 배너, 회원의 팝업 PICK, 인기 팝업, 뜨고 있는 지역, 추천이 준비되기 전이나 실패했을 때의 축소 동작을 다룬다. 홈 화면 자체는 `src/app/page.tsx`(`/`)가 이 기능과 `auth`의 인증 슬롯을 조립한다.
+`features/recommendation`. 홈의 헤더와 검색창, 취향 배너, 회원의 팝업 PICK, 인기 팝업, 뜨고 있는 지역, 추천이 준비되기 전이나 실패했을 때의 축소 동작을 다룬다. 홈 화면 자체는 `src/app/page.tsx`(`/`)가 이 기능과 `auth`의 인증 슬롯을 조립한다.
 
 ## R. Requirements
 
-**기능.** 홈은 위에서부터 헤더(워드마크와 검색 링크), 취향 배너, 회원에게만 보이는 "{이름}님의 팝업 PICK", 지금 인기 있는 팝업, 지금 뜨고 있는 지역 칩이다. 배너와 인기 팝업, 지역 칩은 회원과 비회원에게 같다. 9/26 시안에 검색바와 AI 코스 생성 배너가 없어 홈에 두지 않았다. 검색은 헤더 돋보기가 `/explore?view=list`로 가는 링크이고 플래너는 하단 탭바로 들어간다. 카드에 무엇이 놓이는지는 `docs/product/SPEC.md`의 AI 개인화 추천 코스 절이 정본이다.
+**기능.** 홈은 위에서부터 헤더(워드마크), 검색창, 취향 배너, 회원에게만 보이는 "{이름}님의 팝업 PICK", 지금 인기 있는 팝업, 지금 뜨고 있는 지역 칩이다. 인기 팝업과 지역 칩은 회원과 비회원에게 같다. 검색창은 탐색과 같은 입력칸(`shared/components/PopupSearchForm`)이다. 엔터를 누르면 그 검색어로 탐색 목록(`/explore?view=list&q=`)이 열리고 검색어가 비었으면 검색어 없는 목록이 열린다. 팀 위키 9/28 결정(D73)과 기능 명세의 탐색 목록 스티키를 따랐다. 취향 배너는 버튼 하나만 갈린다. 회원은 "AI POP PICK 시작하기"가 코스 조건 입력(`/planner/new`)으로, 비회원은 "나에게 맞는 팝업 찾기"가 `/onboarding/1`로 간다. 회원 버튼은 기능 명세의 "AI 코스 생성 버튼: 클릭 시 플래너 페이지로 이동"에 해당한다. 같은 문구의 플래너 홈 생성 배너가 조건 입력으로 가서 목적지를 맞췄다. 카드에 무엇이 놓이는지는 `docs/product/SPEC.md`의 AI 개인화 추천 코스 절이 정본이다.
 
 **보장.**
 
@@ -20,7 +20,7 @@
 
 - 주도권은 클라이언트다. 요청 응답이다
 - 추천 생성과 이유 문구는 백엔드 몫이다. 추천 기준은 PM이 정했고 AI가 그 위에서 돈다. FE는 결과를 그리기만 한다
-- "준비 중"은 실패가 아니라 상태다. 온보딩 답이 아직 없거나 임베딩이 끝나지 않은 사용자에게 서버가 `PREPARING`을 값으로 낸다. 실패(`ApiError`)와 준비 중을 화면은 같은 축소 동작으로 다루지만 로그는 다르게 남긴다
+- "준비 중"은 실패가 아니라 상태다. 임베딩이 끝나지 않은 사용자에게 서버가 `PREPARING`을 값으로 낸다. 취향이 없는 회원은 준비 중이 아니라 랜덤 셋을 받는다. 실패(`ApiError`)와 준비 중을 화면은 같은 축소 동작으로 다루지만 로그는 다르게 남긴다
 - 축소 동작은 `~/.agents/rules/no-fallback.md`의 조건 셋을 채운다. `docs/product/SPEC.md`에 적혀 있고 화면에서 라벨로 구분되고 `[recommendation]` 로그가 남는다
 - 백엔드에 홈이 읽을 API가 아직 없다. 화면은 임시 데이터로 먼저 만들었고 없는 엔드포인트의 조회 함수와 `queryOptions`는 만들지 않았다. 출처가 정해지지 않은 값(일치율, 카드 배지 문구, 인기 한 줄 문구, 평점과 리뷰 수)은 `null`을 허용하고 값이 있을 때만 그린다. 임시 데이터에 시안 값을 넣어 지금 화면은 시안과 같다
 
@@ -92,19 +92,19 @@ function resolveSectionMode(query: UseQueryResult<RecommendationResult, ApiError
 
 **컴포넌트.** 전부 `features/recommendation/components`에 있다. 데이터는 props로 받고 라우트가 `features/recommendation/model/placeholder-home.ts`의 임시 데이터를 넘긴다.
 
-| 컴포넌트              | 계약                                                                                       |
-| --------------------- | ------------------------------------------------------------------------------------------ |
-| `HomeHeader`          | 워드마크가 페이지 `<h1>`이고 alt는 POP PICK. 돋보기가 탐색 목록(`/explore?view=list`) 링크 |
-| `TasteBanner`         | 회원과 비회원 모두. "나에게 맞는 팝업 찾기"가 `/onboarding/1` 링크                         |
-| `PickSection`         | 닉네임과 `RecommendedPopupItem[]`을 받는다. 펼친 카드와 자동 넘김을 갖는다                 |
-| `PickCard`            | 펼쳤을 때만 설명과 일치율을 그린다                                                         |
-| `OnImageBadge`        | 이미지 위 반투명 배지. 카테고리와 `badge` 문구                                             |
-| `PickSectionSkeleton` | `restoring`에서 PICK 자리를 지킨다                                                         |
-| `PopularSection`      | 전체보기가 탐색 목록 인기순. 인기순이 탐색의 기본 정렬이라 주소에 `sort`가 붙지 않는다     |
-| `PopularPopupRow`     | 72px 썸네일과 세 줄. 행 전체가 상세 링크                                                   |
-| `TrendingRegions`     | 칩이 `/explore?view=list&region=`                                                          |
+| 컴포넌트              | 계약                                                                                                                          |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `HomeHeader`          | 워드마크가 페이지 `<h1>`이고 alt는 POP PICK. 그 아래 `HomeSearch`가 검색어를 받아 `buildExploreSearchPath`로 탐색 목록에 간다 |
+| `TasteBanner`         | `audience`가 `member`면 "AI POP PICK 시작하기"가 `/planner/new`, `guest`면 "나에게 맞는 팝업 찾기"가 `/onboarding/1` 링크     |
+| `PickSection`         | 닉네임과 `RecommendedPopupItem[]`을 받는다. 펼친 카드와 자동 넘김을 갖는다                                                    |
+| `PickCard`            | 펼쳤을 때만 설명과 일치율을 그린다                                                                                            |
+| `OnImageBadge`        | 이미지 위 반투명 배지. 카테고리와 `badge` 문구                                                                                |
+| `PickSectionSkeleton` | `restoring`에서 PICK 자리를 지킨다                                                                                            |
+| `PopularSection`      | 전체보기가 탐색 목록 인기순. 인기순이 탐색의 기본 정렬이라 주소에 `sort`가 붙지 않는다                                        |
+| `PopularPopupRow`     | 72px 썸네일과 세 줄. 행 전체가 상세 링크                                                                                      |
+| `TrendingRegions`     | 칩이 `/explore?view=list&region=`                                                                                             |
 
-PICK 카드와 인기 행은 시안에서 탐색 카드와 모양이 달라 이 기능 안에 있다. 배너 목적지는 회원과 비회원 모두 `/onboarding/1`이라 배너가 인증 상태를 모른다. 로그인하지 않은 사용자는 `proxy.ts`가 `/login?next=/onboarding/1`로 보내고 로그인이 끝나면 온보딩 1단계로 온다.
+PICK 카드와 인기 행은 시안에서 탐색 카드와 모양이 달라 이 기능 안에 있다. 배너는 인증 상태를 모르고 라우트가 `AuthStatusSwitch`의 칸마다 `audience`를 골라 넣는다. 세션을 확인하는 동안(`restoring`)과 확인하지 못했을 때(`unavailable`)는 세션 쿠키가 있으면 회원 배너, 없으면 비회원 배너다. 비회원 배너를 누르면 `proxy.ts`가 `/login?next=/onboarding/1`로 보내고 로그인이 끝나면 온보딩 1단계로 온다.
 
 **서버 API.** 전부 백엔드 요구다.
 

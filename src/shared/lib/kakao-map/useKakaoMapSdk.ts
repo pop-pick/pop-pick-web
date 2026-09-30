@@ -38,6 +38,7 @@ export function useKakaoMapSdk() {
 				}
 
 				if (error instanceof KakaoMapError) {
+					console.error(`[kakao-map] SDK를 불러오지 못했다 (${error.reason})`, error);
 					setState({ status: "error", sdk: null, error });
 					return;
 				}

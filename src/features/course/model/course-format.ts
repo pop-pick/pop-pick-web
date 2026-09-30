@@ -3,8 +3,7 @@ import { ko } from "date-fns/locale";
 
 import { parseDateOnlyOrThrow } from "@/shared/lib/date";
 
-import type { Course, CourseLeg, CourseStop } from "./course";
-import { toCourseMinutes } from "./course-time";
+import type { Course, CourseLeg, CourseStop, CourseSummary } from "./course";
 
 const METERS_PER_KILOMETER = 1000;
 
@@ -24,21 +23,13 @@ export function formatCourseDate(date: string) {
 }
 
 /** "총 소요시간 : " 뒤에 구분점으로 이어 그릴 두 조각을 돌려준다. 구분점은 화면이 `SeparatedText`로 넣는다 */
-export function toCourseDurationParts(course: Course) {
-	const duration = formatDuration(toCourseMinutes(course));
-	return [`약 ${duration}(${course.startAt} ~ ${course.endAt}`, `팝업 ${String(course.stops.length)}곳)`];
+export function toCourseDurationParts(course: CourseSummary) {
+	const duration = formatDuration(course.totalMinutes);
+	return [`약 ${duration}(${course.startAt} ~ ${course.endAt}`, `팝업 ${String(course.stopCount)}곳)`];
 }
 
 export function toStopDetailParts(stop: CourseStop) {
-	const parts = [stop.address, stop.waitMinutes === null ? null : `대기시간 예상 ${String(stop.waitMinutes)}분`].filter(
-		(part) => part !== null
-	);
-
-	if (parts.length > 0) {
-		return parts;
-	}
-
-	return stop.description === null ? [] : [stop.description];
+	return stop.address === null ? [] : [stop.address];
 }
 
 function formatDistance(meters: number) {

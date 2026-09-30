@@ -11,19 +11,19 @@ const ICON_PIN_Y_ANCHOR = 0.5;
 
 const PIN_CLASS = "group relative flex size-10 cursor-pointer items-center justify-center";
 const PIN_CIRCLE_CLASS =
-	"flex size-6 items-center justify-center rounded-full border-2 border-text-2 bg-bg-3 group-aria-pressed:size-10 group-aria-pressed:border-0 group-aria-pressed:bg-primary group-aria-pressed:shadow-floating";
+	"flex size-6 items-center justify-center rounded-full border-2 border-text-2 bg-bg-3 group-aria-pressed:size-10 group-aria-pressed:border-0 group-aria-pressed:bg-primary group-aria-pressed:shadow-control";
 const PIN_DOT_CLASS = "size-3 rounded-full bg-icon group-aria-pressed:hidden";
 const PIN_ICON_CLASS = "hidden size-5 group-aria-pressed:block";
-const ICON_PIN_CLASS = "flex size-10 items-center justify-center rounded-full bg-bg-1 shadow-floating";
+const ICON_PIN_CLASS = "flex size-10 items-center justify-center rounded-full bg-bg-1 shadow-control";
 const ICON_PIN_ICON_CLASS = "size-5";
 const CLUSTER_CLASS =
-	"relative flex size-7 cursor-pointer items-center justify-center rounded-xl border border-primary-strong bg-bg-3/50 text-b2-12 text-primary shadow-floating";
+	"relative flex size-7 cursor-pointer items-center justify-center rounded-xl border border-primary-strong bg-bg-3/50 text-b2-12 text-primary shadow-control";
 
 const markerLabelVariants = tv({
 	base: "absolute top-full left-1/2 -translate-x-1/2 rounded-xl bg-bg-1/50 px-3 py-1 whitespace-nowrap",
 	variants: {
 		kind: {
-			pin: "text-b1-14 text-text-1 shadow-floating backdrop-blur-xs group-aria-pressed:mt-2 group-aria-pressed:text-primary group-aria-pressed:shadow-on-map group-aria-pressed:backdrop-blur-sm",
+			pin: "text-b1-14 text-text-1 shadow-control backdrop-blur-xs group-aria-pressed:mt-2 group-aria-pressed:py-0 group-aria-pressed:leading-8 group-aria-pressed:text-primary group-aria-pressed:shadow-on-map group-aria-pressed:backdrop-blur-sm",
 			cluster: "mt-2 text-b2-12 text-primary shadow-on-map backdrop-blur-sm"
 		}
 	}
@@ -113,7 +113,7 @@ function buildMyPositionElement() {
 	root.setAttribute("aria-hidden", "true");
 
 	const ring = document.createElement("span");
-	ring.className = "absolute inset-0 animate-ping rounded-full bg-primary/40";
+	ring.className = "absolute inset-0 rounded-full bg-primary/40 motion-safe:animate-ping";
 
 	const dot = document.createElement("span");
 	dot.className = "relative size-3.5 rounded-full border-2 border-bg-1 bg-primary shadow-floating";

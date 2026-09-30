@@ -1,5 +1,6 @@
 allowBuilds:
   lefthook: true
+  msw: false
   sharp: true
   unrs-resolver: true
 verifyDepsBeforeRun: error

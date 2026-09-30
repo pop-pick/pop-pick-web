@@ -1,31 +1,54 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
 
-import { parseCourseRequestDraft, serializeCourseRequestDraft } from "../model/course-request";
-import { PlannerForm } from "./PlannerForm";
+import { EmptyState } from "@/shared/components/EmptyState";
+import { Button } from "@/shared/ui/Button";
+import { Skeleton } from "@/shared/ui/Skeleton";
 
-interface GuestPlannerFormFromUrlProps {
-	mode: "guest";
-	loginHref: string;
-}
+import { plannerFormQueryOptions } from "../api/get-planner-form";
+import { PlannerFormWithDraft } from "./PlannerFormWithDraft";
 
-interface InactivePlannerFormFromUrlProps {
-	mode: "member" | "pending";
-	loginHref?: never;
-}
+export function PlannerFormFromUrl() {
+	const { data: form, error, isPending, refetch } = useQuery(plannerFormQueryOptions());
 
-type PlannerFormFromUrlProps = GuestPlannerFormFromUrlProps | InactivePlannerFormFromUrlProps;
+	useEffect(() => {
+		if (error !== null) {
+			console.error("[planner] 조건 입력 선택지를 불러오지 못했다", error);
+		}
+	}, [error]);
 
-/** 뒤로 가기로 돌아오면 서버가 처음 준 값이 아니라 지금 주소의 조건으로 폼을 채워야 해서 클라이언트 주소에서 읽는다 */
-export function PlannerFormFromUrl({ mode, loginHref }: PlannerFormFromUrlProps) {
-	const searchParams = useSearchParams();
-	const initialDraft = parseCourseRequestDraft(new URLSearchParams(searchParams.toString()));
-	const formKey = serializeCourseRequestDraft(initialDraft).toString();
+	const handleRetry = () => {
+		void refetch();
+	};
 
-	if (mode === "guest") {
-		return <PlannerForm key={formKey} mode="guest" initialDraft={initialDraft} loginHref={loginHref} />;
+	if (isPending) {
+		return (
+			<div role="status" className="flex flex-1 flex-col gap-10 px-5 pt-20">
+				<span className="sr-only">조건 입력을 준비하고 있습니다</span>
+				<Skeleton className="h-45 rounded-2xl" />
+				<Skeleton className="h-60 rounded-2xl" />
+			</div>
+		);
 	}
 
-	return <PlannerForm key={formKey} mode={mode} initialDraft={initialDraft} />;
+	if (error !== null) {
+		return (
+			<div className="flex flex-1 items-center justify-center px-5">
+				<EmptyState
+					hasWarningIcon
+					title="조건 입력을 불러오지 못했어요."
+					description="잠시 뒤 다시 시도해 주세요."
+					action={
+						<Button variant="secondary" onClick={handleRetry}>
+							다시 시도
+						</Button>
+					}
+				/>
+			</div>
+		);
+	}
+
+	return <PlannerFormWithDraft form={form} />;
 }

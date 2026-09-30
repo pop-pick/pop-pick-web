@@ -35,6 +35,9 @@ jobs:
       - name: 타입 검사
         run: pnpm type:check
 
+      - name: 테스트
+        run: pnpm test
+
       - name: 빌드
         run: pnpm build
 

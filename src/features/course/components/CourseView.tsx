@@ -1,0 +1,77 @@
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
+
+import { EmptyState } from "@/shared/components/EmptyState";
+import { PLANNER_PATH } from "@/shared/model/planner-path";
+import { LinkButton } from "@/shared/ui/LinkButton";
+import { Skeleton } from "@/shared/ui/Skeleton";
+
+import { courseDetailQueryOptions } from "../api/get-planner";
+import { isCourseUnavailableError } from "../model/course-error";
+import { buildRegenerateHref } from "../model/course-regenerate";
+import { CourseDetail } from "./CourseDetail";
+import { CourseLoadFailure } from "./CourseLoadFailure";
+import { CourseRecommendation } from "./CourseRecommendation";
+import { CourseSaved } from "./CourseSaved";
+
+interface CourseViewProps {
+	courseId: number;
+	view: "detail" | "saved";
+}
+
+export function CourseView({ courseId, view }: CourseViewProps) {
+	const searchParams = useSearchParams();
+	const { data: course, error, isPending, refetch } = useQuery(courseDetailQueryOptions(courseId));
+
+	useEffect(() => {
+		if (error !== null && !isCourseUnavailableError(error)) {
+			console.error(`[course] 코스 ${String(courseId)}를 불러오지 못했다`, error);
+		}
+	}, [courseId, error]);
+
+	const handleRetry = () => {
+		void refetch();
+	};
+
+	if (isPending) {
+		return (
+			<div role="status" className="flex flex-1 flex-col gap-5 px-5 pt-6">
+				<span className="sr-only">일정을 불러오고 있습니다</span>
+				<Skeleton className="h-38 rounded-2xl" />
+				<Skeleton className="h-70 rounded-2xl" />
+			</div>
+		);
+	}
+
+	if (error !== null) {
+		return (
+			<main className="flex flex-1 flex-col items-center justify-center px-5">
+				{isCourseUnavailableError(error) ? (
+					<EmptyState
+						hasWarningIcon
+						title="삭제되었거나 볼 수 없는 코스입니다."
+						description="플래너에서 다른 일정을 골라 주세요."
+						action={<LinkButton href={PLANNER_PATH}>플래너로 가기</LinkButton>}
+					/>
+				) : (
+					<CourseLoadFailure title="일정을 불러오지 못했어요." onRetry={handleRetry} />
+				)}
+			</main>
+		);
+	}
+
+	if (course.status === "DRAFT") {
+		return (
+			<CourseRecommendation course={course} regenerateHref={buildRegenerateHref(course, searchParams.toString())} />
+		);
+	}
+
+	if (view === "saved" && course.status === "SCHEDULED") {
+		return <CourseSaved course={course} />;
+	}
+
+	return <CourseDetail course={course} />;
+}

@@ -9,14 +9,13 @@ import { CourseSummaryCard } from "./CourseSummaryCard";
 
 interface CourseSavedProps {
 	course: Course;
-	registeredAt: string;
 }
 
-export function CourseSaved({ course, registeredAt }: CourseSavedProps) {
+export function CourseSaved({ course }: CourseSavedProps) {
 	useBackToPlanner();
 
 	return (
-		<main className="flex flex-1 flex-col px-5 pt-32 pb-tab-bar-clearance">
+		<main className="flex flex-1 flex-col px-5 pt-21">
 			<div className="flex flex-col items-center text-center">
 				<Image src="/illustrations/course-saved-check.svg" alt="" width={80} height={80} loading="eager" />
 				<h1 className="mt-8 text-h1 text-text-1">플래너 등록 완료!</h1>
@@ -25,7 +24,7 @@ export function CourseSaved({ course, registeredAt }: CourseSavedProps) {
 				</p>
 			</div>
 			<div className="mt-10.5">
-				<CourseSummaryCard course={course} registeredAt={registeredAt} />
+				<CourseSummaryCard course={course} />
 			</div>
 			<div className="mt-8">
 				<CourseCalendarActions course={course} />

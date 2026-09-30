@@ -49,14 +49,17 @@ export function ViewToggle({ view, onChange }: ViewToggleProps) {
 
 	return (
 		<div role="radiogroup" aria-label="보기 방식" onKeyDown={handleKeyDown} className="rounded-xl bg-bg-2 p-1">
-			<div className="relative flex">
-				<m.span
-					aria-hidden
-					initial={false}
-					animate={{ x: `${String(EXPLORE_VIEW_MODES.indexOf(view) * 100)}%` }}
-					transition={INDICATOR_TRANSITION}
-					className="absolute inset-y-0 left-0 w-1/2 rounded-lg bg-bg-1 shadow-subtle"
-				/>
+			<div className="relative flex gap-1">
+				<div aria-hidden className="pointer-events-none absolute inset-y-0 -right-1 left-0">
+					<m.span
+						initial={false}
+						animate={{ x: `${String(EXPLORE_VIEW_MODES.indexOf(view) * 100)}%` }}
+						transition={INDICATOR_TRANSITION}
+						className="block h-full w-1/2 pr-1"
+					>
+						<span className="block size-full rounded-lg bg-bg-1 shadow-subtle" />
+					</m.span>
+				</div>
 				{EXPLORE_VIEW_MODES.map((value, index) => {
 					const isCurrent = view === value;
 
