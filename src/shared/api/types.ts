@@ -15,6 +15,7 @@ export interface ApiResponse<T> {
 export interface PageResponse<T> {
 	content: T[];
 	hasNext: boolean;
+	nextCursor: string | null;
 }
 
 function hasErrorMessageShape(error: unknown) {

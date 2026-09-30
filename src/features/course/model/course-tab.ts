@@ -1,7 +1,5 @@
 import { PLANNER_PATH } from "@/shared/model/planner-path";
 
-import type { Course } from "./course";
-
 export const COURSE_TABS = ["upcoming", "past", "cancelled"] as const;
 
 export type CourseTab = (typeof COURSE_TABS)[number];
@@ -43,24 +41,3 @@ export const COURSE_TAB_ITEMS = COURSE_TABS.map((value) => ({
 	id: buildCourseTabId(value),
 	label: COURSE_TAB_LABELS[value]
 }));
-
-/** today는 서울 기준 "yyyy-MM-dd"다. 같은 모양의 날짜 문자열은 사전 순서가 날짜 순서와 같다 */
-export function classifyCourseTab(course: Course, today: string) {
-	if (course.cancelledAt !== null) {
-		return "cancelled";
-	}
-
-	return course.date < today ? "past" : "upcoming";
-}
-
-export interface SavedCourse extends Course {
-	savedAt: string;
-}
-
-function isSavedCourse(course: Course): course is SavedCourse {
-	return course.savedAt !== null;
-}
-
-export function filterCoursesByTab(courses: readonly Course[], tab: CourseTab, today: string) {
-	return courses.filter(isSavedCourse).filter((course) => classifyCourseTab(course, today) === tab);
-}
