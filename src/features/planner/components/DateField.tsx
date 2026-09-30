@@ -3,7 +3,6 @@
 import { type FocusEvent, type KeyboardEvent, type MouseEvent, useId, useRef, useState } from "react";
 
 import CalendarDotsIcon from "@/shared/assets/icons/calendar-dots.svg";
-import { getSeoulToday } from "@/shared/lib/date";
 import { tv } from "@/shared/lib/tv";
 import { DropdownPanel } from "@/shared/ui/DropdownPanel";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
@@ -13,6 +12,8 @@ import { CalendarPanel } from "./CalendarPanel";
 interface DateFieldProps {
 	labelId: string;
 	date: string | null;
+	minDate: string;
+	maxDate: string;
 	onChange: (date: string) => void;
 }
 
@@ -29,7 +30,7 @@ const dateFieldButtonVariants = tv({
 });
 
 /** 달력 판은 날짜와 시작 시간 두 칸을 덮는다. 가장 가까운 position 조상이 그 두 칸을 감싼 줄이어야 한다 */
-export function DateField({ labelId, date, onChange }: DateFieldProps) {
+export function DateField({ labelId, date, minDate, maxDate, onChange }: DateFieldProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const panelId = useId();
@@ -93,7 +94,7 @@ export function DateField({ labelId, date, onChange }: DateFieldProps) {
 				aria-label="날짜 선택 달력"
 				className="absolute inset-x-0 top-0 z-30 rounded-xl bg-bg-1 shadow-sheet"
 			>
-				<CalendarPanel selectedDate={date} minDate={getSeoulToday()} onSelect={handleDateSelect} />
+				<CalendarPanel selectedDate={date} minDate={minDate} maxDate={maxDate} onSelect={handleDateSelect} />
 			</DropdownPanel>
 		</div>
 	);

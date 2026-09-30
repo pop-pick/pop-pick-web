@@ -11,6 +11,7 @@ import { CalendarChevron } from "./CalendarChevron";
 interface CalendarPanelProps {
 	selectedDate: string | null;
 	minDate: string;
+	maxDate: string;
 	onSelect: (date: string) => void;
 }
 
@@ -41,9 +42,10 @@ const CALENDAR_CLASS_NAMES = {
 	outside: "invisible"
 };
 
-export function CalendarPanel({ selectedDate, minDate, onSelect }: CalendarPanelProps) {
+export function CalendarPanel({ selectedDate, minDate, maxDate, onSelect }: CalendarPanelProps) {
 	const selectedDay = selectedDate === null ? undefined : (parseDateOnly(selectedDate) ?? undefined);
 	const firstSelectableDate = parseDateOnly(minDate) ?? undefined;
+	const lastSelectableDate = parseDateOnly(maxDate) ?? undefined;
 
 	const handleSelect = (date: Date) => {
 		onSelect(format(date, DATE_ONLY_FORMAT));
@@ -58,7 +60,11 @@ export function CalendarPanel({ selectedDate, minDate, onSelect }: CalendarPanel
 			selected={selectedDay}
 			defaultMonth={selectedDay ?? firstSelectableDate}
 			startMonth={firstSelectableDate}
-			disabled={firstSelectableDate === undefined ? undefined : { before: firstSelectableDate }}
+			endMonth={lastSelectableDate}
+			disabled={[
+				...(firstSelectableDate === undefined ? [] : [{ before: firstSelectableDate }]),
+				...(lastSelectableDate === undefined ? [] : [{ after: lastSelectableDate }])
+			]}
 			autoFocus
 			navLayout="around"
 			formatters={CALENDAR_FORMATTERS}

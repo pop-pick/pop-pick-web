@@ -1,17 +1,18 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 
-import { type CourseRequestDraft, parseCourseRequestDraft, serializeCourseRequestDraft } from "../model/course-request";
-import { buildPlannerNewPath } from "../model/planner-path";
+import {
+	buildPlannerNewPath,
+	parsePlannerDraft,
+	type PlannerDraft,
+	serializePlannerDraft
+} from "@/shared/model/planner-path";
 
-export function useCourseDraftUrlSync(
-	draft: CourseRequestDraft,
-	onUrlDraftChange: (draft: CourseRequestDraft) => void
-) {
+export function useCourseDraftUrlSync(draft: PlannerDraft, onUrlDraftChange: (draft: PlannerDraft) => void) {
 	const searchParams = useSearchParams();
-	const urlDraft = parseCourseRequestDraft(new URLSearchParams(searchParams.toString()));
-	const urlQuery = serializeCourseRequestDraft(urlDraft).toString();
-	const draftQuery = serializeCourseRequestDraft(draft).toString();
+	const urlDraft = parsePlannerDraft(new URLSearchParams(searchParams.toString()));
+	const urlQuery = serializePlannerDraft(urlDraft).toString();
+	const draftQuery = serializePlannerDraft(draft).toString();
 	const writtenQueryRef = useRef(urlQuery);
 	const seenUrlQueryRef = useRef(urlQuery);
 
