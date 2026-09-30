@@ -5,8 +5,6 @@ import { AuthStatusSwitch } from "@/features/auth/components/AuthStatusSwitch";
 import { BookmarkSlotProvider } from "@/features/bookmark/components/BookmarkSlotProvider";
 import { ExploreView } from "@/features/popup/components/ExploreView";
 import { PLACEHOLDER_EXPLORE_POPUPS } from "@/features/popup/model/placeholder-explore";
-import { EXPLORE_PATH } from "@/shared/model/explore-state";
-import { buildLoginPath } from "@/shared/model/login-path";
 import { Skeleton } from "@/shared/ui/Skeleton";
 
 export const metadata: Metadata = {
@@ -31,11 +29,7 @@ export default function ExplorePage() {
 			>
 				<AuthStatusSwitch
 					views={{
-						anonymous: (
-							<BookmarkSlotProvider mode="guest" loginHref={buildLoginPath(EXPLORE_PATH)}>
-								{exploreView}
-							</BookmarkSlotProvider>
-						),
+						anonymous: <BookmarkSlotProvider mode="guest">{exploreView}</BookmarkSlotProvider>,
 						authenticated: <BookmarkSlotProvider mode="member">{exploreView}</BookmarkSlotProvider>,
 						restoring: pendingView,
 						unavailable: pendingView

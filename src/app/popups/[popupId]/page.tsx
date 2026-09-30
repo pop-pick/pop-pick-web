@@ -9,8 +9,6 @@ import { findPlaceholderPopupDetail } from "@/features/popup/model/placeholder-d
 import { parsePopupId } from "@/features/popup/model/popup-id";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { PLACEHOLDER_NICKNAME } from "@/shared/lib/placeholder-data";
-import { buildLoginPath } from "@/shared/model/login-path";
-import { buildPopupDetailPath } from "@/shared/model/popup-path";
 
 const HOME_PATH = "/";
 
@@ -56,11 +54,7 @@ export default async function PopupDetailPage({ params }: PageProps<"/popups/[po
 			<AuthStatusSwitch
 				views={{
 					authenticated: <BookmarkSlotProvider mode="member">{detailView}</BookmarkSlotProvider>,
-					anonymous: (
-						<BookmarkSlotProvider mode="guest" loginHref={buildLoginPath(buildPopupDetailPath(detail.id))}>
-							{detailView}
-						</BookmarkSlotProvider>
-					),
+					anonymous: <BookmarkSlotProvider mode="guest">{detailView}</BookmarkSlotProvider>,
 					restoring: pendingDetailView,
 					unavailable: pendingDetailView
 				}}

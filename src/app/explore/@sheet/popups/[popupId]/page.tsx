@@ -6,11 +6,9 @@ import { BookmarkSlotProvider } from "@/features/bookmark/components/BookmarkSlo
 import { MatchRateNote } from "@/features/popup/components/MatchRateNote";
 import { PopupDetailView } from "@/features/popup/components/PopupDetailView";
 import { PopupSheet } from "@/features/popup/components/PopupSheet";
-import { buildExploreSheetPath } from "@/features/popup/model/explore-sheet-path";
 import { findPlaceholderPopupDetail } from "@/features/popup/model/placeholder-details";
 import { parsePopupId } from "@/features/popup/model/popup-id";
 import { PLACEHOLDER_NICKNAME } from "@/shared/lib/placeholder-data";
-import { buildLoginPath } from "@/shared/model/login-path";
 
 const SHEET_TITLE_ID = "popup-sheet-title";
 
@@ -56,11 +54,7 @@ export default async function PopupSheetPage({ params }: PageProps<"/explore/pop
 			<AuthStatusSwitch
 				views={{
 					authenticated: <BookmarkSlotProvider mode="member">{detailView}</BookmarkSlotProvider>,
-					anonymous: (
-						<BookmarkSlotProvider mode="guest" loginHref={buildLoginPath(buildExploreSheetPath(detail.id))}>
-							{detailView}
-						</BookmarkSlotProvider>
-					),
+					anonymous: <BookmarkSlotProvider mode="guest">{detailView}</BookmarkSlotProvider>,
 					restoring: pendingDetailView,
 					unavailable: pendingDetailView
 				}}
