@@ -19,12 +19,22 @@ import { ONBOARDING_FIRST_STEP_PATH } from "@/shared/model/onboarding-path";
 
 export default async function HomePage() {
 	const hasSessionCookie = (await readRefreshToken()) !== null;
+	const memberBanner = <TasteBanner audience="member" />;
+	const guestBanner = <TasteBanner audience="guest" />;
+	const sessionCookieBanner = hasSessionCookie ? memberBanner : guestBanner;
 
 	return (
 		<main className="flex flex-1 flex-col">
 			<HomeHeader />
 			<div className="flex flex-col gap-8 px-5">
-				<TasteBanner />
+				<AuthStatusSwitch
+					views={{
+						authenticated: memberBanner,
+						anonymous: guestBanner,
+						restoring: sessionCookieBanner,
+						unavailable: sessionCookieBanner
+					}}
+				/>
 				<div className="flex flex-col gap-10">
 					<AuthStatusSwitch
 						views={{
