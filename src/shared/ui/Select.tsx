@@ -75,6 +75,7 @@ function resolveNextIndex(key: string, currentIndex: number, count: number) {
 /** WAI-ARIA 리스트박스 버튼 패턴. 목록에 포커스를 두고 aria-activedescendant로 가리키는 항목을 알린다 */
 export function Select<T>({ options, value, onChange, formatOptionLabel, label, labelledBy, size }: SelectProps<T>) {
 	const [activeIndex, setActiveIndex] = useState<number | null>(null);
+	const [isActiveHighlighted, setIsActiveHighlighted] = useState(false);
 	const buttonRef = useRef<HTMLButtonElement>(null);
 	const listboxRef = useRef<HTMLUListElement>(null);
 	const listboxId = useId();
@@ -107,12 +108,13 @@ export function Select<T>({ options, value, onChange, formatOptionLabel, label, 
 		}
 	};
 
-	const handleButtonClick = () => {
+	const handleButtonClick = (event: MouseEvent<HTMLButtonElement>) => {
 		if (isOpen) {
 			closeListbox(false);
 			return;
 		}
 
+		setIsActiveHighlighted(event.detail === 0);
 		setActiveIndex(hasValue ? Math.max(options.indexOf(value), 0) : 0);
 	};
 
@@ -153,6 +155,7 @@ export function Select<T>({ options, value, onChange, formatOptionLabel, label, 
 
 		if (nextIndex !== null) {
 			event.preventDefault();
+			setIsActiveHighlighted(true);
 			setActiveIndex(nextIndex);
 		}
 	};
@@ -168,6 +171,7 @@ export function Select<T>({ options, value, onChange, formatOptionLabel, label, 
 	};
 
 	const handleOptionPointerMove = (index: number) => () => {
+		setIsActiveHighlighted(true);
 		setActiveIndex(index);
 	};
 
@@ -216,7 +220,7 @@ export function Select<T>({ options, value, onChange, formatOptionLabel, label, 
 							aria-selected={option === value}
 							onClick={handleOptionClick(index)}
 							onPointerMove={handleOptionPointerMove(index)}
-							className={styles.option({ isActive: index === activeIndex })}
+							className={styles.option({ isActive: isActiveHighlighted && index === activeIndex })}
 						>
 							{formatOptionLabel(option)}
 						</li>
