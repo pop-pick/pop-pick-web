@@ -42,7 +42,8 @@
 - 코스와 구간은 다른 수명이다. 코스는 서버 상태라 캐시해도 되고 구간 소요시간은 카카오 응답이라 저장할 수 없다. 그래서 요청이 둘이다. 하나로 합치면 빠른 것이 느린 것을 기다리고 캐시 규칙도 하나로 묶인다
 - 캘린더 버튼은 둘이다. 구글 캘린더에 저장하기와 캘린더 파일 다운로드를 둘 다 제공한다. 구글 링크는 일정 작성 화면이 채워진 채로 열려 저장만 누르면 끝이라 모바일에서 단계가 짧다. 다만 구글 전용이라 애플 캘린더와 아웃룩을 쓰는 사람에게는 `.ics`가 필요하다. 둘 다 인증과 백엔드 작업이 없다. 구글 캘린더 API로 우리가 일정을 직접 넣는 방식은 `calendar.events`가 민감한 범위라 심사를 받아야 하고 테스트 모드에서 등록한 100명까지만 되어 접었다
 - 다시 생성하기는 새 작업을 바로 만들지 않고 조건이 채워진 조건 입력으로 간다. 코스 응답에 입력 조건이 없어 지금은 미리보기 주소가 받은 조건 쿼리를 `buildRegeneratePath`로 그대로 넘긴다
-- 삭제한 일정이 취소된 일정 탭에 남는지는 미정이다(ROADMAP). 지금은 `cancelledAt`을 채워 취소된 일정 탭에 남긴다
+- 삭제한 일정은 기능 명세대로 취소된 일정 탭에 남는다. `cancelledAt`을 채워 옮긴다. 서버가 지우지 않고 표시만 바꾸는지는 미정이다(ROADMAP)
+- 지도에는 방문지 핀만 두고 경로 선을 그리지 않는다. 백엔드가 도보 경로 좌표를 줄 수 있지만 GPS 오차로 선이 어지럽게 나온다. 그래서 구간 응답에 좌표를 요구하지 않는다
 
 **범위 밖.** 코스 편집(팝업 교체, 순서 변경), 코스 공유 링크의 비로그인 열람(코스가 사용자에 귀속이라 로그인 필요), 코스 안 팝업이 아닌 장소(코스에는 팝업만 들어간다), 예상 체류시간 줄(명세와 시안에 없다), 방문 전 알림(넣지 않기로 했다). 대기시간 예상은 값이 `null`이면 그리지 않는다.
 
@@ -105,8 +106,6 @@ type WalkSegment =
 			seconds: number;
 			/** 카카오 totalDistance. 미터 */
 			distanceM: number;
-			/** [경도, 위도] 배열. 카카오 steps[].path.points를 이어 붙인 것. 싣는지 미정 */
-			path: [number, number][];
 	  }
 	| {
 			fromOrder: number;
@@ -138,22 +137,7 @@ export function useSaveCourse(): UseMutationResult<Course, ApiError, number>;
 export function useDeleteCourse(): UseMutationResult<null, ApiError, number>;
 ```
 
-**`shared/lib/kakao-map`.** `markers`와 `fitTo`를 쓴다. `KakaoMarkerData`의 `variant`가 `"icon"`이면 흰 원 안에 `iconUrl`의 그림을 그리고 원의 가운데가 좌표에 온다(`yAnchor` 0.5). `iconUrl`이 없으면 핀을 만들 때 예외를 낸다. 코스 핀의 그림은 파란 위치 아이콘 `/pins/course.svg`이고 `toCourseMarkers`가 넘긴다. `"labeled"`이거나 값이 없으면 이름표가 붙는 탐색 핀이다. 경로 좌표를 응답에 싣기로 정해지면 아래를 더한다.
-
-```typescript
-interface KakaoMapProps {
-	polylines?: readonly KakaoPolylineData[];
-}
-
-interface KakaoPolylineData {
-	id: string;
-	path: readonly KakaoLatLngLiteral[];
-}
-
-/** 카카오 REST의 [경도, 위도]를 SDK의 { lat, lng }로 */
-function fromRestPoint(point: [number, number]): KakaoLatLngLiteral;
-```
-
+**`shared/lib/kakao-map`.** `markers`와 `fitTo`를 쓴다. `KakaoMarkerData`의 `variant`가 `"icon"`이면 흰 원 안에 `iconUrl`의 그림을 그리고 원의 가운데가 좌표에 온다(`yAnchor` 0.5). `iconUrl`이 없으면 핀을 만들 때 예외를 낸다. 코스 핀의 그림은 파란 위치 아이콘 `/pins/course.svg`이고 `toCourseMarkers`가 넘긴다. `"labeled"`이거나 값이 없으면 이름표가 붙는 탐색 핀이다.
 **서버 API.** 전부 백엔드 요구다.
 
 | 메서드와 경로                          | 인증 | 요청 | 응답                                                           |
@@ -185,7 +169,7 @@ function fromRestPoint(point: [number, number]): KakaoLatLngLiteral;
 
 ## O. Optimization과 운영
 
-**렌더링.** 코스 쿼리와 구간 쿼리가 따로라 지도와 타임라인이 먼저 나온다. 폴리라인 좌표를 싣게 되면 구간마다 수십에서 수백이라 코스 하나에 수백 점이고 SDK가 감당한다. 지도는 코스가 오면 `fitTo`로 한 번 맞추고 이후 사용자 조작을 덮지 않는다.
+**렌더링.** 코스 쿼리와 구간 쿼리가 따로라 지도와 타임라인이 먼저 나온다. 지도는 코스가 오면 `fitTo`로 한 번 맞추고 이후 사용자 조작을 덮지 않는다.
 
 **장애.** 구간 응답 전체가 실패하면 모든 구간이 모름으로 보이고 다시 시도 버튼이 있다. 코스 조회가 실패하면 그 화면의 `error.tsx`가 받는다. 코스가 없거나 남의 코스면 `404`와 `403`을 구분해 "삭제되었거나 볼 수 없는 코스입니다"로 보인다.
 
