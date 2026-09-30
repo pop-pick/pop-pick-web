@@ -27,7 +27,7 @@ export function CourseTimeline({ course }: CourseTimelineProps) {
 							</p>
 							<Link
 								href={buildPopupDetailPath(stop.popupId)}
-								className="flex min-w-0 flex-1 flex-col gap-1 rounded-2xl border border-divider-2 bg-bg-1 p-4 focus-ring transition-colors hover:bg-bg-2"
+								className="flex min-w-0 flex-1 flex-col gap-1 rounded-panel border border-divider-2 bg-bg-1 p-4 focus-ring transition-colors hover:bg-bg-2"
 							>
 								<span className="text-b1-14 text-text-1">{stop.title}</span>
 								{detailParts.length > 0 && (

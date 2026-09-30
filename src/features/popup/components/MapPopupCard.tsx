@@ -35,7 +35,7 @@ export function MapPopupCard({ popup, href, onClose }: MapPopupCardProps) {
 			initial={SLIDE_FROM}
 			animate={SLIDE_TO}
 			style={{ y: offsetY }}
-			className="pointer-events-auto rounded-t-3xl bg-bg-1 pb-tab-bar-clearance shadow-sheet"
+			className="pointer-events-auto rounded-t-panel bg-bg-1 pb-tab-bar-clearance shadow-sheet"
 		>
 			<DragHandle dragHandleProps={dragHandleProps} />
 			<div className="relative mx-5 mb-6 flex items-center gap-2">
