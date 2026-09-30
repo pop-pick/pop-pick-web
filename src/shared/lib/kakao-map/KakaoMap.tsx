@@ -57,7 +57,7 @@ export function KakaoMap({
 	children,
 	errorAction
 }: KakaoMapProps) {
-	const { status, sdk, error, reloadSdk } = useKakaoMapSdk();
+	const { status, sdk, reloadSdk } = useKakaoMapSdk();
 
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const initialCenter = fitTo?.[0] ?? center;
@@ -145,7 +145,7 @@ export function KakaoMap({
 			>
 				<div className="flex flex-col gap-1">
 					<p className="text-b1-16 text-error">지도를 불러오지 못했습니다</p>
-					<p className="text-b3-12 text-text-3">{error.message}</p>
+					<p className="text-b3-12 text-text-3">잠시 뒤 다시 시도해 주세요.</p>
 				</div>
 				<div className="flex flex-wrap justify-center gap-2">
 					<Button variant="secondary" onClick={reloadSdk}>
