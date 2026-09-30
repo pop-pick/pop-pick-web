@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 
 import { AuthStatusSwitch } from "@/features/auth/components/AuthStatusSwitch";
-import { buildLoginPath } from "@/features/auth/model/next-path";
 import { readRefreshToken } from "@/features/auth/model/session-cookie";
 import { BookmarkSlotProvider } from "@/features/bookmark/components/BookmarkSlotProvider";
 import { MatchRateNote } from "@/features/popup/components/MatchRateNote";
@@ -10,6 +9,7 @@ import { findPlaceholderPopupDetail } from "@/features/popup/model/placeholder-d
 import { parsePopupId } from "@/features/popup/model/popup-id";
 import { PageHeader } from "@/shared/components/PageHeader";
 import { PLACEHOLDER_NICKNAME } from "@/shared/lib/placeholder-data";
+import { buildLoginPath } from "@/shared/model/login-path";
 import { buildPopupDetailPath } from "@/shared/model/popup-path";
 
 const HOME_PATH = "/";

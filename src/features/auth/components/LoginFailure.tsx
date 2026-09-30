@@ -1,8 +1,7 @@
 import type { ReactNode } from "react";
 
+import { DEFAULT_NEXT_PATH } from "@/shared/model/login-path";
 import { LinkButton } from "@/shared/ui/LinkButton";
-
-import { DEFAULT_NEXT_PATH } from "../model/next-path";
 
 interface LoginFailureProps {
 	children: ReactNode;

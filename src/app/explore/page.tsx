@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 
 import { AuthStatusSwitch } from "@/features/auth/components/AuthStatusSwitch";
-import { buildLoginPath } from "@/features/auth/model/next-path";
 import { BookmarkSlotProvider } from "@/features/bookmark/components/BookmarkSlotProvider";
 import { ExploreView } from "@/features/popup/components/ExploreView";
 import { PLACEHOLDER_EXPLORE_POPUPS } from "@/features/popup/model/placeholder-explore";
 import { EXPLORE_PATH } from "@/shared/model/explore-state";
+import { buildLoginPath } from "@/shared/model/login-path";
 import { Skeleton } from "@/shared/ui/Skeleton";
 
 export const metadata: Metadata = {

@@ -1,6 +1,5 @@
 import { AuthStatusSwitch } from "@/features/auth/components/AuthStatusSwitch";
 import { SessionRetry } from "@/features/auth/components/SessionRetry";
-import { buildLoginPath } from "@/features/auth/model/next-path";
 import { readRefreshToken } from "@/features/auth/model/session-cookie";
 import { LandingDialog } from "@/features/onboarding/components/LandingDialog";
 import { HomeHeader } from "@/features/recommendation/components/HomeHeader";
@@ -15,6 +14,7 @@ import {
 	PLACEHOLDER_TRENDING_REGIONS
 } from "@/features/recommendation/model/placeholder-home";
 import { PLACEHOLDER_NICKNAME } from "@/shared/lib/placeholder-data";
+import { buildLoginPath } from "@/shared/model/login-path";
 import { ONBOARDING_FIRST_STEP_PATH } from "@/shared/model/onboarding-path";
 
 export default async function HomePage() {

@@ -1,11 +1,11 @@
 "use client";
 
+import { buildLoginPath } from "@/shared/model/login-path";
 import { Button } from "@/shared/ui/Button";
 import { LinkButton } from "@/shared/ui/LinkButton";
 import { Skeleton } from "@/shared/ui/Skeleton";
 
 import { useLogout } from "../hooks/useLogout";
-import { buildLoginPath } from "../model/next-path";
 import { useAuthStore } from "../model/useAuthStore";
 import { SessionRetry } from "./SessionRetry";
 

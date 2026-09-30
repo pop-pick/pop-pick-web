@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-import { buildLoginPath } from "@/features/auth/model/next-path";
 import { REFRESH_COOKIE_NAME } from "@/features/auth/model/session-cookie";
+import { buildLoginPath } from "@/shared/model/login-path";
 
 const PROTECTED_PATHS = new Set(["/my", "/planner"]);
 const ONBOARDING_STEP_PATH = /^\/onboarding\/\d+$/;

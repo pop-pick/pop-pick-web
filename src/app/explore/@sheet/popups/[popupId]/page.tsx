@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 
 import { AuthStatusSwitch } from "@/features/auth/components/AuthStatusSwitch";
-import { buildLoginPath } from "@/features/auth/model/next-path";
 import { readRefreshToken } from "@/features/auth/model/session-cookie";
 import { BookmarkSlotProvider } from "@/features/bookmark/components/BookmarkSlotProvider";
 import { MatchRateNote } from "@/features/popup/components/MatchRateNote";
@@ -11,6 +10,7 @@ import { buildExploreSheetPath } from "@/features/popup/model/explore-sheet-path
 import { findPlaceholderPopupDetail } from "@/features/popup/model/placeholder-details";
 import { parsePopupId } from "@/features/popup/model/popup-id";
 import { PLACEHOLDER_NICKNAME } from "@/shared/lib/placeholder-data";
+import { buildLoginPath } from "@/shared/model/login-path";
 
 const SHEET_TITLE_ID = "popup-sheet-title";
 
