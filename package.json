@@ -36,7 +36,9 @@
 		"format": "prettier --write .",
 		"format:check": "prettier --check .",
 		"type:check": "next typegen && tsc --noEmit",
-		"check": "pnpm type:check && pnpm build && pnpm lint && pnpm format:check",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"check": "pnpm type:check && pnpm test && pnpm build && pnpm lint && pnpm format:check",
 		"harness:sync": "node .agents/scripts/agents-sync.mjs",
 		"harness:check": "bash .agents/scripts/harness-check.sh",
 		"prepare": "lefthook install && pnpm harness:sync"
@@ -64,6 +66,10 @@
 		"@svgr/webpack": "^8.1.0",
 		"@tailwindcss/postcss": "^4.3.3",
 		"@tanstack/react-query-devtools": "^5.102.8",
+		"@testing-library/dom": "^10.4.2",
+		"@testing-library/jest-dom": "^7.0.1",
+		"@testing-library/react": "^16.3.3",
+		"@testing-library/user-event": "^14.6.7",
 		"@types/node": "^24.13.3",
 		"@types/react": "^19.2.18",
 		"@types/react-dom": "^19.2.5",
@@ -72,10 +78,14 @@
 		"eslint-config-next": "^16.3.3",
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-simple-import-sort": "^14.0.0",
+		"jsdom": "^30.1.1",
 		"lefthook": "^2.1.12",
+		"msw": "^2.15.0",
+		"next-router-mock": "^1.0.5",
 		"prettier": "^3.9.6",
 		"prettier-plugin-tailwindcss": "^0.8.1",
 		"tailwindcss": "^4.3.3",
-		"typescript": "^6.0.3"
+		"typescript": "^6.0.3",
+		"vitest": "^5.0.2"
 	}
 }
