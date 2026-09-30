@@ -72,7 +72,9 @@ export function ExploreView({ popups }: ExploreViewProps) {
 	const emptyMessage = buildExploreEmptyMessage(state);
 	const isMapView = state.view === "map";
 	const resultAnnouncement =
-		filteredPopups.length === 0 ? emptyMessage.title : `팝업 ${String(filteredPopups.length)}곳`;
+		filteredPopups.length === 0
+			? `${emptyMessage.title} ${emptyMessage.description}`
+			: `팝업 ${String(filteredPopups.length)}곳`;
 
 	const replaceExploreState = useCallback(
 		(nextState: ExploreState) => {
