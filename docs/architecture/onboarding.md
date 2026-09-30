@@ -4,7 +4,7 @@
 
 ## R. Requirements
 
-**기능.** 랜딩에서 로그인을 거쳐 온보딩 세 단계로 가고 "둘러보기"는 비회원 홈으로 간다. 단계마다 무엇을 받고 어떻게 건너뛰는지는 `docs/product/SPEC.md`의 온보딩 취향 수집 절이 정본이다. 저장한 취향은 마이페이지에서 고칠 수 있고 코스 조건 입력이 첫 값으로 채운다. 동행 유형과 인원수는 코스 조건 입력과 선택지도 라벨도 같다. 값과 라벨(`COMPANION_TYPE_LABELS`, `PARTY_SIZE_LABELS`)은 `shared/model/trip-preference.ts`에 있고 온보딩이 그대로 쓴다. 선호 활동은 선택지 조회로 받은 id이고 조회가 붙기 전까지 코스 조건 입력은 `trip-preference.ts`의 임시 값 넷을 쓴다.
+**기능.** 랜딩에서 로그인을 거쳐 온보딩 세 단계로 가고 "둘러보기"는 비회원 홈으로 간다. 단계마다 무엇을 받고 어떻게 건너뛰는지는 `docs/product/SPEC.md`의 온보딩 취향 수집 절이 정본이다. 저장한 취향은 마이페이지에서 고칠 수 있다. 그중 지역과 관심 카테고리, 선호 활동은 코스 조건 입력의 첫 값이 된다. 백엔드가 `GET /api/v1/planners/form`의 기본값으로 내려준다. 동행 유형은 코스 조건 입력과 선택지도 라벨도 같고 인원수는 온보딩에만 있다. 값과 라벨(`COMPANION_TYPE_LABELS`, `PARTY_SIZE_LABELS`)은 `shared/model/trip-preference.ts`에 있고 온보딩이 그대로 쓴다. 선호 활동은 선택지 조회로 받은 id이고 코스 조건 입력도 같은 id를 쓴다.
 
 **보장.**
 

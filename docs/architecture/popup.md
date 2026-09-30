@@ -166,7 +166,7 @@ export function useRecentPopups(): {
 | `GET /api/v1/popups`           | 선택 | `q`, `sort`(`latest`, `popular`), `region`, `cursor`, `limit` | `PageResponse<PopupSummary>` |
 | `GET /api/v1/popups/{popupId}` | 선택 |                                                               | `PopupDetail`                |
 
-서버 공통 `PageResponse`는 `content`와 `hasNext` 둘이다. 다음 커서는 마지막 항목에서 뽑고(`useCursorQuery`) 총 건수는 시안에 "총 N곳"이 없어 받지 않는다. 인증 "선택"은 서버 설정에 팝업 경로를 `permitAll`로 더해야 성립한다. 지금은 인증과 온보딩 경로만 열려 있어 토큰 없는 요청이 막힌다. 정렬 값 이름과 검색 대상 필드는 백엔드가 정한다.
+서버 공통 `PageResponse`는 `content`와 `hasNext`, `nextCursor`다. 다음 요청의 커서는 `nextCursor`를 그대로 넘기고(`useCursorQuery`) 총 건수는 시안에 "총 N곳"이 없어 받지 않는다. 인증 "선택"은 서버 설정에 팝업 경로를 `permitAll`로 더해야 성립한다. 지금은 인증과 온보딩 경로만 열려 있어 토큰 없는 요청이 막힌다. 정렬 값 이름과 검색 대상 필드는 백엔드가 정한다.
 
 `sort=popular`는 최근 7일간 상세 조회수 내림차순이다. 집계는 백엔드가 한다. 상세 조회 요청이 그 집계를 겸하는지 아니면 별도 요청이 필요한지도 백엔드가 정한다.
 
