@@ -1,127 +1,100 @@
-import { z } from "zod";
+import { addDays, addMinutes, format } from "date-fns";
 
-import { getSeoulToday, parseDateOnly } from "@/shared/lib/date";
-import {
-	COMPANION_TYPES,
-	type CompanionType,
-	isCompanionType,
-	isPartySize,
-	isPreferredActivity,
-	isTripDuration,
-	PARTY_SIZES,
-	type PartySize,
-	PREFERRED_ACTIVITIES,
-	type PreferredActivity,
-	TRIP_DURATIONS,
-	type TripDuration
-} from "@/shared/model/trip-preference";
+import { DATE_ONLY_FORMAT, parseDateOnlyOrThrow, TIME_ONLY_FORMAT } from "@/shared/lib/date";
+import { EMPTY_PLANNER_DRAFT, type PlannerDraft } from "@/shared/model/planner-path";
+import type { CompanionType, TripDuration } from "@/shared/model/trip-preference";
 
-export const COURSE_NOTE_MAX_LENGTH = 200;
+import type { PlannerFormData, PlannerOption } from "./planner-form";
 
-const FIRST_START_HOUR = 10;
-const LAST_START_HOUR = 22;
-
-export const COURSE_START_TIMES = Array.from(
-	{ length: LAST_START_HOUR - FIRST_START_HOUR + 1 },
-	(_, index) => `${String(FIRST_START_HOUR + index).padStart(2, "0")}:00`
-);
-
-export function formatStartTimeLabel(startAt: string) {
-	return startAt;
-}
-
-/** 서버가 UTC로 돌아 오늘은 서울 기준으로 구한다 */
-export function isSelectableCourseDate(date: string) {
-	return parseDateOnly(date) !== null && date >= getSeoulToday();
-}
-
-export const courseRequestSchema = z.object({
-	companion: z.enum(COMPANION_TYPES),
-	partySize: z.literal(PARTY_SIZES),
-	activities: z.array(z.enum(PREFERRED_ACTIVITIES)),
-	date: z.string().refine(isSelectableCourseDate),
-	startAt: z.string().refine((value) => COURSE_START_TIMES.includes(value)),
-	duration: z.enum(TRIP_DURATIONS),
-	note: z.string().max(COURSE_NOTE_MAX_LENGTH)
-});
-
-export interface CourseRequestDraft {
-	companion: CompanionType | null;
-	partySize: PartySize | null;
-	activities: PreferredActivity[];
-	/** "YYYY-MM-DD" */
-	date: string | null;
+export interface GeneratePlannerRequest {
+	areaId: number;
+	/** "yyyy-MM-dd" */
+	visitDate: string;
 	/** "HH:mm" */
-	startAt: string | null;
-	duration: TripDuration | null;
-	note: string;
+	startTime: string;
+	accompanyType: CompanionType;
+	durationType: TripDuration;
+	interestCategoryIds: number[];
+	preferredActivityIds: number[];
+	note: string | null;
 }
 
-export type CourseRequest = z.infer<typeof courseRequestSchema>;
+const TODAY_LEAD_MINUTES = 30;
 
-export const EMPTY_COURSE_REQUEST_DRAFT: CourseRequestDraft = {
-	companion: null,
-	partySize: null,
-	activities: [],
-	date: null,
-	startAt: null,
-	duration: null,
-	note: ""
-};
-
-export function toCourseRequest(draft: CourseRequestDraft) {
-	const result = courseRequestSchema.safeParse(draft);
-	return result.success ? result.data : null;
+function hasOption(options: PlannerOption[], id: number | null) {
+	return id !== null && options.some((option) => option.id === id);
 }
 
-export function parseCourseRequestDraft(searchParams: URLSearchParams) {
-	const companion = searchParams.get("companion");
-	const partySize = Number(searchParams.get("party"));
-	const date = searchParams.get("date");
-	const startAt = searchParams.get("start");
-	const duration = searchParams.get("duration");
+function keepKnownIds(options: PlannerOption[], ids: number[]) {
+	return options.filter((option) => ids.includes(option.id)).map((option) => option.id);
+}
 
-	return {
-		companion: isCompanionType(companion) ? companion : null,
-		partySize: isPartySize(partySize) ? partySize : null,
-		activities: searchParams.getAll("activity").filter(isPreferredActivity),
-		date: date !== null && isSelectableCourseDate(date) ? date : null,
-		startAt: startAt !== null && COURSE_START_TIMES.includes(startAt) ? startAt : null,
-		duration: isTripDuration(duration) ? duration : null,
-		note: (searchParams.get("note") ?? "").slice(0, COURSE_NOTE_MAX_LENGTH)
+/** 오늘 방문이면 서버가 지금부터 30분 뒤보다 이른 시작 시각을 거절한다. now는 서울 기준 시각이다 */
+export function getSelectableStartTimes(form: PlannerFormData, date: string | null, now: Date) {
+	if (date !== format(now, DATE_ONLY_FORMAT)) {
+		return form.startTimes;
+	}
+
+	const earliest = addMinutes(now, TODAY_LEAD_MINUTES);
+
+	if (format(earliest, DATE_ONLY_FORMAT) !== date) {
+		return [];
+	}
+
+	const earliestTime = format(earliest, TIME_ONLY_FORMAT);
+
+	return form.startTimes.filter((time) => time >= earliestTime);
+}
+
+/** 첫날에 고를 시작 시각이 남지 않았으면 그날은 고를 수 없다 */
+export function getSelectableDateRange(form: PlannerFormData, now: Date) {
+	const hasStartTimeOnFirstDate = getSelectableStartTimes(form, form.minDate, now).length > 0;
+	const minDate = hasStartTimeOnFirstDate
+		? form.minDate
+		: format(addDays(parseDateOnlyOrThrow(form.minDate), 1), DATE_ONLY_FORMAT);
+
+	return { minDate, maxDate: form.maxDate };
+}
+
+export function sanitizePlannerDraft(draft: PlannerDraft, form: PlannerFormData, now: Date) {
+	const { minDate, maxDate } = getSelectableDateRange(form, now);
+	const date = draft.date !== null && draft.date >= minDate && draft.date <= maxDate ? draft.date : null;
+	const sanitized: PlannerDraft = {
+		...draft,
+		areaId: hasOption(form.areas, draft.areaId) ? draft.areaId : null,
+		categoryIds: keepKnownIds(form.categories, draft.categoryIds),
+		activityIds: keepKnownIds(form.activities, draft.activityIds),
+		date,
+		startAt:
+			draft.startAt !== null && getSelectableStartTimes(form, date, now).includes(draft.startAt) ? draft.startAt : null
 	};
+
+	return sanitized;
 }
 
-export function serializeCourseRequestDraft(draft: CourseRequestDraft) {
-	const params = new URLSearchParams();
+export function buildInitialPlannerDraft(urlDraft: PlannerDraft, hasQuery: boolean, form: PlannerFormData, now: Date) {
+	const draft = hasQuery ? urlDraft : { ...EMPTY_PLANNER_DRAFT, ...form.defaults };
+	return sanitizePlannerDraft(draft, form, now);
+}
 
-	if (draft.companion !== null) {
-		params.set("companion", draft.companion);
+export function toGeneratePlannerRequest(draft: PlannerDraft, form: PlannerFormData, now: Date) {
+	const { areaId, companion, date, startAt, duration } = sanitizePlannerDraft(draft, form, now);
+
+	if (areaId === null || companion === null || date === null || startAt === null || duration === null) {
+		return null;
 	}
 
-	if (draft.partySize !== null) {
-		params.set("party", String(draft.partySize));
-	}
+	const note = draft.note.trim();
+	const request: GeneratePlannerRequest = {
+		areaId,
+		visitDate: date,
+		startTime: startAt,
+		accompanyType: companion,
+		durationType: duration,
+		interestCategoryIds: draft.categoryIds,
+		preferredActivityIds: draft.activityIds,
+		note: note === "" ? null : note
+	};
 
-	for (const activity of draft.activities) {
-		params.append("activity", activity);
-	}
-
-	if (draft.date !== null) {
-		params.set("date", draft.date);
-	}
-
-	if (draft.startAt !== null) {
-		params.set("start", draft.startAt);
-	}
-
-	if (draft.duration !== null) {
-		params.set("duration", draft.duration);
-	}
-
-	if (draft.note !== "") {
-		params.set("note", draft.note);
-	}
-
-	return params;
+	return request;
 }
