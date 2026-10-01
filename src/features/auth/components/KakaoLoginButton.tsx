@@ -19,7 +19,7 @@ export function KakaoLoginButton({ nextPath }: KakaoLoginButtonProps) {
 	};
 
 	return (
-		<Button variant="kakao" size="lg" onClick={handleLogin}>
+		<Button variant="kakao" size="xl" onClick={handleLogin}>
 			<SvgIcon icon={KakaoTalkIcon} size={16} />
 			카카오 계정으로 로그인
 		</Button>
