@@ -32,7 +32,7 @@
 | -------------- | ------------------------------------------------------ | -------------------------------------------- |
 | 팝업의 찜 여부 | Server. 각 팝업 응답의 `isBookmarked`                  | 홈과 탐색, 상세, 찜 목록 캐시에 사본이 있다  |
 | 찜 목록        | Server. `["bookmarks", "list"]` 무한 쿼리              | `PageResponse<PopupSummary>`                 |
-| 열려 있는 알럿 | 컴포넌트 `useState`                                    | native `<dialog>`. 버튼마다 하나             |
+| 열려 있는 알럿 | 컴포넌트 `useState`                                    | native `<dialog>`. 열려 있을 때만 그린다     |
 | 로그인 여부    | 인증 상태. 라우트가 `AuthStatusSwitch` 슬롯으로 고른다 | 버튼은 `mode`만 받고 인증 상태를 읽지 않는다 |
 | 진행 중인 토글 | 뮤테이션 상태. `mutationKey`에 `popupId`               | 대기 중에는 버튼이 `disabled`                |
 
@@ -126,7 +126,7 @@ export function useToggleBookmark(): UseMutationResult<null, ApiError, BookmarkT
 export function useBookmarkList(): UseInfiniteQueryResult<InfiniteData<PageResponse<PopupSummary>>, ApiError>;
 ```
 
-`BookmarkButton`은 알럿을 자기 안에 들고 있다. API가 열리면 `isBookmarked`를 그대로 그리고 뮤테이션이 진행 중이면 `disabled`다. 알럿은 `shared/ui`의 `AlertDialog`이고 모양은 `docs/design/DESIGN-SPEC.md`의 공통 컴포넌트 표에 있다. 로그인 유도 알럿의 메시지와 확인 문구 "로그인 하러가기"는 `shared/model/login-prompt.ts`에 있고 하단 탭바와 코스 조건 입력도 같은 값을 쓴다.
+`BookmarkButton`은 알럿을 자기 안에 들고 있다. 탐색 목록은 카드마다 하트가 있어 알럿을 늘 그리면 카드 수만큼 `<dialog>`가 생기므로 열 때만 그린다. 닫을 때는 바로 지우지 않고 `AlertDialog`의 `onClosed`가 불린 뒤 지운다. 바로 지우면 닫힘 애니메이션이 사라지고 dialog가 `close()` 없이 DOM에서 빠져서 포커스가 누른 하트로 돌아오지 않는다. API가 열리면 `isBookmarked`를 그대로 그리고 뮤테이션이 진행 중이면 `disabled`다. 알럿은 `shared/ui`의 `AlertDialog`이고 모양은 `docs/design/DESIGN-SPEC.md`의 공통 컴포넌트 표에 있다. 로그인 유도 알럿의 메시지와 확인 문구 "로그인 하러가기"는 `shared/model/login-prompt.ts`에 있고 하단 탭바와 코스 조건 입력도 같은 값을 쓴다.
 
 **서버 API.** 전부 백엔드 요구다.
 
@@ -140,7 +140,7 @@ export function useBookmarkList(): UseInfiniteQueryResult<InfiniteData<PageRespo
 
 **로그.** `[bookmark]` 접두사. 토글 요청이 실패할 때 `popupId`와 `errorCode`.
 
-**접근성.** 하트는 `<button aria-pressed={isBookmarked}>`이고 `aria-label`은 "{팝업명} 찜" 하나로 고정한다. 눌림 상태는 `aria-pressed`가 전달하므로 라벨을 "찜 해제"로 바꾸지 않는다. 아이콘만 있는 버튼이라 라벨이 필수다. 지금은 `aria-pressed`가 없고 `member`와 `pending`의 버튼은 화면에 보이지 않는 "{팝업명} 찜, 준비 중" 문구로 이름을 가진다.
+**접근성.** 하트는 `<button aria-pressed={isBookmarked}>`이고 `aria-label`은 "{팝업명} 찜" 하나로 고정한다. 눌림 상태는 `aria-pressed`가 전달하므로 라벨을 "찜 해제"로 바꾸지 않는다. 아이콘만 있는 버튼이라 라벨이 필수다. 지금은 `aria-pressed`가 없고 `member`와 `pending`의 버튼 이름은 "{팝업명} 찜, 준비 중"이다.
 
 확인 대화상자는 native `<dialog>`다. 열면 확인 버튼에 포커스가 가고 Esc와 취소, 닫기 버튼이 같은 동작이며 닫으면 눌렀던 하트로 포커스가 돌아온다. 실패 토스트는 `role="status"` 영역에 들어간다. 찜 목록의 종료 항목은 흐림 처리와 함께 "종료" 텍스트 배지를 가진다. 색만으로 구분하지 않는다.
 
