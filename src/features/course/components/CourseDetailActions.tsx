@@ -7,6 +7,7 @@ import ShareIcon from "@/shared/assets/icons/share.svg";
 import { buildCoursePath } from "@/shared/model/course-path";
 import { PLANNER_PATH } from "@/shared/model/planner-path";
 import { AlertDialog } from "@/shared/ui/AlertDialog";
+import { Button } from "@/shared/ui/Button";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 import { useCancelCourse } from "../hooks/useCancelCourse";
@@ -84,25 +85,21 @@ export function CourseDetailActions({ courseId, canDelete }: CourseDetailActions
 
 	return (
 		<div className="flex flex-col gap-2.5">
-			<button
-				type="button"
-				onClick={handleShare}
-				className="flex h-10.5 items-center justify-center gap-2 rounded-xl bg-primary text-b1-14 text-text-w focus-ring transition-colors hover:bg-primary-strong"
-			>
+			<Button size="md" onClick={handleShare}>
 				<SvgIcon icon={ShareIcon} size={16} />
 				공유하기
-			</button>
+			</Button>
 			{canDelete && (
-				<button
+				<Button
 					ref={deleteButtonRef}
-					type="button"
+					variant="text"
+					size="md"
 					disabled={isDeleting}
 					aria-busy={isDeleting}
 					onClick={handleDeleteClick}
-					className="h-10.5 rounded-xl text-b1-14 text-text-4 focus-ring transition-colors not-disabled:hover:bg-bg-2 disabled:opacity-40"
 				>
 					삭제하기
-				</button>
+				</Button>
 			)}
 			<AlertDialog
 				open={isShareDialogOpen}

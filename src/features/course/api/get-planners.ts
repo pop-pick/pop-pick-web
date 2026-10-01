@@ -27,7 +27,6 @@ interface PlannerSummaryResponse {
 	totalMin: number;
 	stopCount: number;
 	confirmedAt: string | null;
-	canceledAt: string | null;
 }
 
 function toCourseSummary(planner: PlannerSummaryResponse) {

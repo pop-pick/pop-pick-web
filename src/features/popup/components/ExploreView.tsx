@@ -2,11 +2,12 @@
 
 import * as m from "motion/react-m";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useEffectEvent, useState } from "react";
 
 import { PopupSearchForm } from "@/shared/components/PopupSearchForm";
 import { tv } from "@/shared/lib/tv";
 import {
+	EXPLORE_PATH,
 	type ExploreSort,
 	type ExploreState,
 	type ExploreViewMode,
@@ -21,7 +22,6 @@ import { buildExploreEmptyMessage } from "../model/explore-empty-message";
 import { filterExplorePopups } from "../model/explore-filter";
 import type { ExplorePopup } from "../model/explore-popup";
 import { EXPLORE_REGION_OPTIONS, formatExploreRegionLabel } from "../model/explore-region";
-import { buildExploreSheetPath } from "../model/explore-sheet-path";
 import { PopupList } from "./PopupList";
 import { PopupMap } from "./PopupMap";
 import { SortToggle } from "./SortToggle";
@@ -52,7 +52,7 @@ export function ExploreView({ popups }: ExploreViewProps) {
 	const pathname = usePathname();
 	const { position, status, requestCurrentPosition } = useCurrentPosition();
 
-	const state = useMemo(() => parseExploreState(searchParams), [searchParams]);
+	const state = parseExploreState(searchParams);
 	const [draftQuery, setDraftQuery] = useState(state.query);
 	const [urlQuerySync, setUrlQuerySync] = useState({ seenQuery: state.query, writtenQuery: state.query });
 
@@ -64,11 +64,7 @@ export function ExploreView({ popups }: ExploreViewProps) {
 		}
 	}
 
-	const { query, region, sort } = state;
-	const filteredPopups = useMemo(
-		() => filterExplorePopups(popups, { query, region, sort }),
-		[popups, query, region, sort]
-	);
+	const filteredPopups = filterExplorePopups(popups, state);
 	const emptyMessage = buildExploreEmptyMessage(state);
 	const isMapView = state.view === "map";
 	const resultAnnouncement =
@@ -76,15 +72,16 @@ export function ExploreView({ popups }: ExploreViewProps) {
 			? `${emptyMessage.title} ${emptyMessage.description}`
 			: `팝업 ${String(filteredPopups.length)}곳`;
 
-	const replaceExploreState = useCallback(
-		(nextState: ExploreState) => {
-			setUrlQuerySync((sync) => ({ ...sync, writtenQuery: nextState.query }));
-			window.history.replaceState(null, "", toExploreHref(nextState, pathname));
-		},
-		[pathname]
-	);
+	const replaceExploreState = (nextState: ExploreState) => {
+		setUrlQuerySync((sync) => ({ ...sync, writtenQuery: nextState.query }));
+		window.history.replaceState(null, "", toExploreHref(nextState, pathname));
+	};
 
-	const buildSheetHref = useCallback((popupId: number) => buildExploreSheetPath(popupId, state), [state]);
+	const writeQueryToUrl = useEffectEvent((query: string) => {
+		replaceExploreState({ ...state, query });
+	});
+
+	const buildSheetHref = (popupId: number) => toExploreHref(state, `${EXPLORE_PATH}/popups/${String(popupId)}`);
 
 	useEffect(() => {
 		if (isMapView && status === "idle") {
@@ -100,13 +97,13 @@ export function ExploreView({ popups }: ExploreViewProps) {
 		}
 
 		const timer = window.setTimeout(() => {
-			replaceExploreState({ ...state, query: nextQuery });
+			writeQueryToUrl(nextQuery);
 		}, SEARCH_DEBOUNCE_MS);
 
 		return () => {
 			window.clearTimeout(timer);
 		};
-	}, [draftQuery, state, replaceExploreState]);
+	}, [draftQuery, state.query]);
 
 	const handleSearchSubmit = () => {
 		replaceExploreState({ ...state, query: draftQuery.trim(), view: "list" });

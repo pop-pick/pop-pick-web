@@ -84,8 +84,10 @@ export function DateField({ labelId, date, minDate, maxDate, onChange }: DateFie
 				onClick={handleButtonClick}
 				className={dateFieldButtonVariants({ hasValue: date !== null })}
 			>
-				<span id={`${panelId}-value`}>{date ?? PLACEHOLDER_LABEL}</span>
-				<SvgIcon icon={CalendarDotsIcon} size={24} className="text-icon-disabled" />
+				<span id={`${panelId}-value`} className="min-w-0 truncate whitespace-nowrap">
+					{date ?? PLACEHOLDER_LABEL}
+				</span>
+				<SvgIcon icon={CalendarDotsIcon} size={24} className="shrink-0 text-icon-disabled" />
 			</button>
 			<DropdownPanel
 				isOpen={isOpen}

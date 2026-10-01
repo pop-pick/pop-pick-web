@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { LinkButton } from "@/shared/ui/LinkButton";
 
 import type { Course } from "../model/course";
 import { CourseMap } from "./CourseMap";
@@ -25,12 +25,9 @@ export function CourseRecommendation({ course, regenerateHref }: CourseRecommend
 			</div>
 			<div className="mt-8 flex flex-col gap-2.5 px-5">
 				<SaveCourseButton courseId={course.id} />
-				<Link
-					href={regenerateHref}
-					className="flex h-10.5 items-center justify-center rounded-xl text-b1-14 text-text-4 focus-ring transition-colors hover:bg-bg-2"
-				>
+				<LinkButton href={regenerateHref} variant="text" size="md">
 					다시 생성하기
-				</Link>
+				</LinkButton>
 			</div>
 		</main>
 	);

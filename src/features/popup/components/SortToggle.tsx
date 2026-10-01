@@ -1,5 +1,3 @@
-"use client";
-
 import { EXPLORE_SORT_LABELS, EXPLORE_SORTS, type ExploreSort } from "@/shared/model/explore-state";
 
 interface SortToggleProps {

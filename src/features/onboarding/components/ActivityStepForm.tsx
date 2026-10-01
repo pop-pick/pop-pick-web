@@ -1,12 +1,11 @@
-"use client";
-
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { type SubmitEvent, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 
 import { AlertDialog } from "@/shared/ui/AlertDialog";
-import { Skeleton } from "@/shared/ui/Skeleton";
+import { BottomActionBar } from "@/shared/ui/BottomActionBar";
+import { Button } from "@/shared/ui/Button";
 
 import { preferredActivitiesQueryOptions } from "../api/onboarding-options";
 import { useFocusAfterRetry } from "../hooks/useFocusAfterRetry";
@@ -31,6 +30,7 @@ import {
 import { useOnboardingStore } from "../model/useOnboardingStore";
 import { ChoiceChipGroup } from "./ChoiceChipGroup";
 import { FreeTextField } from "./FreeTextField";
+import { OnboardingStepSkeleton } from "./OnboardingStepSkeleton";
 import { OptionsLoadFailure } from "./OptionsLoadFailure";
 
 const MEMBER_HOME_PATH = "/";
@@ -61,13 +61,7 @@ export function ActivityStepForm({ initialAnswers }: ActivityStepFormProps) {
 	}
 
 	if (activitiesQuery.isPending) {
-		return (
-			<div role="status" className="flex flex-col gap-10 px-5 pt-10">
-				<span className="sr-only">{OPTIONS_LOADING_MESSAGE}</span>
-				<Skeleton className="h-32" />
-				<Skeleton className="h-36" />
-			</div>
-		);
+		return <OnboardingStepSkeleton step={3} label={OPTIONS_LOADING_MESSAGE} />;
 	}
 
 	const activities = activitiesQuery.data;
@@ -126,7 +120,7 @@ export function ActivityStepForm({ initialAnswers }: ActivityStepFormProps) {
 	return (
 		<>
 			<form onSubmit={handleSubmit} className="flex flex-1 flex-col">
-				<div className="flex flex-col gap-10 px-5 pt-10 pb-12">
+				<div className="flex flex-col gap-10 px-5 pt-10 pb-10">
 					<ChoiceChipGroup
 						ref={focusTargetRef}
 						legend={ONBOARDING_QUESTION_LABELS.activities}
@@ -145,7 +139,7 @@ export function ActivityStepForm({ initialAnswers }: ActivityStepFormProps) {
 						onChange={handleFreeTextChange}
 					/>
 				</div>
-				<div className="sticky bottom-0 z-40 mt-auto flex flex-col gap-3 rounded-t-3xl bg-bg-1 px-4 pt-4 pb-float-gap shadow-bar">
+				<BottomActionBar>
 					{hasSaveFailed && (
 						<div
 							role="alert"
@@ -167,15 +161,16 @@ export function ActivityStepForm({ initialAnswers }: ActivityStepFormProps) {
 							{SAVE_PENDING_MESSAGE}
 						</p>
 					)}
-					<button
+					<Button
 						type="submit"
+						size="xl"
 						disabled={saveMutation.isPending}
 						aria-busy={saveMutation.isPending}
-						className="flex h-13 w-full items-center justify-center rounded-xl bg-primary text-h4 text-text-w focus-ring transition-colors not-disabled:hover:bg-primary-strong disabled:bg-bg-4 disabled:text-text-6"
+						className="w-full"
 					>
 						POP PICK 시작하기
-					</button>
-				</div>
+					</Button>
+				</BottomActionBar>
 			</form>
 			<AlertDialog
 				open={isIncompleteAlertOpen}

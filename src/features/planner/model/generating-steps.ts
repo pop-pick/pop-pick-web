@@ -4,9 +4,7 @@ export const GENERATING_STEPS = [
 	{ label: "시간표 맞추기" }
 ] as const;
 
-export const GENERATING_STEP_STATES = ["done", "active", "pending"] as const;
-
-export type GeneratingStepState = (typeof GENERATING_STEP_STATES)[number];
+export type GeneratingStepState = "done" | "active" | "pending";
 
 export const GENERATING_STEP_STATE_LABELS: Record<GeneratingStepState, string> = {
 	done: "완료",

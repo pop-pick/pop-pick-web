@@ -4,10 +4,10 @@ import { BookmarkSlot } from "@/shared/components/BookmarkSlot";
 import { PopupImage } from "@/shared/components/PopupImage";
 import { POPUP_CATEGORY_LABELS, type PopupSummary } from "@/shared/model/popup";
 import { buildPopupDetailPath } from "@/shared/model/popup-path";
+import { Badge } from "@/shared/ui/Badge";
 import { SeparatedText } from "@/shared/ui/SeparatedText";
 
 import { buildListItemMetaParts } from "../model/explore-format";
-import { PopupTagBadge } from "./PopupTagBadge";
 
 interface ExploreListItemProps {
 	popup: PopupSummary;
@@ -27,11 +27,7 @@ export function ExploreListItem({ popup }: ExploreListItemProps) {
 			/>
 			<div className="flex min-w-0 flex-1 flex-col gap-1">
 				<div className="flex h-8 items-center justify-between gap-2">
-					{popup.category === null ? (
-						<span />
-					) : (
-						<PopupTagBadge tone="category">{POPUP_CATEGORY_LABELS[popup.category]}</PopupTagBadge>
-					)}
+					{popup.category === null ? <span /> : <Badge>{POPUP_CATEGORY_LABELS[popup.category]}</Badge>}
 					<div className="relative z-10">
 						<BookmarkSlot popupId={popup.id} popupTitle={popup.title} size="sm" />
 					</div>

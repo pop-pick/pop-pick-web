@@ -1,8 +1,6 @@
 import type { Region } from "./region";
 
-export const POPUP_CATEGORIES = ["fashion", "beauty", "character", "game", "tech", "food", "art", "lifestyle"] as const;
-
-export type PopupCategory = (typeof POPUP_CATEGORIES)[number];
+export type PopupCategory = "fashion" | "beauty" | "character" | "game" | "tech" | "food" | "art" | "lifestyle";
 
 export const POPUP_CATEGORY_LABELS: Record<PopupCategory, string> = {
 	fashion: "패션/브랜드",
@@ -15,9 +13,7 @@ export const POPUP_CATEGORY_LABELS: Record<PopupCategory, string> = {
 	lifestyle: "라이프스타일"
 };
 
-export const POPUP_RESERVATION_TYPES = ["NONE", "RESERVATION", "WAITING", "BOTH", "UNKNOWN"] as const;
-
-export type PopupReservationType = (typeof POPUP_RESERVATION_TYPES)[number];
+type PopupReservationType = "NONE" | "RESERVATION" | "WAITING" | "BOTH" | "UNKNOWN";
 
 export type KnownPopupReservationType = Exclude<PopupReservationType, "UNKNOWN">;
 

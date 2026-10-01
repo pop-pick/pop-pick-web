@@ -12,7 +12,7 @@
 
 두 층이다. 원시 토큰은 `:root`의 CSS 변수로만 있고 유틸리티가 생기지 않는다. 화면은 `@theme inline`의 의미 토큰만 쓴다. 의미 토큰은 원시 변수를 참조하므로 같은 색을 바꿀 때 원시 값 한 곳만 고친다.
 
-Tailwind 기본 팔레트(`zinc`, `blue` 등)는 지우지 않았다. 기존 화면이 아직 기본 팔레트를 쓰고 있어서다. 화면을 시안으로 옮길 때 의미 토큰으로 바꾸고, 다 옮기면 기본 팔레트를 지운다.
+Tailwind 기본 팔레트(`zinc`, `blue` 등)는 지우지 않았지만 화면은 더 이상 쓰지 않는다.
 
 ### 원시 토큰
 
@@ -90,9 +90,9 @@ Tailwind 기본 팔레트(`zinc`, `blue` 등)는 지우지 않았다. 기존 화
 | `--color-like`           | `#dc4c4c`          | 찜한 하트. 시안에서 변수에 묶이지 않은 값이라 원시 변수 없이 값을 직접 둔다. 변수로 등록할지는 미정이다 |
 | `--color-region`         | `#bd6ccf`          | 팝업 상세 지역 배지의 글자. 변수에 묶이지 않은 값이라 값을 직접 둔다                                    |
 | `--color-region-subtle`  | `#fcf0ff`          | 팝업 상세 지역 배지의 배경. 변수에 묶이지 않은 값이라 값을 직접 둔다                                    |
-| `--color-dim`            | `rgb(0 0 0 / 0.4)` | 검정 반투명 덮개. 모달 알럿과 랜딩 모달의 뒤 배경, 이미지 위 일치율 알약                                |
+| `--color-dim`            | `rgb(0 0 0 / 0.4)` | 검정 반투명 덮개. 모달 알럿과 랜딩 모달의 뒤 배경, 홈 PICK 카드 사진 위 일치율 알약                     |
 
-카카오 로그인 버튼 색 `--color-kakao`와 `-hover`, `-active`, `-foreground`는 카카오 디자인 가이드 값이라 시안과 무관하다.
+카카오 로그인 버튼 색 `--color-kakao`와 `-hover`, `-active`, `-foreground`는 카카오 디자인 가이드 값이라 시안과 무관하다. 구글 버튼의 테두리 `--color-google-border`(#747775)와 글자 `--color-google-foreground`(#1f1f1f)는 구글 로그인 브랜드 규정 값이고 시안 466:4081과 같다.
 
 클래스를 쓸 수 없는 곳은 원시 변수를 직접 참조한다(`var(--blue-500)`). `@theme inline`의 의미 토큰 변수는 클래스에서 쓰일 때만 CSS에 출력되어서 JS 문자열에서 참조하면 값이 없을 수 있다. 지도 SDK에 넘기는 핀과 클러스터 요소도 모양은 `kakao-map-pins.ts`가 클래스로 준다.
 
@@ -144,7 +144,7 @@ Tailwind 기본 팔레트(`zinc`, `blue` 등)는 지우지 않았다. 기존 화
 
 `Head/H1_semi`와 `Head/H2_semi`는 이름에 semi가 붙어 있지만 시안 글꼴이 Bold라 700으로 옮겼다. `Body2/B2_medium` 12px은 홈과 팝업 상세 시안의 배지와 카드 설명에서 줄 높이가 전부 150%(18px)라 1.5로 정했다. 20px로 쓰인 곳은 하단 탭바 라벨뿐이고 탭바가 `leading-5`를 함께 준다.
 
-시안의 글자 크기 변수(`font/fontSize/*`)는 토큰으로 옮기지 않았다. `base`가 14px이라 Tailwind `text-base`(16px)와 이름이 같고 값이 다르다. 시안 줄 높이 변수 snug(20px)와 relaxed(24px)는 Tailwind 기본 `leading-5`, `leading-6`과 값이 같으니 그것을 쓴다. Tailwind 기본 `leading-snug`, `leading-relaxed`는 값이 다르다. Tailwind 기본 글자 크기 `text-xs`부터 `text-9xl`은 기존 화면이 쓰고 있어 남겨 두었다.
+시안의 글자 크기 변수(`font/fontSize/*`)는 토큰으로 옮기지 않았다. `base`가 14px이라 Tailwind `text-base`(16px)와 이름이 같고 값이 다르다. 시안 줄 높이 변수 snug(20px)와 relaxed(24px)는 Tailwind 기본 `leading-5`, `leading-6`과 값이 같으니 그것을 쓴다. Tailwind 기본 `leading-snug`, `leading-relaxed`는 값이 다르다. Tailwind 기본 글자 크기 `text-xs`부터 `text-9xl`도 지우지 않았지만 화면은 쓰지 않는다.
 
 ## 클래스 합치기
 
@@ -166,19 +166,19 @@ Tailwind 기본 팔레트(`zinc`, `blue` 등)는 지우지 않았다. 기존 화
 | `shadow-floating`        | `0 0 12px` 검정 10% | 떠 있는 하단 탭바, 드롭다운 |
 | `shadow-on-map`          | `0 0 12px` 검정 16% | 지도 위 칩                  |
 | `shadow-sheet`           | `0 0 20px` 검정 12% | 바텀시트, 날짜와 시간 선택  |
-| `shadow-modal`           | `0 0 24px` 검정 20% | 로그인 모달                 |
+| `shadow-modal`           | `0 0 24px` 검정 20% | 알럿, 랜딩 카드             |
 | `text-shadow-on-image`   | `0 0 12px` 검정 8%  | 이미지 위 글자              |
 | `backdrop-blur-floating` | 배경 흐림 3px       | 떠 있는 하단 탭바           |
 
-한 곳에서만 쓰인 값은 가까운 토큰으로 맞췄다. 드롭다운의 12px 12%는 `shadow-floating`으로, 메인 추천 카드의 30px 20%는 `shadow-modal`로 옮긴다. Tailwind 기본 `shadow-sm`부터 `shadow-2xl`은 기존 화면이 쓰고 있어 남겨 두었다. 배경 흐림은 시안 값의 절반을 CSS 값으로 옮긴다. 탭바의 시안 흐림 6이 3px이다.
+한 곳에서만 쓰인 값은 토큰을 따로 두지 않고 가까운 토큰으로 맞췄다. 드롭다운의 12px 12%는 `shadow-floating`으로, 랜딩 카드의 30px 20%는 `shadow-modal`로 옮긴다. Tailwind 기본 `shadow-sm`부터 `shadow-2xl`도 지우지 않았지만 화면은 쓰지 않는다. 배경 흐림은 시안 값의 절반을 CSS 값으로 옮긴다. 탭바의 시안 흐림 6이 3px이다.
 
 ## 간격과 모서리
 
 간격은 4px 그리드이고 Tailwind 기본 간격 척도(`p-4`는 16px)를 그대로 쓴다. 화면 좌우 여백은 시안 전 화면에서 20px이라 `px-5`다.
 
-간격 토큰은 셋이고 `layout.css`에 있다. `tab-bar-gap`은 스크롤 끝에서 본문과 탭바 사이 40px이다. 탐색 지도 뷰는 지도가 화면 바닥까지 닿도록 이 값만큼 아래 여백을 거둔다. 나머지 둘은 기기 안전 영역이 들어간다. `float-gap`은 떠 있는 요소와 화면 바닥 사이로 시안의 42px이다. 홈 인디케이터가 있는 기기에서는 인디케이터 위 8px이 42px보다 크면 그 값을 쓴다. `max(42px, 8px + env(safe-area-inset-bottom))`이다. `tab-bar-clearance`는 탭바 높이 80px에 `float-gap`을 더한 값이고 루트 `html`의 `scroll-padding-bottom`이 쓴다. 그래서 키보드로 옮긴 포커스가 탭바 뒤에 가려지지 않는다. 안전 영역 값을 받으려고 루트 레이아웃이 `viewport-fit=cover`를 켠다.
+간격 토큰은 넷이고 `layout.css`에 있다. `tab-bar-gap`은 스크롤 끝에서 본문과 탭바 사이 40px이다. 탐색 지도 뷰는 지도가 화면 바닥까지 닿도록 이 값만큼 아래 여백을 거둔다. 나머지 셋은 기기 안전 영역이 들어간다. `float-gap`은 떠 있는 요소와 화면 바닥 사이로 시안의 42px이다. 홈 인디케이터가 있는 기기에서는 인디케이터 위 8px이 42px보다 크면 그 값을 쓴다. `max(42px, 8px + env(safe-area-inset-bottom))`이다. `tab-bar-clearance`는 탭바 높이 80px에 `float-gap`을 더한 값이고 루트 `html`의 `scroll-padding-bottom`이 쓴다. 그래서 키보드로 옮긴 포커스가 탭바 뒤에 가려지지 않는다. `tab-bar-space`는 `tab-bar-gap`과 `tab-bar-clearance`의 합으로 스크롤 끝에서 탭바가 본문 아래에 차지하는 높이다. 바탕을 탭바 뒤로 화면 바닥까지 깔아야 하는 요소가 `pb-tab-bar-space -mb-tab-bar-space`로 이만큼 늘어난다. 마이 화면 메뉴가 쓴다. 안전 영역 값을 받으려고 루트 레이아웃이 `viewport-fit=cover`를 켠다.
 
-모서리 반경도 Tailwind 기본 척도를 쓴다. 시안 값과 같다. 기본 척도에 없는 두 값은 `tokens/radius.css`에 두었다. 20px(바텀시트와 지도 하단 카드의 윗모서리, 코스 타임라인의 팝업 카드)은 `--radius-panel`(`rounded-panel`), 40px(랜딩 카드)은 `--radius-5xl`(`rounded-5xl`)이다.
+모서리 반경도 Tailwind 기본 척도를 쓴다. 시안 값과 같다. 기본 척도에 없는 두 값은 `tokens/radius.css`에 두었다. 20px(바텀시트와 지도 하단 카드의 윗모서리, 온보딩 자유 입력칸)은 `--radius-panel`(`rounded-panel`), 40px(랜딩 카드)은 `--radius-5xl`(`rounded-5xl`)이다.
 
 | 시안 반경 | 클래스          |
 | --------- | --------------- |
@@ -219,7 +219,9 @@ import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 카카오 로그인 버튼의 말풍선 `kakao-talk.svg`도 이 폴더에 있는 한 가지 색 아이콘이라 버튼 글자색 `kakao-foreground`로 칠해진다.
 
-색이 정해진 그림은 이 폴더에 넣지 않는다. 로고 워드마크 `public/brand/logo.svg`는 브랜드 파랑이 고정된 그림이고, 로그인 화면의 로고 마크 `public/brand/logo-mark.svg`와 홈 배너의 핀 그림 `public/illustrations/banner-pins.svg`는 그라디언트가 있어 SVGR이 색을 `currentColor`로 바꾸면 깨진다. 이런 파일은 `public/`에 두고 `next/image`에 경로 문자열과 `width`, `height`를 준다. 로컬 경로라 `images.remotePatterns`가 필요 없고 Next는 SVG를 최적화하지 않고 그대로 보낸다. `src/` 아래 다른 폴더에 두고 import하면 Next의 전역 타입 선언이 `any`라 타입 검사가 잘못된 경로를 잡지 못한다. 로그인 화면 구글 버튼의 G 로고 `public/brand/google-g.png`는 여러 색의 PNG라 같은 방식으로 둔다. 시안 애셋에 있던 원형 테두리는 파일에서 잘라 냈고 G 둘레에 시안과 같은 여백만 남겼다. 바탕은 투명이라 hover로 버튼 바탕이 바뀌어도 G 둘레에 흰 사각이 보이지 않는다. 이미지가 없는 팝업의 대체 표시가 쓰는 카테고리 아이콘도 같은 방식으로 `public/pins/`에 있다. 등록 완료 화면의 체크 그림 `public/illustrations/course-saved-check.svg`도 파란 원에서 체크를 오려 낸 색 고정 그림이라 `public/`에 있다. 코스 조건 입력의 지도 핀 그림 `public/illustrations/planner-map-pin.svg`와 코스 생성 중의 로딩 링 `public/illustrations/planner-generating-ring.svg`도 여러 색이 고정된 그림이라 같은 방식이다. 이 링은 Lottie 애니메이션의 23프레임을 뜬 포스터로, 애니메이션을 불러오기 전과 움직임 줄이기 설정에서 보이고, 애니메이션 JSON은 `src/shared/assets/lottie/`에 두고 재생기와 함께 동적 import로 싣는다. 지도 핀은 SDK에 넘기는 DOM 요소라 React 컴포넌트를 쓸 수 없어 `public/pins/`의 파일을 `img`로 싣는다. 선택 핀의 `selected.svg`와 코스 핀의 `course.svg`가 그렇다.
+색이 정해진 그림은 이 폴더에 넣지 않는다. 로고와 일러스트, 카테고리 대체 아이콘처럼 색이 고정되거나 그라디언트가 있는 SVG는 SVGR이 색을 `currentColor`로 바꾸면 깨진다. 이런 파일과 사진은 `public/images/` 아래 `brand`, `illustrations`, `pins`, `placeholder`에 두고 `next/image`에 경로 문자열과 `width`, `height`를 준다. 로컬 경로라 `images.remotePatterns`가 필요 없고 Next는 SVG를 최적화하지 않고 그대로 보낸다. `src/` 아래 다른 폴더에 두고 import하면 Next의 전역 타입 선언이 `any`라 타입 검사가 잘못된 경로를 잡지 못한다. 지도 핀은 SDK에 넘기는 DOM 요소라 React 컴포넌트를 쓸 수 없어 `public/images/pins/`의 `selected.svg`와 `course.svg`를 `img`로 싣는다.
+
+구글 버튼의 G 로고 `public/images/brand/google-g.png`는 시안 애셋에 있던 원형 테두리를 잘라 내고 G 둘레에 시안과 같은 여백만 남겼다. 바탕이 투명이라 hover로 버튼 바탕이 바뀌어도 G 둘레에 흰 사각이 보이지 않는다.
 
 ## 다크 모드
 
@@ -231,6 +233,6 @@ Design width 375px, 대상은 모바일 웹이고 반응형 범위는 375px에�
 
 하단 탭바는 시안의 떠 있는 탭바다. 좌우 20px 안쪽에 반경 24px, 흰색 80%와 배경 흐림, `shadow-floating`으로 그린다. `sticky`라 스크롤 중에는 바닥에서 `float-gap`만큼 떠서 본문이 뒤로 지나가고, 스크롤 끝에서는 본문 아래 40px 뒤에 놓인다. 탭을 누르면 새로 현재 탭이 된 아이콘이 0.8배에서 1배로 튀어 오르고 색이 부드럽게 바뀐다. 주소가 바뀌기를 기다리지 않고 누른 순간 시작한다. 멈춘 모양은 시안과 같고, 움직임 줄이기 설정을 켠 사용자에게는 크기 변화가 없다. 애니메이션은 `motion`이고 루트 레이아웃의 `MotionProvider`가 `reducedMotion="user"`를 건다.
 
-스크롤은 모든 폭에서 브라우저 창이 맡는다. 폰에서는 주소창 접힘과 당겨서 새로고침이, 넓은 화면에서는 키보드 스크롤과 뒤로 가기 위치 복원이 브라우저 기본대로 동작한다. 스크롤바는 바탕 없이 6px `gray-300` 막대다(`utilities.css`의 `scrollbar-subtle`). 루트 `html`과 안쪽 스크롤 영역(드롭다운 목록, 지도 위 상세 시트, 메모 입력칸)이 모두 이 유틸리티를 쓰고, `overflow-auto`나 `overflow-scroll` 옆에 빠지면 `check-conventions.sh`가 막는다. 루트 `html`에는 `scrollbar-gutter-stable`도 붙어 스크롤바 자리를 양쪽에 늘 비워 두므로, 스크롤이 있는 화면과 없는 화면을 오갈 때 폭이 바뀌지 않는다. 안쪽 영역에는 `scrollbar-gutter-stable`을 붙이지 않는다. 붙이면 목록 양옆에 여백이 생긴다.
+스크롤은 모든 폭에서 브라우저 창이 맡는다. 폰에서는 주소창 접힘과 당겨서 새로고침이, 넓은 화면에서는 키보드 스크롤과 뒤로 가기 위치 복원이 브라우저 기본대로 동작한다. 스크롤바는 바탕 없이 6px `gray-300` 막대다(`utilities.css`의 `scrollbar-subtle`). 루트 `html`과 안쪽 스크롤 영역(드롭다운 목록, 지도 위 상세 시트, 자유 입력칸)이 모두 이 유틸리티를 쓰고, `overflow-auto`나 `overflow-scroll` 옆에 빠지면 `check-conventions.sh`가 막는다. 루트 `html`에는 `scrollbar-gutter-stable`도 붙어 스크롤바 자리를 양쪽에 늘 비워 두므로, 스크롤이 있는 화면과 없는 화면을 오갈 때 폭이 바뀌지 않는다. 안쪽 영역에는 `scrollbar-gutter-stable`을 붙이지 않는다. 붙이면 목록 양옆에 여백이 생긴다.
 
 포커스 표시는 키보드로 옮길 때만 보인다. 마우스나 터치로 누른 요소와 코드가 포커스를 준 컨테이너(`tabindex="-1"`)에는 브라우저 기본 테두리를 그리지 않는다(`base.css`). 키보드 포커스는 `focus-ring`의 파란 2px 테두리이고, 파란 바탕 위에서는 흰 테두리를 쓴다. 글자 입력칸은 브라우저가 마우스로 눌러도 키보드 포커스로 보기 때문에 `focus-ring` 대신 `outline-hidden focus:border-primary`를 쓴다. 테두리를 그리지 않고 입력칸의 1px 선만 파란색으로 바꾼다. 검색 입력칸(`type="search"`)에 브라우저가 붙이는 지우기 버튼도 시안에 없어 `base.css`에서 숨긴다.

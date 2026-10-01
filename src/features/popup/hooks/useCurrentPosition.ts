@@ -1,6 +1,4 @@
-"use client";
-
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 import type { KakaoLatLngLiteral } from "@/shared/lib/kakao-map/kakao-map-utils";
 
@@ -17,7 +15,7 @@ export function useCurrentPosition() {
 	const [position, setPosition] = useState<KakaoLatLngLiteral | null>(null);
 	const pendingRequestRef = useRef<Promise<KakaoLatLngLiteral | null> | null>(null);
 
-	const requestCurrentPosition = useCallback(() => {
+	const requestCurrentPosition = () => {
 		if (pendingRequestRef.current !== null) {
 			return pendingRequestRef.current;
 		}
@@ -57,7 +55,7 @@ export function useCurrentPosition() {
 		pendingRequestRef.current = request;
 
 		return request;
-	}, []);
+	};
 
 	return { position, status, requestCurrentPosition };
 }

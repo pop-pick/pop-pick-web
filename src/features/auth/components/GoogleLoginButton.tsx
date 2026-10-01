@@ -21,14 +21,9 @@ export function GoogleLoginButton({ nextPath }: GoogleLoginButtonProps) {
 	};
 
 	return (
-		<Button
-			variant="secondary"
-			size="lg"
-			className="border border-text-4 bg-bg-1 text-text-1 not-disabled:hover:bg-bg-3 not-disabled:active:bg-bg-4"
-			onClick={handleLogin}
-		>
+		<Button variant="google" size="xl" onClick={handleLogin}>
 			<Image
-				src="/brand/google-g.png"
+				src="/images/brand/google-g.png"
 				alt=""
 				width={GOOGLE_LOGO_SIZE}
 				height={GOOGLE_LOGO_SIZE}

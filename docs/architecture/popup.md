@@ -104,15 +104,20 @@ type PopupStatus = "upcoming" | "ongoing" | "endingSoon" | "ended";
 function getPopupStatus(popup: Pick<PopupSummary, "startDate" | "endDate">, today: string): PopupStatus;
 ```
 
-탐색 카드가 쓰는 `ExplorePopup`(`model/explore-popup.ts`)은 `PopupSummary`에 좌표와 조회수, 등록일을 임시로 더한 것이다. 서버가 거르고 정렬하기 전까지 `filterExplorePopups`가 지역으로 거르고 팝업명과 지역, 카테고리 라벨에서 검색어를 찾는다. 인기순은 `viewCount`, 최신순은 `registeredAt` 내림차순이고 값이 없으면 뒤로, 같으면 id순이다. 목록 카드 `ExploreListItem`은 더한 필드를 쓰지 않아 `PopupSummary`만 받는다. 최근 본 팝업 목록이 같은 카드를 쓴다.
+탐색 카드가 쓰는 `ExplorePopup`(`model/explore-popup.ts`)은 `PopupSummary`에 좌표와 조회수, 등록일을 임시로 더한 것이다. 서버가 거르고 정렬하기 전까지 `filterExplorePopups`가 지역으로 거르고 팝업명과 지역, 카테고리 라벨에서 검색어를 찾는다. 인기순은 `viewCount`, 최신순은 `registeredAt` 내림차순이고 조회수가 없으면 뒤로, 같으면 id순이다. 목록 카드 `ExploreListItem`은 더한 필드를 쓰지 않아 `PopupSummary`만 받는다. 최근 본 팝업 목록이 같은 카드를 쓴다.
 
 `category`와 `region`은 서버가 주는 코드 문자열이다. 목록은 온보딩 선택지 테이블에 있고 라벨도 거기서 온다(`onboarding.md`). 지금 `shared/model/popup.ts`에는 카테고리 여덟이 유니온으로 들어 있고 선택지 조회가 열리면 없어진다. 입장 방식 라벨은 둘이다. 홈 인기 행의 짧은 라벨은 `shared/model/popup.ts`, 상세 정보 카드의 긴 라벨은 `popup-detail.ts`에 있다. `UNKNOWN`은 두 곳 모두 그 줄을 그리지 않는다.
 
-카테고리는 두 곳에서 쓰인다. 온보딩 2단계의 관심 카테고리 칩과 카드와 상세의 배지이고 글자는 서버 라벨이다. 지도 핀은 카테고리와 무관하게 모양이 같다. 9/26 시안의 핀은 회색 점이고 누른 핀만 파란 원과 위치 아이콘이다. 명세의 카테고리별 핀 아이콘은 시안에 없어 그리지 않는다. `public/pins/`의 카테고리 SVG는 사진이 없는 팝업의 대체 표시가 쓰고 선택 핀 아이콘 `selected.svg`도 같은 폴더에 있다.
+카테고리는 두 곳에서 쓰인다. 온보딩 2단계의 관심 카테고리 칩과 카드와 상세의 배지이고 글자는 서버 라벨이다. 지도 핀은 카테고리와 무관하게 모양이 같다. 9/26 시안의 핀은 회색 점이고 누른 핀만 파란 원과 위치 아이콘이다. 명세의 카테고리별 핀 아이콘은 시안에 없어 그리지 않는다. `public/images/pins/`의 카테고리 SVG는 사진이 없는 팝업의 대체 표시가 쓰고 선택 핀 아이콘 `selected.svg`도 같은 폴더에 있다.
+
+**상세 API가 열리면 옮길 것.** 상세는 페이지와 시트 두 라우트가 `placeholder-details.ts`의 임시 상세를 서버 컴포넌트에서 읽는다. 두 라우트 모두 조회 함수를 React `cache`로 감싸 `generateMetadata`와 본문이 한 요청에서 한 번만 부른다. `cache`는 인자를 참조로 비교해서 `params` 객체가 아니라 팝업 ID 문자열을 넘긴다. 상세 조회가 조회수를 올리므로 API로 바꿔도 이 감싸기를 둔다.
+
+- 카테고리와 지역이 ID로 오는지 코드로 오는지 정해지지 않았다. 서버 `Popup` 엔티티는 `interestCategoryId: Int?`와 `areaId: Int?`이고 온보딩 API도 둘을 `{ id, name }`으로 준다. 프론트는 카테고리 코드 여덟(`fashion` 등)과 지역 코드 다섯(`seongsu` 등)을 문자열로 쓴다. 응답이 ID면 배지 문구와 홈 지역 칩 링크(`region=seongsu`), 탐색 지역 거르기가 함께 바뀐다. 백엔드에 응답 모양을 묻고 ID를 코드로 바꾸는 곳을 정한다
+- 일치율(`matchRate`)은 회원별 값이라 토큰 없이 부르는 서버 컴포넌트 상세 조회에 실을 수 없다. 상세 응답에 넣을지, 회원일 때 클라이언트에서 따로 부를지 백엔드와 정한다. 따로 부르면 `matchRateSlot`의 `authenticated` 칸에 쿼리를 부르는 클라이언트 컴포넌트를 넣는다
 
 ## I. Interface
 
-**컴포넌트.** 탐색은 `ExploreView`가 URL을 읽고 위치 상태를 들고 검색창과 뷰 전환, 지도 `PopupMap`, 목록 `PopupList`를 조립한다. 걸러 낸 결과를 두 뷰에 똑같이 준다. 지도에서 누른 핀이 하단 카드에 가리면 `SelectedPinReveal`이 가린 만큼 지도를 밀어 올린다. 상세는 `PopupDetailView` 하나를 페이지와 `PopupSheet`가 감싼다. `variant`가 `page`면 사진이 200px이고 아래 여백이 없어 탭바 위 40px만 남고, `sheet`면 사진이 140px이고 판 바닥에 40px을 둔다. 검색창은 홈과 같이 쓰는 `shared/components/PopupSearchForm`이다. 지도 카드와 바텀시트, 손잡이, 배지는 이 기능만 쓰므로 이 기능의 `components`에 있다. 지역 드롭다운은 `shared/ui/Select`, 상세 헤더는 `shared/components/PageHeader`, 사진은 `shared/components/PopupImage`, 찜 버튼 자리는 `shared/components/BookmarkSlot`이다.
+**컴포넌트.** 탐색은 `ExploreView`가 URL을 읽고 위치 상태를 들고 검색창과 뷰 전환, 지도 `PopupMap`, 목록 `PopupList`를 조립한다. 걸러 낸 결과를 두 뷰에 똑같이 준다. 지도에서 누른 핀이 하단 카드에 가리면 `SelectedPinReveal`이 가린 만큼 지도를 밀어 올린다. 상세는 `PopupDetailView` 하나를 페이지와 `PopupSheet`가 감싼다. `variant`가 `page`면 사진이 200px이고 아래 여백이 없어 탭바 위 40px만 남고, `sheet`면 사진이 140px이고 판 바닥에 40px을 둔다. 검색창은 홈과 같이 쓰는 `shared/components/PopupSearchForm`이다. 지도 카드와 바텀시트, 손잡이는 이 기능만 쓰므로 이 기능의 `components`에 있다. 배지는 코스 타임라인과 같이 쓰는 `shared/ui/Badge`다. 지역 드롭다운은 `shared/ui/Select`, 상세 헤더는 `shared/components/PageHeader`, 사진은 `shared/components/PopupImage`, 찜 버튼 자리는 `shared/components/BookmarkSlot`이다.
 
 탭과 길찾기, 확인 상태를 붙일 때 더하는 것이다.
 
@@ -132,7 +137,7 @@ export function usePopupsForMap(filters: PopupListFilters): UseQueryResult<Popup
 export function usePopupDetail(popupId: number, initial?: PopupDetail): UseQueryResult<PopupDetail, ApiError>;
 ```
 
-**최근 본 팝업.** 있는 것이다. 서버에 보내지 않고 이 탭의 `sessionStorage`에 최신 열 개를 둔다. 같은 팝업을 다시 열면 맨 앞으로 옮기고 열한 번째가 들어오면 가장 오래된 것을 버린다(`shared/model/recent-popups.ts`의 `prependRecentPopup`).
+**최근 본 팝업.** 있는 것이다. 서버에 보내지 않고 이 탭의 `sessionStorage`에 최신 열 개를 둔다. 같은 팝업을 다시 열면 맨 앞으로 옮기고 열한 번째가 들어오면 가장 오래된 것을 버린다(스토어의 `addRecentPopup`).
 
 ```typescript
 // shared/model/useRecentPopupsStore.ts
@@ -159,25 +164,23 @@ export function useRecentPopups(): {
 
 **불러오기 실패.** 시크릿 모드나 사이트 데이터를 막은 브라우저처럼 세션 저장소를 읽지 못하면 `loadStatus`가 `"failed"`가 되고 `[recent-popups]` 로그를 남긴다. 이때 `RecentPopupRecorder`는 기록하지 않고 로그만 남긴다. 목록은 빈 목록과 구분되는 실패 문구를 보인다. `loadStatus`가 `"ready"`가 아닐 때 `addRecentPopup`을 부르면 스토어가 던진다. 복원 전에 쓰면 복원될 기록을 빈 목록 위에 쓴 값으로 덮어쓰기 때문이다. `clearRecentPopups`는 덮어쓰는 것이 목적이라 복원 전에도 막지 않는다.
 
-**서버 API.** 전부 백엔드 요구다.
+**서버 API.** 설계다. 백엔드 `feature/18` 브랜치에 있는 것과 다른 점은 아래 옮길 것 절에 있다.
 
 | 메서드와 경로                  | 인증 | 파라미터                                                      | 응답                         |
 | ------------------------------ | ---- | ------------------------------------------------------------- | ---------------------------- |
 | `GET /api/v1/popups`           | 선택 | `q`, `sort`(`latest`, `popular`), `region`, `cursor`, `limit` | `PageResponse<PopupSummary>` |
 | `GET /api/v1/popups/{popupId}` | 선택 |                                                               | `PopupDetail`                |
 
-서버 공통 `PageResponse`는 `content`와 `hasNext`, `nextCursor`다. 다음 요청의 커서는 `nextCursor`를 그대로 넘기고(`useCursorQuery`) 총 건수는 시안에 "총 N곳"이 없어 받지 않는다. 인증 "선택"은 서버 설정에 팝업 경로를 `permitAll`로 더해야 성립한다. 지금은 인증과 온보딩 경로만 열려 있어 토큰 없는 요청이 막힌다. 정렬 값 이름과 검색 대상 필드는 백엔드가 정한다.
-
-`sort=popular`는 최근 7일간 상세 조회수 내림차순이다. 집계는 백엔드가 한다. 상세 조회 요청이 그 집계를 겸하는지 아니면 별도 요청이 필요한지도 백엔드가 정한다.
+서버 공통 `PageResponse`는 `content`와 `hasNext`, `nextCursor`다. 다음 요청의 커서는 `nextCursor`를 그대로 넘기고(`useCursorQuery`) 총 건수는 시안에 "총 N곳"이 없어 받지 않는다. `sort=popular`는 SPEC 기준으로 최근 7일간 상세 조회수 내림차순이고 집계는 백엔드가 한다.
 
 **길찾기.** 설계다. 9/26 시안에 없어 만들지 않았다. 카카오맵 웹 링크 `https://map.kakao.com/link/to/{title},{lat},{lng}`를 새 탭으로 연다. SDK나 REST 호출이 없다. 주소 복사도 공유 링크 복사와 같이 `navigator.clipboard.writeText`이고 실패하면 값을 선택 가능한 텍스트로 두고 실패 문구를 보인다.
 
-**이미지.** 요약의 대표 이미지는 `imageUrl: string | null`, 상세의 갤러리는 `imageUrls: string[]`이다. 백엔드 엔티티의 `imageUrls`를 받는 모양이다. 사진은 `shared/components/PopupImage`가 `next/image`의 `fill`로 그리고 `null`이면 `CategoryFallbackImage`로 대신한다. 지금은 시안의 더미 사진 다섯 장을 `public/placeholder/`에 두고 임시 데이터가 가리킨다. API가 열리면 이 폴더와 `shared/lib/placeholder-images.ts`를 지우고 둘을 함께 한다.
+**이미지.** 요약의 대표 이미지는 `imageUrl: string | null`, 상세의 갤러리는 `imageUrls: string[]`이다. 백엔드 엔티티의 `imageUrls`를 받는 모양이다. 사진은 `shared/components/PopupImage`가 `next/image`의 `fill`로 그리고 `null`이면 `CategoryFallbackImage`로 대신한다. 지금은 시안의 더미 사진 다섯 장을 `public/images/placeholder/`에 두고 임시 데이터가 가리킨다. API가 열리면 이 폴더와 `shared/lib/placeholder-images.ts`를 지우고 둘을 함께 한다.
 
 - 외부 이미지 URL을 받으려면 `next.config.ts`에 `images.remotePatterns`를 둔다. 빌드 설정 변경이라 사용자 승인이 필요하다. 수집 출처가 카카오맵과 Perplexity라 도메인이 여럿일 수 있어 백엔드가 한 도메인으로 옮겨 주는지, 최적화를 끄는지(`unoptimized`) 정한다
 - 백엔드 `imageUrls`는 nullable 목록이라 받는 쪽에서 빈 배열로 맞춘다
 
-**지도 핀.** `shared/lib/kakao-map`은 핀을 `CustomOverlay`로 그린다. 점과 라벨을 한 요소에 담고 클러스터러가 그 요소를 묶는다. 묶인 뒤 `clustered` 이벤트에서 클러스터 요소에 첫 핀의 라벨과 나머지 수 `+N`을 채운다. 핀은 `aria-hidden`이라 마우스 전용이고 키보드와 스크린리더 경로는 부르는 쪽이 같은 팝업 목록으로 따로 낸다. 핀의 탭 순서가 오버레이 삽입 순서라 화면 위치와 무관하고 클러스터에 묶이면 DOM에서 빠지기 때문이다. 탐색 지도는 `KakaoMapCamera`를 쓰지 않고 `PopupMap`이 중심과 마커 범위를 직접 고른다(`model/map-view.ts`).
+**지도 핀.** `shared/lib/kakao-map`은 핀을 `CustomOverlay`로 그린다. 점과 라벨을 한 요소에 담고 클러스터러가 그 요소를 묶는다. 묶인 뒤 `clustered` 이벤트에서 클러스터 요소에 첫 핀의 라벨과 나머지 수 `+N`을 채운다. 핀은 `aria-hidden`이라 마우스 전용이고 키보드와 스크린리더 경로는 부르는 쪽이 같은 팝업 목록으로 따로 낸다. 핀의 탭 순서가 오버레이 삽입 순서라 화면 위치와 무관하고 클러스터에 묶이면 DOM에서 빠지기 때문이다. 탐색 지도는 `PopupMap`이 중심과 마커 범위를 고른다(`model/map-view.ts`).
 
 **로그.** `[popup]` 접두사. 상세 조회 실패, 위치 권한 거부, 클립보드 실패. 위치 권한 거부는 실패가 아니라 사용자의 선택이므로 `console.info`로 한 번만 남긴다.
 
@@ -212,10 +215,16 @@ export function useRecentPopups(): {
 
 **API가 열리면 옮길 것.** 탐색은 `placeholder-explore.ts`의 임시 목록 하나를 두 뷰가 같이 쓴다.
 
-- 목록 뷰를 열 개씩 커서 무한 스크롤로 바꾼다. 지금은 걸러 낸 결과를 한 번에 그린다. 더 불러오는 중 문구와 조회 실패 상태도 이때 붙인다
-- 검색과 지역 거르기, 정렬을 서버로 넘기고 `filterExplorePopups`를 지운다. 인기순은 서버의 조회수 집계, 최신순은 팝픽 등록 순이다
-- 핀 좌표를 목록 응답의 `lat`, `lng`로 받는다. 서버 엔티티에 `latitude`, `longitude`가 있지만 응답에 없다
-- 비회원이 탐색과 상세를 보려면 서버가 팝업 조회 경로를 `permitAll`에 넣어야 한다
+백엔드 `feature/18` 브랜치(`e95f306`)에 목록과 상세, 홈 인기 API가 있다. 이 브랜치는 아직 develop에 머지되지 않아 계약이 바뀔 수 있다. 그래서 연동 코드는 만들지 않았다. 아래는 그 브랜치 코드를 읽고 적은 것이다. 홈 인기 API는 `recommendation.md`의 옮길 것 절에 있다.
+
+- 목록은 `GET /api/v1/popups?keyword&sort&cursor&limit`이다. 응답 `{ content, hasNext, nextCursor }`는 `PageResponse`와 모양이 같다. 목록 뷰를 열 개씩 커서 무한 스크롤로 바꾸고 더 불러오는 중 문구와 조회 실패 상태를 이때 붙인다. 페이지 크기는 플래너 목록의 `size`와 이름이 다른 `limit`이고 1부터 50, 기본 10이다
+- 서버가 끝난 팝업과 아직 시작하지 않은 팝업을 뺀다. `keyword`는 이름과 브랜드, 도로명과 지번 주소에서 찾는다
+- 정렬은 `latest`와 `popular`다. 서버 기본은 `latest`이고 프론트 기본은 인기순이다. 프론트 URL은 인기순일 때 `sort`를 쓰지 않으니 API를 부를 때는 `sort`를 늘 적는다. 서버의 `latest`는 오픈일 내림차순이고 SPEC의 최신순은 팝픽 등록 순이라 어느 쪽인지 기획에 묻는다. `popular`는 누적 상세 조회수 순이고 SPEC은 최근 7일이라 이것도 기획에 묻는다
+- 목록 API에 지역 파라미터가 없다. 지역 거르기를 서버로 넘기지 못해 백엔드에 상권 필터를 요청한다. 페이지 단위로 받은 결과를 프론트가 지역으로 거르면 한 페이지가 열 개보다 적게 보이므로 `filterExplorePopups`는 서버 필터가 생긴 뒤 지운다
+- 목록 한 건은 `popupId, imageUrl, interestCategoryId, title, endDate, reservationType`뿐이다. 지역과 좌표가 없어 메타 줄의 지역 라벨과 지도 핀을 그리지 못한다. 목록 응답에 상권과 `latitude`, `longitude`를 백엔드에 요청한다. 지도는 한 번에 최대 50개를 받는다
+- 카테고리는 숫자 id(1부터 8)로 온다. `PopupCategory` 유니온의 슬러그와 맞지 않으니 온보딩 선택지 조회의 라벨로 바꾼다
+- 상세는 `GET /api/v1/popups/{popupId}`이고 좌표는 있지만 지역이 없다. 부를 때마다 조회수가 1 오르고 같은 조회자가 10분 안에 다시 부르면 세지 않는다. 비회원 조회자는 `X-Real-IP`나 `X-Forwarded-For`의 IP와 브라우저로 가른다. 시트와 상세 페이지는 서버 컴포넌트에서 부르므로 이 헤더를 넘기지 않으면 조회자가 Next 서버 IP로 잡힌다. 어떤 헤더를 넘길지 백엔드에 묻는다
+- 이 브랜치에서 목록과 상세는 `permitAll`이다. 머지되면 비회원 탐색과 상세가 된다
 - 찜은 `bookmark.md`의 서버 API가 열리면 카드와 시트의 회원 하트를 누를 수 있다
 - 끝나면 `placeholder-explore.ts`와 `ExplorePopup`의 임시 필드를 지우고 `PopupSummary` 설계 필드로 옮긴다
 

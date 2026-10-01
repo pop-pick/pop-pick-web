@@ -9,7 +9,7 @@ import { signInAsMember } from "../support/auth";
 import { freezeSeoulTime } from "../support/clock";
 import { apiError, apiSuccess, server } from "../support/msw";
 import { renderWithProviders } from "../support/render";
-import { buildPlannerFormResponse, buildPlannerResponse } from "./support/planner-fixtures";
+import { buildPlannerFormResponse, buildPlannerPage, buildPlannerResponse } from "./support/planner-fixtures";
 import {
 	fillRequiredConditions,
 	getDateButton,
@@ -188,6 +188,18 @@ test("조건 입력 선택지를 불러오지 못하면 다시 시도로 회복�
 	await user.click(await screen.findByRole("button", { name: "다시 시도" }));
 
 	expect(await waitForPlannerForm()).toBeInTheDocument();
+});
+
+test("조건 입력 선택지를 불러오지 못해도 머리글의 뒤로 가기로 플래너에 돌아간다", async () => {
+	signInAsMember();
+	server.use(http.get("/api/v1/planners/form", () => apiError(500, "E0000")));
+	server.use(http.get("/api/v1/planners", () => apiSuccess(buildPlannerPage([]))));
+	const { user } = renderWithProviders(<PlannerRoutes />, { url: "/planner/new" });
+
+	await screen.findByRole("button", { name: "다시 시도" });
+	await user.click(screen.getByRole("button", { name: "뒤로 가기" }));
+
+	expect(await screen.findByRole("tab", { name: "다가오는 일정" })).toBeInTheDocument();
 });
 
 test("닫힌 시작 시간 버튼에서 아래 방향키를 누르면 목록이 열리고 키보드로 고를 수 있다", async () => {

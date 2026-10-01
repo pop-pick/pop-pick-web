@@ -5,15 +5,15 @@ import { tv, type VariantProps } from "@/shared/lib/tv";
 import { POPUP_CATEGORY_LABELS } from "@/shared/model/popup";
 import { buildPopupDetailPath } from "@/shared/model/popup-path";
 import { REGION_LABELS } from "@/shared/model/region";
+import { Badge } from "@/shared/ui/Badge";
+import { LinkButton } from "@/shared/ui/LinkButton";
 
 import { formatViewCount } from "../model/detail-format";
 import { type PopupDetail, toPopupSummary } from "../model/popup-detail";
 import { PopupImageCarousel } from "./PopupImageCarousel";
 import { PopupInfoCard } from "./PopupInfoCard";
-import { PopupTagBadge } from "./PopupTagBadge";
 import { RecentPopupRecorder } from "./RecentPopupRecorder";
 import { ReliabilityNotice } from "./ReliabilityNotice";
-import { ReservationLink } from "./ReservationLink";
 import { SharePopupButton } from "./SharePopupButton";
 
 const popupDetailViewVariants = tv({
@@ -47,35 +47,32 @@ export function PopupDetailView({ popup, matchRateSlot, variant, titleId }: Popu
 							category={popup.category}
 							variant={variant}
 						/>
-						<div className="flex flex-col gap-5">
-							<div className="flex flex-col gap-3">
-								{hasBadgeRow && (
-									<div className="flex items-center gap-1">
-										{popup.category !== null && (
-											<PopupTagBadge tone="category">{POPUP_CATEGORY_LABELS[popup.category]}</PopupTagBadge>
-										)}
-										{popup.region !== null && (
-											<PopupTagBadge tone="region">{REGION_LABELS[popup.region]}</PopupTagBadge>
-										)}
-										{popup.viewCount !== null && (
-											<span className="ml-auto text-b3-12 text-text-4">{formatViewCount(popup.viewCount)}</span>
-										)}
-									</div>
-								)}
-								<div className="flex flex-col gap-3">
-									<h1 id={titleId} tabIndex={titleId === undefined ? undefined : -1} className="text-h2 text-text-1">
-										{popup.title}
-									</h1>
-									{popup.description !== null && <p className="text-b3-14 text-text-2">{popup.description}</p>}
+						<div className="flex flex-col gap-3">
+							{hasBadgeRow && (
+								<div className="flex items-center gap-1">
+									{popup.category !== null && <Badge>{POPUP_CATEGORY_LABELS[popup.category]}</Badge>}
+									{popup.region !== null && <Badge tone="region">{REGION_LABELS[popup.region]}</Badge>}
+									{popup.viewCount !== null && (
+										<span className="ml-auto text-b3-12 text-text-4">{formatViewCount(popup.viewCount)}</span>
+									)}
 								</div>
-							</div>
-							<PopupInfoCard popup={popup} />
+							)}
+							<h1 id={titleId} tabIndex={titleId === undefined ? undefined : -1} className="text-h2 text-text-1">
+								{popup.title}
+							</h1>
+							{popup.description !== null && <p className="text-b3-14 text-text-2">{popup.description}</p>}
 						</div>
+						<PopupInfoCard popup={popup} />
 					</div>
 					{matchRateSlot}
 				</div>
 				<div className="flex items-center gap-2.5">
-					{popup.reservationUrl !== null && <ReservationLink href={popup.reservationUrl} />}
+					{popup.reservationUrl !== null && (
+						<LinkButton href={popup.reservationUrl} target="_blank" rel="noopener noreferrer" className="flex-1">
+							예약 사이트로 이동
+							<span className="sr-only">(새 창)</span>
+						</LinkButton>
+					)}
 					<div className="ml-auto flex shrink-0 gap-2">
 						<BookmarkSlot popupId={popup.id} popupTitle={popup.title} size="lg" />
 						<SharePopupButton path={buildPopupDetailPath(popup.id)} />

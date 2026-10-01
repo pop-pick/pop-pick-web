@@ -9,7 +9,7 @@ export function SeparatedText({ parts }: SeparatedTextProps) {
 		<Fragment key={`${String(index)}-${part}`}>
 			{index > 0 && (
 				<>
-					<span aria-hidden className="mx-1.25 inline-block size-0.5 rounded-full bg-current align-middle" />
+					<span aria-hidden className="mx-1 inline-block size-0.5 rounded-full bg-current align-middle" />
 					<span className="sr-only">, </span>
 				</>
 			)}

@@ -1,5 +1,5 @@
 ---
-description: X-[value] 임의값을 쓰지 않는다. 값은 src/shared/styles/tokens의 @theme inline 토큰과 utilities.css의 @utility에서 온다. 어긋난 값을 옮기는 네 갈래. 값에 따라 갈리는 모양은 aria 변형과 @/shared/lib/tv 레시피로 적는다
+description: X-[value] 임의값을 쓰지 않는다. 값은 src/shared/styles/tokens의 @theme inline 토큰과 utilities.css의 @utility에서 온다. 어긋난 값을 옮기는 네 방법. 값에 따라 갈리는 모양은 aria 변형과 @/shared/lib/tv 레시피로 적는다
 paths: ["src/**/*.tsx", "src/**/*.css"]
 ---
 
@@ -9,11 +9,11 @@ paths: ["src/**/*.tsx", "src/**/*.css"]
 
 **`X-[value]` 형태의 임의값을 쓰지 않는다.** `p-[18px]`과 `text-[13px]`, `max-w-[600px]`, `grid-cols-[minmax(0,1fr)_auto]`이 전부 해당한다.
 
-값은 토큰이나 유틸리티에서 온다. 클래스 안에 직접 박지 않는다.
+값은 토큰이나 유틸리티에서 온다. 클래스 안에 값을 직접 적지 않는다.
 
 ## 이 규칙이 생긴 이유
 
-디자이너 한 명의 시안을 프론트엔드 둘이 나눠 옮긴다. 각자 시안에서 읽은 값을 클래스에 직접 박으면 같은 값이 두 이름으로 갈리고 형제 화면이 1px씩 어긋나기 쉽다. 한 사람은 `gap-[18px]`을 쓰고 다른 사람은 `gap-[20px]`을 쓰는데 시안에서는 같은 간격인 식이다.
+디자이너 한 명의 시안을 프론트엔드 둘이 나눠 옮긴다. 각자 시안에서 읽은 값을 클래스에 직접 적으면 같은 값이 두 이름으로 갈리고 형제 화면이 1px씩 어긋나기 쉽다. 한 사람은 `gap-[18px]`을 쓰고 다른 사람은 `gap-[20px]`을 쓰는데 시안에서는 같은 간격인 식이다.
 
 임의값은 그 어긋남을 브라켓 안에 숨긴다. 코드 검색으로 찾아도 값이 제각각이라 같은 의도인지 알 수 없다. 이름이 붙으면 같은 값이 두 이름으로 갈린 것이 토큰 목록에서 보인다.
 
@@ -75,7 +75,7 @@ Tailwind 기본 글자 크기 토큰은 전부 `--line-height` 짝을 가지고 
 />
 ```
 
-고른 항목에는 hover 색을 주지 않으려면 `not-aria-pressed:hover:`처럼 조건을 겹친다.
+고른 항목에는 hover 색을 주지 않으려면 `not-aria-pressed:hover:`처럼 조건을 겹친다. `Button`이 `not-disabled:not-aria-disabled:hover:`로 막힌 버튼의 hover를 끄는 것도 같은 방법이다.
 
 **2. DOM에 없는 값이면 `@/shared/lib/tv`의 `tv`로 레시피를 만든다.** props로 받는 변형(`variant`, `size`, `tone`)과 속성으로 드러나지 않는 상태(`hasValue`, `isHighlighted`)가 여기 해당한다.
 
@@ -118,14 +118,6 @@ const styles = selectVariants({ size, hasValue });
 
 `cn()`은 고정 클래스와 바깥에서 받은 `className`을 합칠 때만 쓴다.
 
-## 확인하는 법
+## 기계로 막는 것
 
-남아 있는 임의값을 찾는다.
-
-```bash
-grep -rnoE "(^|[\" ])[a-z-]+-\[[^]]+\]" src --include="*.tsx" --include="*.ts"
-```
-
-걸리는 것이 없어야 한다. 걸리면 위 네 갈래 중 하나로 옮긴다.
-
-`cn()` 안의 조건과 `tailwind-variants` 직접 import는 `check-conventions.sh`가 막는다.
+임의값과 `cn()` 안의 조건, `tailwind-variants` 직접 import는 `check-conventions.sh`가 막는다. 임의값이 걸리면 대신 하는 것 절의 네 방법 중 하나로 옮긴다.

@@ -7,7 +7,8 @@ type EmblaApi = UseEmblaCarouselType[1];
 export function useCarouselAutoplay(emblaApi: EmblaApi, delay: number) {
 	const shouldReduceMotion = useReducedMotion();
 	const [isStopped, setIsStopped] = useState(false);
-	const isPlaying = !isStopped && shouldReduceMotion !== true;
+	const canPlay = shouldReduceMotion !== true;
+	const isPlaying = !isStopped && canPlay;
 
 	useEffect(() => {
 		if (emblaApi === undefined || !isPlaying) {
@@ -16,13 +17,14 @@ export function useCarouselAutoplay(emblaApi: EmblaApi, delay: number) {
 
 		const root = emblaApi.rootNode();
 		let timerId: number | undefined;
+		let isPointerDown = false;
 		let isHovered = false;
 		let hasFocusWithin = false;
 
 		const restartAutoplayTimer = () => {
 			window.clearTimeout(timerId);
 
-			if (isHovered || hasFocusWithin || document.hidden) {
+			if (isPointerDown || isHovered || hasFocusWithin || document.hidden) {
 				return;
 			}
 
@@ -31,22 +33,36 @@ export function useCarouselAutoplay(emblaApi: EmblaApi, delay: number) {
 			}, delay);
 		};
 
-		const handleUserInteraction = () => {
-			setIsStopped(true);
+		const handlePointerDown = () => {
+			isPointerDown = true;
+			restartAutoplayTimer();
 		};
 
-		const handleMouseEnter = () => {
+		const handlePointerUp = () => {
+			isPointerDown = false;
+			restartAutoplayTimer();
+		};
+
+		const handlePointerEnter = (event: PointerEvent) => {
+			if (event.pointerType !== "mouse") {
+				return;
+			}
+
 			isHovered = true;
 			restartAutoplayTimer();
 		};
 
-		const handleMouseLeave = () => {
+		const handlePointerLeave = (event: PointerEvent) => {
+			if (event.pointerType !== "mouse") {
+				return;
+			}
+
 			isHovered = false;
 			restartAutoplayTimer();
 		};
 
-		const handleFocusIn = () => {
-			hasFocusWithin = true;
+		const handleFocusIn = (event: FocusEvent) => {
+			hasFocusWithin = event.target instanceof Element && event.target.matches(":focus-visible");
 			restartAutoplayTimer();
 		};
 
@@ -59,25 +75,25 @@ export function useCarouselAutoplay(emblaApi: EmblaApi, delay: number) {
 			restartAutoplayTimer();
 		};
 
-		root.addEventListener("pointerdown", handleUserInteraction);
-		root.addEventListener("keydown", handleUserInteraction);
-		root.addEventListener("mouseenter", handleMouseEnter);
-		root.addEventListener("mouseleave", handleMouseLeave);
+		root.addEventListener("pointerenter", handlePointerEnter);
+		root.addEventListener("pointerleave", handlePointerLeave);
 		root.addEventListener("focusin", handleFocusIn);
 		root.addEventListener("focusout", handleFocusOut);
 		document.addEventListener("visibilitychange", restartAutoplayTimer);
+		emblaApi.on("pointerDown", handlePointerDown);
+		emblaApi.on("pointerUp", handlePointerUp);
 		emblaApi.on("select", restartAutoplayTimer);
 		restartAutoplayTimer();
 
 		return () => {
 			window.clearTimeout(timerId);
-			root.removeEventListener("pointerdown", handleUserInteraction);
-			root.removeEventListener("keydown", handleUserInteraction);
-			root.removeEventListener("mouseenter", handleMouseEnter);
-			root.removeEventListener("mouseleave", handleMouseLeave);
+			root.removeEventListener("pointerenter", handlePointerEnter);
+			root.removeEventListener("pointerleave", handlePointerLeave);
 			root.removeEventListener("focusin", handleFocusIn);
 			root.removeEventListener("focusout", handleFocusOut);
 			document.removeEventListener("visibilitychange", restartAutoplayTimer);
+			emblaApi.off("pointerDown", handlePointerDown);
+			emblaApi.off("pointerUp", handlePointerUp);
 			emblaApi.off("select", restartAutoplayTimer);
 		};
 	}, [emblaApi, delay, isPlaying]);
@@ -90,10 +106,5 @@ export function useCarouselAutoplay(emblaApi: EmblaApi, delay: number) {
 		setIsStopped(false);
 	};
 
-	return {
-		isPlaying,
-		canPlay: shouldReduceMotion !== true,
-		stopAutoplay,
-		startAutoplay
-	};
+	return { isPlaying, canPlay, stopAutoplay, startAutoplay };
 }

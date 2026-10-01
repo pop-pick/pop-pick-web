@@ -18,7 +18,7 @@ skills:
 
 ## 검수에서 판단하는 것
 
-- 변경 훅의 `invalidateQueries` 키가 조회 `queryOptions` 키의 앞 조각과 글자 그대로 맞는가. **양쪽을 같이 열어** 대조한다. 어긋나면 변경은 성공하고 화면만 옛 값을 들고 있으며 오류가 남지 않는다
+- 변경 훅의 `invalidateQueries` 키가 조회 `queryOptions` 키의 앞 조각과 글자 그대로 맞는가. **양쪽을 같이 열어** 대조한다
 - 조회가 `queryOptions`를 거치고 키가 기능, 종류, 식별자 순인가
 - 서버 컴포넌트 prefetch의 `staleTime`이 0보다 큰가. 인증이 필요한 요청을 서버에서 보내지 않는가
 - 스토어에 있는 값이 `state.md` 표에서 스토어 자리인가. 쿼리 결과를 `useEffect`로 스토어에 넣는 코드, URL에 실을 수 있는 조건값

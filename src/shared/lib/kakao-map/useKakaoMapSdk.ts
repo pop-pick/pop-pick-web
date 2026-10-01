@@ -1,20 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { KakaoMapError } from "./kakao-map-error";
 import type { KakaoMapsSdk } from "./kakao-map-sdk";
 import { KakaoMapSession } from "./kakao-map-session";
 
-export type KakaoMapSdkState =
-	| { status: "loading"; sdk: null; error: null }
-	| { status: "ready"; sdk: KakaoMapsSdk; error: null }
-	| { status: "error"; sdk: null; error: KakaoMapError };
+type KakaoMapSdkState = { status: "loading" | "error"; sdk: null } | { status: "ready"; sdk: KakaoMapsSdk };
 
 const LOADING_STATE: KakaoMapSdkState = {
 	status: "loading",
-	sdk: null,
-	error: null
+	sdk: null
 };
 
 export function useKakaoMapSdk() {
@@ -29,7 +25,7 @@ export function useKakaoMapSdk() {
 		sdkPromise.then(
 			(sdk) => {
 				if (isActive) {
-					setState({ status: "ready", sdk, error: null });
+					setState({ status: "ready", sdk });
 				}
 			},
 			(error: unknown) => {
@@ -39,7 +35,7 @@ export function useKakaoMapSdk() {
 
 				if (error instanceof KakaoMapError) {
 					console.error(`[kakao-map] SDK를 불러오지 못했다 (${error.reason})`, error);
-					setState({ status: "error", sdk: null, error });
+					setState({ status: "error", sdk: null });
 					return;
 				}
 
@@ -57,10 +53,10 @@ export function useKakaoMapSdk() {
 		};
 	}, [attempt]);
 
-	const reloadSdk = useCallback(() => {
+	const reloadSdk = () => {
 		setState(LOADING_STATE);
 		setAttempt((count) => count + 1);
-	}, []);
+	};
 
 	if (unexpectedError !== null) {
 		throw unexpectedError;

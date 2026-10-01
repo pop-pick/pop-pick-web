@@ -17,3 +17,7 @@ export function consumeNextPath() {
 	window.sessionStorage.removeItem(STORAGE_KEY);
 	return sanitizeNextPath(storedPath) ?? DEFAULT_NEXT_PATH;
 }
+
+export function readStoredNextPath() {
+	return sanitizeNextPath(window.sessionStorage.getItem(STORAGE_KEY));
+}

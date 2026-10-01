@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function MyPage() {
 	return (
-		<main className="flex flex-1 flex-col pt-17">
+		<main className="flex flex-1 flex-col pt-6">
 			<h1 className="sr-only">마이페이지</h1>
 			<RequireAuth nextPath={MY_PAGE_PATH} fallback={<MyPageSkeleton />}>
 				<Suspense>

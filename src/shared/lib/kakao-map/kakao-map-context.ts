@@ -4,7 +4,7 @@ import { createContext, useContext } from "react";
 
 import type { KakaoMapInstance, KakaoMapsSdk } from "./kakao-map-sdk";
 
-export type KakaoMapHandle = {
+type KakaoMapHandle = {
 	sdk: KakaoMapsSdk;
 	map: KakaoMapInstance;
 };

@@ -1,5 +1,3 @@
-"use client";
-
 import { useRouter } from "next/navigation";
 import { type SubmitEvent, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
@@ -77,7 +75,7 @@ export function CompanionStepForm({ initialAnswers }: CompanionStepFormProps) {
 	return (
 		<>
 			<form onSubmit={handleSubmit} className="flex flex-1 flex-col">
-				<div className="flex flex-col gap-10 px-5 pt-10 pb-12">
+				<div className="flex flex-col gap-10 px-5 pt-10 pb-10">
 					<ChoiceChipGroup
 						legend={ONBOARDING_QUESTION_LABELS.companionType}
 						name="companionType"

@@ -10,7 +10,7 @@ export const COURSE_TAB_EMPTY_TITLES: Record<CourseTab, string> = {
 	cancelled: "취소된 일정이 없어요."
 };
 
-export const COURSE_TAB_LABELS: Record<CourseTab, string> = {
+const COURSE_TAB_LABELS: Record<CourseTab, string> = {
 	upcoming: "다가오는 일정",
 	past: "지난 일정",
 	cancelled: "취소된 일정"

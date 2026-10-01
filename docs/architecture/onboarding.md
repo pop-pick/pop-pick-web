@@ -22,23 +22,21 @@
 
 **범위 밖.** 성별 항목. 추천 미리보기 화면은 존치 여부가 미결정이라 이 문서가 다루지 않는다.
 
-**지금 있는 것.** 홈 위 랜딩 모달(`components/LandingDialog`)과 단계 헤더(`components/OnboardingHeader`), 단계 번호 파싱(`model/steps.ts`), 세 단계 화면이 있다. 선택지 조회 셋과 취향 저장 하나를 서버 API에 붙였다. 아래 D와 I 절은 지금 코드다.
-
 ## A. Architecture
 
-| 상태            | 원천                                                                                                            | 비고                                                                                                                            |
-| --------------- | --------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| 선택지 목록     | Server. `["onboarding", "options", "interest-categories"]`와 `"favorite-areas"`, `"preferred-activities"` 키 셋 | 관심 카테고리와 지역, 선호 활동. 서버 테이블에서 온다. `staleTime`은 `Infinity`                                                 |
-| 입력한 답       | Zustand `useOnboardingStore`. `sessionStorage`의 `pp-onboarding-answers` 키에 `answers`만 저장                  | 탭을 닫으면 지워진다. 같은 브라우저에서 다른 계정으로 로그인했을 때 이전 답이 보이지 않게 하려는 것이다. 저장이 성공하면 비운다 |
-| 저장된 취향     | Server                                                                                                          | 저장만 붙였다. 조회 엔드포인트를 쓰는 코드가 아직 없어 단계 화면은 서버 값이 아니라 스토어의 답을 폼 기본값으로 쓴다            |
-| 현재 단계       | URL `/onboarding/[step]`                                                                                        | 1, 2, 3 밖의 값은 `notFound()`다. 헤더의 뒤로 가기가 이전 단계이고 1단계의 이전은 `/`다                                         |
-| 입력 중인 폼 값 | react-hook-form                                                                                                 | 단계 폼마다 `OnboardingStepAnswers[step]` 모양이다                                                                              |
+| 상태            | 원천                                                                                                            | 비고                                                                                                                                            |
+| --------------- | --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| 선택지 목록     | Server. `["onboarding", "options", "interest-categories"]`와 `"favorite-areas"`, `"preferred-activities"` 키 셋 | 관심 카테고리와 지역, 선호 활동. 서버 테이블에서 온다. `staleTime`은 `Infinity`                                                                 |
+| 입력한 답       | Zustand `useOnboardingStore`. `sessionStorage`의 `pp-onboarding-answers` 키에 `answers`만 저장                  | 탭을 닫으면 지워진다. 같은 브라우저에서 다른 계정으로 로그인했을 때 이전 답이 보이지 않게 하려는 것이다. 저장이 성공하면 비운다                 |
+| 저장된 취향     | Server                                                                                                          | 저장만 붙였다. 조회 엔드포인트를 쓰는 코드가 아직 없어 단계 화면은 서버 값이 아니라 스토어의 답을 폼 기본값으로 쓴다                            |
+| 현재 단계       | URL `/onboarding/[step]`                                                                                        | `parseStep`이 문자열 `"1"`, `"2"`, `"3"`만 받는다. `01`처럼 0이 붙은 값도 `notFound()`다. 헤더의 뒤로 가기가 이전 단계이고 1단계의 이전은 `/`다 |
+| 입력 중인 폼 값 | react-hook-form                                                                                                 | 단계 폼마다 `OnboardingStepAnswers[step]` 모양이다                                                                                              |
 
 통신은 넷이다. 선택지 조회 셋과 취향 저장 하나이고 경로와 모양은 I 절의 서버 API 표에 있다.
 
 **선택지를 화면에 박지 않는다.** 관심 카테고리와 자주 가는 지역, 선호 활동은 서버 테이블에 있고 그 단계에 들어갈 때 조회해 목록을 그린다. 항목을 더하거나 뺄 때 재배포하지 않기 위해서다. 팝업을 수집할 때도 같은 카테고리로 나누므로 서버가 목록을 갖는 편이 맞다.
 
-**답 복원.** 서버 렌더에는 `sessionStorage`가 없어 스토어는 `skipHydration`으로 만들고 `useOnboardingAnswers`가 마운트 뒤에 `persist.rehydrate()`를 부른다. 복원이 끝나기 전 `loadStatus`는 `"loading"`이고 단계 화면은 스켈레톤을 그린다. 브라우저가 `sessionStorage`를 막으면 zustand persist가 메모리에만 쓰고 `loadStatus`가 `"failed"`가 된다. 이때 단계 화면 위에 새로고침하면 답이 사라질 수 있다는 안내를 띄우고 폼은 그대로 쓸 수 있다. 복원이 끝나기 전에 스토어를 고치면 이전 단계의 답이 지워지므로 스토어의 세 동작은 `loadStatus`가 `"loading"`일 때 부르면 던진다.
+**답 복원.** 서버 렌더에는 `sessionStorage`가 없어 스토어는 `skipHydration`으로 만들고 `useOnboardingAnswers`가 마운트 뒤에 `persist.rehydrate()`를 부른다. 복원이 끝나기 전 `loadStatus`는 `"loading"`이고 단계 화면은 `OnboardingStepSkeleton`을 그린다. 브라우저가 `sessionStorage`를 막으면 zustand persist가 메모리에만 쓰고 `loadStatus`가 `"failed"`가 된다. 이때 단계 화면 위에 새로고침하면 답이 사라질 수 있다는 안내를 띄우고 폼은 그대로 쓸 수 있다. 복원이 끝나기 전에 스토어를 고치면 이전 단계의 답이 지워지므로 스토어의 세 동작은 `loadStatus`가 `"loading"`일 때 부르면 던진다.
 
 **흐름.**
 
@@ -177,36 +175,23 @@ export function preferredActivitiesQueryOptions();
 **컴포넌트.** 전부 `features/onboarding/components/`에 있다.
 
 ```typescript
-/** 뒤로 가기와 "취향 분석 온보딩" 제목, 진행 표시 "1/3"의 한 줄 헤더 */
+/** 공용 PageHeader에 뒤로 가기와 "취향 분석 온보딩" 제목, 진행 표시 "1/3"을 넘긴다 */
 export function OnboardingHeader({ step }: { step: OnboardingStep });
-/** 그림 자리와 단계 제목, 설명문(ONBOARDING_STEP_DESCRIPTIONS), 답 복원 상태를 그리고 단계에 맞는 폼을 고른다 */
+/** 단계 그림과 단계 제목, 설명문(ONBOARDING_STEP_DESCRIPTIONS), 답 복원 상태를 그리고 단계에 맞는 폼을 고른다 */
 export function OnboardingStepScreen({ step }: { step: OnboardingStep });
+/** 답 복원 중과 선택지 조회 중에 그린다. 단계마다 막대 높이가 그 단계 폼의 높이와 같다 */
+export function OnboardingStepSkeleton({ step, label }: { step: OnboardingStep; label: string });
 export function CompanionStepForm({ initialAnswers }: { initialAnswers: OnboardingStepAnswers[1] });
 export function InterestStepForm({ initialAnswers }: { initialAnswers: OnboardingStepAnswers[2] });
 export function ActivityStepForm({ initialAnswers }: { initialAnswers: OnboardingStepAnswers[3] });
-/** fieldset과 legend로 묶은 ChoiceChip 목록. mode가 single이면 radio, multiple이면 checkbox. options가 비면 "선택지가 없어요"를 그린다 */
-export function ChoiceChipGroup<T extends string | number>(props: {
-	legend: string;
-	name: string;
-	mode: "single" | "multiple";
-	options: readonly { value: T; label: string }[];
-	selectedValues: readonly T[];
-	/** 누른 칩의 값을 넘긴다. 다중 선택이면 부르는 쪽 폼이 toggleSelectedId로 넣고 뺀다 */
-	onSelect: (value: T) => void;
-	/** fieldset에 붙는다. tabIndex={-1}이라 포커스를 받을 수 있다 */
-	ref?: Ref<HTMLFieldSetElement>;
-});
-/** 라벨과 설명문, 입력칸, "12/200자" 글자 수 카운터 */
-export function FreeTextField(props: {
-	label: string;
-	/** 라벨 아래 설명문. 줄바꿈을 그대로 그린다 */
-	description: string;
-	value: string;
-	maxLength: number;
-	placeholder: string;
-	onChange: (value: string) => void;
-});
-/** 1단계와 2단계의 하단 다음과 건너뛰기. 다음이 위에 오는 submit 버튼이다 */
+/**
+ * fieldset과 legend 안에 공용 ChoiceChipGrid를 둔다. single이면 radio, multiple이면 checkbox. options가 비면 "선택지가 없어요".
+ * onSelect는 누른 칩의 값만 넘기고 다중 선택의 넣고 빼기는 부르는 폼이 toggleSelectedId로 한다. ref는 tabIndex={-1}인 fieldset에 붙는다
+ */
+export function ChoiceChipGroup<T extends string | number>(props: ChoiceChipGroupProps<T>);
+/** 라벨과 줄바꿈을 그대로 그리는 설명문, 두 줄 입력칸, "12/200자" 글자 수 카운터 */
+export function FreeTextField(props: FreeTextFieldProps);
+/** 1단계와 2단계의 공용 BottomActionBar. 다음이 위에 오는 submit 버튼이다 */
 export function StepActions({ onSkip }: { onSkip: () => void });
 /** 선택지 조회 실패. 다시 시도는 실패한 쿼리만 다시 부른다. 다시 부르는 동안 버튼은 aria-disabled이고 누름을 무시한다 */
 export function OptionsLoadFailure({ isRetrying, onRetry }: { isRetrying: boolean; onRetry: () => void });
@@ -230,8 +215,8 @@ Swagger는 넷 다 전역 Bearer 인증 아래에 둔다. 선택지 조회를 �
 interface OnboardingRegisterRequest {
 	/** 1단계를 건너뛰면 null */
 	accompanyType: CompanionType | null;
-	/** partySize를 그대로 인원수로 옮긴다. 4는 4명 이상이다. 변환 함수는 이 파일 안에만 있다. 1단계를 건너뛰면 null */
-	numOfAccompany: number | null;
+	/** partySize를 바꾸지 않고 보낸다. 4는 4명 이상이다. 1단계를 건너뛰면 null */
+	numOfAccompany: PartySize | null;
 	interestCategoryIds: number[];
 	favoriteAreaIds: number[];
 	preferredActivityIds: number[];
@@ -240,13 +225,17 @@ interface OnboardingRegisterRequest {
 }
 ```
 
+백엔드 `OnboardingRegisterRequest`는 `accompanyType`과 `numOfAccompany`를 null 없는 타입으로 받는다. 1단계를 건너뛰고 저장하면 요청이 거절되고 저장 실패 문구가 뜬다. 프론트는 고르지 않은 답을 기본값으로 채우지 않는다. 백엔드에 바꿔 달라는 요청은 `ARCHITECTURE.md`의 백엔드 요구 목록에 있다.
+
 **로그.** `[onboarding]` 접두사. 취향 저장 실패와 `sessionStorage` 복원 실패.
 
-**접근성.** 선택 칩은 `shared/ui`의 `ChoiceChip`이고 단일 선택 묶음은 radio, 다중 선택 묶음은 checkbox다. 묶음마다 `<fieldset>`과 `<legend>`가 질문 문구를 담고 다중 선택이면 legend에 "복수선택 가능"이 붙는다. 자유 입력칸은 `aria-describedby`로 설명문과 글자 수 카운터 둘을 잇는다. 남은 글자가 20자 이하일 때만 따로 둔 `aria-live="polite"` 영역이 카운터와 같은 "n/200자"를 읽는다. 헤더의 진행 표시 "1/3"은 `aria-hidden`이고 화면 낭독기에는 `sr-only` 문구 "3단계 중 1단계"가 읽힌다. 단계 헤드의 그림 자리는 `aria-hidden`이다. 선택지 조회를 다시 시도해 성공하면 첫 칩 묶음의 fieldset으로 포커스를 옮긴다. 답 복원과 선택지 조회, 저장 중에는 `role="status"` 문구가 알리고 선택지 조회 실패와 저장 실패는 `role="alert"`다. 미입력 알럿과 환영 알럿은 `shared/ui`의 `AlertDialog`이고 확인 버튼 하나만 둔다.
+**접근성.** 선택 칩은 `shared/ui`의 `ChoiceChipGrid`가 그리는 `ChoiceChip`이고 단일 선택 묶음은 radio, 다중 선택 묶음은 checkbox다. 묶음마다 `<fieldset>`과 `<legend>`가 질문 문구를 담고 다중 선택이면 legend에 "복수선택 가능"이 붙는다. 자유 입력칸은 `aria-describedby`로 설명문과 글자 수 카운터 둘을 잇는다. 남은 글자가 20자 이하일 때만 따로 둔 `aria-live="polite"` 영역이 카운터와 같은 "n/200자"를 읽는다. 헤더의 진행 표시 "1/3"은 `aria-hidden`이고 화면 낭독기에는 `sr-only` 문구 "3단계 중 1단계"가 읽힌다. 단계 헤드의 그림은 `public/images/illustrations/onboarding-{1,2,3}.svg`를 `next/image`로 그리고 `alt`가 비어 있다. 선택지 조회를 다시 시도해 성공하면 첫 칩 묶음의 fieldset으로 포커스를 옮긴다. 답 복원과 선택지 조회, 저장 중에는 `role="status"` 문구가 알리고 선택지 조회 실패와 저장 실패는 `role="alert"`다. 미입력 알럿과 환영 알럿은 `shared/ui`의 `AlertDialog`이고 확인 버튼 하나만 둔다.
 
 ## O. Optimization과 운영
 
 **렌더링.** 라우트 파일은 서버 컴포넌트이고 `OnboardingStepScreen` 아래가 클라이언트다. 선택지 조회는 2단계가 카테고리와 지역을, 3단계가 선호 활동을 부른다. `staleTime`이 `Infinity`라 한 번 받은 목록은 탭이 살아 있는 동안 다시 부르지 않는다. 목록이 자주 바뀌지 않는다.
+
+스켈레톤에서 폼으로 바뀔 때 아래 내용이 움직이지 않도록 `OnboardingStepSkeleton`의 막대 높이를 단계마다 그 폼의 높이로 맞췄다. 높이는 시안의 선택지 개수(카테고리 일곱, 지역 여섯, 활동 넷)로 잡았다. 서버가 다른 개수를 주면 그 차이만큼 움직인다.
 
 **장애.** 선택지 조회가 실패하면 고를 것이 없으므로 그 단계의 폼 대신 `OptionsLoadFailure`를 보인다. 조회 실패는 빈 목록과 다르다. 빈 목록은 조회가 성공한 결과라 폼을 그리고 그 항목만 필수에서 뺀다. 목록을 코드에 박아 둔 기본값으로 대신하지 않는다. 서버 목록과 다른 값을 저장하게 된다.
 

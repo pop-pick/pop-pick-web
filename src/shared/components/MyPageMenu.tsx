@@ -10,7 +10,7 @@ const PREPARING_LABEL = "준비 중";
 
 export function MyPageMenu({ logoutItem }: MyPageMenuProps) {
 	return (
-		<ul aria-label="계정과 안내" className="mt-auto flex flex-col bg-bg-2 pt-4 pb-tab-bar-clearance">
+		<ul aria-label="계정과 안내" className="mt-auto -mb-tab-bar-space flex flex-col bg-bg-2 pt-2.5 pb-tab-bar-space">
 			<li>{logoutItem}</li>
 			<li>
 				<ListRow label="FAQ (자주 묻는 질문)" disabledReason={PREPARING_LABEL} />
