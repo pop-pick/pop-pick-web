@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import ShareIcon from "@/shared/assets/icons/share.svg";
 import { AlertDialog } from "@/shared/ui/AlertDialog";
+import { IconButton } from "@/shared/ui/IconButton";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 const COPIED_MESSAGE = "링크가 클립보드에 복사되었습니다";
@@ -15,7 +16,6 @@ interface SharePopupButtonProps {
 
 export function SharePopupButton({ path }: SharePopupButtonProps) {
 	const [isDialogOpen, setIsDialogOpen] = useState(false);
-	const [dialogMessage, setDialogMessage] = useState(COPIED_MESSAGE);
 	const [failedUrl, setFailedUrl] = useState<string>();
 
 	const handleShare = async () => {
@@ -23,15 +23,13 @@ export function SharePopupButton({ path }: SharePopupButtonProps) {
 
 		try {
 			await navigator.clipboard.writeText(url);
-			setDialogMessage(COPIED_MESSAGE);
 			setFailedUrl(undefined);
-			setIsDialogOpen(true);
 		} catch (error) {
 			console.error("[popup] 링크를 클립보드에 복사하지 못했다", error);
-			setDialogMessage(COPY_FAILED_MESSAGE);
 			setFailedUrl(url);
-			setIsDialogOpen(true);
 		}
+
+		setIsDialogOpen(true);
 	};
 
 	const handleDialogClose = () => {
@@ -40,15 +38,15 @@ export function SharePopupButton({ path }: SharePopupButtonProps) {
 
 	return (
 		<>
-			<button
-				type="button"
-				aria-label="공유하기"
-				onClick={handleShare}
-				className="flex size-12 items-center justify-center rounded-xl border border-divider-2 bg-bg-1 text-icon-2 focus-ring transition-colors hover:bg-bg-2"
-			>
+			<IconButton label="공유하기" variant="outline" size="lg" onClick={handleShare}>
 				<SvgIcon icon={ShareIcon} size={20} />
-			</button>
-			<AlertDialog open={isDialogOpen} message={dialogMessage} detail={failedUrl} onConfirm={handleDialogClose} />
+			</IconButton>
+			<AlertDialog
+				open={isDialogOpen}
+				message={failedUrl === undefined ? COPIED_MESSAGE : COPY_FAILED_MESSAGE}
+				detail={failedUrl}
+				onConfirm={handleDialogClose}
+			/>
 		</>
 	);
 }

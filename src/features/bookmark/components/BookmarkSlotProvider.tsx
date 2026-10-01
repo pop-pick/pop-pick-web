@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useCallback } from "react";
+import type { ReactNode } from "react";
 
 import { BookmarkSlotContext, type BookmarkSlotProps } from "@/shared/components/BookmarkSlot";
 
@@ -12,9 +12,8 @@ interface BookmarkSlotProviderProps {
 }
 
 export function BookmarkSlotProvider({ mode, children }: BookmarkSlotProviderProps) {
-	const renderBookmark = useCallback(
-		({ popupTitle, size }: BookmarkSlotProps) => <BookmarkButton mode={mode} popupTitle={popupTitle} size={size} />,
-		[mode]
+	const renderBookmark = ({ popupTitle, size }: BookmarkSlotProps) => (
+		<BookmarkButton mode={mode} popupTitle={popupTitle} size={size} />
 	);
 
 	return <BookmarkSlotContext value={renderBookmark}>{children}</BookmarkSlotContext>;
