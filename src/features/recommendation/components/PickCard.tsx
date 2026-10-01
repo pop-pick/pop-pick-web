@@ -2,10 +2,8 @@ import Link from "next/link";
 
 import ChevronDownIcon from "@/shared/assets/icons/chevron-down.svg";
 import ChevronUpIcon from "@/shared/assets/icons/chevron-up.svg";
-import SparklesIcon from "@/shared/assets/icons/sparkles.svg";
 import { PopupImage } from "@/shared/components/PopupImage";
 import { POPUP_CATEGORY_LABELS } from "@/shared/model/popup";
-import { formatMatchRateMessage } from "@/shared/model/popup-format";
 import { buildPopupDetailPath } from "@/shared/model/popup-path";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
@@ -15,14 +13,13 @@ import { OnImageBadge } from "./OnImageBadge";
 
 interface PickCardProps {
 	recommendation: RecommendedPopupItem;
-	nickname: string | null;
 	isExpanded: boolean;
 	imageLoading?: "eager" | "lazy";
 	onToggle: () => void;
 }
 
-export function PickCard({ recommendation, nickname, isExpanded, imageLoading, onToggle }: PickCardProps) {
-	const { popup, reason, matchRate, badge } = recommendation;
+export function PickCard({ recommendation, isExpanded, imageLoading, onToggle }: PickCardProps) {
+	const { popup, reason, badge } = recommendation;
 	const period = formatPopupPeriod(popup.startDate, popup.endDate);
 	const detailsId = `pick-card-${String(popup.id)}-details`;
 
@@ -53,28 +50,26 @@ export function PickCard({ recommendation, nickname, isExpanded, imageLoading, o
 								{popup.title}
 							</Link>
 						</h3>
-						<button
-							type="button"
-							aria-expanded={isExpanded}
-							aria-controls={detailsId}
-							aria-label={`${popup.title} 추천 이유`}
-							onClick={onToggle}
-							className="relative z-10 shrink-0 rounded-sm text-icon-w focus-ring transition-opacity hover:opacity-70"
-						>
-							<SvgIcon icon={isExpanded ? ChevronDownIcon : ChevronUpIcon} size={24} />
-						</button>
+						{reason !== null && (
+							<button
+								type="button"
+								aria-expanded={isExpanded}
+								aria-controls={detailsId}
+								aria-label={`${popup.title} 추천 이유`}
+								onClick={onToggle}
+								className="relative z-10 shrink-0 rounded-sm text-icon-w focus-ring transition-opacity hover:opacity-70"
+							>
+								<SvgIcon icon={isExpanded ? ChevronDownIcon : ChevronUpIcon} size={24} />
+							</button>
+						)}
 					</div>
 					{period !== null && <p className="text-b1-14 text-text-w text-shadow-on-image">{period}</p>}
 				</div>
-				<div id={detailsId} hidden={!isExpanded} className="flex flex-col gap-4">
-					{reason !== null && <p className="line-clamp-2 text-b2-12 text-text-w text-shadow-on-image">{reason}</p>}
-					{matchRate !== null && (
-						<p className="flex h-8.5 items-center justify-center gap-1 rounded-full bg-dim px-4 text-b3-12 text-primary-subtle">
-							<SvgIcon icon={SparklesIcon} size={16} />
-							{formatMatchRateMessage(nickname, matchRate)}
-						</p>
-					)}
-				</div>
+				{reason !== null && (
+					<p id={detailsId} hidden={!isExpanded} className="line-clamp-2 text-b2-12 text-text-w text-shadow-on-image">
+						{reason}
+					</p>
+				)}
 			</div>
 		</article>
 	);

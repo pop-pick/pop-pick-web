@@ -7,6 +7,7 @@ export type BookmarkButtonSize = "sm" | "md" | "lg";
 export interface BookmarkSlotProps {
 	popupId: number;
 	popupTitle: string;
+	isBookmarked: boolean | null;
 	size: BookmarkButtonSize;
 }
 

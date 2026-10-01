@@ -1,23 +1,21 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
 import { AuthStatusSwitch } from "@/features/auth/components/AuthStatusSwitch";
-import { readRefreshToken } from "@/features/auth/model/session-cookie";
 import { BookmarkSlotProvider } from "@/features/bookmark/components/BookmarkSlotProvider";
-import { MatchRateNote } from "@/features/popup/components/MatchRateNote";
+import { findPopupDetail } from "@/features/popup/api/get-popup-detail";
 import { PopupDetailView } from "@/features/popup/components/PopupDetailView";
-import { findPlaceholderPopupDetail } from "@/features/popup/model/placeholder-details";
 import { parsePopupId } from "@/features/popup/model/popup-id";
 import { PageHeader } from "@/shared/components/PageHeader";
-import { PLACEHOLDER_NICKNAME } from "@/shared/lib/placeholder-data";
 
 const HOME_PATH = "/";
 
-const findPopupDetailOrNotFound = cache((rawPopupId: string) => {
+const findPopupDetailOrNotFound = cache(async (rawPopupId: string) => {
 	const popupId = parsePopupId(rawPopupId);
-	const detail = popupId === null ? undefined : findPlaceholderPopupDetail(popupId);
+	const detail = popupId === null ? null : await findPopupDetail(popupId);
 
-	if (!detail) {
+	if (detail === null) {
 		notFound();
 	}
 
@@ -25,29 +23,20 @@ const findPopupDetailOrNotFound = cache((rawPopupId: string) => {
 });
 
 export async function generateMetadata({ params }: PageProps<"/popups/[popupId]">) {
-	const detail = findPopupDetailOrNotFound((await params).popupId);
-	return { title: detail.title, description: detail.description };
+	const detail = await findPopupDetailOrNotFound((await params).popupId);
+	const metadata: Metadata = {
+		title: detail.title,
+		description: detail.description,
+		openGraph: detail.imageUrl === null ? null : { images: detail.imageUrl }
+	};
+
+	return metadata;
 }
 
 export default async function PopupDetailPage({ params }: PageProps<"/popups/[popupId]">) {
-	const detail = findPopupDetailOrNotFound((await params).popupId);
-	const hasSessionCookie = (await readRefreshToken()) !== null;
+	const detail = await findPopupDetailOrNotFound((await params).popupId);
 
-	const matchRateNote =
-		detail.matchRate === null ? null : <MatchRateNote nickname={PLACEHOLDER_NICKNAME} matchRate={detail.matchRate} />;
-	const restoringMatchRateNote =
-		hasSessionCookie && matchRateNote !== null ? (
-			<div aria-hidden className="invisible">
-				{matchRateNote}
-			</div>
-		) : null;
-	const detailView = (
-		<PopupDetailView
-			popup={detail}
-			variant="page"
-			matchRateSlot={<AuthStatusSwitch views={{ authenticated: matchRateNote, restoring: restoringMatchRateNote }} />}
-		/>
-	);
+	const detailView = <PopupDetailView popup={detail} variant="page" />;
 	const pendingDetailView = <BookmarkSlotProvider mode="pending">{detailView}</BookmarkSlotProvider>;
 
 	return (

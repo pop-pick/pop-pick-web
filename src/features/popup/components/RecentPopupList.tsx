@@ -1,14 +1,36 @@
 "use client";
 
+import { useQueries, type UseQueryResult } from "@tanstack/react-query";
+import { useEffect } from "react";
+
 import { EmptyState } from "@/shared/components/EmptyState";
 import { MyPageEmptyState } from "@/shared/components/MyPageEmptyState";
 import { Skeleton } from "@/shared/ui/Skeleton";
 
+import { popupDetailQueryOptions } from "../api/get-popup-detail";
 import { useRecentPopups } from "../hooks/useRecentPopups";
+import type { PopupDetail } from "../model/popup-detail";
 import { ExploreListItem } from "./ExploreListItem";
+
+function combineRecentBookmarks(results: UseQueryResult<PopupDetail>[]) {
+	return {
+		bookmarkStates: results.map((result) => (result.isSuccess ? result.data.isBookmarked : null)),
+		error: results.find((result) => result.isError)?.error ?? null
+	};
+}
 
 export function RecentPopupList() {
 	const { items, loadStatus } = useRecentPopups();
+	const { bookmarkStates, error } = useQueries({
+		queries: items.map((recent) => popupDetailQueryOptions(recent.id)),
+		combine: combineRecentBookmarks
+	});
+
+	useEffect(() => {
+		if (error !== null) {
+			console.error("[popup] 최근 본 팝업의 찜 여부를 받지 못했다", error);
+		}
+	}, [error]);
 
 	if (loadStatus === "loading") {
 		return (
@@ -37,9 +59,9 @@ export function RecentPopupList() {
 
 	return (
 		<ul aria-label="최근 본 팝업" className="flex flex-col gap-3">
-			{items.map((popup) => (
-				<li key={popup.id}>
-					<ExploreListItem popup={popup} />
+			{items.map((recent, index) => (
+				<li key={recent.id}>
+					<ExploreListItem popup={recent} isBookmarked={bookmarkStates[index] ?? null} />
 				</li>
 			))}
 		</ul>

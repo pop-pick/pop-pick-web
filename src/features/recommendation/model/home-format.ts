@@ -1,9 +1,9 @@
 import { format } from "date-fns";
 
 import { parseDateOnlyOrThrow } from "@/shared/lib/date";
-import { DEFAULT_NICKNAME } from "@/shared/model/popup-format";
 
 const MONTH_DAY_FORMAT = "MM.dd";
+const DEFAULT_NICKNAME = "회원";
 
 export function formatPopupPeriod(startDate: string | null, endDate: string | null) {
 	if (startDate === null && endDate === null) {

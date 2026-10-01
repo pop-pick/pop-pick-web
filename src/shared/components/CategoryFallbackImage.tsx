@@ -11,7 +11,7 @@ interface CategoryFallbackImageProps {
 }
 
 export function CategoryFallbackImage({ category, className }: CategoryFallbackImageProps) {
-	const iconPath = `/images/pins/${category ?? "default"}.svg`;
+	const iconPath = `/images/pins/${category === null || category === "etc" ? "default" : category}.svg`;
 
 	return (
 		<div aria-hidden className={cn("flex items-center justify-center bg-primary-subtle", className)}>
