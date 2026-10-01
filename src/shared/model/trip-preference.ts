@@ -33,10 +33,6 @@ export function isCompanionType(value: string | null): value is CompanionType {
 	return value !== null && COMPANION_TYPES.includes(value as CompanionType);
 }
 
-export function isPartySize(value: number): value is PartySize {
-	return PARTY_SIZES.includes(value as PartySize);
-}
-
 export function isTripDuration(value: string | null): value is TripDuration {
 	return value !== null && TRIP_DURATIONS.includes(value as TripDuration);
 }

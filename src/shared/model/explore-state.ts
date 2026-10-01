@@ -51,7 +51,7 @@ export function parseExploreState(searchParams: URLSearchParams) {
 	};
 }
 
-export function serializeExploreState(state: ExploreState) {
+export function toExploreHref(state: ExploreState, pathname = EXPLORE_PATH) {
 	const params = new URLSearchParams();
 
 	if (state.view !== DEFAULT_VIEW) {
@@ -70,11 +70,8 @@ export function serializeExploreState(state: ExploreState) {
 		params.set("sort", state.sort);
 	}
 
-	return params;
-}
+	const query = params.toString();
 
-export function toExploreHref(state: ExploreState, pathname = EXPLORE_PATH) {
-	const query = serializeExploreState(state).toString();
 	return query === "" ? pathname : `${pathname}?${query}`;
 }
 

@@ -2,12 +2,12 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
 import type { PopupSummary } from "./popup";
-import { prependRecentPopup } from "./recent-popups";
 
 const STORAGE_KEY = "pp-recent-popups";
 const STORAGE_VERSION = 1;
+const RECENT_POPUP_LIMIT = 10;
 
-export type RecentPopupsLoadStatus = "loading" | "ready" | "failed";
+type RecentPopupsLoadStatus = "loading" | "ready" | "failed";
 
 interface RecentPopupsState {
 	items: PopupSummary[];
@@ -32,7 +32,8 @@ export const useRecentPopupsStore = create<RecentPopupsState>()(
 			addRecentPopup: (popup) => {
 				const { items, loadStatus } = get();
 				assertRecentPopupsReady(loadStatus);
-				set({ items: prependRecentPopup(items, popup) });
+				const others = items.filter((recent) => recent.id !== popup.id);
+				set({ items: [popup, ...others].slice(0, RECENT_POPUP_LIMIT) });
 			},
 			clearRecentPopups: () => {
 				set({ items: [] });
