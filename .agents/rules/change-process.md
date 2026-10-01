@@ -24,7 +24,7 @@ description: 이 저장소에서 먼저 물을 것(미결정 정본, 공개 표�
 
 하네스 원본을 고쳤으면 `pnpm harness:check`도 돌린다.
 
-lefthook이 pre-commit에서 스테이징된 파일 종류에 따라 lint와 format:check를, 늘 harness:check를 돌린다. pre-push에서 type:check와 build를 차례로 돌린다. 테스트는 lefthook에 없다. 내가 건드리지 않은 파일 때문에 커밋이 막히면 그 파일을 고치는 커밋을 따로 만든다.
+lefthook이 커밋과 푸시에서 돌리는 것은 `pop-pick-git` 스킬에 있다. 테스트는 lefthook이 돌리지 않는다. 내가 건드리지 않은 파일 때문에 커밋이 막히면 그 파일을 고치는 커밋을 따로 만든다.
 
 CI(`.github/workflows/ci.yaml`)가 PR마다 type:check와 test, build, lint, format:check, harness:check를 돌린다.
 

@@ -10,7 +10,7 @@ paths: ["src/**/*.{ts,tsx}", "scripts/**/*.mjs"]
 `check-conventions.sh`가 막는 것은 넷이다.
 
 - 추론되는 반환 타입. 타입 가드(`x is T`)만 빠진다. `~/.agents/rules/typescript.md`는 넓은 입력을 좁히는 함수와 자기 참조 함수에 반환 타입을 적도록 허용하지만 이 검사는 둘도 막는다. 이 저장소에서는 이 규칙이 `~/.agents/rules/typescript.md` 보다 우선한다
-- `type XxxProps =`. 아래 props 선언 절의 합집합만 통과한다
+- `type XxxProps =`. `interface`로 된 경우를 `|`로만 이은 합집합은 통과한다
 - return 앞과 블록 뒤 빈 줄. 아래 빈 줄 절의 규칙이다
 - is, has, can, should가 없는 boolean 상태 이름
 
@@ -23,7 +23,7 @@ paths: ["src/**/*.{ts,tsx}", "scripts/**/*.mjs"]
 **컴포넌트 props는 `interface`로 선언한다.** HTML 속성이나 variant 타입을 더할 때는 `&` 대신 `extends`로 잇는다.
 
 ```tsx
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof buttonVariants> {}
+interface ButtonProps extends ComponentProps<"button">, VariantProps<typeof buttonVariants> {}
 ```
 
 TypeScript 핸드북은 `type`의 기능이 필요할 때까지 `interface`를 쓰라고 하고, TypeScript 성능 위키는 `A & B` 대신 `interface extends`를 권한다. `interface`는 속성 충돌을 오류로 드러내고 타입 관계가 캐시된다.
@@ -45,8 +45,6 @@ interface KakaoMapCenterProps extends KakaoMapCommonProps {
 
 export type KakaoMapProps = KakaoMapFitProps | KakaoMapCenterProps;
 ```
-
-`check-conventions.sh`가 `type XxxProps =`를 막는다. `interface`로 된 경우를 `|`로만 이은 줄은 통과한다.
 
 ## 빈 줄
 
