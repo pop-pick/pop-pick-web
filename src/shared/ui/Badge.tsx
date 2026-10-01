@@ -3,16 +3,15 @@ import type { ReactNode } from "react";
 import { tv, type VariantProps } from "@/shared/lib/tv";
 
 const badgeVariants = tv({
-	base: "inline-flex items-center rounded-lg px-2 py-1 text-xs font-semibold",
+	base: "inline-flex h-6 shrink-0 items-center justify-center rounded-lg px-2 text-b2-12",
 	variants: {
 		tone: {
-			neutral: "bg-zinc-100 text-zinc-700",
-			accent: "bg-blue-50 text-blue-700",
-			warning: "bg-amber-50 text-amber-800"
+			primary: "bg-primary-subtle text-primary",
+			region: "bg-region-subtle text-region"
 		}
 	},
 	defaultVariants: {
-		tone: "neutral"
+		tone: "primary"
 	}
 });
 

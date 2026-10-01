@@ -52,3 +52,30 @@
 		overflow-y: auto;
 	}
 }
+
+@utility label-width-stable {
+	display: grid;
+	place-items: center;
+
+	& > *,
+	&::before,
+	&::after {
+		grid-area: 1 / 1;
+	}
+
+	&::before,
+	&::after {
+		content: attr(data-label);
+		visibility: hidden;
+	}
+
+	&::before {
+		font-weight: --theme(--text-b1-16--font-weight);
+		letter-spacing: --theme(--text-b1-16--letter-spacing);
+	}
+
+	&::after {
+		font-weight: --theme(--text-b2-16--font-weight);
+		letter-spacing: --theme(--text-b2-16--letter-spacing);
+	}
+}
