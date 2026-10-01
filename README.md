@@ -25,7 +25,7 @@
 | 컴파일러        | React Compiler (babel-plugin-react-compiler)                                                                                           | 설치됨         |
 | 코드 품질       | ESLint, Prettier, lefthook                                                                                                             | 설치됨         |
 | 서버 상태       | TanStack Query                                                                                                                         | 설치됨         |
-| 클라이언트 상태 | Zustand. 액세스 토큰과 온보딩 입력 중인 답, 코스 API가 없는 동안 저장한 일정의 임시 스토어. 리프레시 토큰은 httpOnly 쿠키다            | 설치됨         |
+| 클라이언트 상태 | Zustand. 액세스 토큰과 온보딩 입력 중인 답, 최근 본 팝업. 리프레시 토큰은 httpOnly 쿠키다                                              | 설치됨         |
 | 지도            | Kakao Map JavaScript SDK. `src/shared/lib/kakao-map`이 script를 직접 주입한다. npm 패키지 없음                                         | 코어 모듈 있음 |
 | 도보 소요시간   | 카카오맵 REST API 도보 경로 조회. 코스 순서를 아는 백엔드가 부르고 프론트는 코스 조회로 받는다                                         | 결정됨         |
 | 폼              | react-hook-form, zod, @hookform/resolvers                                                                                              | 설치됨         |
@@ -34,7 +34,7 @@
 | UI 라이브러리   | 쓰지 않는다. 디자이너 시안 기반 자체 컴포넌트. 모양 없이 동작과 접근성만 주는 react-day-picker는 예외이고 기준은 `.agents/rules/ui.md` | 결정됨         |
 | 배포            | Vercel. PR마다 미리보기 URL                                                                                                            | 배포됨         |
 | 아이콘          | 디자이너가 준 SVG를 SVGR(@svgr/webpack)이 컴포넌트로 바꾼다. 아이콘 라이브러리 없음. 규칙은 `docs/design/DESIGN.md`                    | 설치됨         |
-| 테스트          | 미정                                                                                                                                   |                |
+| 테스트          | Vitest, Testing Library, MSW. 규칙은 `.agents/rules/testing-trophy.md`                                                                 | 설치됨         |
 
 ## 시작하기
 
@@ -68,7 +68,7 @@ pnpm dev
 | `pnpm type:check`    | `next typegen`과 `tsc --noEmit`                                                        |
 | `pnpm test`          | Vitest로 `tests/`의 테스트를 한 번 돌린다                                              |
 | `pnpm test:watch`    | 파일을 고칠 때마다 테스트를 다시 돌린다                                                |
-| `pnpm check`         | 게이트 다섯(`type:check`와 `test`, `build`, `lint`, `format:check`)을 차례로 돌린다    |
+| `pnpm check`         | 게이트(`type:check`와 `test`, `build`, `lint`, `format:check`)를 차례로 돌린다         |
 | `pnpm harness:sync`  | `.agents/` 원본을 `.claude`와 `.codex` 자리에 복사하고 변환한다. 원본을 고친 뒤 돌린다 |
 | `pnpm harness:check` | 컨벤션 검사와 생성물 대조, 회귀 테스트를 한 번에 돌린다. lefthook과 CI가 돌린다        |
 | `pnpm prepare`       | lefthook 설치와 `harness:sync`. `pnpm install` 때 자동으로 돈다                        |
@@ -88,13 +88,14 @@ src/
     ├── api/        서버 호출 레이어. 화면 코드는 여기를 거쳐 서버를 부른다
     ├── ui/         디자인 시스템 부품. Button, Select, SvgIcon처럼 앱을 모른다
     ├── components/ 공용 조립 컴포넌트. 하단 탭바, 페이지 헤더처럼 경로와 도메인을 안다
-    ├── assets/     코드가 아닌 원본. icons/의 SVG(빌드 때 SVGR이 컴포넌트로 바꾼다)와 fonts/
-    ├── hooks/      공용 훅. 지금은 비어 있다
-    ├── lib/        공용 유틸. 클래스를 합치는 cn()과 변형 레시피 tv, 서울 기준 날짜(date.ts), 카카오맵 코어 모듈(kakao-map/)
+    ├── assets/     코드가 아닌 원본. icons/의 SVG(빌드 때 SVGR이 컴포넌트로 바꾼다)와 fonts/, lottie/
+    ├── lib/        공용 유틸. 클래스를 합치는 cn()과 변형 레시피 tv, 서울 기준 날짜와 시각(date.ts, useSeoulNow.ts), 카카오맵 코어 모듈(kakao-map/)
     ├── providers/  루트 레이아웃이 감싸는 프로바이더. QueryProvider, MotionProvider
     ├── styles/     globals.css가 Tailwind 진입점이고 tokens/에 디자인 토큰 정본
     └── model/      여러 기능이 함께 쓰는 값과 타입, 라벨
 ```
+
+테스트는 루트 `tests/`에, 색이 고정된 SVG와 사진은 `public/images/`에 있다.
 
 어떤 라우트가 있는지는 `docs/architecture/ARCHITECTURE.md`에, 기능 폴더 안을 어떻게 나누는지는 `.agents/rules/architecture.md`에 있다.
 
