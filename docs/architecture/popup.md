@@ -1,55 +1,56 @@
 # 팝업 탐색과 상세 설계
 
-`features/popup`. 탐색의 지도 뷰와 목록 뷰, 검색과 지역, 정렬, 지도의 위치 권한과 클러스터 핀, 지도 팝업 카드와 상세 바텀시트, 팝업 상세, 최근 본 팝업의 기록과 마이페이지 목록을 다룬다. 팝업 타입과 사진, 찜 버튼 자리는 여러 기능이 쓰므로 `shared`에 있다.
+`features/popup`. 탐색의 지도 뷰와 목록 뷰, 검색, 지도의 위치 권한과 클러스터 핀, 지도 팝업 카드와 상세 바텀시트, 팝업 상세, 최근 본 팝업의 기록과 마이페이지 목록을 다룬다. 팝업 타입과 사진, 찜 버튼 자리는 여러 기능이 쓰므로 `shared`에 있다.
 
 ## R. Requirements
 
-**기능.** 탐색은 지도 뷰와 목록 뷰, 둘에 공통인 검색, 목록 위의 지역 드롭다운과 정렬, 결과 없음 세 화면(검색어, 지역, 등록된 팝업 없음)이다. 상세는 탭 없는 한 장이고 껍데기가 페이지와 지도 위 바텀시트 둘이다. 9/26 시안에 탭 셋과 길찾기, 주소 복사, "이 팝업으로 AI 코스 추천받기", 예상 체류시간이 없어 만들지 않았다. 각 화면에 무엇이 놓이고 어떻게 동작하는지는 `docs/product/SPEC.md`의 팝업 탐색과 지도 절과 팝업 상세 정보 절이 정본이다.
+**기능.** 탐색은 지도 뷰와 목록 뷰, 둘에 공통인 검색, 결과 없음 두 화면(검색 결과 없음, 등록된 팝업 없음)이다. 시안의 지역 드롭다운과 정렬은 백엔드 목록 API에 지역 필터와 정렬 파라미터가 없어 내렸다. 되살릴 때 고칠 곳은 아래 백엔드에 없어 내린 것 문단에 있다. 상세는 탭 없는 한 장이고 껍데기가 페이지와 지도 위 바텀시트 둘이다. 9/26 시안에 탭 셋과 길찾기, 주소 복사, "이 팝업으로 AI 코스 추천받기", 예상 체류시간이 없어 만들지 않았다. 각 화면에 무엇이 놓이고 어떻게 동작하는지는 `docs/product/SPEC.md`의 팝업 탐색과 지도 절과 팝업 상세 정보 절이 정본이다.
 
 **보장.**
 
-- 검색어나 지역, 정렬을 바꾸면 p75 1초 안에 목록이 바뀐다
-- 지도와 목록을 오가도 검색어와 지역, 정렬이 그대로다. 두 뷰가 같은 조건으로 거른 팝업을 보인다. 새로고침과 공유 링크에서도 같다. 원천이 URL이다
-- 늦게 도착한 응답이 현재 조건의 화면을 덮지 않는다. 쿼리 키에 조건이 들어가므로 다른 조건의 응답은 다른 캐시에 들어간다. 검색어는 입력이 멈춘 뒤 300ms에 한 번만 URL에 쓴다
+- 검색어를 바꾸면 p75 1초 안에 목록이 바뀐다
+- 지도와 목록을 오가도 검색어가 그대로다. 두 뷰가 같은 검색어로 받은 팝업을 보인다. 새로고침과 공유 링크에서도 같다. 원천이 URL이다
+- 늦게 도착한 응답이 현재 검색어의 화면을 덮지 않는다. 쿼리 키에 검색어가 들어가므로 다른 검색어의 응답은 다른 캐시에 들어간다. 검색어는 입력이 멈춘 뒤 300ms에 한 번만 URL에 쓴다
 - 목록에서 상세로 갔다가 뒤로 오면 스크롤 위치와 불러온 페이지가 남아 있다
 - 지도에서 상세를 열고 닫으면 보던 지도가 그대로다. 중심과 확대 수준, 선택한 핀이 유지된다
 - 위치 권한을 거부해도 지도가 뜬다. 서울 기본 위치를 중심으로 잡는다
 - 지도 마커는 50개를 넘지 않는다. 백엔드 페이지 상한이 50이고 지도 뷰는 한 페이지만 받는다
-- 상세 공유 링크를 열면 제목과 대표 이미지, 기간이 메타 태그에 들어 있다. 지금은 `generateMetadata`가 제목과 소개만 넣는다
+- 상세 공유 링크를 열면 제목과 대표 이미지, 기간이 메타 태그에 들어 있다. 지금은 `generateMetadata`가 제목과 소개, 대표 사진이 있으면 그 사진을 넣고 기간은 넣지 않는다
 - 대표 이미지가 없는 팝업은 카테고리별 대체 표시로 보인다. 회색 자리 표시가 없다
 - 없는 팝업 id와 숫자가 아닌 id는 404다
 
 **설계를 가르는 질문.**
 
 - 주도권은 클라이언트다. 요청 응답이고 지속 연결이 없다
-- 검색어와 지역, 정렬의 원천은 URL이다. 스토어에 두지 않는다. `state.md`가 공유와 새로고침 복원이 필요한 값은 URL을 먼저 보라고 한다
-- 필터는 지역 하나다. 홈의 인기 지역 칩도 같은 `region`을 URL에 실어 목록 뷰로 들어온다. 드롭다운과 정렬은 목록 뷰에만 있지만 지도 뷰도 URL의 검색어와 지역, 정렬을 그대로 따른다. 지도 시안에 드롭다운이 없다고 지도가 조건을 버리면 뷰를 바꿀 때 결과가 달라진다
-- 지도 뷰와 목록 뷰는 같은 조건으로 다른 쿼리를 쓴다. 목록은 열 개씩 무한 스크롤, 지도는 최대 50건 한 페이지다. 마커가 목록의 불러온 만큼만 보이면 지도가 결과를 대표하지 못한다
+- 뷰와 검색어의 원천은 URL이다. 스토어에 두지 않는다. `state.md`가 공유와 새로고침 복원이 필요한 값은 URL을 먼저 보라고 한다
+- 지도 뷰와 목록 뷰는 같은 검색어로 다른 쿼리를 쓴다. 목록은 열 개씩 무한 스크롤, 지도는 최대 50건 한 페이지다. 마커가 목록의 불러온 만큼만 보이면 지도가 결과를 대표하지 못한다
+- 목록 응답에 좌표가 없다. 지도 뷰는 지도용 목록의 팝업마다 상세를 받아 좌표를 얻는다. 한 화면에 상세 요청이 최대 50번 나가고 백엔드에 목록 좌표를 요청해 두었다
 - 상세의 껍데기가 둘이다. 본문 컴포넌트 `PopupDetailView` 하나를 페이지와 바텀시트가 감싼다. 바텀시트는 `explore` 아래 병렬 라우트 `@sheet/popups/[popupId]`이고 주소는 `/explore/popups/{id}`다. 인터셉트 라우트(`explore/@modal/(..)popups/[popupId]`)를 쓰지 않았다. 인터셉트는 탐색 화면에서 가는 모든 `/popups/{id}` 이동을 가로채서 상세 페이지로 가야 하는 목록 카드까지 시트로 연다. 주소가 따로라 새로고침해도 지도 위에 시트가 열린다
-- 상세의 첫 데이터는 서버 컴포넌트가 받는다. 메타 태그를 위해서다. 찜 상태처럼 사용자에 묶인 값은 클라이언트 쿼리가 덮어쓴다
+- 상세의 첫 데이터는 서버 컴포넌트가 받는다. 메타 태그를 위해서다. 서버 컴포넌트는 토큰 없이 부르므로 찜 여부를 모른다. 클라이언트 쿼리가 마운트하자마자 토큰으로 다시 받는다. 클라이언트가 받은 값이 없으면 하트는 모름(`null`)이다
 - 신뢰도가 낮은 데이터는 감추지 않고 "정보 확인 중" 배지로 보인다. 배지를 켜는 필드 `verification`을 백엔드에 요구한다. 9/26 시안에는 배지가 없고 모든 팝업에 같은 신뢰도 안내 박스가 있어 지금은 그 박스만 그린다
 
 **범위 밖.** 지도 영역 드래그로 재검색, 검색어 자동 완성, 방문 후기 본문과 평점, 주차 정보.
 
 ## A. Architecture
 
-| 상태                             | 원천                                                    | 비고                                                                                                   |
-| -------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| 뷰, 검색어, 지역, 정렬           | URL `/explore?view=&q=&region=&sort=`                   | `shared/model/explore-state.ts`. 모르는 값은 기본값으로 읽고 기본값(지도, 인기순)은 주소에 쓰지 않는다 |
-| 목록                             | Server. `["popups", "list", filters]` 무한 쿼리         | 설계. 열 개씩. `useCursorQuery`. 지금은 `placeholder-explore.ts`를 `filterExplorePopups`로 거른다      |
-| 지도용 목록                      | Server. `["popups", "list", { ...filters, limit: 50 }]` | 설계. 한 페이지. 지금은 목록과 같은 걸러 낸 배열                                                       |
-| 상세                             | Server. `["popups", "detail", popupId]`                 | 설계. 서버 컴포넌트가 prefetch해 hydrate. 지금은 `placeholder-details.ts`                              |
-| 상세 탭                          | URL `?tab=info`                                         | 설계. 9/26 시안에 탭이 없어 쓰지 않는다                                                                |
-| 현재 위치                        | `ExploreView`의 `useCurrentPosition`                    | 지도가 아니라 화면이 든다. 목록을 다녀와도 거부한 사용자에게 다시 묻지 않는다                          |
-| 선택된 핀, 팝업 카드 열림        | 컴포넌트 `useState`                                     | 뷰를 바꾸면 초기화                                                                                     |
-| 상세 바텀시트 열림               | URL `/explore/popups/{id}`                              | `@sheet` 슬롯. 탐색 조건을 쿼리로 달고 간다                                                            |
-| 갤러리 현재 장                   | `PopupImageCarousel`의 `useState`                       | Embla의 `select` 이벤트에서 `selectedScrollSnap()`을 받는다                                            |
-| 찜 버튼과 일치율 한 줄           | 인증 상태. `AuthStatusSwitch` 슬롯                      | 라우트가 상태마다 그릴 것을 넘긴다. 일치율은 슬롯 prop, 찜은 `BookmarkSlotProvider` 컨텍스트다         |
-| 입력 중인 검색어                 | 컴포넌트 `useState`                                     | 300ms 뒤 URL에 쓴다                                                                                    |
-| 최근 본 팝업 열 개               | Zustand 스토어(`sessionStorage`)                        | `shared/model/useRecentPopupsStore.ts`. 상세를 열 때 기록하고 로그아웃하면 비운다                      |
-| 팝업 상태(진행, 종료 임박, 종료) | Derived. 시작일과 종료일, 오늘                          | 설계. `getPopupStatus`                                                                                 |
+| 상태                             | 원천                                                 | 비고                                                                                                                                      |
+| -------------------------------- | ---------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 뷰, 검색어                       | URL `/explore?view=&q=`                              | `shared/model/explore-state.ts`. 모르는 값은 기본값으로 읽고 기본값(지도)은 주소에 쓰지 않는다                                            |
+| 목록                             | Server. `["popups", "list", { keyword }]` 무한 쿼리  | 열 개씩. `api/get-popups.ts`의 `popupListQueryOptions`                                                                                    |
+| 지도용 목록                      | Server. `["popups", "list", { keyword, limit: 50 }]` | 한 페이지. 같은 파일의 `popupMapListQueryOptions`                                                                                         |
+| 지도 핀의 좌표                   | Server. 지도용 목록의 팝업마다 상세 쿼리             | `hooks/usePopupsForMap`. 목록에 좌표가 없어 상세의 좌표를 쓴다                                                                            |
+| 상세                             | Server. `["popups", "detail", popupId]`              | 서버 컴포넌트가 받은 상세를 `initialData`로 둔 클라이언트 쿼리(`hooks/usePopupDetail`). `initialDataUpdatedAt: 0`이라 바로 다시 받는다    |
+| 상세 탭                          | URL `?tab=info`                                      | 설계. 9/26 시안에 탭이 없어 쓰지 않는다                                                                                                   |
+| 현재 위치                        | `ExploreView`의 `useCurrentPosition`                 | 지도가 아니라 화면이 든다. 목록을 다녀와도 거부한 사용자에게 다시 묻지 않는다                                                             |
+| 선택된 핀, 팝업 카드 열림        | 컴포넌트 `useState`                                  | 뷰를 바꾸면 초기화                                                                                                                        |
+| 상세 바텀시트 열림               | URL `/explore/popups/{id}`                           | `@sheet` 슬롯. 탐색 조건을 쿼리로 달고 간다                                                                                               |
+| 갤러리 현재 장                   | `PopupImageCarousel`의 `useState`                    | Embla의 `select` 이벤트에서 `selectedScrollSnap()`을 받는다                                                                               |
+| 찜 버튼                          | 인증 상태. `AuthStatusSwitch` 슬롯                   | 라우트가 상태마다 `BookmarkSlotProvider`의 `mode`를 고른다. 찜 여부는 그 팝업 캐시의 `isBookmarked`다                                     |
+| 입력 중인 검색어                 | 컴포넌트 `useState`                                  | 300ms 뒤 URL에 쓴다                                                                                                                       |
+| 최근 본 팝업 열 개               | Zustand 스토어(`sessionStorage`)                     | `shared/model/useRecentPopupsStore.ts`. 상세를 열 때 찜 여부를 뺀 요약을 기록하고 로그아웃하면 비운다. 하트는 기록마다 상세 쿼리로 받는다 |
+| 팝업 상태(진행, 종료 임박, 종료) | Derived. 시작일과 종료일, 오늘                       | 설계. `getPopupStatus`                                                                                                                    |
 
-**흐름.** 검색어 입력과 지역, 정렬 변경은 `window.history.replaceState`로 URL만 바꾼다. Next가 이 변경을 `useSearchParams`에 반영하고 서버 컴포넌트를 다시 부르지 않는다. 화면은 URL을 읽어 `filters`를 만들고 쿼리 키로 쓴다. 뷰 전환도 URL의 `view`만 바꾼다. 검색창에서 엔터를 누르면 검색어를 바로 쓰고 목록 뷰로 바꾼다. 목록에서 상세로 가는 것은 `push`다. 뒤로 오면 목록 쿼리가 캐시에 있어 다시 그려지고 스크롤은 브라우저가 복원한다.
+**흐름.** 검색어 입력은 `window.history.replaceState`로 URL만 바꾼다. Next가 이 변경을 `useSearchParams`에 반영하고 서버 컴포넌트를 다시 부르지 않는다. 화면은 URL의 검색어를 쿼리 키로 쓴다. 뷰 전환도 URL의 `view`만 바꾼다. 검색창에서 엔터를 누르면 검색어를 바로 쓰고 목록 뷰로 바꾼다. 목록에서 상세로 가는 것은 `push`다. 뒤로 오면 목록 쿼리가 캐시에 있어 다시 그려지고 스크롤은 브라우저가 복원한다.
 
 지도 뷰에서 핀을 누르면 하단 카드가 그 팝업을 보인다. 카드는 지도 빈 곳을 누르거나 Esc, 손잡이를 80px 넘게 아래로 끌면 닫힌다. 카드를 누르면 `/explore/popups/{id}`에 지금 탐색 조건을 쿼리로 붙인 주소로 이동하고 `@sheet` 슬롯이 바텀시트를 그린다. `children` 슬롯은 그 주소에 맞는 세그먼트가 없어 탐색 화면을 그대로 두므로 지도가 언마운트되지 않는다. 새로고침이나 공유 링크로 바로 들어오면 `explore/default.tsx`가 탐색 화면을 그리고 그 위에 시트가 열린다.
 
@@ -59,42 +60,44 @@
 
 지도 카드와 목록 카드 안에 찜 버튼이 있고 목록 카드는 제목 링크의 `::after`가 카드 전체를 덮는다. 찜 버튼을 눌러도 상세가 열리지 않게 두는 배치는 `bookmark.md`에 있다.
 
-**지도 진입.** 탐색에 들어오면 지도 뷰가 먼저다. `ExploreView`가 지도 뷰에 처음 들어올 때 위치를 한 번 묻고 결과를 기다리는 동안 마커에 맞춘 지도를 그린다. 허용이 오면 중심을 현재 위치로 옮기고 현재 위치 표시를 켠다. URL에 `region`이 있으면 현재 위치가 와도 카메라를 옮기지 않고 그 지역 마커에 맞춘 범위를 둔다. 따라갈 위치가 있으면 `PopupMap`이 마커 범위 대신 그 위치를 중심으로 넘긴다. 마커 범위 맞춤이 현재 위치 이동을 덮지 않게 하려는 것이다. 마커 범위는 검색어와 지역, 정렬 값이 바뀔 때만 다시 맞춘다. 그래서 시트를 열고 닫아도 사용자가 옮긴 시점이 남는다.
+**지도 진입.** 탐색에 들어오면 지도 뷰가 먼저다. `ExploreView`가 지도 뷰에 처음 들어올 때 위치를 한 번 묻고 결과를 기다리는 동안 마커에 맞춘 지도를 그린다. 허용이 오면 중심을 현재 위치로 옮기고 현재 위치 표시를 켠다. 따라갈 위치가 있으면 `PopupMap`이 마커 범위 대신 그 위치를 중심으로 넘긴다. 마커 범위 맞춤이 현재 위치 이동을 덮지 않게 하려는 것이다. 마커 범위는 마커 배열이 바뀔 때만 다시 맞춘다. 마커는 `usePopupsForMap`이 `useQueries`의 `combine`에서 만들고 찜 여부를 담지 않아 찜을 바꿔도 같은 배열이 남는다. 그래서 시트를 열고 닫거나 찜을 바꿔도 사용자가 옮긴 시점이 남는다.
+
+**지도 핀.** 지도 뷰는 지도용 목록을 받은 뒤 팝업마다 상세 쿼리(`["popups", "detail", popupId]`)를 걸어 좌표가 있는 팝업만 핀으로 그린다. 좌표가 없는 팝업은 핀과 지도 키보드 목록에서 빠지고 따로 알리지 않는다. 결과 없음 안내는 목록 응답이 비었을 때만 뜬다. 상세를 다 받을 때까지 핀을 그리지 않고 지도 위에 "지도에 팝업을 불러오고 있어요"를 띄운다. 핀이 하나씩 들어오면 지도가 그때마다 범위를 다시 맞추기 때문이다. 지도 카드의 찜 여부도 이 상세 캐시에서 온다.
 
 거부나 실패면 다시 묻지 않고 현재 위치 버튼 옆 안내 문구에 이유를 적는다. 하단 카드가 떠 있는 동안에는 이 문구를 화면에서 감추고 스크린리더에만 읽힌다. 현재 위치 버튼은 누르면 중심을 다시 현재 위치로 옮긴다. `useCurrentPosition`은 진행 중인 요청이 있으면 그 결과를 함께 기다려 StrictMode 이중 실행과 연타에서 한 번만 묻는다. 권한 요청은 지도 뷰에 들어올 때만 한다. 첫 화면과 홈에서는 묻지 않는다.
 
-**상세 흐름.** 라우트가 경로 값을 `parsePopupId`로 읽는다. 1 이상의 정수 문자열이 아니거나 그 id의 상세가 없으면 `notFound()`를 부른다. `/popups/abc`와 `/popups/0`, `/popups/999`가 404다. `generateMetadata`와 바텀시트 라우트도 같은 함수로 찾아 같은 404를 낸다. 임시 상세는 id 1부터 8까지이고 잠실에는 일부러 두지 않아 지역 결과 없음 화면을 볼 수 있다. 탐색의 임시 목록 `PLACEHOLDER_EXPLORE_POPUPS`가 같은 상세에 좌표와 등록일을 붙여 만든 것이라 이름이 같다.
+**상세 흐름.** 라우트가 경로 값을 `parsePopupId`로 읽는다. 1 이상의 정수 문자열이 아니면 `notFound()`를 부른다. 숫자면 `api/get-popup-detail.ts`의 `findPopupDetail`이 토큰 없이 상세를 받는다. 백엔드가 `E404`(없는 팝업)나 `E400`(숫자로 읽지 못한 id)을 내면 `null`을 돌려주고 라우트가 `notFound()`를 부른다. `/popups/abc`와 `/popups/0`, 없는 id, 백엔드 정수 범위를 넘는 id가 404다. 그 밖의 실패는 그대로 던져 `error.tsx`가 받는다. `generateMetadata`와 바텀시트 라우트도 같은 함수로 찾아 같은 404를 낸다. 두 라우트 모두 조회 함수를 React `cache`로 감싸 `generateMetadata`와 본문이 한 요청에서 한 번만 부른다. `cache`는 인자를 참조로 비교해서 `params` 객체가 아니라 팝업 ID 문자열을 넘긴다.
 
-찜 버튼과 일치율 한 줄은 인증 상태로 갈린다. `PopupDetailView`는 일치율을 슬롯 prop으로 받고 찜은 `BookmarkSlot` 자리만 그린다. 두 상세 라우트가 `AuthStatusSwitch`로 상태마다 그릴 것을 넣고 찜은 그 안에서 `BookmarkSlotProvider`의 `mode`를 고른다. 시트에서 비회원이 찜을 누르면 로그인 뒤 `/explore/popups/{id}`로 돌아온다. 일치율은 회원에게만 보인다. 재발급을 기다리는 동안 리프레시 토큰 쿠키가 있으면 같은 문구를 보이지 않게 그려 자리를 지키고 없으면 비운다.
+찜 버튼은 인증 상태로 갈린다. `PopupDetailView`는 `PopupDetailBookmark`로 `BookmarkSlot` 자리만 그리고 찜 여부는 상세 쿼리 값을 넘긴다. 두 상세 라우트가 `AuthStatusSwitch`의 상태마다 `BookmarkSlotProvider`의 `mode`를 골라 감싼다. 시트에서 비회원이 찜을 누르면 로그인 뒤 `/explore/popups/{id}`로 돌아온다. 서버 컴포넌트가 받은 상세는 찜 여부를 모른다. 이 값은 갱신 시각이 0인 초기값으로 캐시에 들어간다. `PopupDetailBookmark`는 클라이언트가 받았거나 찜 패치로 바뀐 값(`dataUpdatedAt > 0`)이 있으면 그 찜 여부를 넘기고 초기값만 있으면 `null`을 넘긴다. 지도가 받아 둔 같은 팝업의 상세 캐시가 아직 신선하면 다시 받지 않고 그 값을 바로 쓴다. 초기값만 있는 동안 회원에게는 누를 수 없는 대기 하트로 보이고 다시 받기가 실패하면 `null`로 남아 `[popup]` 로그를 남긴다.
 
 예약 버튼은 `reservationUrl`이 있을 때만 새 탭 링크로 놓인다. 없으면 찜과 공유가 줄 오른쪽 끝으로 간다. 공유는 상세 페이지 경로 `/popups/{id}`에 현재 출처를 붙인 URL을 클립보드에 복사하고 결과를 알럿으로 알린다. 바텀시트에서 눌러도 상세 페이지 주소가 복사된다. 복사가 실패하면 실패 문구와 함께 그 URL을 알럿 안의 읽기 전용 입력칸에 보이고 `[popup]` 로그를 남긴다.
 
 ## D. Data Model
 
-`PopupSummary`와 입장 방식은 `shared/model/popup.ts`, 탐색 조건 `ExploreState`는 `shared/model/explore-state.ts`, 상세 `PopupDetail`은 `features/popup/model/popup-detail.ts`에 있다. 두 타입은 임시 데이터가 쓰는 필드만 먼저 만들었다. 백엔드가 응답 필드를 확정하면 아래를 더한다.
+`PopupSummary`와 입장 방식, 카테고리는 `shared/model/popup.ts`, 탐색 조건 `ExploreState`는 `shared/model/explore-state.ts`, 상세 `PopupDetail`은 `features/popup/model/popup-detail.ts`에 있다. 응답 타입(`PopupListItemResponse`, `PopupDetailResponse`)은 Swagger를 보고 손으로 둔다. 응답은 `select`가 아니라 queryFn 안에서 화면 모델로 바꿔 캐시에 둔다. 찜 토글의 캐시 패치가 `id`와 `isBookmarked`로 팝업을 찾기 때문이다(`bookmark.md`).
+
+목록 한 건은 `shared/model/popup.ts`의 `toPopupSummary`가 바꾼다. `popupId`는 `id`, `wished`는 `isBookmarked`가 된다. 목록에 시작일과 지역이 없어 `startDate`와 `region`은 늘 `null`이다. 상세는 `toPopupDetail`이 바꾼다. `imageUrls`가 `null`이면 빈 배열이고 첫 장이 대표 사진 `imageUrl`이다. 주소 `address`는 도로명이 없으면 지번이다. 좌표 `position`은 위도와 경도가 둘 다 있을 때만 있다. 입장료 `entryFee`가 0이면 무료다. 상세를 최근 본 팝업에 남길 때는 `pickRecentPopup`이 찜 여부를 뺀 요약 필드만 고르고 지도 핀은 `pickPopupSummary`가 찜 여부까지 고른다.
 
 ```typescript
-// 설계. PopupSummary에 더한다
-type Verification = "VERIFIED" | "PENDING";
-
-interface PopupSummary {
-	verification: Verification;
-	lat: number;
-	lng: number;
-	/** 토큰이 없으면 false */
-	isBookmarked: boolean;
+// features/popup/model/popup-detail.ts
+interface PopupDetail extends PopupSummary {
+	imageUrls: string[];
+	description: string | null;
+	openingHours: string | null;
+	address: string | null;
+	position: KakaoLatLngLiteral | null;
+	reservationUrl: string | null;
+	entryFee: number | null;
 }
 
-// 설계. PopupDetail에 더한다
+// 설계. 백엔드 응답에 없다
+type Verification = "VERIFIED" | "PENDING";
+interface PopupSummary {
+	verification: Verification;
+}
 interface PopupDetail {
-	brand: string | null;
-	tags: string[];
-	addressJibun: string | null;
-	reservationOpenAt: string | null;
-	officialUrl: string | null;
-	/** 백엔드 요구. 없으면 체류시간 줄을 그리지 않는다 */
+	/** 없으면 체류시간 줄을 그리지 않는다 */
 	expectedStay: { minMinutes: number; maxMinutes: number } | null;
-	source: { type: "KAKAO_MAP" | "SEOUL_OPEN" | "PERPLEXITY"; collectedAt: string };
 	/** 후기 출처가 미정이다. null이면 그리지 않는다 */
 	reviewSummary: { rating: number; count: number } | null;
 }
@@ -104,20 +107,17 @@ type PopupStatus = "upcoming" | "ongoing" | "endingSoon" | "ended";
 function getPopupStatus(popup: Pick<PopupSummary, "startDate" | "endDate">, today: string): PopupStatus;
 ```
 
-탐색 카드가 쓰는 `ExplorePopup`(`model/explore-popup.ts`)은 `PopupSummary`에 좌표와 조회수, 등록일을 임시로 더한 것이다. 서버가 거르고 정렬하기 전까지 `filterExplorePopups`가 지역으로 거르고 팝업명과 지역, 카테고리 라벨에서 검색어를 찾는다. 인기순은 `viewCount`, 최신순은 `registeredAt` 내림차순이고 조회수가 없으면 뒤로, 같으면 id순이다. 목록 카드 `ExploreListItem`은 더한 필드를 쓰지 않아 `PopupSummary`만 받는다. 최근 본 팝업 목록이 같은 카드를 쓴다.
+상세 응답에 있지만 화면에 자리가 없어 응답 타입에 두지 않은 필드는 `brand`, `tags`, `reservationOpenAt`, `source`, `sourceUrls`다.
 
-`category`와 `region`은 서버가 주는 코드 문자열이다. 목록은 온보딩 선택지 테이블에 있고 라벨도 거기서 온다(`onboarding.md`). 지금 `shared/model/popup.ts`에는 카테고리 여덟이 유니온으로 들어 있고 선택지 조회가 열리면 없어진다. 입장 방식 라벨은 둘이다. 홈 인기 행의 짧은 라벨은 `shared/model/popup.ts`, 상세 정보 카드의 긴 라벨은 `popup-detail.ts`에 있다. `UNKNOWN`은 두 곳 모두 그 줄을 그리지 않는다.
+탐색 지도가 쓰는 `ExplorePopup`(`model/explore-popup.ts`)은 `PopupSummary`에 좌표 `position`만 더한 것이다. 목록 카드 `ExploreListItem`은 찜 여부를 뺀 요약과 `isBookmarked: boolean | null`을 받아 공용 `PopupListCard`에 카테고리 배지와 메타 줄(지역, 종료일, 입장 방식)을 넘긴다. 최근 본 팝업 목록이 같은 카드를 쓴다.
 
-카테고리는 두 곳에서 쓰인다. 온보딩 2단계의 관심 카테고리 칩과 카드와 상세의 배지이고 글자는 서버 라벨이다. 지도 핀은 카테고리와 무관하게 모양이 같다. 9/26 시안의 핀은 회색 점이고 누른 핀만 파란 원과 위치 아이콘이다. 명세의 카테고리별 핀 아이콘은 시안에 없어 그리지 않는다. `public/images/pins/`의 카테고리 SVG는 사진이 없는 팝업의 대체 표시가 쓰고 선택 핀 아이콘 `selected.svg`도 같은 폴더에 있다.
+`category`는 서버 `interest_category` 표의 id(1부터 8)를 `toPopupCategory`가 코드로 바꾼 값이다. 이 표는 온보딩 관심 카테고리 선택지와 같고 코드 여덟(`character`, `fashion`, `food`, `art`, `beauty`, `game`, `lifestyle`, `etc`)과 라벨이 `shared/model/popup.ts`에 있다. 표에 없는 id와 `null`은 카테고리 없음이라 배지를 그리지 않는다. 입장 방식 라벨은 둘이다. 홈 인기 행의 짧은 라벨은 `shared/model/popup.ts`, 상세 정보 카드의 긴 라벨은 `popup-detail.ts`에 있다. `UNKNOWN`은 두 곳 모두 그 줄을 그리지 않는다.
 
-**상세 API가 열리면 옮길 것.** 상세는 페이지와 시트 두 라우트가 `placeholder-details.ts`의 임시 상세를 서버 컴포넌트에서 읽는다. 두 라우트 모두 조회 함수를 React `cache`로 감싸 `generateMetadata`와 본문이 한 요청에서 한 번만 부른다. `cache`는 인자를 참조로 비교해서 `params` 객체가 아니라 팝업 ID 문자열을 넘긴다. 상세 조회가 조회수를 올리므로 API로 바꿔도 이 감싸기를 둔다.
-
-- 카테고리와 지역이 ID로 오는지 코드로 오는지 정해지지 않았다. 서버 `Popup` 엔티티는 `interestCategoryId: Int?`와 `areaId: Int?`이고 온보딩 API도 둘을 `{ id, name }`으로 준다. 프론트는 카테고리 코드 여덟(`fashion` 등)과 지역 코드 다섯(`seongsu` 등)을 문자열로 쓴다. 응답이 ID면 배지 문구와 홈 지역 칩 링크(`region=seongsu`), 탐색 지역 거르기가 함께 바뀐다. 백엔드에 응답 모양을 묻고 ID를 코드로 바꾸는 곳을 정한다
-- 일치율(`matchRate`)은 회원별 값이라 토큰 없이 부르는 서버 컴포넌트 상세 조회에 실을 수 없다. 상세 응답에 넣을지, 회원일 때 클라이언트에서 따로 부를지 백엔드와 정한다. 따로 부르면 `matchRateSlot`의 `authenticated` 칸에 쿼리를 부르는 클라이언트 컴포넌트를 넣는다
+카테고리는 두 곳에서 쓰인다. 온보딩 2단계의 관심 카테고리 칩과 카드와 상세의 배지다. 칩 글자는 서버 라벨이고 배지 글자는 `POPUP_CATEGORY_LABELS`다. 지도 핀은 카테고리와 무관하게 모양이 같다. 9/26 시안의 핀은 회색 점이고 누른 핀만 파란 원과 위치 아이콘이다. 명세의 카테고리별 핀 아이콘은 시안에 없어 그리지 않는다. `public/images/pins/`의 카테고리 SVG는 사진이 없는 팝업의 대체 표시가 쓰고 `etc`와 카테고리 없음은 `default.svg`다. 선택 핀 아이콘 `selected.svg`도 같은 폴더에 있다.
 
 ## I. Interface
 
-**컴포넌트.** 탐색은 `ExploreView`가 URL을 읽고 위치 상태를 들고 검색창과 뷰 전환, 지도 `PopupMap`, 목록 `PopupList`를 조립한다. 걸러 낸 결과를 두 뷰에 똑같이 준다. 지도에서 누른 핀이 하단 카드에 가리면 `SelectedPinReveal`이 가린 만큼 지도를 밀어 올린다. 상세는 `PopupDetailView` 하나를 페이지와 `PopupSheet`가 감싼다. `variant`가 `page`면 사진이 200px이고 아래 여백이 없어 탭바 위 40px만 남고, `sheet`면 사진이 140px이고 판 바닥에 40px을 둔다. 검색창은 홈과 같이 쓰는 `shared/components/PopupSearchForm`이다. 지도 카드와 바텀시트, 손잡이는 이 기능만 쓰므로 이 기능의 `components`에 있다. 배지는 코스 타임라인과 같이 쓰는 `shared/ui/Badge`다. 지역 드롭다운은 `shared/ui/Select`, 상세 헤더는 `shared/components/PageHeader`, 사진은 `shared/components/PopupImage`, 찜 버튼 자리는 `shared/components/BookmarkSlot`이다.
+**컴포넌트.** 탐색은 `ExploreView`가 URL을 읽고 위치 상태를 들고 검색창과 뷰 전환, 지도 뷰 `ExploreMap`, 목록 `PopupList`를 조립하고 두 뷰에 검색어를 넘긴다. `ExploreMap`은 `usePopupsForMap`이 준 핀을 지도 `PopupMap`에 넘기고 지도 위에 불러오는 중과 실패, 결과 없음 안내를 그린다. `PopupList`는 `popupListQueryOptions`로 무한 쿼리를 부르고 목록 끝의 `shared/components/ListMoreTrigger`가 화면에 들어오면 다음 페이지를 받고 처음 불러오기 실패는 `shared/components/LoadFailure`로 그린다. 지도에서 누른 핀이 하단 카드에 가리면 `SelectedPinReveal`이 가린 만큼 지도를 밀어 올린다. 상세는 `PopupDetailView` 하나를 페이지와 `PopupSheet`가 감싼다. `variant`가 `page`면 사진이 200px이고 아래 여백이 없어 탭바 위 40px만 남고, `sheet`면 사진이 140px이고 판 바닥에 40px을 둔다. 검색창은 홈과 같이 쓰는 `shared/components/PopupSearchForm`이다. 지도 카드와 바텀시트, 손잡이는 이 기능만 쓰므로 이 기능의 `components`에 있다. 배지는 코스 타임라인과 같이 쓰는 `shared/ui/Badge`다. 상세 헤더는 `shared/components/PageHeader`, 사진은 `shared/components/PopupImage`, 찜 버튼 자리는 `shared/components/BookmarkSlot`이다.
 
 탭과 길찾기, 확인 상태를 붙일 때 더하는 것이다.
 
@@ -127,107 +127,103 @@ export function AddressActions(props: { address: string; lat: number; lng: numbe
 export function ReliabilityBanner({ verification }: { verification: Verification });
 ```
 
-**API가 열리면 만드는 훅.**
+**훅.** 목록은 훅 없이 `PopupList`가 `popupListQueryOptions`를 바로 쓴다.
 
 ```typescript
-export function usePopupList(
-	filters: PopupListFilters
-): UseInfiniteQueryResult<InfiniteData<PageResponse<PopupSummary>>, ApiError>;
-export function usePopupsForMap(filters: PopupListFilters): UseQueryResult<PopupSummary[], ApiError>;
-export function usePopupDetail(popupId: number, initial?: PopupDetail): UseQueryResult<PopupDetail, ApiError>;
+// features/popup/hooks/usePopupsForMap.ts
+export function usePopupsForMap(keyword: string): {
+	popups: ExplorePopup[];
+	markers: KakaoMarkerData[];
+	isPending: boolean;
+	isEmpty: boolean; // 지도용 목록 응답이 비었다
+	error: Error | null; // 목록이나 상세 하나라도 실패
+	retry: () => void; // 목록과 실패한 상세만 다시 받는다
+};
+
+// features/popup/hooks/usePopupDetail.ts
+export function usePopupDetail(initialDetail: PopupDetail): UseQueryResult<PopupDetail>;
 ```
 
-**최근 본 팝업.** 있는 것이다. 서버에 보내지 않고 이 탭의 `sessionStorage`에 최신 열 개를 둔다. 같은 팝업을 다시 열면 맨 앞으로 옮기고 열한 번째가 들어오면 가장 오래된 것을 버린다(스토어의 `addRecentPopup`).
+**최근 본 팝업.** 서버에 보내지 않고 이 탭의 `sessionStorage`에 최신 열 개를 둔다. 같은 팝업을 다시 열면 맨 앞으로 옮기고 열한 번째가 들어오면 가장 오래된 것을 버린다(스토어의 `addRecentPopup`). 저장 형식 버전은 2이고 이전 버전 기록은 `migrate`가 버린다. 임시 데이터의 id를 들고 있어 실제 팝업과 맞지 않기 때문이다.
 
 ```typescript
 // shared/model/useRecentPopupsStore.ts
 type RecentPopupsLoadStatus = "loading" | "ready" | "failed";
+type RecentPopup = Omit<PopupSummary, "isBookmarked">;
 interface RecentPopupsState {
-	items: PopupSummary[];
+	items: RecentPopup[];
 	loadStatus: RecentPopupsLoadStatus;
-	addRecentPopup: (popup: PopupSummary) => void;
+	addRecentPopup: (popup: RecentPopup) => void;
 	clearRecentPopups: () => void;
 }
 export function loadRecentPopups(): void;
 
 // features/popup/hooks/useRecentPopups.ts
 export function useRecentPopups(): {
-	items: PopupSummary[];
+	items: RecentPopup[];
 	loadStatus: RecentPopupsLoadStatus;
-	addRecentPopup: (popup: PopupSummary) => void;
+	addRecentPopup: (popup: RecentPopup) => void;
 };
 ```
 
 스토어는 `shared/model`에 있다. popup이 기록하고 보여주지만 auth의 `useLogout`이 로그아웃 때 `clearRecentPopups`를 불러야 한다. 기능끼리 import하지 않으려면 둘 다 닿는 `shared`여야 한다. 화면 코드는 스토어 대신 `useRecentPopups`를 쓴다. 서버 렌더에는 `sessionStorage`가 없어 스토어는 복원을 건너뛰고 시작하고, 훅이 마운트된 뒤 `loadRecentPopups`로 한 번 불러온다.
 
-기록 자리는 `components/PopupDetailView.tsx`다. 본문 끝에 `RecentPopupRecorder`를 붙이고 `model/popup-detail.ts`의 `toPopupSummary`로 줄인 `PopupSummary`만 넘긴다. `PopupDetail` 전체를 저장하지 않는다. 페이지와 바텀시트가 같은 본문을 쓰므로 두 껍데기 모두 기록한다. 마이페이지의 최근 본 팝업 탭은 `RecentPopupList`가 탐색 목록 카드 `ExploreListItem`으로 그리고 비었으면 `MyPageEmptyState`를 보인다. 탭 옆에 개수는 없다.
+기록 자리는 `components/PopupDetailView.tsx`다. 본문 끝의 `RecentPopupRecorder`가 서버 컴포넌트가 받은 상세를 `pickRecentPopup`으로 줄여 한 번 기록한다. `PopupDetail` 전체를 저장하지 않고 찜 여부도 넣지 않는다. 찜 여부는 서버 상태라 기록에 두면 원천이 둘이 된다. 페이지와 바텀시트가 같은 본문을 쓰므로 두 껍데기 모두 기록한다. 마이페이지의 최근 본 팝업 탭은 `RecentPopupList`가 탐색 목록 카드 `ExploreListItem`으로 그리고 비었으면 `MyPageEmptyState`를 보인다. 하트는 기록마다 상세 쿼리(`["popups", "detail", id]`)를 걸어 받은 찜 여부다. 마이페이지는 열린 탭의 패널만 그려서 최근 본 탭을 열 때만 최대 열 건을 받는다. 받기 전과 실패하면 하트가 모름(`null`)이고 실패는 `[popup]` 로그를 남긴다. 상세 캐시라 찜 토글의 캐시 패치가 그대로 덮는다. 탭 옆에 개수는 없다.
 
 **불러오기 실패.** 시크릿 모드나 사이트 데이터를 막은 브라우저처럼 세션 저장소를 읽지 못하면 `loadStatus`가 `"failed"`가 되고 `[recent-popups]` 로그를 남긴다. 이때 `RecentPopupRecorder`는 기록하지 않고 로그만 남긴다. 목록은 빈 목록과 구분되는 실패 문구를 보인다. `loadStatus`가 `"ready"`가 아닐 때 `addRecentPopup`을 부르면 스토어가 던진다. 복원 전에 쓰면 복원될 기록을 빈 목록 위에 쓴 값으로 덮어쓰기 때문이다. `clearRecentPopups`는 덮어쓰는 것이 목적이라 복원 전에도 막지 않는다.
 
-**서버 API.** 설계다. 백엔드 `feature/18` 브랜치에 있는 것과 다른 점은 아래 옮길 것 절에 있다.
+**서버 API.** 운영 백엔드에 있는 것이다.
 
-| 메서드와 경로                  | 인증 | 파라미터                                                      | 응답                         |
-| ------------------------------ | ---- | ------------------------------------------------------------- | ---------------------------- |
-| `GET /api/v1/popups`           | 선택 | `q`, `sort`(`latest`, `popular`), `region`, `cursor`, `limit` | `PageResponse<PopupSummary>` |
-| `GET /api/v1/popups/{popupId}` | 선택 |                                                               | `PopupDetail`                |
+| 메서드와 경로                  | 인증 | 파라미터                                        | 응답                                                                        |
+| ------------------------------ | ---- | ----------------------------------------------- | --------------------------------------------------------------------------- |
+| `GET /api/v1/popups`           | 선택 | `keyword`, `cursor`, `limit`(1부터 50, 기본 10) | `PageResponse<PopupListItemResponse>`                                       |
+| `GET /api/v1/popups/{popupId}` | 선택 |                                                 | `PopupDetailResponse`. 없는 id는 404 `E404`, 숫자로 못 읽는 id는 400 `E400` |
 
-서버 공통 `PageResponse`는 `content`와 `hasNext`, `nextCursor`다. 다음 요청의 커서는 `nextCursor`를 그대로 넘기고(`useCursorQuery`) 총 건수는 시안에 "총 N곳"이 없어 받지 않는다. `sort=popular`는 SPEC 기준으로 최근 7일간 상세 조회수 내림차순이고 집계는 백엔드가 한다.
+목록은 오픈했고 끝나지 않은 팝업만 오픈일 최신순으로 준다. 오픈일이 없는 팝업은 뒤로 간다. `keyword`는 이름과 브랜드, 도로명과 지번 주소에서 부분 일치로 찾는다. 프론트는 검색어의 앞뒤 공백을 지우고 비면 보내지 않는다. 서버 공통 `PageResponse`는 `content`와 `hasNext`, `nextCursor`다. 다음 요청의 커서는 `nextCursor`를 그대로 넘기고 총 건수는 시안에 "총 N곳"이 없어 받지 않는다. 상세 조회는 조회수를 올리지 않는다. 두 API 모두 토큰이 있을 때만 Bearer를 붙인다. 이유는 `ARCHITECTURE.md`의 백엔드 요구 목록 절에 있다.
 
 **길찾기.** 설계다. 9/26 시안에 없어 만들지 않았다. 카카오맵 웹 링크 `https://map.kakao.com/link/to/{title},{lat},{lng}`를 새 탭으로 연다. SDK나 REST 호출이 없다. 주소 복사도 공유 링크 복사와 같이 `navigator.clipboard.writeText`이고 실패하면 값을 선택 가능한 텍스트로 두고 실패 문구를 보인다.
 
-**이미지.** 요약의 대표 이미지는 `imageUrl: string | null`, 상세의 갤러리는 `imageUrls: string[]`이다. 백엔드 엔티티의 `imageUrls`를 받는 모양이다. 사진은 `shared/components/PopupImage`가 `next/image`의 `fill`로 그리고 `null`이면 `CategoryFallbackImage`로 대신한다. 지금은 시안의 더미 사진 다섯 장을 `public/images/placeholder/`에 두고 임시 데이터가 가리킨다. API가 열리면 이 폴더와 `shared/lib/placeholder-images.ts`를 지우고 둘을 함께 한다.
-
-- 외부 이미지 URL을 받으려면 `next.config.ts`에 `images.remotePatterns`를 둔다. 빌드 설정 변경이라 사용자 승인이 필요하다. 수집 출처가 카카오맵과 Perplexity라 도메인이 여럿일 수 있어 백엔드가 한 도메인으로 옮겨 주는지, 최적화를 끄는지(`unoptimized`) 정한다
-- 백엔드 `imageUrls`는 nullable 목록이라 받는 쪽에서 빈 배열로 맞춘다
+**이미지.** 요약의 대표 이미지는 `imageUrl: string | null`, 상세의 갤러리는 `imageUrls: string[]`이다. 사진은 `shared/components/PopupImage`가 `next/image`의 `fill`로 그리고 `null`이면 `CategoryFallbackImage`로 대신한다. 이미지 호스트가 정해지지 않아 `PopupImage`는 `unoptimized`로 원본 주소를 그대로 그리고 `next.config.ts`에 `images.remotePatterns`를 두지 않았다. 수집 출처가 카카오맵과 Perplexity라 도메인이 여럿일 수 있다. 백엔드가 한 도메인으로 옮겨 주면 `remotePatterns`를 두고 `unoptimized`를 뗀다. 빌드 설정 변경이라 사용자 승인이 필요하다.
 
 **지도 핀.** `shared/lib/kakao-map`은 핀을 `CustomOverlay`로 그린다. 점과 라벨을 한 요소에 담고 클러스터러가 그 요소를 묶는다. 묶인 뒤 `clustered` 이벤트에서 클러스터 요소에 첫 핀의 라벨과 나머지 수 `+N`을 채운다. 핀은 `aria-hidden`이라 마우스 전용이고 키보드와 스크린리더 경로는 부르는 쪽이 같은 팝업 목록으로 따로 낸다. 핀의 탭 순서가 오버레이 삽입 순서라 화면 위치와 무관하고 클러스터에 묶이면 DOM에서 빠지기 때문이다. 탐색 지도는 `PopupMap`이 중심과 마커 범위를 고른다(`model/map-view.ts`).
 
-**로그.** `[popup]` 접두사. 상세 조회 실패, 위치 권한 거부, 클립보드 실패. 위치 권한 거부는 실패가 아니라 사용자의 선택이므로 `console.info`로 한 번만 남긴다.
+**로그.** `[popup]` 접두사. 탐색 목록과 지도 핀 조회 실패, 상세 찜 여부 다시 받기 실패, 위치 권한 거부, 클립보드 실패. 위치 권한 거부는 실패가 아니라 사용자의 선택이므로 `console.info`로 한 번만 남긴다.
 
 **접근성.**
 
-| 요소              | 계약                                                                                                                                                                                                                                                                |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 뷰 전환과 상세 탭 | 고르는 묶음이라 라디오와 탭 패턴을 쓴다. 상세 탭은 URL과 동기다                                                                                                                                                                                                     |
-| 정렬              | 글자 버튼 둘을 `role="group" aria-label="정렬"`로 묶고 고른 쪽이 `aria-pressed`다                                                                                                                                                                                   |
-| 지역 드롭다운     | 버튼이 `aria-haspopup="listbox"`와 `aria-expanded`이고 이름은 "지역"과 현재 값이다. 열면 목록에 포커스가 가고 `aria-activedescendant`로 위아래 화살표와 Home, End가 옮긴다. Enter와 스페이스로 고르고 Esc로 닫으면 버튼으로 돌아온다. 포커스가 밖으로 나가면 닫힌다 |
-| 결과 없음         | 결과 수와 결과 없음 문구(제목과 안내)를 화면 밖 `role="status"` 한 곳이 읽는다. 목록 자리와 지도 위의 문구는 보이기만 한다                                                                                                                                          |
-| 목록              | 더 불러오는 중은 `role="status"`로 "다음 10개를 불러오는 중"                                                                                                                                                                                                        |
-| 지도              | 핀은 `aria-hidden`이라 읽히지 않는다. 같은 팝업을 담은 목록이 키보드와 스크린리더 경로다. 평소 `sr-only`이고 포커스가 들어오면 지도 위에 떠서 보인다                                                                                                                |
-| 클러스터 핀       | 핀과 함께 접근성 트리에서 빠진다. 목록에서 고르면 카메라가 그 핀으로 옮겨 가 클러스터가 풀린다                                                                                                                                                                      |
-| 현재 위치 버튼    | `aria-label`은 "현재 위치로 이동". 거부와 미지원이면 `disabled`, 측위 중이면 `aria-busy`. 이유는 버튼 옆 `role="status"` 안내 문구다                                                                                                                                |
-| 지도 팝업 카드    | `<section aria-live="polite" aria-label="선택한 팝업">`. 포커스를 옮기지 않고 닫기 버튼이 없다. 손잡이는 `aria-hidden`이라 키보드로는 Esc로 닫고 그때 현재 위치 버튼으로 포커스가 간다. 시트가 열려 있으면 Esc는 시트만 닫는다                                      |
-| 상세 바텀시트     | 모달 `<dialog>`와 `aria-modal`, 이름은 본문 제목(`aria-labelledby`). 열면 그 제목에 포커스가 간다. 손잡이는 `aria-hidden`이라 키보드로는 Esc로 닫는다                                                                                                               |
-| 갤러리            | Embla 뷰포트가 `role="region"`, `aria-roledescription="carousel"`이고 `tabIndex={0}`이라 좌우 화살표로 넘긴다. 장마다 `aria-label="n / 전체"`, 현재 장은 `aria-live` 문장으로 읽힌다. 점은 `aria-hidden`이다. 이전과 다음 버튼은 시안에 없다                        |
-| 공유 복사         | 결과를 `AlertDialog`로 알린다. 확인 버튼에 포커스가 가고 닫으면 공유 버튼으로 돌아온다. 실패하면 URL을 알럿 안의 읽기 전용 입력칸에 두고 포커스를 받으면 전체 선택된다                                                                                              |
-| 주소 복사         | 설계. 결과를 `role="status"`로 "주소를 복사했습니다"                                                                                                                                                                                                                |
-| 정보 확인 중 배지 | 텍스트 배지. 색만으로 구분하지 않는다                                                                                                                                                                                                                               |
+| 요소              | 계약                                                                                                                                                                                                                                                                                                             |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 뷰 전환과 상세 탭 | 고르는 묶음이라 라디오와 탭 패턴을 쓴다. 상세 탭은 URL과 동기다                                                                                                                                                                                                                                                  |
+| 결과 안내         | 뷰마다 화면 밖 `role="status"` 한 곳이 읽는다. 목록 뷰는 불러온 수("팝업 N곳을 불러왔습니다")와 결과 없음 문구(제목과 안내), 처음 불러오기 실패 제목 중 하나이고 페이지가 붙을 때마다 수가 바뀐다. 지도 뷰는 핀 수("팝업 N곳")와 결과 없음 문구, 실패 제목 중 하나다. 목록 자리와 지도 위의 문구는 보이기만 한다 |
+| 목록              | 처음 불러오는 중은 `role="status"`로 "팝업 목록을 불러오고 있습니다". 더 불러오는 중과 더 불러오기 실패는 목록 끝에 늘 붙어 있는 `role="status"` 하나가 "다음 10개를 불러오는 중"이나 "팝업을 더 불러오지 못했어요."로 읽는다. 실패하면 그 자리에 다시 시도 버튼이 놓인다                                        |
+| 지도              | 핀은 `aria-hidden`이라 읽히지 않는다. 같은 팝업을 담은 목록이 키보드와 스크린리더 경로다. 평소 `sr-only`이고 포커스가 들어오면 지도 위에 떠서 보인다. 지도 위 안내(불러오는 중, 실패, 결과 없음)는 DOM에서 지도보다 앞이라 실패의 다시 시도가 먼저 포커스를 받고, 포커스로 펼친 목록은 안내 위에 그려진다        |
+| 클러스터 핀       | 핀과 함께 접근성 트리에서 빠진다. 목록에서 고르면 카메라가 그 핀으로 옮겨 가 클러스터가 풀린다                                                                                                                                                                                                                   |
+| 현재 위치 버튼    | `aria-label`은 "현재 위치로 이동". 거부와 미지원이면 `disabled`, 측위 중이면 `aria-busy`. 이유는 버튼 옆 `role="status"` 안내 문구다                                                                                                                                                                             |
+| 지도 팝업 카드    | `<section aria-live="polite" aria-label="선택한 팝업">`. 포커스를 옮기지 않고 닫기 버튼이 없다. 손잡이는 `aria-hidden`이라 키보드로는 Esc로 닫고 그때 현재 위치 버튼으로 포커스가 간다. 시트가 열려 있으면 Esc는 시트만 닫는다                                                                                   |
+| 상세 바텀시트     | 모달 `<dialog>`와 `aria-modal`, 이름은 본문 제목(`aria-labelledby`). 열면 그 제목에 포커스가 간다. 손잡이는 `aria-hidden`이라 키보드로는 Esc로 닫는다                                                                                                                                                            |
+| 갤러리            | Embla 뷰포트가 `role="region"`, `aria-roledescription="carousel"`이고 `tabIndex={0}`이라 좌우 화살표로 넘긴다. 장마다 `aria-label="n / 전체"`, 현재 장은 `aria-live` 문장으로 읽힌다. 점은 `aria-hidden`이다. 이전과 다음 버튼은 시안에 없다                                                                     |
+| 공유 복사         | 결과를 `AlertDialog`로 알린다. 확인 버튼에 포커스가 가고 닫으면 공유 버튼으로 돌아온다. 실패하면 URL을 알럿 안의 읽기 전용 입력칸에 두고 포커스를 받으면 전체 선택된다                                                                                                                                           |
+| 주소 복사         | 설계. 결과를 `role="status"`로 "주소를 복사했습니다"                                                                                                                                                                                                                                                             |
+| 정보 확인 중 배지 | 텍스트 배지. 색만으로 구분하지 않는다                                                                                                                                                                                                                                                                            |
 
 ## O. Optimization과 운영
 
 **렌더링.** 목록은 열 개씩이라 가상화하지 않는다. 카드 이미지는 `next/image`와 고정 비율이다. 지도는 뷰를 바꿀 때 언마운트한다. CSS로 숨기면 컨테이너 크기가 0이 되어 relayout 뒤 중심이 틀어진다. 다만 상세 바텀시트를 열 때는 언마운트하지 않는다. `children` 슬롯이 탐색 화면을 그대로 두고 시트가 그 위를 덮는다. SDK 로딩은 세션 하나가 공유하므로 다시 마운트해도 스크립트를 다시 받지 않는다.
 
-**장애.** 지도 SDK가 실패하면 `KakaoMap`이 `role="alert"`로 "지도를 불러오지 못했습니다"와 다시 시도하라는 한 줄을 보이고 목록 뷰로 가는 버튼과 다시 시도 버튼을 함께 둔다. 키가 없거나 도메인이 등록되지 않은 것 같은 원인은 화면에 보이지 않고 `[kakao-map]` 로그에 남는다. 목록 조회가 실패하면 같은 자리에 오류 상태와 다시 시도를 그린다. 상세의 서버 컴포넌트 조회가 실패하면 `error.tsx`가 받고 클라이언트 쿼리 실패는 섹션 `ErrorState`다. 위치 권한 거부는 장애가 아니라 정상 분기다.
+**장애.** 지도 SDK가 실패하면 `KakaoMap`이 `role="alert"`로 "지도를 불러오지 못했습니다"와 다시 시도하라는 한 줄을 보이고 목록 뷰로 가는 버튼과 다시 시도 버튼을 함께 둔다. 키가 없거나 도메인이 등록되지 않은 것 같은 원인은 화면에 보이지 않고 `[kakao-map]` 로그에 남는다. 목록 조회가 처음부터 실패하면 목록 자리에 실패 문구와 다시 시도를 그리고 더 불러오기가 실패하면 목록 끝에 다시 시도를 둔다. 지도 뷰는 지도용 목록이나 상세 하나라도 실패하면 지도 위에 "팝업을 불러오지 못했어요."와 다시 시도를 띄운다. 일부만 실패해도 실패로 보이고 이미 받은 핀은 안내 아래에 남는다. 다시 시도는 목록과 실패한 상세만 다시 받는다. 상세의 서버 컴포넌트 조회가 실패하면 `error.tsx`가 받는다. 상세 쿼리의 다시 받기가 실패하면 하트를 모름으로 두고 로그를 남긴다. 위치 권한 거부는 장애가 아니라 정상 분기다.
 
-**재시도와 몰림.** 검색어는 300ms 디바운스 뒤 URL에 한 번 쓴다. 지역과 정렬 변경은 디바운스 없이 즉시다. 위치 요청은 지도 뷰 진입마다 한 번이고 실패해도 다시 부르지 않는다.
+**재시도와 몰림.** 검색어는 300ms 디바운스 뒤 URL에 한 번 쓴다. 위치 요청은 지도 뷰 진입마다 한 번이고 실패해도 다시 부르지 않는다. 지도 뷰는 검색어 하나에 목록 한 번과 상세 최대 50번을 부른다. 찜을 바꿔도 `["popups"]`를 무효화하지 않는 이유가 이 50건이다(`bookmark.md`).
 
 **지표.** 결과 0건 비율이 높으면 데이터가 비었거나 검색어가 안 맞는 것이다. 대체 이미지 비율이 높으면 수집 파이프라인의 이미지가 비었다. 위치 권한 허용 비율은 지도 첫 화면이 얼마나 유용한지를 가른다.
 
-**API가 열리면 옮길 것.** 탐색은 `placeholder-explore.ts`의 임시 목록 하나를 두 뷰가 같이 쓴다.
+**백엔드에 없어 내린 것.** 운영 백엔드의 목록과 상세 응답에 아래 값이 없어 화면에서 내렸다. 백엔드에 한 요청은 `ARCHITECTURE.md`의 백엔드 요구 목록에 있다.
 
-백엔드 `feature/18` 브랜치(`e95f306`)에 목록과 상세, 홈 인기 API가 있다. 이 브랜치는 아직 develop에 머지되지 않아 계약이 바뀔 수 있다. 그래서 연동 코드는 만들지 않았다. 아래는 그 브랜치 코드를 읽고 적은 것이다. 홈 인기 API는 `recommendation.md`의 옮길 것 절에 있다.
+- 지역. 목록 요청에 지역 필터가, 목록과 상세 응답에 지역이 없다. 목록 뷰의 지역 드롭다운과 지역 결과 없음 화면을 지웠다. 목록 카드와 지도 카드, 상세의 지역 표기와 지도 키보드 목록의 지역은 `region`이 있을 때만 그리는 코드가 남아 있다. 응답에 지역이 들어오면 `toPopupSummary`와 `toPopupDetail`에서 `region`을 채운다. 드롭다운은 `ExploreState`에 `region`을 더하고 `shared/ui/Select`로 다시 놓는다
+- 정렬. 목록 요청에 정렬 파라미터가 없다. 정렬 토글을 지우고 서버 순서(오픈일 최신순)를 그대로 보인다. 파라미터가 생기면 `ExploreState`에 `sort`를 더하고 두 목록 쿼리 키에 넣는다
+- 좌표. 목록 한 건에 좌표가 없어 지도 뷰가 팝업마다 상세를 받는다. 목록에 좌표가 오면 `usePopupsForMap`의 상세 쿼리를 지운다
+- 조회수와 일치율. 상세 응답에 없고 백엔드가 상세 조회수를 세지 않는다. 상세의 조회수와 회원 일치율 한 줄을 지웠다. 일치율이 생기면 상세 본문에 회원에게만 보이는 줄을 다시 넣는다
+- 시작일. 목록 한 건에 시작일이 없어 목록에서 온 팝업은 기간을 종료일로만 보인다
 
-- 목록은 `GET /api/v1/popups?keyword&sort&cursor&limit`이다. 응답 `{ content, hasNext, nextCursor }`는 `PageResponse`와 모양이 같다. 목록 뷰를 열 개씩 커서 무한 스크롤로 바꾸고 더 불러오는 중 문구와 조회 실패 상태를 이때 붙인다. 페이지 크기는 플래너 목록의 `size`와 이름이 다른 `limit`이고 1부터 50, 기본 10이다
-- 서버가 끝난 팝업과 아직 시작하지 않은 팝업을 뺀다. `keyword`는 이름과 브랜드, 도로명과 지번 주소에서 찾는다
-- 정렬은 `latest`와 `popular`다. 서버 기본은 `latest`이고 프론트 기본은 인기순이다. 프론트 URL은 인기순일 때 `sort`를 쓰지 않으니 API를 부를 때는 `sort`를 늘 적는다. 서버의 `latest`는 오픈일 내림차순이고 SPEC의 최신순은 팝픽 등록 순이라 어느 쪽인지 기획에 묻는다. `popular`는 누적 상세 조회수 순이고 SPEC은 최근 7일이라 이것도 기획에 묻는다
-- 목록 API에 지역 파라미터가 없다. 지역 거르기를 서버로 넘기지 못해 백엔드에 상권 필터를 요청한다. 페이지 단위로 받은 결과를 프론트가 지역으로 거르면 한 페이지가 열 개보다 적게 보이므로 `filterExplorePopups`는 서버 필터가 생긴 뒤 지운다
-- 목록 한 건은 `popupId, imageUrl, interestCategoryId, title, endDate, reservationType`뿐이다. 지역과 좌표가 없어 메타 줄의 지역 라벨과 지도 핀을 그리지 못한다. 목록 응답에 상권과 `latitude`, `longitude`를 백엔드에 요청한다. 지도는 한 번에 최대 50개를 받는다
-- 카테고리는 숫자 id(1부터 8)로 온다. `PopupCategory` 유니온의 슬러그와 맞지 않으니 온보딩 선택지 조회의 라벨로 바꾼다
-- 상세는 `GET /api/v1/popups/{popupId}`이고 좌표는 있지만 지역이 없다. 부를 때마다 조회수가 1 오르고 같은 조회자가 10분 안에 다시 부르면 세지 않는다. 비회원 조회자는 `X-Real-IP`나 `X-Forwarded-For`의 IP와 브라우저로 가른다. 시트와 상세 페이지는 서버 컴포넌트에서 부르므로 이 헤더를 넘기지 않으면 조회자가 Next 서버 IP로 잡힌다. 어떤 헤더를 넘길지 백엔드에 묻는다
-- 이 브랜치에서 목록과 상세는 `permitAll`이다. 머지되면 비회원 탐색과 상세가 된다
-- 찜은 `bookmark.md`의 서버 API가 열리면 카드와 시트의 회원 하트를 누를 수 있다
-- 끝나면 `placeholder-explore.ts`와 `ExplorePopup`의 임시 필드를 지우고 `PopupSummary` 설계 필드로 옮긴다
-
-**운영.** 팝업의 지역 배지는 백엔드가 주소와 위경도로 매핑해 내려준 값이다. 팝업 데이터에 저장된 값이 아니라 조회할 때 붙는다. 매핑 범위가 바뀌면 프론트는 고칠 것이 없다.
+**운영.** 지역 배지는 백엔드가 주소와 위경도로 매핑해 응답에 실어 주는 값으로 받는다. 팝업 데이터에 저장된 값이 아니라 조회할 때 붙는다. 지금 응답에는 지역이 없다.
 
 `next.config.ts`의 `Permissions-Policy`는 `geolocation=(self)`다. 같은 출처에서만 권한을 묻고 iframe에 넣은 외부 문서는 묻지 못한다. 카메라와 마이크는 빈 목록으로 막혀 있다.
