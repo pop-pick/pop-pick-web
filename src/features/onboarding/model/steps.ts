@@ -5,8 +5,7 @@ export const ONBOARDING_STEPS = [1, 2, 3] as const;
 export type OnboardingStep = (typeof ONBOARDING_STEPS)[number];
 
 export function parseStep(value: string) {
-	const step = Number(value);
-	return ONBOARDING_STEPS.find((candidate) => candidate === step) ?? null;
+	return ONBOARDING_STEPS.find((candidate) => String(candidate) === value) ?? null;
 }
 
 export function buildPreviousStepPath(step: OnboardingStep) {

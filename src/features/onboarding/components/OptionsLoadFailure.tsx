@@ -23,12 +23,7 @@ export function OptionsLoadFailure({ isRetrying, onRetry }: OptionsLoadFailurePr
 				title={OPTIONS_LOAD_FAILURE_TITLE}
 				description={OPTIONS_LOAD_FAILURE_DESCRIPTION}
 				action={
-					<Button
-						variant="secondary"
-						aria-disabled={isRetrying}
-						onClick={handleRetryClick}
-						className="aria-disabled:opacity-40"
-					>
+					<Button variant="secondary" aria-disabled={isRetrying} onClick={handleRetryClick}>
 						다시 시도
 					</Button>
 				}

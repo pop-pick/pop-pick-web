@@ -1,5 +1,3 @@
-"use client";
-
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { type SubmitEvent, useState } from "react";
@@ -7,7 +5,6 @@ import { useForm, useWatch } from "react-hook-form";
 
 import { buildOnboardingStepPath } from "@/shared/model/onboarding-path";
 import { AlertDialog } from "@/shared/ui/AlertDialog";
-import { Skeleton } from "@/shared/ui/Skeleton";
 
 import { favoriteAreasQueryOptions, interestCategoriesQueryOptions } from "../api/onboarding-options";
 import { useFocusAfterRetry } from "../hooks/useFocusAfterRetry";
@@ -15,6 +12,7 @@ import { filterListedIds, isStepIncomplete, type OnboardingStepAnswers, toggleSe
 import { EMPTY_SELECTION_MESSAGE, ONBOARDING_QUESTION_LABELS, OPTIONS_LOADING_MESSAGE } from "../model/messages";
 import { useOnboardingStore } from "../model/useOnboardingStore";
 import { ChoiceChipGroup } from "./ChoiceChipGroup";
+import { OnboardingStepSkeleton } from "./OnboardingStepSkeleton";
 import { OptionsLoadFailure } from "./OptionsLoadFailure";
 import { StepActions } from "./StepActions";
 
@@ -54,13 +52,7 @@ export function InterestStepForm({ initialAnswers }: InterestStepFormProps) {
 	}
 
 	if (categoriesQuery.isPending || areasQuery.isPending) {
-		return (
-			<div role="status" className="flex flex-col gap-10 px-5 pt-10">
-				<span className="sr-only">{OPTIONS_LOADING_MESSAGE}</span>
-				<Skeleton className="h-60" />
-				<Skeleton className="h-60" />
-			</div>
-		);
+		return <OnboardingStepSkeleton step={2} label={OPTIONS_LOADING_MESSAGE} />;
 	}
 
 	const categories = categoriesQuery.data;
@@ -101,7 +93,7 @@ export function InterestStepForm({ initialAnswers }: InterestStepFormProps) {
 	return (
 		<>
 			<form onSubmit={handleSubmit} className="flex flex-1 flex-col">
-				<div className="flex flex-col gap-10 px-5 pt-10 pb-12">
+				<div className="flex flex-col gap-10 px-5 pt-10 pb-10">
 					<ChoiceChipGroup
 						ref={focusTargetRef}
 						legend={ONBOARDING_QUESTION_LABELS.categories}
