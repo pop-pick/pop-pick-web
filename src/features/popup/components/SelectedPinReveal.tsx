@@ -1,5 +1,3 @@
-"use client";
-
 import { type RefObject, useEffect } from "react";
 
 import { useKakaoMapHandle } from "@/shared/lib/kakao-map/kakao-map-context";

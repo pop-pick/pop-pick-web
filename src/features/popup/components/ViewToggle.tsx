@@ -1,5 +1,3 @@
-"use client";
-
 import * as m from "motion/react-m";
 import { type KeyboardEvent, useRef } from "react";
 

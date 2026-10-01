@@ -1,6 +1,6 @@
-"use client";
-
-import { type FocusEvent, useEffect, useMemo, useRef, useState } from "react";
+import { animate, useMotionValue, useReducedMotion } from "motion/react";
+import * as m from "motion/react-m";
+import { type FocusEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import type { KakaoLatLngLiteral } from "@/shared/lib/kakao-map/kakao-map-utils";
 import { KakaoMap } from "@/shared/lib/kakao-map/KakaoMap";
@@ -13,7 +13,7 @@ import { resolveMapView } from "../model/map-view";
 import { toPopupMarkers } from "../model/popup-markers";
 import { POSITION_STATUS_NOTICES, type PositionStatus } from "../model/position-status";
 import { CurrentPositionButton } from "./CurrentPositionButton";
-import { MapPopupCard } from "./MapPopupCard";
+import { CARD_SLIDE_TRANSITION, MapPopupCard } from "./MapPopupCard";
 import { SelectedPinReveal } from "./SelectedPinReveal";
 
 const CLUSTER_MIN_LEVEL = 5;
@@ -22,7 +22,7 @@ const PICKED_POPUP_LEVEL = 4;
 
 const popupMapVariants = tv({
 	slots: {
-		positionNotice: "rounded-full bg-bg-1/90 px-3 py-1 text-b3-12 text-text-4 shadow-floating",
+		positionNotice: "rounded-2xl bg-bg-1/90 px-3 py-1 text-b3-12 break-keep text-text-4 shadow-floating",
 		list: ""
 	},
 	variants: {
@@ -62,14 +62,38 @@ export function PopupMap({
 	const [isListRevealed, setIsListRevealed] = useState(false);
 	const positionButtonRef = useRef<HTMLButtonElement | null>(null);
 	const overlayRef = useRef<HTMLDivElement | null>(null);
+	const controlRowRef = useRef<HTMLDivElement | null>(null);
+	const controlRowTopRef = useRef<number | null>(null);
+	const controlRowOffsetY = useMotionValue(0);
+	const shouldReduceMotion = useReducedMotion() === true;
 
-	const markers = useMemo(() => toPopupMarkers(popups), [popups]);
-	const positions = useMemo(() => markers.map((marker) => marker.position), [markers]);
+	const markers = toPopupMarkers(popups);
+	const positions = markers.map((marker) => marker.position);
 	const selectedPopup = popups.find((popup) => popup.id === selectedPopupId) ?? null;
+	const hasCard = selectedPopup !== null;
 	const positionNotice = POSITION_STATUS_NOTICES[positionStatus];
 	const cameraTarget = manualTarget ?? (shouldFollowPosition ? position : null);
 	const cameraLevel = manualTarget === null ? MY_POSITION_LEVEL : PICKED_POPUP_LEVEL;
 	const viewProps = resolveMapView(cameraTarget, cameraLevel, positions);
+
+	useLayoutEffect(() => {
+		const controlRow = controlRowRef.current;
+
+		if (controlRow === null) {
+			return;
+		}
+
+		const previousTop = controlRowTopRef.current;
+		const top = controlRow.getBoundingClientRect().top - controlRowOffsetY.get();
+		controlRowTopRef.current = top;
+
+		if (previousTop === null || previousTop === top || shouldReduceMotion) {
+			return;
+		}
+
+		controlRowOffsetY.jump(previousTop - top);
+		void animate(controlRowOffsetY, 0, CARD_SLIDE_TRANSITION);
+	}, [hasCard, controlRowOffsetY, shouldReduceMotion]);
 
 	useEffect(() => {
 		if (selectedPopup === null) {
@@ -124,10 +148,7 @@ export function PopupMap({
 
 	const handleListItemClick = (popup: ExplorePopup) => () => {
 		setSelectedPopupId(popup.id);
-
-		if (popup.position !== null) {
-			setManualTarget({ ...popup.position });
-		}
+		setManualTarget({ ...popup.position });
 	};
 
 	const styles = popupMapVariants({
@@ -156,13 +177,13 @@ export function PopupMap({
 				<p role="status" className="sr-only">
 					{selectedPopup === null ? "" : `${selectedPopup.title} 선택됨`}
 				</p>
-				<SelectedPinReveal position={selectedPopup === null ? null : selectedPopup.position} overlayRef={overlayRef} />
+				<SelectedPinReveal position={selectedPopup?.position ?? null} overlayRef={overlayRef} />
 
 				<div
 					ref={overlayRef}
 					className="pointer-events-none fixed inset-x-0 bottom-0 z-0 mx-auto flex max-w-app flex-col"
 				>
-					<div className="flex items-center gap-2 px-5 pb-6">
+					<m.div ref={controlRowRef} style={{ y: controlRowOffsetY }} className="flex items-center gap-2 px-5 pb-6">
 						<CurrentPositionButton
 							ref={positionButtonRef}
 							status={positionStatus}
@@ -172,7 +193,7 @@ export function PopupMap({
 						<p role="status" className={styles.positionNotice()}>
 							{positionNotice}
 						</p>
-					</div>
+					</m.div>
 					{selectedPopup === null ? (
 						<div className="h-tab-bar-clearance" />
 					) : (
