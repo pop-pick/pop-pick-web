@@ -6,6 +6,8 @@ import { useEffect, useId } from "react";
 
 import { CourseStartBanner } from "@/shared/components/CourseStartBanner";
 import { EmptyState } from "@/shared/components/EmptyState";
+import { ListMoreTrigger } from "@/shared/components/ListMoreTrigger";
+import { LoadFailure } from "@/shared/components/LoadFailure";
 import { buildCoursePath } from "@/shared/model/course-path";
 import { PLANNER_NEW_PATH } from "@/shared/model/planner-path";
 import { Skeleton } from "@/shared/ui/Skeleton";
@@ -20,8 +22,6 @@ import {
 	parseCourseTab,
 	toPlannerTabHref
 } from "../model/course-tab";
-import { CourseListMoreTrigger } from "./CourseListMoreTrigger";
-import { CourseLoadFailure } from "./CourseLoadFailure";
 import { CourseSummaryCard } from "./CourseSummaryCard";
 
 const COURSE_START_TITLE = "AI 코스 생성은 POP PICK";
@@ -56,7 +56,7 @@ export function PlannerHome() {
 		void refetch();
 	};
 
-	const handleMore = () => {
+	const handleLoadMore = () => {
 		void fetchNextPage();
 	};
 
@@ -72,7 +72,7 @@ export function PlannerHome() {
 			>
 				{error !== null && courses === undefined && (
 					<div className="flex flex-1 items-center justify-center py-10">
-						<CourseLoadFailure title="일정을 불러오지 못했어요." onRetry={handleRetry} />
+						<LoadFailure title="일정을 불러오지 못했어요." onRetry={handleRetry} />
 					</div>
 				)}
 				{isPending && (
@@ -110,10 +110,13 @@ export function PlannerHome() {
 							))}
 						</ul>
 						{hasNextPage && (
-							<CourseListMoreTrigger
+							<ListMoreTrigger
 								isLoading={isFetchingNextPage}
 								isFailed={isFetchNextPageError}
-								onMore={handleMore}
+								loadingLabel="일정을 더 불러오고 있습니다"
+								failureMessage="일정을 더 불러오지 못했어요."
+								skeletonClassName="h-45.25"
+								onLoadMore={handleLoadMore}
 							/>
 						)}
 					</div>
