@@ -1,6 +1,6 @@
 import type { ComponentProps, ComponentType } from "react";
 
-export type IconSize = 16 | 20 | 24 | 32;
+type IconSize = 16 | 20 | 24 | 32;
 
 interface SvgIconProps extends Omit<
 	ComponentProps<"svg">,

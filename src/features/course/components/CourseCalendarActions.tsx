@@ -1,6 +1,8 @@
 "use client";
 
 import { getSeoulNow } from "@/shared/lib/date";
+import { Button } from "@/shared/ui/Button";
+import { LinkButton } from "@/shared/ui/LinkButton";
 
 import type { Course } from "../model/course";
 import { buildCourseIcs, buildCourseIcsFileName, buildGoogleCalendarUrl } from "../model/course-calendar";
@@ -25,22 +27,19 @@ export function CourseCalendarActions({ course }: CourseCalendarActionsProps) {
 
 	return (
 		<div className="flex gap-2.5">
-			<a
+			<LinkButton
 				href={buildGoogleCalendarUrl(course)}
 				target="_blank"
 				rel="noopener noreferrer"
-				className="flex h-10.5 flex-1 items-center justify-center rounded-xl bg-primary text-b1-14 text-text-w focus-ring transition-colors hover:bg-primary-strong"
+				size="md"
+				className="flex-1"
 			>
 				구글 캘린더에 저장하기
 				<span className="sr-only">(새 탭에서 열림)</span>
-			</a>
-			<button
-				type="button"
-				onClick={handleIcsDownload}
-				className="h-10.5 flex-1 rounded-xl bg-primary-subtle text-b1-14 text-primary focus-ring transition-colors hover:bg-primary/15"
-			>
+			</LinkButton>
+			<Button variant="tonal" size="md" onClick={handleIcsDownload} className="flex-1">
 				캘린더 파일 다운로드
-			</button>
+			</Button>
 		</div>
 	);
 }

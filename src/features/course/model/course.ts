@@ -1,9 +1,7 @@
 import type { KakaoLatLngLiteral } from "@/shared/lib/kakao-map/kakao-map-utils";
 import type { CompanionType, TripDuration } from "@/shared/model/trip-preference";
 
-export const COURSE_STATUSES = ["DRAFT", "SCHEDULED", "CANCELED"] as const;
-
-export type CourseStatus = (typeof COURSE_STATUSES)[number];
+export type CourseStatus = "DRAFT" | "SCHEDULED" | "CANCELED";
 
 export interface CourseStop {
 	order: number;
@@ -13,7 +11,6 @@ export interface CourseStop {
 	/** "HH:mm" */
 	arriveAt: string;
 	address: string | null;
-	reason: string;
 	position: KakaoLatLngLiteral;
 }
 

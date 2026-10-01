@@ -4,7 +4,7 @@ export const MY_PAGE_TABS = ["bookmark", "recent"] as const;
 
 export type MyPageTab = (typeof MY_PAGE_TABS)[number];
 
-export const MY_PAGE_TAB_LABELS: Record<MyPageTab, string> = {
+const MY_PAGE_TAB_LABELS: Record<MyPageTab, string> = {
 	bookmark: "찜한 팝업",
 	recent: "최근 본 팝업"
 };

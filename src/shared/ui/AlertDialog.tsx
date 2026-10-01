@@ -6,6 +6,7 @@ import { type FocusEvent, type SyntheticEvent, useEffect, useId, useRef } from "
 import CloseIcon from "@/shared/assets/icons/close.svg";
 import { tv } from "@/shared/lib/tv";
 
+import { Button } from "./Button";
 import { SvgIcon } from "./SvgIcon";
 
 const DIALOG_HIDDEN_STYLE = { opacity: 0, y: 24, scale: 0.96 };
@@ -17,22 +18,19 @@ const alertDialogVariants = tv({
 	slots: {
 		dialog: "m-auto w-full rounded-2xl bg-bg-1 backdrop-fade shadow-modal data-closing:pointer-events-none",
 		message: "text-center whitespace-pre-line text-text-1",
-		actions: "flex gap-2",
-		confirmButton: "flex-1 rounded-xl bg-primary text-text-w focus-ring transition-colors hover:bg-primary-strong"
+		actions: "flex gap-2"
 	},
 	variants: {
 		hasCloseButton: {
 			true: {
 				dialog: "max-w-75 px-5 pt-6 pb-5 backdrop:bg-transparent",
 				message: "px-10 text-b1-16",
-				actions: "mt-5.5",
-				confirmButton: "h-10.5 text-b1-14"
+				actions: "mt-5.5"
 			},
 			false: {
 				dialog: "max-w-80 p-5 backdrop:bg-dim",
 				message: "text-b2-16",
-				actions: "mt-5",
-				confirmButton: "h-12 text-b1-16"
+				actions: "mt-5"
 			}
 		}
 	}
@@ -43,7 +41,6 @@ interface AlertDialogProps {
 	message: string;
 	detail?: string;
 	confirmLabel?: string;
-	cancelLabel?: string;
 	closeLabel?: string;
 	onConfirm: () => void;
 	onCancel?: () => void;
@@ -55,7 +52,6 @@ export function AlertDialog({
 	message,
 	detail,
 	confirmLabel = "확인",
-	cancelLabel = "취소",
 	closeLabel,
 	onConfirm,
 	onCancel,
@@ -150,17 +146,13 @@ export function AlertDialog({
 			)}
 			<div className={styles.actions()}>
 				{onCancel && !hasCloseButton && (
-					<button
-						type="button"
-						onClick={onCancel}
-						className="h-12 flex-1 rounded-xl bg-bg-3 text-b1-16 text-text-2 focus-ring transition-colors hover:bg-bg-4"
-					>
-						{cancelLabel}
-					</button>
+					<Button variant="secondary" onClick={onCancel} className="flex-1">
+						취소
+					</Button>
 				)}
-				<button type="button" ref={confirmButtonRef} onClick={onConfirm} className={styles.confirmButton()}>
+				<Button ref={confirmButtonRef} size={hasCloseButton ? "md" : "lg"} onClick={onConfirm} className="flex-1">
 					{confirmLabel}
-				</button>
+				</Button>
 			</div>
 		</m.dialog>
 	);

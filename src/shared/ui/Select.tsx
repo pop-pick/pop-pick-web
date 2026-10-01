@@ -22,7 +22,7 @@ const selectVariants = tv({
 		size: {
 			compact: {
 				button: "h-9.75 w-25.5 py-1 pr-2 pl-3",
-				panel: "w-25.5 border border-divider-2 pt-10.5 pr-2 pb-2 pl-3 shadow-floating",
+				panel: "w-25.5 border border-divider-2 pt-10.25 pr-2 pb-2 pl-3 shadow-floating",
 				listbox: "gap-2",
 				option: "h-7.25 text-b2-14"
 			},

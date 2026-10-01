@@ -4,8 +4,10 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useId } from "react";
 
+import { CourseStartBanner } from "@/shared/components/CourseStartBanner";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { buildCoursePath } from "@/shared/model/course-path";
+import { PLANNER_NEW_PATH } from "@/shared/model/planner-path";
 import { Skeleton } from "@/shared/ui/Skeleton";
 import { Tabs } from "@/shared/ui/Tabs";
 
@@ -20,9 +22,9 @@ import {
 } from "../model/course-tab";
 import { CourseListMoreTrigger } from "./CourseListMoreTrigger";
 import { CourseLoadFailure } from "./CourseLoadFailure";
-import { CourseStartBanner } from "./CourseStartBanner";
 import { CourseSummaryCard } from "./CourseSummaryCard";
 
+const COURSE_START_TITLE = "AI 코스 생성은 POP PICK";
 const EMPTY_DESCRIPTION = "AI POP PICK으로\n나에게 꼭 맞는 팝업 코스를 만들어보세요.";
 
 export function PlannerHome() {
@@ -85,12 +87,21 @@ export function PlannerHome() {
 						<div className="flex flex-1 items-center justify-center pt-11.75 pb-10">
 							<EmptyState hasWarningIcon title={COURSE_TAB_EMPTY_TITLES[tab]} description={EMPTY_DESCRIPTION} />
 						</div>
-						<CourseStartBanner actionLabel="나에게 맞는 팝업 찾기" isActionWide />
+						<CourseStartBanner
+							title={COURSE_START_TITLE}
+							actionLabel="나에게 맞는 팝업 찾기"
+							actionHref={PLANNER_NEW_PATH}
+							isActionWide
+						/>
 					</>
 				)}
 				{courses !== undefined && courses.length > 0 && (
 					<div className="flex flex-col gap-5">
-						<CourseStartBanner actionLabel="AI POP PICK 시작하기" />
+						<CourseStartBanner
+							title={COURSE_START_TITLE}
+							actionLabel="AI POP PICK 시작하기"
+							actionHref={PLANNER_NEW_PATH}
+						/>
 						<ul aria-label="저장한 일정" aria-busy={isFetchingNextPage} className="flex flex-col gap-3">
 							{courses.map((course) => (
 								<li key={course.id}>

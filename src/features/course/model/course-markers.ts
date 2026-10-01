@@ -1,6 +1,6 @@
 import type { Course } from "./course";
 
-const COURSE_PIN_ICON_PATH = "/pins/course.svg";
+const COURSE_PIN_ICON_PATH = "/images/pins/course.svg";
 
 export function toCourseMarkers(course: Course) {
 	return course.stops.map((stop) => ({

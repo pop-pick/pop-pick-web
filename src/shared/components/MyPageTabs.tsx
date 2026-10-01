@@ -42,7 +42,7 @@ export function MyPageTabs({ bookmarkPanel, recentPanel }: MyPageTabsProps) {
 				role="tabpanel"
 				aria-labelledby={buildMyPageTabId(tab)}
 				tabIndex={0}
-				className="flex min-h-80 flex-col px-5 pt-5 pb-8 focus-ring"
+				className="flex min-h-120.5 flex-col px-5 pt-5 pb-8 focus-ring"
 			>
 				{panels[tab]}
 			</div>

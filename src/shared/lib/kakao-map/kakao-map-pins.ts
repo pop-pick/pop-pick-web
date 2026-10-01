@@ -1,11 +1,9 @@
-"use client";
-
 import { tv } from "@/shared/lib/tv";
 
 import type { KakaoClusterStyle } from "./kakao-map-sdk";
 import type { KakaoMarkerData } from "./kakao-map-session";
 
-const SELECTED_PIN_ICON_PATH = "/pins/selected.svg";
+const SELECTED_PIN_ICON_PATH = "/images/pins/selected.svg";
 const PIN_BOTTOM_Y_ANCHOR = 1;
 const ICON_PIN_Y_ANCHOR = 0.5;
 

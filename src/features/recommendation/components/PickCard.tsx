@@ -2,14 +2,15 @@ import Link from "next/link";
 
 import ChevronDownIcon from "@/shared/assets/icons/chevron-down.svg";
 import ChevronUpIcon from "@/shared/assets/icons/chevron-up.svg";
+import SparklesIcon from "@/shared/assets/icons/sparkles.svg";
 import { PopupImage } from "@/shared/components/PopupImage";
 import { POPUP_CATEGORY_LABELS } from "@/shared/model/popup";
+import { formatMatchRateMessage } from "@/shared/model/popup-format";
 import { buildPopupDetailPath } from "@/shared/model/popup-path";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 import { formatPopupPeriod } from "../model/home-format";
 import type { RecommendedPopupItem } from "../model/home-popup";
-import { MatchRatePill } from "./MatchRatePill";
 import { OnImageBadge } from "./OnImageBadge";
 
 interface PickCardProps {
@@ -67,7 +68,12 @@ export function PickCard({ recommendation, nickname, isExpanded, imageLoading, o
 				</div>
 				<div id={detailsId} hidden={!isExpanded} className="flex flex-col gap-4">
 					{reason !== null && <p className="line-clamp-2 text-b2-12 text-text-w text-shadow-on-image">{reason}</p>}
-					{matchRate !== null && <MatchRatePill nickname={nickname} matchRate={matchRate} />}
+					{matchRate !== null && (
+						<p className="flex h-8.5 items-center justify-center gap-1 rounded-full bg-dim px-4 text-b3-12 text-primary-subtle">
+							<SvgIcon icon={SparklesIcon} size={16} />
+							{formatMatchRateMessage(nickname, matchRate)}
+						</p>
+					)}
 				</div>
 			</div>
 		</article>

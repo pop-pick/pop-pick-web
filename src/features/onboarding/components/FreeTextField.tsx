@@ -1,5 +1,3 @@
-"use client";
-
 import { type ChangeEvent, useId } from "react";
 
 import { formatEnteredLength } from "../model/messages";
@@ -44,8 +42,8 @@ export function FreeTextField({ label, description, value, maxLength, placeholde
 					maxLength={maxLength}
 					placeholder={placeholder}
 					onChange={handleTextChange}
-					rows={3}
-					className="scrollbar-subtle w-full resize-none rounded-2xl border border-transparent bg-bg-2 p-5 text-b3-16 text-text-1 transition-colors placeholder:text-text-4 focus:border-primary focus:outline-hidden"
+					rows={2}
+					className="scrollbar-subtle w-full resize-none rounded-panel bg-bg-2 p-5 text-b3-16 text-text-1 transition-shadow placeholder:text-text-4 focus:inset-ring focus:inset-ring-primary focus:outline-hidden"
 				/>
 				<p id={counterId} className="text-left text-b3-14 text-text-4">
 					{enteredText}

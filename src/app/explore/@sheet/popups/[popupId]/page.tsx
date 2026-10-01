@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { cache } from "react";
 
 import { AuthStatusSwitch } from "@/features/auth/components/AuthStatusSwitch";
 import { readRefreshToken } from "@/features/auth/model/session-cookie";
@@ -12,8 +13,8 @@ import { PLACEHOLDER_NICKNAME } from "@/shared/lib/placeholder-data";
 
 const SHEET_TITLE_ID = "popup-sheet-title";
 
-async function findPopupDetailOrNotFound(params: PageProps<"/explore/popups/[popupId]">["params"]) {
-	const popupId = parsePopupId((await params).popupId);
+const findPopupDetailOrNotFound = cache((rawPopupId: string) => {
+	const popupId = parsePopupId(rawPopupId);
 	const detail = popupId === null ? undefined : findPlaceholderPopupDetail(popupId);
 
 	if (!detail) {
@@ -21,15 +22,15 @@ async function findPopupDetailOrNotFound(params: PageProps<"/explore/popups/[pop
 	}
 
 	return detail;
-}
+});
 
 export async function generateMetadata({ params }: PageProps<"/explore/popups/[popupId]">) {
-	const detail = await findPopupDetailOrNotFound(params);
+	const detail = findPopupDetailOrNotFound((await params).popupId);
 	return { title: detail.title, description: detail.description };
 }
 
 export default async function PopupSheetPage({ params }: PageProps<"/explore/popups/[popupId]">) {
-	const detail = await findPopupDetailOrNotFound(params);
+	const detail = findPopupDetailOrNotFound((await params).popupId);
 	const hasSessionCookie = (await readRefreshToken()) !== null;
 
 	const matchRateNote =

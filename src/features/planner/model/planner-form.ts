@@ -18,6 +18,12 @@ export interface PlannerFormData {
 	startTimes: string[];
 }
 
+export const PLANNER_FORM_TITLE = "취향 분석 온보딩";
+
 export function toggleOptionId(options: PlannerOption[], selectedIds: number[], id: number) {
 	return options.filter((option) => (option.id === id) !== selectedIds.includes(option.id)).map((option) => option.id);
+}
+
+export function toChoiceOptions(options: PlannerOption[]) {
+	return options.map(({ id, label }) => ({ value: id, label }));
 }

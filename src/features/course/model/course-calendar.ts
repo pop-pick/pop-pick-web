@@ -6,7 +6,6 @@ import { SEOUL_TIME_ZONE } from "@/shared/lib/date";
 import type { Course } from "./course";
 import { toCourseEndDate } from "./course-time";
 
-const COURSE_TIME_ZONE = SEOUL_TIME_ZONE;
 const UTC_STAMP_FORMAT = "yyyyMMdd'T'HHmmss'Z'";
 const GOOGLE_CALENDAR_TEMPLATE_URL = "https://calendar.google.com/calendar/render";
 const ICS_LINE_BREAK = "\r\n";
@@ -26,7 +25,7 @@ export function buildGoogleCalendarUrl(course: Course) {
 		action: "TEMPLATE",
 		text: course.title,
 		dates: `${toCalendarDateTime(course.date, course.startAt)}/${toCalendarDateTime(toCourseEndDate(course), course.endAt)}`,
-		ctz: COURSE_TIME_ZONE,
+		ctz: SEOUL_TIME_ZONE,
 		details: buildVisitOrderText(course)
 	});
 
@@ -70,7 +69,7 @@ export function buildCourseIcs(course: Course, stampedAt: Date) {
 		"CALSCALE:GREGORIAN",
 		"METHOD:PUBLISH",
 		"BEGIN:VTIMEZONE",
-		`TZID:${COURSE_TIME_ZONE}`,
+		`TZID:${SEOUL_TIME_ZONE}`,
 		"BEGIN:STANDARD",
 		"DTSTART:19700101T000000",
 		"TZOFFSETFROM:+0900",
@@ -81,8 +80,8 @@ export function buildCourseIcs(course: Course, stampedAt: Date) {
 		"BEGIN:VEVENT",
 		`UID:course-${String(course.id)}@pop-pick`,
 		`DTSTAMP:${format(stampedAt, UTC_STAMP_FORMAT, { in: tz("UTC") })}`,
-		`DTSTART;TZID=${COURSE_TIME_ZONE}:${toCalendarDateTime(course.date, course.startAt)}`,
-		`DTEND;TZID=${COURSE_TIME_ZONE}:${toCalendarDateTime(toCourseEndDate(course), course.endAt)}`,
+		`DTSTART;TZID=${SEOUL_TIME_ZONE}:${toCalendarDateTime(course.date, course.startAt)}`,
+		`DTEND;TZID=${SEOUL_TIME_ZONE}:${toCalendarDateTime(toCourseEndDate(course), course.endAt)}`,
 		`SUMMARY:${escapeIcsText(course.title)}`,
 		`LOCATION:${escapeIcsText(course.regionLabel)}`,
 		`DESCRIPTION:${escapeIcsText(buildVisitOrderText(course))}`,

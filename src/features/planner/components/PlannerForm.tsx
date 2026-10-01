@@ -19,7 +19,9 @@ import {
 	type TripDuration
 } from "@/shared/model/trip-preference";
 import { AlertDialog } from "@/shared/ui/AlertDialog";
-import { ChoiceChip } from "@/shared/ui/ChoiceChip";
+import { BottomActionBar } from "@/shared/ui/BottomActionBar";
+import { Button } from "@/shared/ui/Button";
+import { ChoiceChipGrid } from "@/shared/ui/ChoiceChipGrid";
 import { Select } from "@/shared/ui/Select";
 
 import { useCourseDraftUrlSync } from "../hooks/useCourseDraftUrlSync";
@@ -31,23 +33,22 @@ import {
 	toGeneratePlannerRequest
 } from "../model/course-request";
 import { toExpiredConditionMessage, toGenerateFailureMessage } from "../model/generate-failure";
-import { type PlannerFormData, toggleOptionId } from "../model/planner-form";
+import { PLANNER_FORM_TITLE, type PlannerFormData, toChoiceOptions, toggleOptionId } from "../model/planner-form";
 import { ConditionHint } from "./ConditionHint";
 import { ConditionSection } from "./ConditionSection";
 import { DateField } from "./DateField";
 import { GeneratingView } from "./GeneratingView";
 import { NoteSection } from "./NoteSection";
-import { OptionChipGroup } from "./OptionChipGroup";
 
-const PLANNER_FORM_TITLE = "취향 분석 온보딩";
+const COMPANION_OPTIONS = COMPANION_TYPES.map((companion) => ({
+	value: companion,
+	label: COMPANION_TYPE_LABELS[companion]
+}));
+const DURATION_OPTIONS = TRIP_DURATIONS.map((duration) => ({ value: duration, label: TRIP_DURATION_LABELS[duration] }));
 
 interface PlannerFormProps {
 	form: PlannerFormData;
 	initialDraft: PlannerDraft;
-}
-
-function formatStartTimeLabel(startAt: string) {
-	return startAt;
 }
 
 export function PlannerForm({ form, initialDraft }: PlannerFormProps) {
@@ -111,7 +112,7 @@ export function PlannerForm({ form, initialDraft }: PlannerFormProps) {
 		setValue("areaId", areaId);
 	};
 
-	const handleCompanionChange = (companion: CompanionType) => () => {
+	const handleCompanionChange = (companion: CompanionType) => {
 		setValue("companion", companion);
 	};
 
@@ -123,7 +124,7 @@ export function PlannerForm({ form, initialDraft }: PlannerFormProps) {
 		setValue("activityIds", toggleOptionId(form.activities, getValues("activityIds"), activityId));
 	};
 
-	const handleDurationChange = (duration: TripDuration) => () => {
+	const handleDurationChange = (duration: TripDuration) => {
 		setValue("duration", duration);
 	};
 
@@ -214,6 +215,10 @@ export function PlannerForm({ form, initialDraft }: PlannerFormProps) {
 		resetGeneration();
 	};
 
+	const areaOptions = toChoiceOptions(form.areas);
+	const categoryOptions = toChoiceOptions(form.categories);
+	const activityOptions = toChoiceOptions(form.activities);
+
 	return (
 		<>
 			{isGenerating && <GeneratingView onCancel={handleGenerateCancel} />}
@@ -221,7 +226,7 @@ export function PlannerForm({ form, initialDraft }: PlannerFormProps) {
 				<PageHeader title={PLANNER_FORM_TITLE} fallbackPath={PLANNER_PATH} isSticky />
 				<form onSubmit={handleSubmit} className="flex flex-1 flex-col">
 					<div className="flex flex-col items-center px-5 pt-1.75 text-center">
-						<Image src="/illustrations/planner-map-pin.svg" alt="" width={111} height={111} loading="eager" />
+						<Image src="/images/illustrations/planner-map-pin.svg" alt="" width={111} height={111} loading="eager" />
 						<h1 className="mt-2 text-h1 leading-8 text-text-1">어떤 코스를 원하세요?</h1>
 						<p className="mt-3 text-b2-14 whitespace-pre-line text-text-4">
 							{"조건을 알려주면 AI가\n이동 동선까지 계획해드려요."}
@@ -229,41 +234,36 @@ export function PlannerForm({ form, initialDraft }: PlannerFormProps) {
 					</div>
 					<div className="flex flex-col gap-10 px-5 pt-10 pb-12.25">
 						<ConditionSection titleId={areaTitleId} title="지역" trailing={<ConditionHint text="한 곳만 선택 가능" />}>
-							<OptionChipGroup
+							<ChoiceChipGrid
 								type="radio"
 								name="area"
 								labelledBy={areaTitleId}
-								options={form.areas}
-								selectedIds={draft.areaId === null ? [] : [draft.areaId]}
+								options={areaOptions}
+								selectedValues={draft.areaId === null ? [] : [draft.areaId]}
 								onToggle={handleAreaChange}
 							/>
 						</ConditionSection>
 						<ConditionSection titleId={companionTitleId} title="동행 유형">
-							<div role="radiogroup" aria-labelledby={companionTitleId} className="grid grid-cols-2 gap-1.75">
-								{COMPANION_TYPES.map((companion) => (
-									<ChoiceChip
-										key={companion}
-										type="radio"
-										name="companion"
-										value={companion}
-										label={COMPANION_TYPE_LABELS[companion]}
-										checked={draft.companion === companion}
-										onChange={handleCompanionChange(companion)}
-									/>
-								))}
-							</div>
+							<ChoiceChipGrid
+								type="radio"
+								name="companion"
+								labelledBy={companionTitleId}
+								options={COMPANION_OPTIONS}
+								selectedValues={draft.companion === null ? [] : [draft.companion]}
+								onToggle={handleCompanionChange}
+							/>
 						</ConditionSection>
 						<ConditionSection
 							titleId={categoryTitleId}
 							title="관심 카테고리"
 							trailing={<ConditionHint text="복수선택 가능" />}
 						>
-							<OptionChipGroup
+							<ChoiceChipGrid
 								type="checkbox"
 								name="category"
 								labelledBy={categoryTitleId}
-								options={form.categories}
-								selectedIds={draft.categoryIds}
+								options={categoryOptions}
+								selectedValues={draft.categoryIds}
 								onToggle={handleCategoryToggle}
 							/>
 						</ConditionSection>
@@ -272,12 +272,12 @@ export function PlannerForm({ form, initialDraft }: PlannerFormProps) {
 							title="선호 활동"
 							trailing={<ConditionHint text="복수선택 가능" />}
 						>
-							<OptionChipGroup
+							<ChoiceChipGrid
 								type="checkbox"
 								name="activity"
 								labelledBy={activityTitleId}
-								options={form.activities}
-								selectedIds={draft.activityIds}
+								options={activityOptions}
+								selectedValues={draft.activityIds}
 								onToggle={handleActivityToggle}
 							/>
 						</ConditionSection>
@@ -294,7 +294,7 @@ export function PlannerForm({ form, initialDraft }: PlannerFormProps) {
 									options={startTimes}
 									value={draft.startAt ?? undefined}
 									onChange={handleStartAtChange}
-									formatOptionLabel={formatStartTimeLabel}
+									formatOptionLabel={String}
 									label="시작 시간"
 									labelledBy={scheduleTitleId}
 									size="field"
@@ -302,32 +302,22 @@ export function PlannerForm({ form, initialDraft }: PlannerFormProps) {
 							</div>
 						</ConditionSection>
 						<ConditionSection titleId={durationTitleId} title="가능한 소요 시간">
-							<div role="radiogroup" aria-labelledby={durationTitleId} className="grid grid-cols-2 gap-1.75">
-								{TRIP_DURATIONS.map((duration) => (
-									<ChoiceChip
-										key={duration}
-										type="radio"
-										name="duration"
-										value={duration}
-										label={TRIP_DURATION_LABELS[duration]}
-										checked={draft.duration === duration}
-										onChange={handleDurationChange(duration)}
-									/>
-								))}
-							</div>
+							<ChoiceChipGrid
+								type="radio"
+								name="duration"
+								labelledBy={durationTitleId}
+								options={DURATION_OPTIONS}
+								selectedValues={draft.duration === null ? [] : [draft.duration]}
+								onToggle={handleDurationChange}
+							/>
 						</ConditionSection>
 						<NoteSection note={draft.note} onChange={handleNoteChange} />
 					</div>
-					<div className="sticky bottom-0 z-40 mt-auto rounded-t-3xl bg-bg-1 px-4 pt-4 pb-float-gap shadow-bar">
-						<button
-							ref={submitButtonRef}
-							type="submit"
-							disabled={!canSubmit}
-							className="flex h-13 w-full items-center justify-center rounded-xl bg-primary text-h4 text-text-w focus-ring transition-colors not-disabled:hover:bg-primary-strong disabled:bg-bg-4 disabled:text-text-6"
-						>
+					<BottomActionBar>
+						<Button ref={submitButtonRef} type="submit" size="xl" disabled={!canSubmit} className="w-full">
 							AI 코스 생성하기
-						</button>
-					</div>
+						</Button>
+					</BottomActionBar>
 				</form>
 			</div>
 			<AlertDialog

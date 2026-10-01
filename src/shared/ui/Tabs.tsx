@@ -1,12 +1,12 @@
 "use client";
 
 import * as m from "motion/react-m";
-import { type KeyboardEvent, type ReactNode, useEffect, useRef, useState } from "react";
+import { type KeyboardEvent, useEffect, useRef, useState } from "react";
 
-export interface TabItem<T extends string> {
+interface TabItem<T extends string> {
 	value: T;
 	id: string;
-	label: ReactNode;
+	label: string;
 }
 
 interface TabsProps<T extends string> {
@@ -106,9 +106,10 @@ export function Tabs<T extends string>({ items, value, panelId, ariaLabel, onCha
 						aria-controls={panelId}
 						tabIndex={isCurrent ? 0 : -1}
 						onClick={handleTabClick(item.value)}
-						className="h-10 px-1 text-b2-16 text-text-4 focus-ring transition-colors not-aria-selected:hover:text-text-2 aria-selected:text-b1-16 aria-selected:text-primary"
+						data-label={item.label}
+						className="label-width-stable h-10 px-1 text-b2-16 text-text-4 focus-ring transition-colors not-aria-selected:hover:text-text-2 aria-selected:text-b1-16 aria-selected:text-primary"
 					>
-						{item.label}
+						<span>{item.label}</span>
 					</button>
 				);
 			})}
