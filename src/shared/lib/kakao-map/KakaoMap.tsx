@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/Button";
@@ -36,7 +36,7 @@ interface KakaoMapCenterProps extends KakaoMapCommonProps {
 	level?: number;
 }
 
-export type KakaoMapProps = KakaoMapFitProps | KakaoMapCenterProps;
+type KakaoMapProps = KakaoMapFitProps | KakaoMapCenterProps;
 
 const NO_MARKERS: readonly KakaoMarkerData[] = [];
 const FIT_PADDING_PX = 20;
@@ -121,18 +121,7 @@ export function KakaoMap({
 		session?.setMyPosition(myPosition);
 	}, [session, myPosition]);
 
-	const contextValue = useMemo(
-		() => ({
-			handle:
-				session === null
-					? null
-					: {
-							sdk: session.sdk,
-							map: session.map
-						}
-		}),
-		[session]
-	);
+	const contextValue = { handle: session === null ? null : { sdk: session.sdk, map: session.map } };
 
 	if (status === "error") {
 		return (

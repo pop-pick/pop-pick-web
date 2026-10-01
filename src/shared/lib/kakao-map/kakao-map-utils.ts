@@ -5,10 +5,7 @@ export type KakaoLatLngLiteral = {
 	lng: number;
 };
 
-type KakaoMapLibrary = "services" | "clusterer" | "drawing";
-
 const KAKAO_MAP_SDK_URL = "https://dapi.kakao.com/v2/maps/sdk.js";
-const KAKAO_MAP_LIBRARIES: readonly KakaoMapLibrary[] = ["clusterer"];
 export const KAKAO_MAP_DEFAULT_LEVEL = 3;
 
 export const SEOUL_CENTER: KakaoLatLngLiteral = { lat: 37.5665, lng: 126.978 };
@@ -23,12 +20,7 @@ export function readKakaoMapKey() {
 }
 
 export function buildKakaoMapSdkUrl(appkey: string) {
-	const params = new URLSearchParams({ appkey, autoload: "false" });
-
-	if (KAKAO_MAP_LIBRARIES.length > 0) {
-		params.set("libraries", KAKAO_MAP_LIBRARIES.join(","));
-	}
-
+	const params = new URLSearchParams({ appkey, autoload: "false", libraries: "clusterer" });
 	return `${KAKAO_MAP_SDK_URL}?${params.toString()}`;
 }
 

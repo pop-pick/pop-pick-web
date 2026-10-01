@@ -1,5 +1,3 @@
-"use client";
-
 import { KakaoMapError } from "./kakao-map-error";
 import {
 	buildPinElement,
@@ -33,7 +31,7 @@ export type KakaoClusterOptions = {
 	minLevel: number;
 };
 
-export type KakaoMapViewOptions = {
+type KakaoMapViewOptions = {
 	center: KakaoLatLngLiteral;
 	level: number;
 	cluster?: KakaoClusterOptions;
