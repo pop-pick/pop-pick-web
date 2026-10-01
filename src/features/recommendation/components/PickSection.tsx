@@ -10,6 +10,8 @@ import { PickCard } from "./PickCard";
 
 const CAROUSEL_OPTIONS = { align: "start", loop: true, watchFocus: false } as const;
 const AUTOPLAY_DELAY_MS = 3000;
+const STOP_AUTOPLAY_LABEL = "자동 넘김 멈추기";
+const START_AUTOPLAY_LABEL = "자동 넘김 다시 시작";
 
 interface PickSectionProps {
 	nickname: string | null;
@@ -42,7 +44,6 @@ export function PickSection({ nickname, recommendations }: PickSectionProps) {
 	}, [emblaApi, isPlaying, recommendations]);
 
 	const handleCardToggle = (popupId: number) => () => {
-		stopAutoplay();
 		setExpandedPopupId((currentPopupId) => (currentPopupId === popupId ? null : popupId));
 	};
 
@@ -70,9 +71,12 @@ export function PickSection({ nickname, recommendations }: PickSectionProps) {
 						<button
 							type="button"
 							onClick={handleAutoplayToggle}
-							className="sr-only rounded-sm text-b3-12 text-text-4 focus-ring focus-visible:not-sr-only"
+							className="sr-only grid rounded-sm text-b3-12 text-text-4 focus-ring focus-visible:not-sr-only"
 						>
-							{isPlaying ? "자동 넘김 멈추기" : "자동 넘김 다시 시작"}
+							<span className="col-start-1 row-start-1">{isPlaying ? STOP_AUTOPLAY_LABEL : START_AUTOPLAY_LABEL}</span>
+							<span aria-hidden className="invisible col-start-1 row-start-1">
+								{isPlaying ? START_AUTOPLAY_LABEL : STOP_AUTOPLAY_LABEL}
+							</span>
 						</button>
 					)}
 					<p className="text-b3-12 text-text-4">총 {recommendations.length}개 추천됨</p>
