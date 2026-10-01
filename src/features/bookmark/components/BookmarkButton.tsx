@@ -4,20 +4,23 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import HeartIcon from "@/shared/assets/icons/heart.svg";
+import HeartFillIcon from "@/shared/assets/icons/heart-fill.svg";
 import type { BookmarkButtonSize } from "@/shared/components/BookmarkSlot";
 import { buildLoginPath } from "@/shared/model/login-path";
-import { LOGIN_CONFIRM_LABEL, LOGIN_REQUIRED_MESSAGE } from "@/shared/model/login-prompt";
 import { AlertDialog } from "@/shared/ui/AlertDialog";
 import { IconButton } from "@/shared/ui/IconButton";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
+import { useToggleBookmark } from "../hooks/useToggleBookmark";
+import { type BookmarkDialog, getBookmarkDialogCopy, resolveIntent } from "../model/bookmark-dialog";
+
 interface BookmarkButtonProps {
 	mode: "guest" | "member" | "pending";
+	popupId: number;
 	popupTitle: string;
+	isBookmarked: boolean | null;
 	size?: BookmarkButtonSize;
 }
-
-type LoginDialogState = "closed" | "open" | "closing";
 
 const ICON_SIZES: Record<BookmarkButtonSize, 20 | 24> = {
 	sm: 20,
@@ -25,50 +28,73 @@ const ICON_SIZES: Record<BookmarkButtonSize, 20 | 24> = {
 	lg: 24
 };
 
-export function BookmarkButton({ mode, popupTitle, size = "lg" }: BookmarkButtonProps) {
+export function BookmarkButton({ mode, popupId, popupTitle, isBookmarked, size = "lg" }: BookmarkButtonProps) {
 	const router = useRouter();
-	const [loginDialogState, setLoginDialogState] = useState<LoginDialogState>("closed");
-	const isGuest = mode === "guest";
+	const [dialog, setDialog] = useState<BookmarkDialog | null>(null);
+	const [isDialogOpen, setIsDialogOpen] = useState(false);
+	const { mutate: toggleBookmark, isPending, error } = useToggleBookmark(popupId);
+	const isBookmarkUnknown = isBookmarked === null && mode !== "guest";
+	const isUnavailable = mode === "pending" || isPending || isBookmarkUnknown;
+
+	const openDialog = (nextDialog: BookmarkDialog) => {
+		setDialog(nextDialog);
+		setIsDialogOpen(true);
+	};
+
+	const handleToggleError = () => {
+		openDialog("failure");
+	};
 
 	const handleBookmarkClick = () => {
-		if (isGuest) {
-			setLoginDialogState("open");
+		if (!isUnavailable) {
+			openDialog(resolveIntent({ isMember: mode === "member", isBookmarked: isBookmarked === true }));
 		}
 	};
 
-	const handleLoginConfirm = () => {
-		setLoginDialogState("closing");
-		router.push(buildLoginPath(`${window.location.pathname}${window.location.search}`));
+	const handleDialogConfirm = () => {
+		setIsDialogOpen(false);
+
+		if (dialog === "login-required") {
+			router.push(buildLoginPath(`${window.location.pathname}${window.location.search}`));
+		}
+
+		if (dialog === "add" || dialog === "remove") {
+			toggleBookmark(dialog === "add", { onError: handleToggleError });
+		}
 	};
 
-	const handleLoginCancel = () => {
-		setLoginDialogState("closing");
+	const handleDialogCancel = () => {
+		setIsDialogOpen(false);
 	};
 
-	const handleLoginDialogClosed = () => {
-		setLoginDialogState("closed");
+	const handleDialogClosed = () => {
+		setDialog(null);
 	};
+
+	const dialogCopy = dialog === null ? null : getBookmarkDialogCopy(dialog, error);
 
 	return (
 		<>
 			<IconButton
-				label={isGuest ? `${popupTitle} 찜` : `${popupTitle} 찜, 준비 중`}
+				label={`${popupTitle} 찜`}
 				variant="outline"
 				size={size}
-				aria-disabled={isGuest ? undefined : true}
+				aria-pressed={isBookmarked === true}
+				aria-disabled={isUnavailable || undefined}
+				aria-busy={isPending || isBookmarkUnknown || undefined}
 				onClick={handleBookmarkClick}
 			>
-				<SvgIcon icon={HeartIcon} size={ICON_SIZES[size]} />
+				<SvgIcon icon={isBookmarked === true ? HeartFillIcon : HeartIcon} size={ICON_SIZES[size]} />
 			</IconButton>
-			{loginDialogState !== "closed" && (
+			{dialogCopy !== null && (
 				<AlertDialog
-					open={loginDialogState === "open"}
-					message={LOGIN_REQUIRED_MESSAGE}
-					confirmLabel={LOGIN_CONFIRM_LABEL}
-					closeLabel="닫기"
-					onConfirm={handleLoginConfirm}
-					onCancel={handleLoginCancel}
-					onClosed={handleLoginDialogClosed}
+					open={isDialogOpen}
+					message={dialogCopy.message}
+					confirmLabel={dialogCopy.confirmLabel}
+					closeLabel={dialogCopy.closeLabel}
+					onConfirm={handleDialogConfirm}
+					onCancel={dialog === "failure" ? undefined : handleDialogCancel}
+					onClosed={handleDialogClosed}
 				/>
 			)}
 		</>

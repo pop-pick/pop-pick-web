@@ -3,7 +3,7 @@ import { Suspense } from "react";
 
 import { LogoutMenuItem } from "@/features/auth/components/LogoutMenuItem";
 import { RequireAuth } from "@/features/auth/components/RequireAuth";
-import { BookmarkListPreparing } from "@/features/bookmark/components/BookmarkListPreparing";
+import { BookmarkList } from "@/features/bookmark/components/BookmarkList";
 import { BookmarkSlotProvider } from "@/features/bookmark/components/BookmarkSlotProvider";
 import { RecentPopupList } from "@/features/popup/components/RecentPopupList";
 import { MyPageMenu } from "@/shared/components/MyPageMenu";
@@ -22,7 +22,7 @@ export default function MyPage() {
 			<RequireAuth nextPath={MY_PAGE_PATH} fallback={<MyPageSkeleton />}>
 				<Suspense>
 					<BookmarkSlotProvider mode="member">
-						<MyPageTabs bookmarkPanel={<BookmarkListPreparing />} recentPanel={<RecentPopupList />} />
+						<MyPageTabs bookmarkPanel={<BookmarkList />} recentPanel={<RecentPopupList />} />
 					</BookmarkSlotProvider>
 				</Suspense>
 				<MyPageMenu logoutItem={<LogoutMenuItem />} />
