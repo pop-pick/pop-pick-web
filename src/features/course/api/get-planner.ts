@@ -80,7 +80,6 @@ export function toCourse(planner: PlannerResponse) {
 			title: stop.title,
 			arriveAt: stop.visitAt,
 			address: stop.address,
-			reason: stop.reason,
 			position: { lat: stop.latitude, lng: stop.longitude }
 		})),
 		legs: toLegs(planner.stops)

@@ -57,7 +57,7 @@ export function GeneratingSpinner() {
 		<div className="relative size-22.5">
 			{isPosterShown && (
 				<Image
-					src="/illustrations/planner-generating-ring.svg"
+					src="/images/illustrations/planner-generating-ring.svg"
 					alt=""
 					width={ANIMATION_SIZE}
 					height={ANIMATION_SIZE}

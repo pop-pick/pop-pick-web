@@ -4,6 +4,9 @@ import { useReducedMotion } from "motion/react";
 import * as m from "motion/react-m";
 import { type MouseEvent, useEffect, useId, useRef, useState } from "react";
 
+import { BottomActionBar } from "@/shared/ui/BottomActionBar";
+import { Button } from "@/shared/ui/Button";
+
 import { buildProgressPlan, type ProgressPlan } from "../model/generating-progress";
 import { GENERATING_STEPS, toStepState } from "../model/generating-steps";
 import { GeneratingSpinner } from "./GeneratingSpinner";
@@ -103,15 +106,11 @@ export function GeneratingView({ onCancel }: GeneratingViewProps) {
 					{`${activeStepLabel} 진행 중`}
 				</p>
 			</section>
-			<div className="sticky bottom-0 mt-auto rounded-t-3xl bg-bg-1 px-4 pt-4 pb-float-gap shadow-bar">
-				<button
-					type="button"
-					onClick={handleCancelClick}
-					className="flex h-13 w-full items-center justify-center rounded-xl border border-divider-2 bg-bg-1 text-h4 text-text-3 focus-ring transition-colors hover:bg-bg-2"
-				>
+			<BottomActionBar>
+				<Button variant="outlineMuted" size="xl" onClick={handleCancelClick} className="w-full">
 					취소하기
-				</button>
-			</div>
+				</Button>
+			</BottomActionBar>
 		</section>
 	);
 }

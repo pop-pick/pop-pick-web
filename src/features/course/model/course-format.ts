@@ -3,7 +3,7 @@ import { ko } from "date-fns/locale";
 
 import { parseDateOnlyOrThrow } from "@/shared/lib/date";
 
-import type { Course, CourseLeg, CourseStop, CourseSummary } from "./course";
+import type { Course, CourseLeg, CourseSummary } from "./course";
 
 const METERS_PER_KILOMETER = 1000;
 
@@ -26,10 +26,6 @@ export function formatCourseDate(date: string) {
 export function toCourseDurationParts(course: CourseSummary) {
 	const duration = formatDuration(course.totalMinutes);
 	return [`약 ${duration}(${course.startAt} ~ ${course.endAt}`, `팝업 ${String(course.stopCount)}곳)`];
-}
-
-export function toStopDetailParts(stop: CourseStop) {
-	return stop.address === null ? [] : [stop.address];
 }
 
 function formatDistance(meters: number) {

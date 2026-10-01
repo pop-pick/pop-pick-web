@@ -1,6 +1,6 @@
 import { GENERATING_STEPS } from "./generating-steps";
 
-export interface ProgressKeyframe {
+interface ProgressKeyframe {
 	atMs: number;
 	/** 0부터 1까지 */
 	ratio: number;

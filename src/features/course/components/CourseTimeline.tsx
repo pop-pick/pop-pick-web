@@ -1,3 +1,5 @@
+import { Badge } from "@/shared/ui/Badge";
+
 import type { Course } from "../model/course";
 import { findLegFrom, formatLeg } from "../model/course-format";
 import { CourseStopCard } from "./CourseStopCard";
@@ -16,10 +18,10 @@ export function CourseTimeline({ course }: CourseTimelineProps) {
 				return (
 					<li key={stop.order} className="relative flex flex-col">
 						<div className="flex items-start gap-3">
-							<p className="w-11.75 shrink-0 rounded-lg bg-primary-subtle py-0.75 text-center text-b2-12 text-primary">
+							<Badge className="w-11.75">
 								<span className="sr-only">{`${String(stop.order)}번째, `}</span>
 								<time>{stop.arriveAt}</time>
-							</p>
+							</Badge>
 							<CourseStopCard stop={stop} />
 						</div>
 						{leg !== null && <p className="ml-14.75 py-4 text-center text-b3-12 text-text-5">{formatLeg(leg)}</p>}
