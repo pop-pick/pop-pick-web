@@ -32,16 +32,15 @@
 
 아직 채우지 못한 자리다.
 
-| 문서                                                        | 비어 있는 것                                 |
-| ----------------------------------------------------------- | -------------------------------------------- |
-| `product/PRD.md`                                            | 성공 기준                                    |
-| `product/SPEC.md`                                           | 추천 이유 글자 수 상한                       |
-| `design/DESIGN.md`                                          | 인상과 레퍼런스, 다크 모드                   |
-| `design/DESIGN-SPEC.md`                                     | 아직 만들지 않은 공통 컴포넌트 후보의 규칙   |
-| `architecture/recommendation.md`, `popup.md`, `bookmark.md` | 손으로 둔 타입. 백엔드가 API를 만들면 바꾼다 |
-| `release/RUNBOOK.md`                                        | 도메인이 정해진 뒤의 연결 절차               |
-| `release/SEO.md`                                            | 도메인                                       |
-| `release/PRIVACY.md`                                        | 보관 기간, 문의처, 시행일                    |
+| 문서                             | 비어 있는 것                                                         |
+| -------------------------------- | -------------------------------------------------------------------- |
+| `product/PRD.md`                 | 성공 기준                                                            |
+| `product/SPEC.md`                | 추천 이유 글자 수 상한                                               |
+| `design/DESIGN.md`               | 인상과 레퍼런스, 다크 모드                                           |
+| `architecture/recommendation.md` | 추천과 인기, 지역 요약 API의 응답 타입. 백엔드가 API를 만들면 정한다 |
+| `release/RUNBOOK.md`             | 도메인이 정해진 뒤의 연결 절차                                       |
+| `release/SEO.md`                 | 도메인                                                               |
+| `release/PRIVACY.md`             | 보관 기간, 문의처, 시행일                                            |
 
 ## 새 문서를 추가할 때
 
