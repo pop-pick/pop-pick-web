@@ -2,7 +2,6 @@ import { format, isSameYear } from "date-fns";
 
 import { parseDateOnlyOrThrow } from "@/shared/lib/date";
 
-const TEN_THOUSAND = 10000;
 const FULL_DATE_FORMAT = "yyyy.MM.dd";
 const MONTH_DAY_FORMAT = "MM.dd";
 
@@ -31,16 +30,6 @@ export function formatDetailPeriod(startDate: string | null, endDate: string | n
 	}
 
 	return openingHours === null ? dateRange : `${dateRange} (${openingHours})`;
-}
-
-export function formatViewCount(viewCount: number) {
-	if (viewCount < TEN_THOUSAND) {
-		return `조회수 ${viewCount.toLocaleString("ko-KR")}`;
-	}
-
-	const tenThousands = Math.floor((viewCount / TEN_THOUSAND) * 10) / 10;
-
-	return `조회수 ${String(tenThousands)}만`;
 }
 
 export function formatEntryFee(entryFee: number | null) {

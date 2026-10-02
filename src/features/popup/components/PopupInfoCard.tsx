@@ -16,15 +16,15 @@ export function PopupInfoCard({ popup }: PopupInfoCardProps) {
 	const entryFee = formatEntryFee(popup.entryFee);
 	const reservation = popup.reservationType === "UNKNOWN" ? null : RESERVATION_DETAIL_LABELS[popup.reservationType];
 
-	if (popup.addressRoad === null && period === null && entryFee === null && reservation === null) {
+	if (popup.address === null && period === null && entryFee === null && reservation === null) {
 		return null;
 	}
 
 	return (
 		<dl className="flex flex-col gap-3 rounded-2xl border border-divider-2 bg-bg-1 p-4">
-			{popup.addressRoad !== null && (
+			{popup.address !== null && (
 				<PopupInfoRow icon={MapPinIcon} label="주소">
-					{popup.addressRoad}
+					{popup.address}
 				</PopupInfoRow>
 			)}
 			{period !== null && (

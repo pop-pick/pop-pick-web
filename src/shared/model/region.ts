@@ -9,7 +9,3 @@ export const REGION_LABELS: Record<Region, string> = {
 	yongsan: "용산",
 	seongsu: "성수"
 };
-
-export function isRegion(value: string | null): value is Region {
-	return value !== null && REGIONS.includes(value as Region);
-}

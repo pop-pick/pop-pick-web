@@ -4,15 +4,17 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import type { PopupSummary } from "./popup";
 
 const STORAGE_KEY = "pp-recent-popups";
-const STORAGE_VERSION = 1;
+const STORAGE_VERSION = 2;
 const RECENT_POPUP_LIMIT = 10;
+
+export type RecentPopup = Omit<PopupSummary, "isBookmarked">;
 
 type RecentPopupsLoadStatus = "loading" | "ready" | "failed";
 
 interface RecentPopupsState {
-	items: PopupSummary[];
+	items: RecentPopup[];
 	loadStatus: RecentPopupsLoadStatus;
-	addRecentPopup: (popup: PopupSummary) => void;
+	addRecentPopup: (popup: RecentPopup) => void;
 	clearRecentPopups: () => void;
 }
 
@@ -44,6 +46,7 @@ export const useRecentPopupsStore = create<RecentPopupsState>()(
 			version: STORAGE_VERSION,
 			storage: createJSONStorage(() => sessionStorage),
 			partialize: (state) => ({ items: state.items }),
+			migrate: () => ({ items: [] }),
 			skipHydration: true,
 			onRehydrateStorage: () => (_state, error) => {
 				if (error !== undefined) {

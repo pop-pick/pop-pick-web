@@ -69,7 +69,7 @@ export function MapPopupCard({ popup, href, onClose }: MapPopupCardProps) {
 					</div>
 				</Link>
 				<div className="relative shrink-0">
-					<BookmarkSlot popupId={popup.id} popupTitle={popup.title} size="md" />
+					<BookmarkSlot popupId={popup.id} popupTitle={popup.title} isBookmarked={popup.isBookmarked} size="md" />
 				</div>
 			</div>
 		</m.section>

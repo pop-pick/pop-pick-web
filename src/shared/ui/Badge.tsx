@@ -7,7 +7,8 @@ const badgeVariants = tv({
 	variants: {
 		tone: {
 			primary: "bg-primary-subtle text-primary",
-			region: "bg-region-subtle text-region"
+			region: "bg-region-subtle text-region",
+			neutral: "bg-bg-3 text-text-4"
 		}
 	},
 	defaultVariants: {
