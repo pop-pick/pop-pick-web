@@ -42,7 +42,7 @@ function renderExploreList(url: string) {
 	);
 }
 
-test("목록 뷰에서 검색어를 넣고 Enter를 누르면 그 검색어로 찾은 팝업만 보인다", async () => {
+test("TC-008 목록 화면에서 검색어를 넣고 Enter를 누르면 그 검색어로 찾은 팝업만 보인다", async () => {
 	server.use(
 		http.get(POPUPS_URL, ({ request }) => {
 			const keyword = new URL(request.url).searchParams.get("keyword");
@@ -79,11 +79,12 @@ test("목록 끝에 닿으면 받은 커서로 다음 페이지를 이어 붙인
 	expect(screen.getAllByRole("listitem")).toHaveLength(2);
 });
 
-test("검색어가 있는데 결과가 비면 검색 결과 없음 화면을 보인다", async () => {
+test("TC-010 검색어가 있는데 결과가 비면 검색 결과 없음 안내를 보인다", async () => {
 	server.use(http.get(POPUPS_URL, () => apiSuccess(buildPage([]))));
 	renderExploreList("/explore?view=list&q=없는팝업");
 
 	expect(await screen.findByText("검색 결과가 없습니다.", { ignore: ".sr-only" })).toBeInTheDocument();
+	expect(screen.getByText(/다른 검색어로\s*다시 입력해주세요\./, { ignore: ".sr-only" })).toBeInTheDocument();
 });
 
 test("검색어 없이 결과가 비면 등록된 팝업 없음 화면을 보인다", async () => {
