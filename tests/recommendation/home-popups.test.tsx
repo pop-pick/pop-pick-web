@@ -84,3 +84,16 @@ test("회원 홈의 팝업 PICK은 응답한 팝업 중 셋을 카드로 보인�
 	expect(new Set(cardTitles).size).toBe(3);
 	expect(TITLES).toEqual(expect.arrayContaining(cardTitles));
 });
+
+test("회원 홈의 팝업 PICK을 불러오지 못하면 다시 시도로 회복한다", async () => {
+	signInAsMember();
+	server.use(
+		http.get("/api/v1/popups", () => apiError(500, "E0000"), { once: true }),
+		http.get("/api/v1/popups", () => respondWithPopups(TITLES))
+	);
+	const { user } = renderWithProviders(<HomePickSection />);
+
+	await user.click(await screen.findByRole("button", { name: "다시 시도" }));
+
+	expect(await screen.findAllByRole("article")).toHaveLength(3);
+});

@@ -11,18 +11,19 @@ interface RecentPopupRecorderProps {
 
 export function RecentPopupRecorder({ initialDetail }: RecentPopupRecorderProps) {
 	const { loadStatus, addRecentPopup } = useRecentPopups();
-	const recentPopup = pickRecentPopup(initialDetail);
 
 	useEffect(() => {
+		const recentPopup = pickRecentPopup(initialDetail);
+
 		if (loadStatus === "failed") {
-			console.warn(`[recent-popups] 기록을 불러오지 못해 팝업 ${recentPopup.id}을 남기지 않았다`);
+			console.warn(`[recent-popups] 기록을 불러오지 못해 팝업 ${String(initialDetail.id)}을 남기지 않았다`);
 			return;
 		}
 
 		if (loadStatus === "ready") {
 			addRecentPopup(recentPopup);
 		}
-	}, [loadStatus, recentPopup, addRecentPopup]);
+	}, [loadStatus, initialDetail, addRecentPopup]);
 
 	return null;
 }

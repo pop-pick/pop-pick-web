@@ -61,7 +61,7 @@ id는 양의 정수로만 읽고 선택지에 있는지는 폼 조회 뒤에 본
 **흐름.**
 
 ```
-/planner                     AI POP PICK 시작하기   /planner/new
+/planner                     나만의 코스 만들기     /planner/new
 /planner/new?{조건}          GET /planners/form     로딩이면 스켈레톤, 실패면 다시 시도
                              AI 코스 생성하기       생성 중 화면. POST /planners/generate
    201 { plannerId }                                router.push(/courses/{plannerId}?{조건})  생성 완료

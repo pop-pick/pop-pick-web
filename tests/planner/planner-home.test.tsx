@@ -18,7 +18,7 @@ async function findCourseCards() {
 	return within(await screen.findByRole("list", { name: "저장한 일정" })).findAllByRole("link");
 }
 
-test("다가오는 일정이 기본으로 보이고 다른 탭을 고르면 그 탭의 일정이 보인다", async () => {
+test("TC-025 다가오는 일정이 기본으로 보이고 카드에 날짜와 코스명, 총 소요시간, 등록일이 있으며 다른 탭을 고르면 그 탭의 일정이 보인다", async () => {
 	server.use(
 		http.get("/api/v1/planners", ({ request }) => {
 			const tab = new URL(request.url).searchParams.get("tab");
@@ -34,6 +34,7 @@ test("다가오는 일정이 기본으로 보이고 다른 탭을 고르면 그 
 	expect(screen.getByRole("tab", { name: "다가오는 일정" })).toHaveAttribute("aria-selected", "true");
 	expect(upcomingCard).toHaveTextContent("2026년 10월 3일 (토)");
 	expect(upcomingCard).toHaveTextContent("다가오는 성수 코스");
+	expect(upcomingCard).toHaveTextContent(/약 3시간 20분\(14:00 ~ 17:20.*팝업 3곳\)/);
 	expect(upcomingCard).toHaveTextContent("등록일 2026-09-28");
 	expect(upcomingCard).toHaveAttribute("href", "/courses/12");
 
@@ -47,7 +48,7 @@ test("일정이 없으면 빈 안내와 코스 만들기 링크가 보인다", a
 	server.use(http.get("/api/v1/planners", () => apiSuccess(buildPlannerPage([]))));
 	renderPlannerHome();
 
-	expect(await screen.findByRole("link", { name: /나에게 맞는 팝업 찾기/ })).toHaveAttribute("href", "/planner/new");
+	expect(await screen.findByRole("link", { name: /나만의 코스 만들기/ })).toHaveAttribute("href", "/planner/new");
 	expect(screen.queryByRole("list", { name: "저장한 일정" })).not.toBeInTheDocument();
 });
 
