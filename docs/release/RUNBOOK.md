@@ -8,17 +8,18 @@ Vercel에 배포한다. `main`이 프로덕션이다. `develop`과 `feature` 브
 
 PR은 CI(`.github/workflows/ci.yaml`) 통과 뒤에만 머지된다. Vercel 배포는 CI와 별개로 푸시마다 돈다.
 
-| 항목             | 값                                                                                                          |
-| ---------------- | ----------------------------------------------------------------------------------------------------------- |
-| Vercel 프로젝트  | `pop-pick-web` (팀 `chan9yus-projects`, Hobby)                                                              |
-| 대시보드         | https://vercel.com/chan9yus-projects/pop-pick-web                                                           |
-| GitHub 연결      | `pop-pick/pop-pick-web`. 푸시마다 자동 배포                                                                 |
-| 프로덕션 브랜치  | `main`                                                                                                      |
-| 프로덕션 URL     | https://pop-pick-web.vercel.app                                                                             |
-| `main` 별칭      | https://pop-pick-web-git-main-chan9yus-projects.vercel.app                                                  |
-| `develop` 별칭   | https://pop-pick-web-git-develop-chan9yus-projects.vercel.app                                               |
-| 브랜치 별칭 규칙 | `pop-pick-web-git-{브랜치 이름}-chan9yus-projects.vercel.app`. 브랜치가 살아 있는 동안 같은 주소를 유지한다 |
-| 빌드             | `pnpm run build`(Turbopack), Node 24.x, 빌드 캐시 사용                                                      |
+| 항목             | 값                                                                                                            |
+| ---------------- | ------------------------------------------------------------------------------------------------------------- |
+| Vercel 프로젝트  | `pop-pick-web` (팀 `chan9yus-projects`, Hobby)                                                                |
+| 대시보드         | https://vercel.com/chan9yus-projects/pop-pick-web                                                             |
+| GitHub 연결      | `pop-pick/pop-pick-web`. 푸시마다 자동 배포                                                                   |
+| 프로덕션 브랜치  | `main`                                                                                                        |
+| 프로덕션 URL     | https://pop-pick-web.vercel.app                                                                               |
+| `main` 별칭      | https://pop-pick-web-git-main-chan9yus-projects.vercel.app                                                    |
+| `develop` 별칭   | https://pop-pick-web-git-develop-chan9yus-projects.vercel.app                                                 |
+| 브랜치 별칭 규칙 | `pop-pick-web-git-{브랜치 이름}-chan9yus-projects.vercel.app`. 브랜치가 살아 있는 동안 같은 주소를 유지한다   |
+| 빌드             | `pnpm run build`(Turbopack), Node 24.x, 빌드 캐시 사용                                                        |
+| 함수 리전        | 서울(`icn1`). 대시보드 Settings 아래 Functions의 Function Region. 백엔드가 서울 GCP라 서버 렌더링 왕복이 짧다 |
 
 배포마다 `pop-pick-{해시}-chan9yus-projects.vercel.app` 형태의 고유 주소도 따로 생긴다. 특정 배포를 가리킬 때만 쓰고 공유에는 브랜치 별칭을 쓴다.
 

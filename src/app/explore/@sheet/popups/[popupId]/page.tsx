@@ -11,6 +11,13 @@ import { parsePopupId } from "@/features/popup/model/popup-id";
 
 const SHEET_TITLE_ID = "popup-sheet-title";
 
+export const revalidate = 300;
+
+/** 빌드 때는 그리지 않고 처음 열릴 때 그려 캐시한다. Next는 빈 배열이어야 런타임 ISR을 켠다 */
+export function generateStaticParams() {
+	return [];
+}
+
 const findPopupDetailOrNotFound = cache(async (rawPopupId: string) => {
 	const popupId = parsePopupId(rawPopupId);
 	const detail = popupId === null ? null : await findPopupDetail(popupId);

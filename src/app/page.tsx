@@ -1,11 +1,14 @@
+import { Suspense } from "react";
+
 import { AuthStatusSwitch } from "@/features/auth/components/AuthStatusSwitch";
 import { SessionRetry } from "@/features/auth/components/SessionRetry";
 import { readRefreshToken } from "@/features/auth/model/session-cookie";
 import { LandingDialog } from "@/features/onboarding/components/LandingDialog";
 import { HomeHeader } from "@/features/recommendation/components/HomeHeader";
 import { HomePickSection } from "@/features/recommendation/components/HomePickSection";
+import { HomePopularSection } from "@/features/recommendation/components/HomePopularSection";
 import { PickSectionSkeleton } from "@/features/recommendation/components/PickSectionSkeleton";
-import { PopularSection } from "@/features/recommendation/components/PopularSection";
+import { PopularSectionSkeleton } from "@/features/recommendation/components/PopularSectionSkeleton";
 import { TasteBanner } from "@/features/recommendation/components/TasteBanner";
 import { buildLoginPath } from "@/shared/model/login-path";
 import { ONBOARDING_FIRST_STEP_PATH } from "@/shared/model/onboarding-path";
@@ -36,7 +39,9 @@ export default async function HomePage() {
 							unavailable: hasSessionCookie ? <SessionRetry /> : null
 						}}
 					/>
-					<PopularSection />
+					<Suspense fallback={<PopularSectionSkeleton />}>
+						<HomePopularSection />
+					</Suspense>
 				</div>
 			</div>
 			<AuthStatusSwitch
