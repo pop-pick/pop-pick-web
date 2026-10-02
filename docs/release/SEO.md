@@ -33,8 +33,8 @@
 
 ## Open Graph 이미지
 
-이미지 원본은 디자이너에게 받는다. 받은 이미지를 코드에 넣는 일은 마일스톤 0.9의 메타 태그 작업에 들어간다.
+이미지 원본은 시안 파일의 OG 프레임(1200x630)이고 `public/images/brand/og.png`에 있다. 문구와 크기는 `src/shared/model/site-metadata.ts`가 정한다. 파비콘은 시안의 심볼 로고로 만든 `src/app`의 `icon.svg`와 `favicon.ico`, `apple-icon.png`다.
 
 | 할 일                       | 담당     | 상태 |
 | --------------------------- | -------- | ---- |
-| Open Graph 이미지 원본 수령 | 디자이너 | 미정 |
+| Open Graph 이미지 원본 수령 | 디자이너 | 완료 |
