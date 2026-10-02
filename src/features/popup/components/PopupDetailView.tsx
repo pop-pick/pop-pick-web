@@ -1,6 +1,3 @@
-import type { ReactNode } from "react";
-
-import { BookmarkSlot } from "@/shared/components/BookmarkSlot";
 import { tv, type VariantProps } from "@/shared/lib/tv";
 import { POPUP_CATEGORY_LABELS } from "@/shared/model/popup";
 import { buildPopupDetailPath } from "@/shared/model/popup-path";
@@ -8,8 +5,8 @@ import { REGION_LABELS } from "@/shared/model/region";
 import { Badge } from "@/shared/ui/Badge";
 import { LinkButton } from "@/shared/ui/LinkButton";
 
-import { formatViewCount } from "../model/detail-format";
-import { type PopupDetail, toPopupSummary } from "../model/popup-detail";
+import type { PopupDetail } from "../model/popup-detail";
+import { PopupDetailBookmark } from "./PopupDetailBookmark";
 import { PopupImageCarousel } from "./PopupImageCarousel";
 import { PopupInfoCard } from "./PopupInfoCard";
 import { RecentPopupRecorder } from "./RecentPopupRecorder";
@@ -28,43 +25,36 @@ const popupDetailViewVariants = tv({
 
 interface PopupDetailViewProps {
 	popup: PopupDetail;
-	matchRateSlot: ReactNode;
 	variant: NonNullable<VariantProps<typeof popupDetailViewVariants>["variant"]>;
 	titleId?: string;
 }
 
-export function PopupDetailView({ popup, matchRateSlot, variant, titleId }: PopupDetailViewProps) {
-	const hasBadgeRow = popup.category !== null || popup.region !== null || popup.viewCount !== null;
+export function PopupDetailView({ popup, variant, titleId }: PopupDetailViewProps) {
+	const hasBadgeRow = popup.category !== null || popup.region !== null;
 
 	return (
 		<div className={popupDetailViewVariants({ variant })}>
 			<div className="flex flex-col gap-8">
-				<div className="flex flex-col gap-6">
-					<div className="flex flex-col gap-5">
-						<PopupImageCarousel
-							label={`${popup.title} 사진`}
-							images={popup.imageUrls}
-							category={popup.category}
-							variant={variant}
-						/>
-						<div className="flex flex-col gap-3">
-							{hasBadgeRow && (
-								<div className="flex items-center gap-1">
-									{popup.category !== null && <Badge>{POPUP_CATEGORY_LABELS[popup.category]}</Badge>}
-									{popup.region !== null && <Badge tone="region">{REGION_LABELS[popup.region]}</Badge>}
-									{popup.viewCount !== null && (
-										<span className="ml-auto text-b3-12 text-text-4">{formatViewCount(popup.viewCount)}</span>
-									)}
-								</div>
-							)}
-							<h1 id={titleId} tabIndex={titleId === undefined ? undefined : -1} className="text-h2 text-text-1">
-								{popup.title}
-							</h1>
-							{popup.description !== null && <p className="text-b3-14 text-text-2">{popup.description}</p>}
-						</div>
-						<PopupInfoCard popup={popup} />
+				<div className="flex flex-col gap-5">
+					<PopupImageCarousel
+						label={`${popup.title} 사진`}
+						images={popup.imageUrls}
+						category={popup.category}
+						variant={variant}
+					/>
+					<div className="flex flex-col gap-3">
+						{hasBadgeRow && (
+							<div className="flex items-center gap-1">
+								{popup.category !== null && <Badge>{POPUP_CATEGORY_LABELS[popup.category]}</Badge>}
+								{popup.region !== null && <Badge tone="region">{REGION_LABELS[popup.region]}</Badge>}
+							</div>
+						)}
+						<h1 id={titleId} tabIndex={titleId === undefined ? undefined : -1} className="text-h2 text-text-1">
+							{popup.title}
+						</h1>
+						{popup.description !== null && <p className="text-b3-14 text-text-2">{popup.description}</p>}
 					</div>
-					{matchRateSlot}
+					<PopupInfoCard popup={popup} />
 				</div>
 				<div className="flex items-center gap-2.5">
 					{popup.reservationUrl !== null && (
@@ -74,13 +64,13 @@ export function PopupDetailView({ popup, matchRateSlot, variant, titleId }: Popu
 						</LinkButton>
 					)}
 					<div className="ml-auto flex shrink-0 gap-2">
-						<BookmarkSlot popupId={popup.id} popupTitle={popup.title} size="lg" />
+						<PopupDetailBookmark initialDetail={popup} />
 						<SharePopupButton path={buildPopupDetailPath(popup.id)} />
 					</div>
 				</div>
 			</div>
 			<ReliabilityNotice />
-			<RecentPopupRecorder summary={toPopupSummary(popup)} />
+			<RecentPopupRecorder initialDetail={popup} />
 		</div>
 	);
 }

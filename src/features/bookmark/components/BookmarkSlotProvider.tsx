@@ -12,8 +12,8 @@ interface BookmarkSlotProviderProps {
 }
 
 export function BookmarkSlotProvider({ mode, children }: BookmarkSlotProviderProps) {
-	const renderBookmark = ({ popupTitle, size }: BookmarkSlotProps) => (
-		<BookmarkButton mode={mode} popupTitle={popupTitle} size={size} />
+	const renderBookmark = ({ popupId, popupTitle, isBookmarked, size }: BookmarkSlotProps) => (
+		<BookmarkButton mode={mode} popupId={popupId} popupTitle={popupTitle} isBookmarked={isBookmarked} size={size} />
 	);
 
 	return <BookmarkSlotContext value={renderBookmark}>{children}</BookmarkSlotContext>;

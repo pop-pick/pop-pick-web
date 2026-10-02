@@ -4,7 +4,6 @@ import { Suspense } from "react";
 import { AuthStatusSwitch } from "@/features/auth/components/AuthStatusSwitch";
 import { BookmarkSlotProvider } from "@/features/bookmark/components/BookmarkSlotProvider";
 import { ExploreView } from "@/features/popup/components/ExploreView";
-import { PLACEHOLDER_EXPLORE_POPUPS } from "@/features/popup/model/placeholder-explore";
 import { Skeleton } from "@/shared/ui/Skeleton";
 
 export const metadata: Metadata = {
@@ -12,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default function ExplorePage() {
-	const exploreView = <ExploreView popups={PLACEHOLDER_EXPLORE_POPUPS} />;
+	const exploreView = <ExploreView />;
 	const pendingView = <BookmarkSlotProvider mode="pending">{exploreView}</BookmarkSlotProvider>;
 
 	return (

@@ -90,7 +90,7 @@ Tailwind 기본 팔레트(`zinc`, `blue` 등)는 지우지 않았지만 화면�
 | `--color-like`           | `#dc4c4c`          | 찜한 하트. 시안에서 변수에 묶이지 않은 값이라 원시 변수 없이 값을 직접 둔다. 변수로 등록할지는 미정이다 |
 | `--color-region`         | `#bd6ccf`          | 팝업 상세 지역 배지의 글자. 변수에 묶이지 않은 값이라 값을 직접 둔다                                    |
 | `--color-region-subtle`  | `#fcf0ff`          | 팝업 상세 지역 배지의 배경. 변수에 묶이지 않은 값이라 값을 직접 둔다                                    |
-| `--color-dim`            | `rgb(0 0 0 / 0.4)` | 검정 반투명 덮개. 모달 알럿과 랜딩 모달의 뒤 배경, 홈 PICK 카드 사진 위 일치율 알약                     |
+| `--color-dim`            | `rgb(0 0 0 / 0.4)` | 검정 반투명 덮개. 모달 알럿과 랜딩 모달의 뒤 배경                                                       |
 
 카카오 로그인 버튼 색 `--color-kakao`와 `-hover`, `-active`, `-foreground`는 카카오 디자인 가이드 값이라 시안과 무관하다. 구글 버튼의 테두리 `--color-google-border`(#747775)와 글자 `--color-google-foreground`(#1f1f1f)는 구글 로그인 브랜드 규정 값이고 시안 466:4081과 같다.
 
@@ -219,7 +219,7 @@ import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 카카오 로그인 버튼의 말풍선 `kakao-talk.svg`도 이 폴더에 있는 한 가지 색 아이콘이라 버튼 글자색 `kakao-foreground`로 칠해진다.
 
-색이 정해진 그림은 이 폴더에 넣지 않는다. 로고와 일러스트, 카테고리 대체 아이콘처럼 색이 고정되거나 그라디언트가 있는 SVG는 SVGR이 색을 `currentColor`로 바꾸면 깨진다. 이런 파일과 사진은 `public/images/` 아래 `brand`, `illustrations`, `pins`, `placeholder`에 두고 `next/image`에 경로 문자열과 `width`, `height`를 준다. 로컬 경로라 `images.remotePatterns`가 필요 없고 Next는 SVG를 최적화하지 않고 그대로 보낸다. `src/` 아래 다른 폴더에 두고 import하면 Next의 전역 타입 선언이 `any`라 타입 검사가 잘못된 경로를 잡지 못한다. 지도 핀은 SDK에 넘기는 DOM 요소라 React 컴포넌트를 쓸 수 없어 `public/images/pins/`의 `selected.svg`와 `course.svg`를 `img`로 싣는다.
+색이 정해진 그림은 이 폴더에 넣지 않는다. 로고와 일러스트, 카테고리 대체 아이콘처럼 색이 고정되거나 그라디언트가 있는 SVG는 SVGR이 색을 `currentColor`로 바꾸면 깨진다. 이런 파일과 사진은 `public/images/` 아래 `brand`, `illustrations`, `pins`에 두고 `next/image`에 경로 문자열과 `width`, `height`를 준다. 로컬 경로라 `images.remotePatterns`가 필요 없고 Next는 SVG를 최적화하지 않고 그대로 보낸다. `src/` 아래 다른 폴더에 두고 import하면 Next의 전역 타입 선언이 `any`라 타입 검사가 잘못된 경로를 잡지 못한다. 지도 핀은 SDK에 넘기는 DOM 요소라 React 컴포넌트를 쓸 수 없어 `public/images/pins/`의 `selected.svg`와 `course.svg`를 `img`로 싣는다.
 
 구글 버튼의 G 로고 `public/images/brand/google-g.png`는 시안 애셋에 있던 원형 테두리를 잘라 내고 G 둘레에 시안과 같은 여백만 남겼다. 바탕이 투명이라 hover로 버튼 바탕이 바뀌어도 G 둘레에 흰 사각이 보이지 않는다.
 

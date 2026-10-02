@@ -1,5 +1,7 @@
-export const DEFAULT_NICKNAME = "회원";
+import { format } from "date-fns";
 
-export function formatMatchRateMessage(nickname: string | null, matchRate: number) {
-	return `${nickname ?? DEFAULT_NICKNAME}님의 취향과 ${String(matchRate)}% 일치해요!`;
+import { parseDateOnlyOrThrow } from "@/shared/lib/date";
+
+export function formatEndDateLabel(endDate: string | null) {
+	return endDate === null ? "상시운영" : `${format(parseDateOnlyOrThrow(endDate), "MM.dd")} 종료`;
 }

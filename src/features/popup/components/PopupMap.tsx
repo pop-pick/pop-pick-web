@@ -2,6 +2,7 @@ import { animate, useMotionValue, useReducedMotion } from "motion/react";
 import * as m from "motion/react-m";
 import { type FocusEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
 
+import type { KakaoMarkerData } from "@/shared/lib/kakao-map/kakao-map-session";
 import type { KakaoLatLngLiteral } from "@/shared/lib/kakao-map/kakao-map-utils";
 import { KakaoMap } from "@/shared/lib/kakao-map/KakaoMap";
 import { tv } from "@/shared/lib/tv";
@@ -10,7 +11,6 @@ import { Button } from "@/shared/ui/Button";
 
 import type { ExplorePopup } from "../model/explore-popup";
 import { resolveMapView } from "../model/map-view";
-import { toPopupMarkers } from "../model/popup-markers";
 import { POSITION_STATUS_NOTICES, type PositionStatus } from "../model/position-status";
 import { CurrentPositionButton } from "./CurrentPositionButton";
 import { CARD_SLIDE_TRANSITION, MapPopupCard } from "./MapPopupCard";
@@ -31,7 +31,7 @@ const popupMapVariants = tv({
 		},
 		isListRevealed: {
 			true: {
-				list: "absolute inset-x-5 top-4 max-h-48 scrollbar-subtle overflow-y-auto rounded-2xl bg-bg-1 p-2 shadow-floating"
+				list: "absolute inset-x-5 top-4 z-20 max-h-48 scrollbar-subtle overflow-y-auto rounded-2xl bg-bg-1 p-2 shadow-floating"
 			},
 			false: { list: "sr-only" }
 		}
@@ -40,21 +40,21 @@ const popupMapVariants = tv({
 
 interface PopupMapProps {
 	popups: readonly ExplorePopup[];
+	markers: readonly KakaoMarkerData[];
 	position: KakaoLatLngLiteral | null;
 	positionStatus: PositionStatus;
 	onLocate: () => Promise<KakaoLatLngLiteral | null>;
 	buildSheetHref: (popupId: number) => string;
-	shouldFollowPosition: boolean;
 	onSwitchToList: () => void;
 }
 
 export function PopupMap({
 	popups,
+	markers,
 	position,
 	positionStatus,
 	onLocate,
 	buildSheetHref,
-	shouldFollowPosition,
 	onSwitchToList
 }: PopupMapProps) {
 	const [selectedPopupId, setSelectedPopupId] = useState<number | null>(null);
@@ -67,12 +67,11 @@ export function PopupMap({
 	const controlRowOffsetY = useMotionValue(0);
 	const shouldReduceMotion = useReducedMotion() === true;
 
-	const markers = toPopupMarkers(popups);
 	const positions = markers.map((marker) => marker.position);
 	const selectedPopup = popups.find((popup) => popup.id === selectedPopupId) ?? null;
 	const hasCard = selectedPopup !== null;
 	const positionNotice = POSITION_STATUS_NOTICES[positionStatus];
-	const cameraTarget = manualTarget ?? (shouldFollowPosition ? position : null);
+	const cameraTarget = manualTarget ?? position;
 	const cameraLevel = manualTarget === null ? MY_POSITION_LEVEL : PICKED_POPUP_LEVEL;
 	const viewProps = resolveMapView(cameraTarget, cameraLevel, positions);
 

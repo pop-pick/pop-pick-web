@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 import { EmptyState } from "@/shared/components/EmptyState";
+import { LoadFailure } from "@/shared/components/LoadFailure";
 import { PLANNER_PATH } from "@/shared/model/planner-path";
 import { LinkButton } from "@/shared/ui/LinkButton";
 import { Skeleton } from "@/shared/ui/Skeleton";
@@ -13,7 +14,6 @@ import { courseDetailQueryOptions } from "../api/get-planner";
 import { isCourseUnavailableError } from "../model/course-error";
 import { buildRegenerateHref } from "../model/course-regenerate";
 import { CourseDetail } from "./CourseDetail";
-import { CourseLoadFailure } from "./CourseLoadFailure";
 import { CourseRecommendation } from "./CourseRecommendation";
 import { CourseSaved } from "./CourseSaved";
 
@@ -57,7 +57,7 @@ export function CourseView({ courseId, view }: CourseViewProps) {
 						action={<LinkButton href={PLANNER_PATH}>플래너로 가기</LinkButton>}
 					/>
 				) : (
-					<CourseLoadFailure title="일정을 불러오지 못했어요." onRetry={handleRetry} />
+					<LoadFailure title="일정을 불러오지 못했어요." onRetry={handleRetry} />
 				)}
 			</main>
 		);

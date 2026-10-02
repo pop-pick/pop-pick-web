@@ -1,11 +1,8 @@
-import { format } from "date-fns";
-
-import { parseDateOnlyOrThrow } from "@/shared/lib/date";
 import type { KnownPopupReservationType, PopupSummary } from "@/shared/model/popup";
+import { formatEndDateLabel } from "@/shared/model/popup-format";
 import { REGION_LABELS } from "@/shared/model/region";
 
-const MONTH_DAY_FORMAT = "MM.dd";
-const ALWAYS_OPEN_LABEL = "상시운영";
+type ExplorePopupMeta = Pick<PopupSummary, "region" | "endDate" | "reservationType">;
 
 const EXPLORE_RESERVATION_LABELS: Record<KnownPopupReservationType, string> = {
 	NONE: "예약 불필요",
@@ -14,19 +11,15 @@ const EXPLORE_RESERVATION_LABELS: Record<KnownPopupReservationType, string> = {
 	BOTH: "예약 및 현장 대기"
 };
 
-function formatEndLabel(endDate: string | null) {
-	return endDate === null ? ALWAYS_OPEN_LABEL : `${format(parseDateOnlyOrThrow(endDate), MONTH_DAY_FORMAT)} 종료`;
-}
-
-function formatReservationLabel(popup: PopupSummary) {
+function formatReservationLabel(popup: ExplorePopupMeta) {
 	return popup.reservationType === "UNKNOWN" ? null : EXPLORE_RESERVATION_LABELS[popup.reservationType];
 }
 
-export function buildMapCardMetaParts(popup: PopupSummary) {
-	return [formatEndLabel(popup.endDate), formatReservationLabel(popup)].filter((part) => part !== null);
+export function buildMapCardMetaParts(popup: ExplorePopupMeta) {
+	return [formatEndDateLabel(popup.endDate), formatReservationLabel(popup)].filter((part) => part !== null);
 }
 
-export function buildListItemMetaParts(popup: PopupSummary) {
+export function buildListItemMetaParts(popup: ExplorePopupMeta) {
 	const region = popup.region === null ? null : REGION_LABELS[popup.region];
 	return [region, ...buildMapCardMetaParts(popup)].filter((part) => part !== null);
 }

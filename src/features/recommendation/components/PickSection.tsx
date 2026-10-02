@@ -88,7 +88,6 @@ export function PickSection({ nickname, recommendations }: PickSectionProps) {
 						<li key={recommendation.popup.id} onFocus={handleSlideFocus(index)} className="shrink-0 pr-4">
 							<PickCard
 								recommendation={recommendation}
-								nickname={nickname}
 								isExpanded={expandedPopupId === recommendation.popup.id}
 								imageLoading={index === 0 ? "eager" : undefined}
 								onToggle={handleCardToggle(recommendation.popup.id)}

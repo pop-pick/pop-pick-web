@@ -121,7 +121,7 @@ interface Course extends CourseSummary {
 
 ## I. Interface
 
-**컴포넌트와 훅.** 플래너 홈은 `PlannerHome`이고 목록 끝의 `CourseListMoreTrigger`가 화면에 들어오면 다음 페이지를 부른다. 코스 두 라우트는 `CourseView`에 `view`(`detail`, `saved`)를 넘기고 `CourseView`가 코스를 조회해 생성 완료 `CourseRecommendation`, 등록 완료 `CourseSaved`, 일정 상세 `CourseDetail` 중 하나를 그린다. 실패 안내와 다시 시도는 `CourseLoadFailure`다. 타임라인의 방문지 카드는 `CourseStopCard`이고 `popupId`가 있을 때만 팝업 상세 링크다. 저장은 `SaveCourseButton`이 `useConfirmCourse`로, 공유와 삭제는 `CourseDetailActions`가 `useCancelCourse`로 한다. 등록 완료의 뒤로 가기는 `useBackToPlanner`가 맡는다. 라우트 `/planner`는 `RequireAuth`와 `Suspense`의 대체 화면으로 `PlannerHomeSkeleton`을 넘긴다. 코스 주소는 다른 기능도 만들므로 `shared/model/course-path.ts`의 `buildCoursePath`와 `buildCourseSavedPath`에 있다.
+**컴포넌트와 훅.** 플래너 홈은 `PlannerHome`이고 목록 끝의 공용 `shared/components/ListMoreTrigger`가 화면에 들어오면 다음 페이지를 부른다. 코스 두 라우트는 `CourseView`에 `view`(`detail`, `saved`)를 넘기고 `CourseView`가 코스를 조회해 생성 완료 `CourseRecommendation`, 등록 완료 `CourseSaved`, 일정 상세 `CourseDetail` 중 하나를 그린다. 실패 안내와 다시 시도는 공용 `shared/components/LoadFailure`다. 타임라인의 방문지 카드는 `CourseStopCard`이고 `popupId`가 있을 때만 팝업 상세 링크다. 저장은 `SaveCourseButton`이 `useConfirmCourse`로, 공유와 삭제는 `CourseDetailActions`가 `useCancelCourse`로 한다. 등록 완료의 뒤로 가기는 `useBackToPlanner`가 맡는다. 라우트 `/planner`는 `RequireAuth`와 `Suspense`의 대체 화면으로 `PlannerHomeSkeleton`을 넘긴다. 코스 주소는 다른 기능도 만들므로 `shared/model/course-path.ts`의 `buildCoursePath`와 `buildCourseSavedPath`에 있다.
 
 ```typescript
 export function courseDetailQueryOptions(courseId: number); // ["course", "detail", courseId]

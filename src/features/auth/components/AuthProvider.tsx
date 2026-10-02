@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { type ReactNode, useEffect } from "react";
 
@@ -43,9 +44,13 @@ interface AuthProviderProps {
 	children: ReactNode;
 }
 
-/** 핸들러 등록이 첫 재발급보다 먼저여야 해서 한 이펙트 안에서 순서대로 한다 */
+/**
+ * 핸들러 등록이 첫 재발급보다 먼저여야 해서 한 이펙트 안에서 순서대로 한다.
+ * 세션 복원 전에 토큰 없이 받은 응답은 찜 여부가 전부 false라서 세션이 생기면 모든 쿼리를 다시 받는다
+ */
 export function AuthProvider({ children }: AuthProviderProps) {
 	const router = useRouter();
+	const queryClient = useQueryClient();
 
 	useEffect(() => {
 		setRefreshHandler(restoreSession);
@@ -55,6 +60,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
 			setRefreshHandler(null);
 		};
 	}, []);
+
+	useEffect(() => {
+		return useAuthStore.subscribe((state, previousState) => {
+			const hasSessionStarted = previousState.accessToken === null && state.accessToken !== null;
+
+			if (hasSessionStarted) {
+				void queryClient.invalidateQueries();
+			}
+		});
+	}, [queryClient]);
 
 	useEffect(() => {
 		return subscribeAuthExpired(() => {
