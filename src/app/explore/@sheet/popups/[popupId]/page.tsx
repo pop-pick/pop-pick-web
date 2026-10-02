@@ -8,6 +8,7 @@ import { findPopupDetail } from "@/features/popup/api/get-popup-detail";
 import { PopupDetailView } from "@/features/popup/components/PopupDetailView";
 import { PopupSheet } from "@/features/popup/components/PopupSheet";
 import { parsePopupId } from "@/features/popup/model/popup-id";
+import { SITE_OPEN_GRAPH } from "@/shared/model/site-metadata";
 
 const SHEET_TITLE_ID = "popup-sheet-title";
 
@@ -34,7 +35,12 @@ export async function generateMetadata({ params }: PageProps<"/explore/popups/[p
 	const metadata: Metadata = {
 		title: detail.title,
 		description: detail.description,
-		openGraph: detail.imageUrl === null ? null : { images: detail.imageUrl }
+		openGraph: {
+			...SITE_OPEN_GRAPH,
+			title: detail.title,
+			description: detail.description ?? SITE_OPEN_GRAPH.description,
+			images: detail.imageUrl ?? SITE_OPEN_GRAPH.images
+		}
 	};
 
 	return metadata;

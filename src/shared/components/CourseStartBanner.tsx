@@ -6,10 +6,11 @@ import { LinkButton } from "@/shared/ui/LinkButton";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 const startActionVariants = tv({
-	base: "mt-5 px-6.5",
+	base: "mt-5",
 	variants: {
 		isWide: {
-			true: "self-stretch"
+			true: "self-stretch",
+			false: "w-50.25"
 		}
 	}
 });

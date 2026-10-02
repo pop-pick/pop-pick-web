@@ -53,7 +53,7 @@ function getChecked(groupTitle: string) {
 		.map((input) => input.closest("label")?.textContent);
 }
 
-test("회원의 온보딩 값이 미리 골라지고 필수 조건을 채워 생성하면 고른 조건 그대로 요청되어 그 코스 화면으로 조건과 함께 간다", async () => {
+test("TC-014 온보딩 값이 미리 골라지고 필수 조건을 채워 생성하면 고른 조건 그대로 요청되어 그 코스 화면으로 조건과 함께 간다", async () => {
 	freezeSeoulTime("2026-10-01T10:00:00+09:00");
 	let releaseGeneration = () => {};
 	const generationReleased = new Promise<void>((resolve) => {
@@ -94,6 +94,27 @@ test("회원의 온보딩 값이 미리 골라지고 필수 조건을 채워 생
 	expect(await screen.findByRole("list", { name: "방문 순서" })).toBeInTheDocument();
 });
 
+test("TC-015 생성을 요청하면 코스를 만드는 중임을 알리는 화면에 단계 셋과 취소하기가 보인다", async () => {
+	freezeSeoulTime("2026-10-01T10:00:00+09:00");
+	server.use(
+		http.post("/api/v1/planners/generate", async () => {
+			await delay("infinite");
+			return apiSuccess({ plannerId: 12 });
+		})
+	);
+	const { user } = renderPlannerNew();
+	await waitForPlannerForm();
+	await fillRequiredConditions(user, { area: "홍대" });
+	await submitCourse(user);
+
+	const steps = await screen.findByRole("region", { name: "코스 생성 단계" });
+
+	expect(screen.getByRole("heading", { level: 1, name: /만들고 있어요/ })).toHaveFocus();
+	expect(within(steps).getAllByRole("listitem")).toHaveLength(3);
+	expect(screen.getByRole("button", { name: "취소하기" })).toBeEnabled();
+	expect(screen.getByRole("button", { name: "AI 코스 생성하기", hidden: true })).not.toBeVisible();
+});
+
 test("생성 중에 취소하면 조건 입력으로 돌아오고 고른 값이 남는다", async () => {
 	freezeSeoulTime("2026-10-01T10:00:00+09:00");
 	server.use(
@@ -116,10 +137,14 @@ test("생성 중에 취소하면 조건 입력으로 돌아오고 고른 값이 
 	expect(router).toMatchObject({ pathname: "/planner/new" });
 });
 
-test("조건에 맞는 팝업이 부족해 생성이 실패하면 이유를 알리고 닫으면 고른 조건이 남는다", async () => {
+test("TC-017 조건에 맞는 팝업이 부족해 생성이 실패하면 이유를 알리고 닫은 뒤 고른 조건 그대로 다시 생성할 수 있다", async () => {
 	freezeSeoulTime("2026-10-01T10:00:00+09:00");
-	server.use(http.post("/api/v1/planners/generate", () => apiError(422, "E3004")));
-	const { user } = renderPlannerNew();
+	server.use(
+		http.post("/api/v1/planners/generate", () => apiError(422, "E3004"), { once: true }),
+		http.post("/api/v1/planners/generate", () => apiSuccess({ plannerId: 12 })),
+		http.get("/api/v1/planners/12", () => apiSuccess(buildPlannerResponse({ plannerId: 12 })))
+	);
+	const { user, router } = renderPlannerNew();
 	await waitForPlannerForm();
 	await fillRequiredConditions(user, { area: "홍대" });
 	await submitCourse(user);
@@ -131,7 +156,27 @@ test("조건에 맞는 팝업이 부족해 생성이 실패하면 이유를 알�
 		expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
 	});
 	expect(getChecked("지역")).toEqual(["홍대"]);
-	expect(screen.getByRole("button", { name: "AI 코스 생성하기" })).toBeEnabled();
+
+	await submitCourse(user);
+
+	await waitFor(() => {
+		expect(router).toMatchObject({ pathname: "/courses/12", query: { area: "2" } });
+	});
+});
+
+test("TC-017 서버가 응답하지 못해 생성이 실패하면 일반 실패 안내를 알리고 조건 입력으로 돌아온다", async () => {
+	freezeSeoulTime("2026-10-01T10:00:00+09:00");
+	server.use(http.post("/api/v1/planners/generate", () => apiError(500, "E0000")));
+	const { user } = renderPlannerNew();
+	await waitForPlannerForm();
+	await fillRequiredConditions(user, { area: "홍대" });
+	await submitCourse(user);
+
+	const alert = await screen.findByRole("alertdialog", { name: /코스를 만들지 못했/ });
+	await user.click(within(alert).getByRole("button", { name: "확인" }));
+
+	expect(await waitForPlannerForm()).toBeEnabled();
+	expect(getChecked("지역")).toEqual(["홍대"]);
 });
 
 test.each([
@@ -218,8 +263,12 @@ test("닫힌 시작 시간 버튼에서 아래 방향키를 누르면 목록이 
 
 test("오늘로 골라 둔 시작 시각이 제출하는 사이 지나면 요청하지 않고 그 칸을 비우며 이유를 알린다", async () => {
 	freezeSeoulTime("2026-10-01T18:20:00+09:00");
-	const generate = vi.fn(() => apiSuccess(buildPlannerResponse(), { status: 201 }));
-	server.use(http.post("/api/v1/planners/generate", generate));
+	server.use(
+		http.post("/api/v1/planners/generate", async () => {
+			await delay("infinite");
+			return apiSuccess({ plannerId: 12 });
+		})
+	);
 	const { user, router } = renderPlannerNew(
 		"/planner/new?area=1&companion=ALONE&date=2026-10-01&start=19:00&duration=SHORT"
 	);
@@ -229,7 +278,7 @@ test("오늘로 골라 둔 시작 시각이 제출하는 사이 지나면 요청
 	await submitCourse(user);
 
 	expect(await screen.findByRole("alertdialog")).toHaveTextContent(/시작 시간을 다시 골라/);
-	expect(generate).not.toHaveBeenCalled();
+	expect(screen.queryByRole("region", { name: "코스 생성 단계" })).not.toBeInTheDocument();
 	expect(getStartTimeButton()).toHaveAccessibleName(/시작 시간$/);
 	expect(getDateButton()).toHaveAccessibleName(/2026-10-01/);
 	expect(router.pathname).toBe("/planner/new");

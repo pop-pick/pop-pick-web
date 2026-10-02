@@ -95,7 +95,7 @@ function patchBookmarkInCaches(queryClient: QueryClient, popupId: number, isBook
 
 `resolveIntent`는 분기 있는 순수 함수라 `testing-trophy.md`의 값이 나는 자리다. 문구는 코드 여기저기에 흩지 않고 `bookmark-dialog.ts`의 표 한 곳에 둔다. 확인 알럿 셋의 메시지와 버튼 문구, 실패 문구 셋(네트워크와 타임아웃, `E404`, 나머지)이 여기 있다. 로그인 유도 알럿의 메시지와 버튼 문구는 `shared/model/login-prompt.ts`에서 가져온다.
 
-찜 목록의 항목은 `BookmarkedPopup`이다. 종료 여부는 서버 `ended`를 그대로 쓴다. 상태 배지는 `formatBookmarkBadge`가 정한다. 끝났으면 "종료된 팝업"이고, 끝나지 않았고 종료일이 서울 기준 오늘부터 7일 안이면 "종료임박 D-n"이나 "종료임박 D-Day"다. 종료일이 없거나 8일 넘게 남았으면 배지가 없다. 7일은 시안 453-2921의 카드에서 정했다. 3일 남은 카드에 배지가 있고 11일 남은 카드에는 없다. 기획이 기준을 정하는지는 미정이고 바뀌면 `ENDING_SOON_DAYS` 하나를 고친다. 종료일 줄은 탐색 카드와 같은 `shared/model/popup-format.ts`의 `formatEndDateLabel`이다("MM.dd 종료", 종료일이 없으면 "상시운영"). 응답에 지역이 없어 `region`은 `null`이고 `wishedAt`은 쓰지 않는다. 응답은 queryFn 안에서 모델로 바꾼다.
+찜 목록의 항목은 `BookmarkedPopup`이다. 종료 여부는 서버 `ended`를 그대로 쓴다. 상태 배지는 `formatBookmarkBadge`가 정한다. 끝났으면 "종료된 팝업"이고, 끝나지 않았고 종료일이 서울 기준 오늘부터 7일 안이면 "종료임박 D-n"이나 "종료임박 D-Day"다. 종료일이 없거나 8일 넘게 남았으면 배지가 없다. 7일은 기획이 정했고 `ENDING_SOON_DAYS`에 있다. 종료일 줄은 탐색 카드와 같은 `shared/model/popup-format.ts`의 `formatEndDateLabel`이다("MM.dd 종료", 종료일이 없으면 "상시운영"). 응답에 지역이 없어 `region`은 `null`이고 `wishedAt`은 쓰지 않는다. 응답은 queryFn 안에서 모델로 바꾼다.
 
 ## I. Interface
 

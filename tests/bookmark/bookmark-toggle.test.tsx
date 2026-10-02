@@ -3,12 +3,14 @@ import { screen, waitFor, within } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { expect, test, vi } from "vitest";
 
+import MyPage from "@/app/my/page";
+import { BookmarkButton } from "@/features/bookmark/components/BookmarkButton";
 import { BookmarkSlotProvider } from "@/features/bookmark/components/BookmarkSlotProvider";
 import { BookmarkSlot } from "@/shared/components/BookmarkSlot";
 import type { PopupSummary } from "@/shared/model/popup";
 
 import { signInAsMember } from "../support/auth";
-import { apiError, server } from "../support/msw";
+import { apiError, apiSuccess, server } from "../support/msw";
 import { renderWithProviders } from "../support/render";
 
 const POPUP_ID = 7;
@@ -75,6 +77,20 @@ function renderHearts(mode: "guest" | "member", isBookmarked: boolean) {
 	return result;
 }
 
+function buildWish() {
+	return {
+		popupId: POPUP_ID,
+		imageUrl: null,
+		interestCategoryId: null,
+		title: "성수 팝업",
+		startDate: null,
+		endDate: null,
+		reservationType: "UNKNOWN",
+		ended: false,
+		wishedAt: "2026-10-02T10:00:00+09:00"
+	};
+}
+
 function findHeart(regionName: string) {
 	return within(screen.getByRole("region", { name: regionName })).findByRole("button", { name: "성수 팝업 찜" });
 }
@@ -83,7 +99,7 @@ async function answerDialog(user: ReturnType<typeof renderHearts>["user"], butto
 	await user.click(within(await screen.findByRole("alertdialog")).getByRole("button", { name: buttonName }));
 }
 
-test("회원이 찜하지 않은 팝업의 하트를 누르고 취소하면 그대로이고 확인하면 눌린 상태가 된다", async () => {
+test("TC-012 회원이 찜하지 않은 팝업의 하트를 누르고 취소하면 그대로이고 확인하면 눌린 상태가 된다", async () => {
 	signInAsMember();
 	server.use(http.put(`/api/v1/popups/${String(POPUP_ID)}/wish`, () => new HttpResponse(null, { status: 204 })));
 	const { user } = renderHearts("member", false);
@@ -100,6 +116,30 @@ test("회원이 찜하지 않은 팝업의 하트를 누르고 취소하면 그�
 	await waitFor(() => {
 		expect(heart).toHaveAttribute("aria-pressed", "true");
 	});
+});
+
+test("TC-012 회원이 찜을 확인하면 MY 찜한 팝업 목록에 그 팝업이 나타난다", async () => {
+	signInAsMember();
+	const wishes: ReturnType<typeof buildWish>[] = [];
+	server.use(
+		http.get("/api/v1/wishes", () => apiSuccess({ content: wishes, hasNext: false, nextCursor: null })),
+		http.put(`/api/v1/popups/${String(POPUP_ID)}/wish`, () => {
+			wishes.push(buildWish());
+			return new HttpResponse(null, { status: 204 });
+		})
+	);
+	const { user } = renderWithProviders(
+		<BookmarkSlotProvider mode="member">
+			<BookmarkButton mode="member" popupId={POPUP_ID} popupTitle="성수 팝업" isBookmarked={false} />
+			<MyPage />
+		</BookmarkSlotProvider>,
+		{ url: "/my" }
+	);
+
+	await user.click(await screen.findByRole("button", { name: "성수 팝업 찜" }));
+	await answerDialog(user, "확인");
+
+	expect(await screen.findByRole("article", { name: "성수 팝업" })).toBeInTheDocument();
 });
 
 test("찜한 팝업을 해제하면 같은 팝업을 그린 다른 캐시의 하트도 눌리지 않은 상태가 된다", async () => {
@@ -132,11 +172,14 @@ test("찜 요청이 실패하면 하트는 그대로이고 실패 알럿이 뜬�
 	expect(heart).toHaveAttribute("aria-pressed", "false");
 });
 
-test("비회원이 하트를 누르고 로그인 하러가기를 누르면 로그인 화면으로 간다", async () => {
+test("TC-013 비회원이 하트를 누르면 로그인 안내가 뜨고 로그인 하러가기를 누르면 로그인 화면으로 간다", async () => {
 	const { user, router } = renderHearts("guest", false);
 	const heart = await findHeart("상세");
 
 	await user.click(heart);
+
+	expect(within(await screen.findByRole("alertdialog")).getByText(/로그인 후 이용이 가능합니다/)).toBeInTheDocument();
+
 	await answerDialog(user, "로그인 하러가기");
 
 	expect(router).toMatchObject({ pathname: "/login" });

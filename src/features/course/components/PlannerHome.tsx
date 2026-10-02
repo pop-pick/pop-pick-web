@@ -25,6 +25,7 @@ import {
 import { CourseSummaryCard } from "./CourseSummaryCard";
 
 const COURSE_START_TITLE = "AI 코스 생성은 POP PICK";
+const COURSE_START_LABEL = "나만의 코스 만들기";
 const EMPTY_DESCRIPTION = "AI POP PICK으로\n나에게 꼭 맞는 팝업 코스를 만들어보세요.";
 
 export function PlannerHome() {
@@ -89,7 +90,7 @@ export function PlannerHome() {
 						</div>
 						<CourseStartBanner
 							title={COURSE_START_TITLE}
-							actionLabel="나에게 맞는 팝업 찾기"
+							actionLabel={COURSE_START_LABEL}
 							actionHref={PLANNER_NEW_PATH}
 							isActionWide
 						/>
@@ -99,7 +100,7 @@ export function PlannerHome() {
 					<div className="flex flex-col gap-5">
 						<CourseStartBanner
 							title={COURSE_START_TITLE}
-							actionLabel="AI POP PICK 시작하기"
+							actionLabel={COURSE_START_LABEL}
 							actionHref={PLANNER_NEW_PATH}
 						/>
 						<ul aria-label="저장한 일정" aria-busy={isFetchingNextPage} className="flex flex-col gap-3">
