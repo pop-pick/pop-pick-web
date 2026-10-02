@@ -93,19 +93,21 @@ function resolveSectionMode(query: UseQueryResult<RecommendationResult, ApiError
 
 ## I. Interface
 
-**컴포넌트.** 전부 `features/recommendation/components`에 있다. PICK은 `HomePickSection`이, 인기 팝업은 `PopularSection`이 쿼리를 직접 부르는 클라이언트 컴포넌트다. 조회 함수와 `queryOptions` 둘(`homePickQueryOptions`, `popularPopupsQueryOptions`)은 `api/get-popups.ts`에 있다. 두 섹션의 실패 안내는 공용 `shared/components/LoadFailure`를 `role="alert"`로 감싼 것이다.
+**컴포넌트.** 전부 `features/recommendation/components`에 있다. PICK은 `HomePickSection`이, 인기 팝업은 `PopularSection`이 쿼리를 직접 부르는 클라이언트 컴포넌트다. 인기 팝업은 공개 데이터라 서버 컴포넌트 `HomePopularSection`이 먼저 받아(`prefetchQuery`) `HydrationBoundary`로 넘긴다. 라우트가 이것을 `Suspense`로 감싸 홈 첫 응답은 기다리지 않고, 인기 팝업이 받아지면 같은 응답 안에서 목록이 그려져 온다. 받는 동안의 자리 `PopularSectionSkeleton`은 쿼리를 부르지 않는다. 같은 쿼리를 미리 만들면 `HydrationBoundary`가 서버 렌더에서 데이터를 채우지 않고 뼈대를 그린다. 서버 조회가 실패하면 데이터 없이 넘기고 브라우저 쿼리가 다시 받아 실패 화면을 그린다. 조회 함수와 `queryOptions` 둘(`homePickQueryOptions`, `popularPopupsQueryOptions`)은 `api/get-popups.ts`에 있다. 두 섹션의 실패 안내는 공용 `shared/components/LoadFailure`를 `role="alert"`로 감싼 것이다.
 
-| 컴포넌트              | 계약                                                                                                                          |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| `HomeHeader`          | 워드마크가 페이지 `<h1>`이고 alt는 POP PICK. 그 아래 `HomeSearch`가 검색어를 받아 `buildExploreSearchPath`로 탐색 목록에 간다 |
-| `TasteBanner`         | `audience`가 `member`면 "AI POP PICK 시작하기"가 `/planner/new`, `guest`면 "나에게 맞는 팝업 찾기"가 `/onboarding/1` 링크     |
-| `HomePickSection`     | PICK 쿼리를 부르고 로딩과 정상, 실패, 결과 없음 넷을 그린다. 닉네임은 `null`이라 "회원님"                                     |
-| `PickSection`         | 닉네임과 `RecommendedPopupItem[]`을 받는다. 펼친 카드와 자동 넘김을 갖는다                                                    |
-| `PickCard`            | 펼쳤을 때만 추천 이유를 그린다. 추천 이유가 `null`이면 셰브론과 펼침 영역이 없다                                              |
-| `OnImageBadge`        | 이미지 위 반투명 배지. 카테고리와 `badge` 문구                                                                                |
-| `PickSectionSkeleton` | `restoring`과 PICK 로딩 중에 카드 높이의 뼈대를 그린다. 아래 섹션이 밀리지 않는다                                             |
-| `PopularSection`      | 인기 쿼리를 부른다. 전체보기는 `buildExploreListPath()`로 탐색 목록(`/explore?view=list`)                                     |
-| `PopularPopupRow`     | 72px 썸네일과 세 줄. 행 전체가 상세 링크                                                                                      |
+| 컴포넌트               | 계약                                                                                                                          |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `HomeHeader`           | 워드마크가 페이지 `<h1>`이고 alt는 POP PICK. 그 아래 `HomeSearch`가 검색어를 받아 `buildExploreSearchPath`로 탐색 목록에 간다 |
+| `TasteBanner`          | `audience`가 `member`면 "AI POP PICK 시작하기"가 `/planner/new`, `guest`면 "나에게 맞는 팝업 찾기"가 `/onboarding/1` 링크     |
+| `HomePickSection`      | PICK 쿼리를 부르고 로딩과 정상, 실패, 결과 없음 넷을 그린다. 닉네임은 `null`이라 "회원님"                                     |
+| `PickSection`          | 닉네임과 `RecommendedPopupItem[]`을 받는다. 펼친 카드와 자동 넘김을 갖는다                                                    |
+| `PickCard`             | 펼쳤을 때만 추천 이유를 그린다. 추천 이유가 `null`이면 셰브론과 펼침 영역이 없다                                              |
+| `OnImageBadge`         | 이미지 위 반투명 배지. 카테고리와 `badge` 문구                                                                                |
+| `PickSectionSkeleton`  | `restoring`과 PICK 로딩 중에 카드 높이의 뼈대를 그린다. 아래 섹션이 밀리지 않는다                                             |
+| `HomePopularSection`   | 서버 컴포넌트. 인기 팝업을 받아 `HydrationBoundary`로 `PopularSection`에 넘긴다                                               |
+| `PopularSection`       | 인기 쿼리를 부른다. 머리글 `PopularSectionHeader`와 뼈대 `PopularRowsSkeleton`을 `PopularSectionSkeleton`과 같이 쓴다         |
+| `PopularSectionHeader` | 제목과 전체보기. 전체보기는 `buildExploreListPath()`로 탐색 목록(`/explore?view=list`)                                        |
+| `PopularPopupRow`      | 72px 썸네일과 세 줄. 행 전체가 상세 링크                                                                                      |
 
 PICK 카드와 인기 행은 시안에서 탐색 카드와 모양이 달라 이 기능 안에 있다. 배너는 인증 상태를 모르고 라우트가 `AuthStatusSwitch`의 칸마다 `audience`를 골라 넣는다. 세션을 확인하는 동안(`restoring`)과 확인하지 못했을 때(`unavailable`)는 세션 쿠키가 있으면 회원 배너, 없으면 비회원 배너다. 비회원 배너를 누르면 `proxy.ts`가 `/login?next=/onboarding/1`로 보내고 로그인이 끝나면 온보딩 1단계로 온다.
 
@@ -127,7 +129,7 @@ PICK 카드와 인기 행은 시안에서 탐색 카드와 모양이 달라 이 
 
 ## O. Optimization과 운영
 
-**렌더링.** PICK 목록은 Embla 캐러셀(`embla-carousel-react`)이다. 터치와 마우스 끌기 모두 카드 한 장 단위로 멈추고, 카드 안으로 키보드 포커스가 들어가면 그 카드로 넘어간다. `motion`으로 끌기를 만들면 `drag`가 든 기능 묶음을 더 실어야 해서 쓰지 않았다. 사진은 `PopupImage`가 고정 크기 칸에 `next/image`로 그려 CLS가 없고, 첫 카드만 `loading="eager"`이다(`popup.md`의 이미지 절).
+**렌더링.** 홈(`/`)은 세션 쿠키를 읽어 PICK 자리를 고르므로 요청마다 서버에서 그린다. 인기 팝업은 그 서버 렌더에 실려 첫 HTML에 목록이 있다. PICK은 토큰이 필요해 브라우저에서 받는다. PICK 목록은 Embla 캐러셀(`embla-carousel-react`)이다. 터치와 마우스 끌기 모두 카드 한 장 단위로 멈추고, 카드 안으로 키보드 포커스가 들어가면 그 카드로 넘어간다. `motion`으로 끌기를 만들면 `drag`가 든 기능 묶음을 더 실어야 해서 쓰지 않았다. 사진은 `PopupImage`가 고정 크기 칸에 `next/image`로 그려 CLS가 없고, 첫 카드만 `loading="eager"`이다(`popup.md`의 이미지 절).
 
 **장애.** PICK과 인기 팝업은 각자 섹션 안에서 실패를 보이고 다시 시도로 회복한다. 추천 API가 붙으면 위의 결정표대로다. 배너는 정적이라 실패가 없다.
 
