@@ -71,6 +71,8 @@
 
 ```typescript
 // features/bookmark/model/bookmark.ts
+/** 찜 버튼이 보는 로그인 상태. 확인 중이면 pending */
+type BookmarkMode = "guest" | "member" | "pending";
 interface BookmarkedPopup extends PopupSummary {
 	isEnded: boolean; // 서버 ended
 }
@@ -79,7 +81,7 @@ interface BookmarkedPopup extends PopupSummary {
 /** 알럿 문구를 고르는 자리. 세 상황이 서로 다른 문구다 */
 type BookmarkIntent = "login-required" | "add" | "remove";
 type BookmarkDialog = BookmarkIntent | "failure";
-function resolveIntent(params: { isMember: boolean; isBookmarked: boolean }): BookmarkIntent;
+function resolveBookmarkIntent(params: { isMember: boolean; isBookmarked: boolean }): BookmarkIntent;
 function getBookmarkDialogCopy(
 	dialog: BookmarkDialog,
 	error: unknown
@@ -93,7 +95,7 @@ function formatBookmarkBadge(popup: Pick<BookmarkedPopup, "endDate" | "isEnded">
 function patchBookmarkInCaches(queryClient: QueryClient, popupId: number, isBookmarked: boolean): void;
 ```
 
-`resolveIntent`는 분기 있는 순수 함수라 `testing-trophy.md`의 값이 나는 자리다. 문구는 코드 여기저기에 흩지 않고 `bookmark-dialog.ts`의 표 한 곳에 둔다. 확인 알럿 셋의 메시지와 버튼 문구, 실패 문구 셋(네트워크와 타임아웃, `E404`, 나머지)이 여기 있다. 로그인 유도 알럿의 메시지와 버튼 문구는 `shared/model/login-prompt.ts`에서 가져온다.
+`resolveBookmarkIntent`는 분기 있는 순수 함수라 `testing-trophy.md`의 값이 나는 자리다. 문구는 코드 여기저기에 흩지 않고 `bookmark-dialog.ts`의 표 한 곳에 둔다. 확인 알럿 셋의 메시지와 버튼 문구, 실패 문구 셋(네트워크와 타임아웃, `E404`, 나머지)이 여기 있다. 로그인 유도 알럿의 메시지와 버튼 문구는 `shared/model/login-prompt.ts`에서 가져온다.
 
 찜 목록의 항목은 `BookmarkedPopup`이다. 종료 여부는 서버 `ended`를 그대로 쓴다. 상태 배지는 `formatBookmarkBadge`가 정한다. 끝났으면 "종료된 팝업"이고, 끝나지 않았고 종료일이 서울 기준 오늘부터 7일 안이면 "종료임박 D-n"이나 "종료임박 D-Day"다. 종료일이 없거나 8일 넘게 남았으면 배지가 없다. 7일은 기획이 정했고 `ENDING_SOON_DAYS`에 있다. 종료일 줄은 탐색 카드와 같은 `shared/model/popup-format.ts`의 `formatEndDateLabel`이다("MM.dd 종료", 종료일이 없으면 "상시운영"). `WishResponse`에 `areaName`이 없어 `areaName`은 늘 `null`이라 찜 카드 메타에 지역이 안 나온다. 시안은 "성수동 09.21 종료"처럼 지역을 앞에 적으므로 백엔드가 `areaName`을 주면 되살린다. `wishedAt`은 쓰지 않는다. 응답은 queryFn 안에서 모델로 바꾼다.
 
