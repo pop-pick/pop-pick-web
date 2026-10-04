@@ -78,6 +78,11 @@ export function PlannerForm({ form, initialDraft }: PlannerFormProps) {
 	const canSubmit = toGeneratePlannerRequest(draft, form, renderNow) !== null;
 	const isGenerating = generateStatus === "pending" || generateStatus === "success";
 
+	const showFailure = (message: string) => {
+		setFailureMessage(message);
+		setIsFailureOpen(true);
+	};
+
 	const handleUrlDraftChange = (urlDraft: PlannerDraft) => {
 		reset(sanitizePlannerDraft(urlDraft, form, getSeoulNow()));
 	};
@@ -164,8 +169,7 @@ export function PlannerForm({ form, initialDraft }: PlannerFormProps) {
 			reset(sanitized);
 
 			if (expiredMessage !== null) {
-				setFailureMessage(expiredMessage);
-				setIsFailureOpen(true);
+				showFailure(expiredMessage);
 			}
 
 			return;
@@ -187,8 +191,7 @@ export function PlannerForm({ form, initialDraft }: PlannerFormProps) {
 
 					abortControllerRef.current = null;
 					console.error("[planner] 코스를 만들지 못했다", error);
-					setFailureMessage(toGenerateFailureMessage(error));
-					setIsFailureOpen(true);
+					showFailure(toGenerateFailureMessage(error));
 				}
 			}
 		);
