@@ -13,7 +13,7 @@ import { QueryProvider } from "@/shared/providers/QueryProvider";
 import { pretendard } from "@/shared/styles/fonts";
 
 export const metadata: Metadata = {
-	title: SITE_NAME,
+	title: { template: `%s | ${SITE_NAME}`, default: SITE_NAME },
 	description: "취향과 시간, 지역에 맞는 서울 팝업을 추천하고 방문 동선까지 짜주는 서비스",
 	icons: SITE_ICONS,
 	openGraph: SITE_OPEN_GRAPH,
