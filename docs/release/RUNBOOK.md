@@ -23,6 +23,8 @@ PR은 CI(`.github/workflows/ci.yaml`) 통과 뒤에만 머지된다. Vercel 배�
 
 배포마다 `pop-pick-{해시}-chan9yus-projects.vercel.app` 형태의 고유 주소도 따로 생긴다. 특정 배포를 가리킬 때만 쓰고 공유에는 브랜치 별칭을 쓴다.
 
+팝업 사진은 `/_next/image`로 최적화해 내려보낸다(출처는 `src/shared/lib/popup-image-hosts.ts`). Hobby 요금제의 이미지 최적화 한도는 배포 전에 대시보드에서 확인한다.
+
 프로젝트가 개인 계정(Hobby)에 있어 대시보드는 계정 주인만 본다.
 
 미리보기 URL은 누구나 열 수 있다. Vercel이 기본으로 켜 두는 미리보기 인증 보호(Vercel Authentication)를 꺼 뒀다. 공개 서비스이고 미리보기에 비밀이 없어서다. 비밀번호 보호와 Trusted IP도 꺼져 있다. 설정 위치는 대시보드의 Settings 아래 Deployment Protection이다.

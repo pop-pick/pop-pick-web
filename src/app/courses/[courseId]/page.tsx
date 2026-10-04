@@ -11,6 +11,10 @@ export const metadata: Metadata = {
 	title: "코스"
 };
 
+export function generateStaticParams() {
+	return [];
+}
+
 export default async function CoursePage({ params }: PageProps<"/courses/[courseId]">) {
 	const courseId = parseCourseId((await params).courseId);
 

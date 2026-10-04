@@ -209,6 +209,8 @@ export function useMe(): UseQueryResult<Me, ApiError>;
 
 ## O. Optimization과 운영
 
+**렌더링.** `/login`은 정적이다. 로고와 안내문은 정적 HTML로 나가고 버튼 자리는 `Suspense` 안의 `LoginButtons`가 맡는다. `LoginButtons`가 클라이언트에서 `useSearchParams`로 `next`를 읽어 `sanitizeNextPath`로 거른 값을 두 공급자 버튼에 넘긴다. 첫 페인트에는 버튼 자리에 `Skeleton` 둘이 보이고 hydrate 뒤 버튼이 나온다. 서버 `searchParams`를 읽으면 라우트 전체가 요청마다 그려지므로 읽지 않는다.
+
 **쿠키 속성.**
 
 | 속성       | 값                                                                                                            |

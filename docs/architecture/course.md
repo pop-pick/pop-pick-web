@@ -171,7 +171,7 @@ export function useCancelCourse(); // useMutation. 변수는 plannerId
 
 ## O. Optimization과 운영
 
-**렌더링.** 코스는 요청 하나로 지도와 타임라인, 구간 소요시간을 다 그린다. 지도는 코스가 오면 `fitTo`로 한 번 맞추고 이후 사용자 조작을 덮지 않는다. 저장 직후 등록 완료는 저장 응답으로 채운 캐시를 읽어 다시 조회하지 않는다.
+**렌더링.** `/courses/[courseId]`와 `/courses/[courseId]/saved`는 `generateStaticParams`가 빈 배열을 돌려줘 빌드 때는 그리지 않고 첫 요청을 그려 캐시한다. 코스는 요청 하나로 지도와 타임라인, 구간 소요시간을 다 그린다. 지도는 코스가 오면 `fitTo`로 한 번 맞추고 이후 사용자 조작을 덮지 않는다. 저장 직후 등록 완료는 저장 응답으로 채운 캐시를 읽어 다시 조회하지 않는다.
 
 **장애.** 코스 두 라우트는 `loading.tsx`와 인증 확인 중 대체 화면으로 `CourseViewSkeleton`을 그린다. 목록은 탭마다 따로라 한 탭의 실패가 다른 탭을 막지 않는다.
 

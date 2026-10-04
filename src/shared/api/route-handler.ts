@@ -31,7 +31,7 @@ const BEARER_PREFIX = "Bearer ";
 export function readBearerToken(request: Request) {
 	const header = request.headers.get("authorization");
 
-	if (header === null || !header.startsWith(BEARER_PREFIX)) {
+	if (!header?.startsWith(BEARER_PREFIX)) {
 		return null;
 	}
 

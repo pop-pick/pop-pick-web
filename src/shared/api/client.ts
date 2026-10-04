@@ -123,7 +123,7 @@ function parseBody(text: string, contentType: string | null) {
 		return null;
 	}
 
-	const isJson = contentType !== null && contentType.includes("json");
+	const isJson = contentType?.includes("json") === true;
 	if (!isJson) {
 		return text;
 	}

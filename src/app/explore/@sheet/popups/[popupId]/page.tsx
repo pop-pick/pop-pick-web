@@ -1,14 +1,9 @@
-import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { cache } from "react";
-
 import { AuthStatusSwitch } from "@/features/auth/components/AuthStatusSwitch";
 import { BookmarkSlotProvider } from "@/features/bookmark/components/BookmarkSlotProvider";
-import { findPopupDetail } from "@/features/popup/api/get-popup-detail";
+import { findPopupDetailOrNotFound } from "@/features/popup/api/find-popup-detail-or-not-found";
 import { PopupDetailView } from "@/features/popup/components/PopupDetailView";
 import { PopupSheet } from "@/features/popup/components/PopupSheet";
-import { parsePopupId } from "@/features/popup/model/popup-id";
-import { SITE_OPEN_GRAPH } from "@/shared/model/site-metadata";
+import { buildPopupMetadata } from "@/features/popup/model/popup-metadata";
 
 const SHEET_TITLE_ID = "popup-sheet-title";
 
@@ -19,31 +14,9 @@ export function generateStaticParams() {
 	return [];
 }
 
-const findPopupDetailOrNotFound = cache(async (rawPopupId: string) => {
-	const popupId = parsePopupId(rawPopupId);
-	const detail = popupId === null ? null : await findPopupDetail(popupId);
-
-	if (detail === null) {
-		notFound();
-	}
-
-	return detail;
-});
-
 export async function generateMetadata({ params }: PageProps<"/explore/popups/[popupId]">) {
 	const detail = await findPopupDetailOrNotFound((await params).popupId);
-	const metadata: Metadata = {
-		title: detail.title,
-		description: detail.description,
-		openGraph: {
-			...SITE_OPEN_GRAPH,
-			title: detail.title,
-			description: detail.description ?? SITE_OPEN_GRAPH.description,
-			images: detail.imageUrl ?? SITE_OPEN_GRAPH.images
-		}
-	};
-
-	return metadata;
+	return buildPopupMetadata(detail);
 }
 
 export default async function PopupSheetPage({ params }: PageProps<"/explore/popups/[popupId]">) {

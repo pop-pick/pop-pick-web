@@ -8,7 +8,6 @@ import { IconButton } from "@/shared/ui/IconButton";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 interface BackButtonProps {
-	/** 앱 안에 돌아갈 기록이 없을 때 갈 주소 */
 	fallbackPath: string;
 }
 

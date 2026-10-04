@@ -4,10 +4,11 @@ import type { ReactNode } from "react";
 
 import { BookmarkSlotContext, type BookmarkSlotProps } from "@/shared/components/BookmarkSlot";
 
+import type { BookmarkMode } from "../model/bookmark";
 import { BookmarkButton } from "./BookmarkButton";
 
 interface BookmarkSlotProviderProps {
-	mode: "guest" | "member" | "pending";
+	mode: BookmarkMode;
 	children: ReactNode;
 }
 

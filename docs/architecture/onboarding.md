@@ -249,7 +249,7 @@ interface OnboardingRegisterRequest {
 
 ## O. Optimization과 운영
 
-**렌더링.** 라우트 파일은 서버 컴포넌트이고 `OnboardingStepScreen` 아래가 클라이언트다. 선택지 조회는 2단계가 카테고리와 지역을, 3단계가 선호 활동을 부른다. `staleTime`이 `Infinity`라 한 번 받은 목록은 탭이 살아 있는 동안 다시 부르지 않는다. 목록이 자주 바뀌지 않는다.
+**렌더링.** `/onboarding/[step]`은 `generateStaticParams`가 1, 2, 3을 돌려줘 빌드 때 정적으로 만든다. 라우트 파일은 서버 컴포넌트이고 `OnboardingStepScreen` 아래가 클라이언트다. 선택지 조회는 2단계가 카테고리와 지역을, 3단계가 선호 활동을 부른다. `staleTime`이 `Infinity`라 한 번 받은 목록은 탭이 살아 있는 동안 다시 부르지 않는다. 목록이 자주 바뀌지 않는다.
 
 스켈레톤에서 폼으로 바뀔 때 아래 내용이 움직이지 않도록 `OnboardingStepSkeleton`의 막대 높이를 단계마다 그 폼의 높이로 맞췄다. 높이는 시안의 선택지 개수(카테고리 일곱, 지역 여섯, 활동 넷. 지금 서버 지역은 일곱 곳이라 칩이 한 줄 더 늘 수 있다)로 잡았다. 서버가 다른 개수를 주면 그 차이만큼 움직인다.
 

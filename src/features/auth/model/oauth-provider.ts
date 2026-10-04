@@ -1,4 +1,6 @@
 import type { OAuthProvider } from "./auth";
+import { storeNextPath } from "./next-path";
+import { createOAuthState } from "./oauth-state";
 
 interface OAuthProviderConfig {
 	displayName: string;
@@ -58,4 +60,9 @@ export function buildOAuthAuthorizeUrl(provider: OAuthProvider, redirectUri: str
 	url.searchParams.set("state", state);
 
 	return url.toString();
+}
+
+export function startOAuthLogin(provider: OAuthProvider, nextPath: string | null) {
+	storeNextPath(nextPath);
+	window.location.href = buildOAuthAuthorizeUrl(provider, buildOAuthRedirectUri(provider), createOAuthState());
 }

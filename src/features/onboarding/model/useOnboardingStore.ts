@@ -9,7 +9,7 @@ import type { OnboardingStep } from "./steps";
 
 const STORAGE_KEY = ACCOUNT_STORAGE_KEYS.onboardingAnswers;
 
-export type OnboardingAnswersLoadStatus = "loading" | "ready" | "failed";
+type OnboardingAnswersLoadStatus = "loading" | "ready" | "failed";
 
 interface OnboardingState {
 	answers: OnboardingAnswers;

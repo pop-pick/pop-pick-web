@@ -15,6 +15,7 @@ interface OnboardingStepScreenProps {
 
 export function OnboardingStepScreen({ step }: OnboardingStepScreenProps) {
 	const { answers, loadStatus } = useOnboardingAnswers();
+	const isAnswersLoaded = loadStatus !== "loading";
 
 	return (
 		<div className="flex flex-1 flex-col">
@@ -25,13 +26,13 @@ export function OnboardingStepScreen({ step }: OnboardingStepScreenProps) {
 				</p>
 			)}
 			{loadStatus === "loading" && <OnboardingStepSkeleton step={step} label={ANSWERS_LOADING_MESSAGE} />}
-			{loadStatus !== "loading" && step === 1 && (
+			{isAnswersLoaded && step === 1 && (
 				<CompanionStepForm initialAnswers={{ companionType: answers.companionType, partySize: answers.partySize }} />
 			)}
-			{loadStatus !== "loading" && step === 2 && (
+			{isAnswersLoaded && step === 2 && (
 				<InterestStepForm initialAnswers={{ categoryIds: answers.categoryIds, areaIds: answers.areaIds }} />
 			)}
-			{loadStatus !== "loading" && step === 3 && (
+			{isAnswersLoaded && step === 3 && (
 				<ActivityStepForm initialAnswers={{ activityIds: answers.activityIds, freeText: answers.freeText }} />
 			)}
 		</div>

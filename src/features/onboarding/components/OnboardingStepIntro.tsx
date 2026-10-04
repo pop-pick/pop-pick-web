@@ -13,7 +13,7 @@ export function OnboardingStepIntro({ step }: OnboardingStepIntroProps) {
 	return (
 		<div className="flex flex-col items-center px-5 pt-1.75 text-center">
 			<Image
-				src={`/images/illustrations/onboarding-${step}.svg`}
+				src={`/images/illustrations/onboarding-${String(step)}.svg`}
 				alt=""
 				width={ILLUSTRATION_SIZE}
 				height={ILLUSTRATION_SIZE}

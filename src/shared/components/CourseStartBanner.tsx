@@ -5,6 +5,13 @@ import { tv } from "@/shared/lib/tv";
 import { LinkButton } from "@/shared/ui/LinkButton";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
+interface CourseStartBannerProps {
+	title: string;
+	actionLabel: string;
+	actionHref: string;
+	isActionWide?: boolean;
+}
+
 const startActionVariants = tv({
 	base: "mt-5",
 	variants: {
@@ -14,13 +21,6 @@ const startActionVariants = tv({
 		}
 	}
 });
-
-interface CourseStartBannerProps {
-	title: string;
-	actionLabel: string;
-	actionHref: string;
-	isActionWide?: boolean;
-}
 
 export function CourseStartBanner({ title, actionLabel, actionHref, isActionWide = false }: CourseStartBannerProps) {
 	const titleId = useId();
