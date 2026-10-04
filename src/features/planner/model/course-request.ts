@@ -46,7 +46,6 @@ export function getSelectableStartTimes(form: PlannerFormData, date: string | nu
 	return form.startTimes.filter((time) => time >= earliestTime);
 }
 
-/** 첫날에 고를 시작 시각이 남지 않았으면 그날은 고를 수 없다 */
 export function getSelectableDateRange(form: PlannerFormData, now: Date) {
 	const hasStartTimeOnFirstDate = getSelectableStartTimes(form, form.minDate, now).length > 0;
 	const minDate = hasStartTimeOnFirstDate
