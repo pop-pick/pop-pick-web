@@ -23,7 +23,6 @@ import {
 	FREE_TEXT_PLACEHOLDER,
 	ONBOARDING_QUESTION_LABELS,
 	OPTIONS_LOADING_MESSAGE,
-	SAVE_FAILURE_MESSAGE,
 	SAVE_PENDING_MESSAGE,
 	WELCOME_MESSAGE
 } from "../model/messages";
@@ -32,6 +31,7 @@ import { ChoiceChipGroup } from "./ChoiceChipGroup";
 import { FreeTextField } from "./FreeTextField";
 import { OnboardingStepSkeleton } from "./OnboardingStepSkeleton";
 import { OptionsLoadFailure } from "./OptionsLoadFailure";
+import { SaveFailureNotice } from "./SaveFailureNotice";
 
 const MEMBER_HOME_PATH = "/";
 
@@ -48,7 +48,10 @@ export function ActivityStepForm({ initialAnswers }: ActivityStepFormProps) {
 	const [activityIds, freeText] = useWatch({ control, name: ["activityIds", "freeText"] });
 	const [isIncompleteAlertOpen, setIsIncompleteAlertOpen] = useState(false);
 	const [isWelcomeAlertOpen, setIsWelcomeAlertOpen] = useState(false);
-	const [hasSaveFailed, setHasSaveFailed] = useState(false);
+	const [saveError, setSaveError] = useState<Error | null>(null);
+	const hasCompanionAnswers = useOnboardingStore(
+		(state) => state.answers.companionType !== null && state.answers.partySize !== null
+	);
 	const { markRetry, focusTargetRef } = useFocusAfterRetry<HTMLFieldSetElement>();
 
 	const handleRetry = () => {
@@ -70,11 +73,11 @@ export function ActivityStepForm({ initialAnswers }: ActivityStepFormProps) {
 	const saveCommittedAnswers = () => {
 		saveMutation.mutate(useOnboardingStore.getState().answers, {
 			onSuccess: () => {
-				setHasSaveFailed(false);
+				setSaveError(null);
 				setIsWelcomeAlertOpen(true);
 			},
-			onError: () => {
-				setHasSaveFailed(true);
+			onError: (error) => {
+				setSaveError(error);
 			}
 		});
 	};
@@ -140,21 +143,13 @@ export function ActivityStepForm({ initialAnswers }: ActivityStepFormProps) {
 					/>
 				</div>
 				<BottomActionBar>
-					{hasSaveFailed && (
-						<div
-							role="alert"
-							className="flex items-center justify-between gap-3 rounded-xl bg-error-bg px-4 py-3 text-b3-14 text-error"
-						>
-							<p>{SAVE_FAILURE_MESSAGE}</p>
-							<button
-								type="button"
-								aria-disabled={saveMutation.isPending}
-								onClick={handleSaveRetry}
-								className="shrink-0 rounded-lg px-2 py-1 text-b1-14 underline focus-ring transition-colors not-aria-disabled:hover:bg-error/10 aria-disabled:opacity-40"
-							>
-								다시 시도
-							</button>
-						</div>
+					{saveError !== null && (
+						<SaveFailureNotice
+							error={saveError}
+							isRetrying={saveMutation.isPending}
+							hasCompanionAnswers={hasCompanionAnswers}
+							onRetry={handleSaveRetry}
+						/>
 					)}
 					{saveMutation.isPending && (
 						<p role="status" className="sr-only">
