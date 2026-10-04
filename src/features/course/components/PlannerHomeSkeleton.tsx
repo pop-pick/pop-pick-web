@@ -12,8 +12,8 @@ export function PlannerHomeSkeleton() {
 				))}
 			</div>
 			<div className="flex flex-col gap-5 px-5 pt-5">
-				<Skeleton className="h-45.25 rounded-2xl" />
-				<Skeleton className="h-49 rounded-2xl" />
+				<Skeleton className="h-45.25" />
+				<Skeleton className="h-49" />
 			</div>
 		</div>
 	);

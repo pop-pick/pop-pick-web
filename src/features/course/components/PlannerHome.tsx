@@ -71,7 +71,7 @@ export function PlannerHome() {
 				tabIndex={0}
 				className="flex flex-1 flex-col px-5 pt-5 focus-ring"
 			>
-				{error !== null && courses === undefined && (
+				{error !== null && (courses === undefined || courses.length === 0) && (
 					<div className="flex flex-1 items-center justify-center py-10">
 						<LoadFailure title="일정을 불러오지 못했어요." onRetry={handleRetry} />
 					</div>
@@ -79,13 +79,13 @@ export function PlannerHome() {
 				{isPending && (
 					<div role="status" className="flex flex-col gap-5">
 						<span className="sr-only">일정을 불러오고 있습니다</span>
-						<Skeleton className="h-45.25 rounded-2xl" />
-						<Skeleton className="h-49 rounded-2xl" />
+						<Skeleton className="h-45.25" />
+						<Skeleton className="h-49" />
 					</div>
 				)}
-				{courses?.length === 0 && (
+				{error === null && courses?.length === 0 && (
 					<>
-						<div className="flex flex-1 items-center justify-center pt-11.75 pb-10">
+						<div className="flex flex-1 items-start justify-center pt-22.25 pb-10">
 							<EmptyState hasWarningIcon title={COURSE_TAB_EMPTY_TITLES[tab]} description={EMPTY_DESCRIPTION} />
 						</div>
 						<CourseStartBanner
@@ -116,7 +116,7 @@ export function PlannerHome() {
 								isFailed={isFetchNextPageError}
 								loadingLabel="일정을 더 불러오고 있습니다"
 								failureMessage="일정을 더 불러오지 못했어요."
-								skeletonClassName="h-45.25"
+								skeletonClassName="h-49"
 								onLoadMore={handleLoadMore}
 							/>
 						)}
