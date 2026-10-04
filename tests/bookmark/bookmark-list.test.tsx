@@ -44,12 +44,40 @@ test("찜 목록에서 끝난 팝업에는 종료 배지가 붙고 진행 중인
 	).not.toBeInTheDocument();
 });
 
-test("찜한 팝업이 없으면 목록 대신 팝업 둘러보기 안내를 보인다", async () => {
+test("TC-023 찜한 팝업이 없으면 없음 안내와 팝업 둘러보기 CTA를 보이고 CTA는 탐색으로 간다", async () => {
 	serveWishes(() => []);
 	renderMyPage();
 
-	expect(await screen.findByRole("link", { name: /팝업 둘러보러 가기/ })).toBeInTheDocument();
+	expect(await screen.findByText("찜한 팝업이 없습니다.")).toBeInTheDocument();
+	expect(screen.getByRole("link", { name: "팝업 둘러보기" })).toHaveAttribute("href", "/explore");
 	expect(screen.queryByRole("list", { name: "찜한 팝업" })).not.toBeInTheDocument();
+});
+
+test("찜 목록은 10개씩 받고 마지막 항목의 nextCursor로 다음 쪽을 이어 받는다", async () => {
+	const requests: { cursor: string | null; limit: string | null }[] = [];
+	server.use(
+		http.get("/api/v1/wishes", ({ request }) => {
+			const { searchParams } = new URL(request.url);
+			const cursor = searchParams.get("cursor");
+			requests.push({ cursor, limit: searchParams.get("limit") });
+
+			const isFirstPage = cursor === null;
+
+			return apiSuccess({
+				content: [isFirstPage ? buildWish(1, "첫 쪽 팝업", false) : buildWish(2, "둘째 쪽 팝업", false)],
+				hasNext: isFirstPage,
+				nextCursor: isFirstPage ? "42" : null
+			});
+		})
+	);
+	renderMyPage();
+
+	expect(await screen.findByRole("article", { name: "첫 쪽 팝업" })).toBeInTheDocument();
+	expect(await screen.findByRole("article", { name: "둘째 쪽 팝업" })).toBeInTheDocument();
+	expect(requests).toEqual([
+		{ cursor: null, limit: "10" },
+		{ cursor: "42", limit: "10" }
+	]);
 });
 
 test("찜 목록에서 하트로 해제하면 그 팝업이 목록에서 빠진다", async () => {
