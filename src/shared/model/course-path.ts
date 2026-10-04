@@ -1,4 +1,4 @@
-const COURSE_ID_PATTERN = /^[1-9]\d{0,17}$/;
+const COURSE_ID_PATTERN = /^[1-9]\d{0,14}$/;
 
 export function buildCoursePath(courseId: number, query = "") {
 	const path = `/courses/${String(courseId)}`;

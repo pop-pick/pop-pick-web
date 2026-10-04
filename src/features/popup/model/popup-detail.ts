@@ -13,6 +13,7 @@ export interface PopupDetailResponse {
 	description: string | null;
 	imageUrls: string[] | null;
 	interestCategoryId: number | null;
+	areaName: string | null;
 	startDate: string | null;
 	endDate: string | null;
 	openingHours: string | null;
@@ -23,6 +24,7 @@ export interface PopupDetailResponse {
 	longitude: number | null;
 	reservationType: PopupReservationType;
 	reservationUrl: string | null;
+	viewCount: number;
 	wished: boolean;
 }
 
@@ -34,6 +36,7 @@ export interface PopupDetail extends PopupSummary {
 	position: KakaoLatLngLiteral | null;
 	reservationUrl: string | null;
 	entryFee: number | null;
+	viewCount: number;
 }
 
 export const RESERVATION_DETAIL_LABELS: Record<KnownPopupReservationType, string> = {
@@ -48,12 +51,12 @@ function toPosition(latitude: number | null, longitude: number | null) {
 }
 
 export function toPopupDetail(response: PopupDetailResponse) {
-	const imageUrls = response.imageUrls ?? [];
+	const imageUrls = [...new Set(response.imageUrls ?? [])];
 	const detail: PopupDetail = {
 		id: response.popupId,
 		title: response.title,
 		category: toPopupCategory(response.interestCategoryId),
-		region: null,
+		areaName: response.areaName,
 		startDate: response.startDate,
 		endDate: response.endDate,
 		reservationType: response.reservationType,
@@ -65,7 +68,8 @@ export function toPopupDetail(response: PopupDetailResponse) {
 		address: response.addressRoad ?? response.addressJibun,
 		position: toPosition(response.latitude, response.longitude),
 		reservationUrl: response.reservationUrl,
-		entryFee: response.entryFee
+		entryFee: response.entryFee,
+		viewCount: response.viewCount
 	};
 
 	return detail;
@@ -76,14 +80,10 @@ export function pickRecentPopup(popup: PopupDetail) {
 		id: popup.id,
 		title: popup.title,
 		category: popup.category,
-		region: popup.region,
+		areaName: popup.areaName,
 		startDate: popup.startDate,
 		endDate: popup.endDate,
 		reservationType: popup.reservationType,
 		imageUrl: popup.imageUrl
 	} satisfies RecentPopup;
-}
-
-export function pickPopupSummary(popup: PopupDetail) {
-	return { ...pickRecentPopup(popup), isBookmarked: popup.isBookmarked } satisfies PopupSummary;
 }

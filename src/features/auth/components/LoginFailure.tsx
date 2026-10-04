@@ -29,7 +29,7 @@ export function LoginFailure({ children, isCanceled = false }: LoginFailureProps
 	const retryLoginPath = useSyncExternalStore(subscribeNothing, readRetryLoginPath, readServerRetryLoginPath);
 
 	return (
-		<main className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center gap-6 px-6 py-16 text-center">
+		<main className="flex w-full flex-1 flex-col items-center justify-center gap-6 px-6 py-16 text-center">
 			<p role="alert" className="text-b2-16 break-keep text-text-2">
 				{children}
 			</p>

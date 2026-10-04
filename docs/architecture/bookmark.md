@@ -24,7 +24,7 @@
 
 **범위 밖.** 찜 폴더와 메모, 찜 개수 상한, 찜한 팝업의 종료 알림(알림 자체가 범위 밖).
 
-**지금 있는 것.** 팝업 상세와 지도 위 상세 바텀시트, 탐색의 지도 카드와 목록 카드, 마이페이지 찜 목록 카드에 하트가 있다. 비회원은 로그인 유도 알럿을, 회원은 확인 알럿을 거쳐 서버에 찜과 해제를 요청한다. 마이페이지의 찜한 팝업 탭이 내 찜 목록을 보인다. 9/26 시안의 홈 카드에는 하트가 없다.
+**지금 있는 것.** 지도 카드의 하트는 찜 여부를 몰라 누를 수 없고 회원은 상세 시트에서 찜한다. 팝업 상세와 지도 위 상세 바텀시트, 탐색의 지도 카드와 목록 카드, 마이페이지 찜 목록 카드에 하트가 있다. 비회원은 로그인 유도 알럿을, 회원은 확인 알럿을 거쳐 서버에 찜과 해제를 요청한다. 마이페이지의 찜한 팝업 탭이 내 찜 목록을 보인다. 9/26 시안의 홈 카드에는 하트가 없다.
 
 ## A. Architecture
 
@@ -34,7 +34,7 @@
 | 찜 목록        | Server. `["bookmarks", "list"]` 무한 쿼리                         | `BookmarkedPopup`. 열 개씩, 최근 찜한 순이고 끝난 팝업도 들어 있다 |
 | 열려 있는 알럿 | 컴포넌트 `useState`                                               | native `<dialog>`. 열려 있을 때만 그린다                           |
 | 로그인 여부    | 인증 상태. 라우트가 `AuthStatusSwitch` 슬롯으로 고른다            | 버튼은 `mode`만 받고 인증 상태를 읽지 않는다                       |
-| 진행 중인 토글 | 뮤테이션 상태. `mutationKey`는 `["bookmarks", "toggle", popupId]` | 대기 중에는 버튼이 `aria-disabled`와 `aria-busy`다                 |
+| 진행 중인 토글 | 뮤테이션 상태. `mutationKey`는 `["bookmarks", "toggle", popupId]` | 요청 중에는 버튼이 `aria-disabled`와 `aria-busy`다                 |
 
 **흐름.**
 
@@ -55,11 +55,11 @@
   onError     하트는 그대로. 실패 알럿으로 이유, [bookmark] 로그
 ```
 
-`popups`와 `recommendations` 키는 패치만 하고 무효화하지 않는다. `popups`를 무효화하면 탐색 지도가 들고 있는 상세 최대 50건을 다시 받고, `recommendations`를 무효화하면 홈 PICK을 무작위로 다시 뽑아 카드가 바뀐다.
+`popups`와 `recommendations` 키는 패치만 하고 무효화하지 않는다. `popups`를 무효화하면 받아 둔 목록과 지도 영역, 상세를 전부 다시 받고, `recommendations`를 무효화하면 홈 PICK과 인기를 다시 받아 요청이 늘고 응답 순서가 달라지면 카드가 바뀔 수 있다.
 
 **로그인 여부를 아는 곳.** `BookmarkButton`은 `auth`의 `useAuthStore`를 부르지 않는다. 기능끼리 부르지 않는 규칙(`architecture.md`) 때문이다. 대신 라우트가 `features/auth`의 `AuthStatusSwitch`에 인증 상태마다 다른 `mode`의 `BookmarkSlotProvider`를 넣는다. `anonymous`는 `mode="guest"`, `authenticated`는 `mode="member"`, `restoring`과 `unavailable`은 `mode="pending"`이다. `pending`은 `aria-disabled`라 눌러도 아무 일이 없다. 마이페이지는 `RequireAuth` 안이라 `mode="member"`로 감싼다. `guest`의 로그인 주소는 알럿에서 로그인 하러가기를 누른 순간의 주소(`location.pathname`과 `search`)로 `shared/model/login-path`의 `buildLoginPath`가 만든다. 탐색은 검색어를 서버를 다시 부르지 않고 주소에만 쓰기 때문에 라우트가 미리 만든 주소로는 그 검색어가 돌아오지 않는다.
 
-캐시를 바꾸는 자리는 `patchBookmarkInCaches` 하나다. `["popups"]`, `["recommendations"]`, `["bookmarks"]`로 시작하는 모든 쿼리 데이터를 재귀로 훑어 `id`가 같고 `isBookmarked`가 boolean인 객체를 바꾼다. 무한 쿼리의 페이지 배열과 홈 카드의 `{ popup }` 안까지 찾는다. 최근 본 팝업 탭의 하트도 상세 캐시에서 읽으므로 같이 바뀐다. 바뀐 경로의 객체만 새로 만들고 나머지는 참조가 그대로다. 그 팝업이 없는 쿼리는 업데이터가 `undefined`를 돌려줘 건드리지 않으므로 그 쿼리의 오류나 무효화 표시가 남는다. 상세 캐시(`PopupDetail`)도 `PopupSummary`를 확장하므로 같은 함수가 다룬다. 그래서 팝업을 캐시에 두는 쿼리는 이 세 접두사 중 하나로 키를 시작하고, 응답을 `select`가 아니라 queryFn 안에서 `id`와 `isBookmarked`를 가진 모델로 바꿔 둔다.
+캐시를 바꾸는 자리는 `patchBookmarkInCaches` 하나다. `["popups"]`, `["recommendations"]`, `["bookmarks"]`로 시작하는 모든 쿼리 데이터를 재귀로 훑어 `id`가 같고 `isBookmarked`가 boolean인 객체를 바꾼다. 무한 쿼리의 페이지 배열과 홈 카드의 `{ popup }` 안까지 찾는다. 지도 영역 조회(`["popups", "map", ...]`)의 항목은 `isBookmarked`가 `null`(모름)이라 건드리지 않는다. 최근 본 팝업 탭의 하트도 상세 캐시에서 읽으므로 같이 바뀐다. 바뀐 경로의 객체만 새로 만들고 나머지는 참조가 그대로다. 그 팝업이 없는 쿼리는 업데이터가 `undefined`를 돌려줘 건드리지 않으므로 그 쿼리의 오류나 무효화 표시가 남는다. 상세 캐시(`PopupDetail`)도 `PopupSummary`를 확장하므로 같은 함수가 다룬다. 그래서 팝업을 캐시에 두는 쿼리는 이 세 접두사 중 하나로 키를 시작하고, 응답을 `select`가 아니라 queryFn 안에서 `id`와 `isBookmarked`를 가진 모델로 바꿔 둔다.
 
 응답이 온 뒤에 캐시를 바꾸므로 되돌리는 경로가 없다. 무효화는 찜 목록을 다시 받아 순서와 포함 여부를 서버에 맞추고 화면은 그 사이 패치된 값을 보인다. 해제한 팝업은 다시 받은 찜 목록에서 빠진다.
 
@@ -95,7 +95,7 @@ function patchBookmarkInCaches(queryClient: QueryClient, popupId: number, isBook
 
 `resolveIntent`는 분기 있는 순수 함수라 `testing-trophy.md`의 값이 나는 자리다. 문구는 코드 여기저기에 흩지 않고 `bookmark-dialog.ts`의 표 한 곳에 둔다. 확인 알럿 셋의 메시지와 버튼 문구, 실패 문구 셋(네트워크와 타임아웃, `E404`, 나머지)이 여기 있다. 로그인 유도 알럿의 메시지와 버튼 문구는 `shared/model/login-prompt.ts`에서 가져온다.
 
-찜 목록의 항목은 `BookmarkedPopup`이다. 종료 여부는 서버 `ended`를 그대로 쓴다. 상태 배지는 `formatBookmarkBadge`가 정한다. 끝났으면 "종료된 팝업"이고, 끝나지 않았고 종료일이 서울 기준 오늘부터 7일 안이면 "종료임박 D-n"이나 "종료임박 D-Day"다. 종료일이 없거나 8일 넘게 남았으면 배지가 없다. 7일은 기획이 정했고 `ENDING_SOON_DAYS`에 있다. 종료일 줄은 탐색 카드와 같은 `shared/model/popup-format.ts`의 `formatEndDateLabel`이다("MM.dd 종료", 종료일이 없으면 "상시운영"). 응답에 지역이 없어 `region`은 `null`이고 `wishedAt`은 쓰지 않는다. 응답은 queryFn 안에서 모델로 바꾼다.
+찜 목록의 항목은 `BookmarkedPopup`이다. 종료 여부는 서버 `ended`를 그대로 쓴다. 상태 배지는 `formatBookmarkBadge`가 정한다. 끝났으면 "종료된 팝업"이고, 끝나지 않았고 종료일이 서울 기준 오늘부터 7일 안이면 "종료임박 D-n"이나 "종료임박 D-Day"다. 종료일이 없거나 8일 넘게 남았으면 배지가 없다. 7일은 기획이 정했고 `ENDING_SOON_DAYS`에 있다. 종료일 줄은 탐색 카드와 같은 `shared/model/popup-format.ts`의 `formatEndDateLabel`이다("MM.dd 종료", 종료일이 없으면 "상시운영"). `WishResponse`에 `areaName`이 없어 `areaName`은 늘 `null`이라 찜 카드 메타에 지역이 안 나온다. 시안은 "성수동 09.21 종료"처럼 지역을 앞에 적으므로 백엔드가 `areaName`을 주면 되살린다. `wishedAt`은 쓰지 않는다. 응답은 queryFn 안에서 모델로 바꾼다.
 
 ## I. Interface
 
@@ -137,9 +137,9 @@ export function useToggleBookmark(popupId: number): UseMutationResult<void, Erro
 export function bookmarkListQueryOptions(); // 키 ["bookmarks", "list"]. select가 페이지를 한 배열로 펼친다
 ```
 
-`BookmarkButton`은 알럿을 자기 안에 들고 있다. 탐색 목록은 카드마다 하트가 있어 알럿을 늘 그리면 카드 수만큼 `<dialog>`가 생기므로 열 때만 그린다. 닫을 때는 바로 지우지 않고 `AlertDialog`의 `onClosed`가 불린 뒤 지운다. 바로 지우면 닫힘 애니메이션이 사라지고 dialog가 `close()` 없이 DOM에서 빠져서 포커스가 누른 하트로 돌아오지 않는다. 찜한 하트는 채운 아이콘(`heart-fill.svg`)이다. `isBookmarked`가 `null`이면 찜 여부를 아직 모른다는 뜻이다. 상세 화면에서 서버 컴포넌트가 토큰 없이 받은 초기값만 있고 클라이언트가 받은 값이 없는 경우와 최근 본 팝업 탭에서 기록의 상세를 받기 전이다(`popup.md`). `member`와 `pending`에서는 빈 하트를 `aria-disabled`와 `aria-busy`로 그리고 누를 수 없다. `guest`는 `null`이어도 눌리고 로그인 유도 알럿을 띄운다. 확인을 누르면 알럿을 닫고 요청을 보낸다. 요청이 진행 중이면 버튼은 `aria-disabled`와 `aria-busy`이고 눌러도 핸들러가 무시한다. `disabled`를 쓰지 않는 것은 알럿이 닫히며 포커스를 하트로 돌려줄 때 요청이 진행 중이기 때문이다. `disabled`면 포커스를 받지 못해 body로 떨어진다. 실패하면 확인 버튼 하나인 실패 알럿을 연다. 알럿은 `shared/ui`의 `AlertDialog`이고 모양은 `docs/design/DESIGN-SPEC.md`의 공통 컴포넌트 표에 있다. 하단 탭바와 코스 조건 입력도 로그인 유도 알럿에 같은 `login-prompt.ts` 값을 쓴다.
+`BookmarkButton`은 알럿을 자기 안에 들고 있다. 탐색 목록은 카드마다 하트가 있어 알럿을 늘 그리면 카드 수만큼 `<dialog>`가 생기므로 열 때만 그린다. 닫을 때는 바로 지우지 않고 `AlertDialog`의 `onClosed`가 불린 뒤 지운다. 바로 지우면 닫힘 애니메이션이 사라지고 dialog가 `close()` 없이 DOM에서 빠져서 포커스가 누른 하트로 돌아오지 않는다. 찜한 하트는 채운 아이콘(`heart-fill.svg`)이다. `isBookmarked`가 `null`이면 찜 여부를 모른다는 뜻이다. 상세 화면에서 서버 컴포넌트가 토큰 없이 받은 초기값만 있고 클라이언트가 받은 값이 없는 경우, 최근 본 팝업 탭에서 기록의 상세를 받기 전, 지도 카드(지도 응답에 `wished`가 없다)가 그렇다(`popup.md`). `member`와 `pending`에서는 빈 하트를 `aria-disabled`로 그리고 누를 수 없다. 모름 상태는 `aria-busy` 없이 정적으로 비활성이고 깜빡이지 않는다. 깜빡임(`aria-busy`)은 찜 요청 중에만 있다. `guest`는 `null`이어도 눌리고 로그인 유도 알럿을 띄운다. 확인을 누르면 알럿을 닫고 요청을 보낸다. 요청이 진행 중이면 버튼은 `aria-disabled`와 `aria-busy`이고 눌러도 핸들러가 무시한다. `disabled`를 쓰지 않는 것은 알럿이 닫히며 포커스를 하트로 돌려줄 때 요청이 진행 중이기 때문이다. `disabled`면 포커스를 받지 못해 body로 떨어진다. 실패하면 확인 버튼 하나인 실패 알럿을 연다. 알럿은 `shared/ui`의 `AlertDialog`이고 모양은 `docs/design/DESIGN-SPEC.md`의 공통 컴포넌트 표에 있다. 하단 탭바와 코스 조건 입력도 로그인 유도 알럿에 같은 `login-prompt.ts` 값을 쓴다.
 
-`BookmarkList`는 처음 불러오는 동안 뼈대, 처음 불러오기 실패면 `shared/components/LoadFailure`의 실패 문구와 다시 시도, 비었으면 `MyPageEmptyState`("찜한 팝업이 없습니다."), 있으면 카드 목록을 그린다. 목록 끝의 `shared/components/ListMoreTrigger`가 화면에 들어오면 다음 페이지를 받고 다음 페이지가 실패하면 그 자리에 문구와 다시 시도를 둔다. `BookmarkListItem`은 공용 목록 카드 `shared/components/PopupListCard`에 상태 배지와 종료일 줄을 넘긴다. 종료임박 배지는 `Badge`의 primary, "종료된 팝업"은 neutral(회색)이고 끝난 팝업은 카드 전체를 흐리게 한다(`isDimmed`). 카드 모양은 `docs/design/DESIGN-SPEC.md`의 마이페이지 절에 있다.
+`BookmarkList`는 처음 불러오는 동안 뼈대, 처음 불러오기 실패면 `shared/components/LoadFailure`의 실패 문구와 다시 시도, 비었으면 `MyPageEmptyState`(제목 "찜한 팝업이 없습니다.", 안내 두 줄, "팝업 둘러보기" 버튼이 `/explore`로), 있으면 카드 목록을 그린다. 목록 끝의 `shared/components/ListMoreTrigger`가 화면에 들어오면 다음 페이지를 받고 다음 페이지가 실패하면 그 자리에 문구와 다시 시도를 둔다. `BookmarkListItem`은 공용 목록 카드 `shared/components/PopupListCard`에 상태 배지와 종료일 줄을 넘긴다. 종료임박 배지는 `Badge`의 primary, "종료된 팝업"은 neutral(회색)이고 끝난 팝업은 카드 전체를 흐리게 한다(`isDimmed`). 카드 모양은 `docs/design/DESIGN-SPEC.md`의 마이페이지 절에 있다.
 
 **서버 API.** 운영 백엔드에 있는 것이다.
 
@@ -153,7 +153,7 @@ export function bookmarkListQueryOptions(); // 키 ["bookmarks", "list"]. select
 
 **로그.** `[bookmark]` 접두사. 토글 요청이 실패할 때 `popupId`와 다음 찜 여부, `errorCode`. 찜 목록 조회 실패.
 
-**접근성.** 하트는 `<button aria-pressed={isBookmarked}>`이고 `aria-label`은 "{팝업명} 찜" 하나로 고정한다. 눌림 상태는 `aria-pressed`가 전달하므로 라벨을 "찜 해제"로 바꾸지 않는다. 아이콘만 있는 버튼이라 라벨이 필수다. `aria-pressed`는 찜한 경우에만 참이다. `pending` 모드와 요청 진행 중, 회원의 찜 여부를 모를 때는 `aria-disabled`이고 요청 진행 중과 모를 때는 `aria-busy`도 붙는다.
+**접근성.** 하트는 `<button aria-pressed={isBookmarked}>`이고 `aria-label`은 "{팝업명} 찜" 하나로 고정한다. 눌림 상태는 `aria-pressed`가 전달하므로 라벨을 "찜 해제"로 바꾸지 않는다. 아이콘만 있는 버튼이라 라벨이 필수다. `aria-pressed`는 찜한 경우에만 참이다. `pending` 모드와 요청 진행 중, 회원의 찜 여부를 모를 때는 `aria-disabled`이고 `aria-busy`는 요청 진행 중에만 붙는다.
 
 확인 대화상자는 native `<dialog>`다. 열면 확인 버튼에 포커스가 가고 Esc와 취소, 닫기 버튼이 같은 동작이며 닫으면 눌렀던 하트로 포커스가 돌아온다. 실패도 같은 대화상자로 알린다. 찜 목록 카드는 `<article>`이고 이름은 제목이다. 제목 링크의 `::after`가 카드 전체를 덮는다. 끝난 항목은 흐림 처리와 함께 "종료된 팝업" 텍스트 배지를 가진다. 색만으로 구분하지 않는다. 찜 목록을 처음 불러오는 동안은 `role="status"`로 "찜한 팝업을 불러오고 있습니다"를 읽고 더 불러오는 동안과 더 불러오기 실패는 목록 끝의 `role="status"`가 "찜한 팝업을 더 불러오고 있습니다", "찜한 팝업을 더 불러오지 못했어요."를 읽는다.
 

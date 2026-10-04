@@ -1,4 +1,7 @@
-export type KakaoLatLng = object;
+export type KakaoLatLng = {
+	getLat(): number;
+	getLng(): number;
+};
 
 export type KakaoMapOptions = {
 	center: KakaoLatLng;
@@ -8,6 +11,8 @@ export type KakaoMapOptions = {
 
 export type KakaoLatLngBounds = {
 	extend(latlng: KakaoLatLng): void;
+	getSouthWest(): KakaoLatLng;
+	getNorthEast(): KakaoLatLng;
 };
 
 export type KakaoMapInstance = {
@@ -21,6 +26,7 @@ export type KakaoMapInstance = {
 		paddingLeft?: number
 	): void;
 	relayout(): void;
+	getBounds(): KakaoLatLngBounds;
 	panBy(dx: number, dy: number): void;
 	getProjection(): KakaoMapProjection;
 	getNode(): HTMLElement;
@@ -76,13 +82,13 @@ export type KakaoMarkerClustererInstance = {
 };
 
 export type KakaoMapsEventNamespace = {
-	addListener(target: KakaoMapInstance, type: "click", handler: () => void): void;
+	addListener(target: KakaoMapInstance, type: "click" | "idle", handler: () => void): void;
 	addListener(
 		target: KakaoMarkerClustererInstance,
 		type: "clustered",
 		handler: (clusters: KakaoClusterInstance[]) => void
 	): void;
-	removeListener(target: KakaoMapInstance, type: "click", handler: () => void): void;
+	removeListener(target: KakaoMapInstance, type: "click" | "idle", handler: () => void): void;
 	removeListener(
 		target: KakaoMarkerClustererInstance,
 		type: "clustered",

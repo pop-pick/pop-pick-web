@@ -4,8 +4,8 @@ import useEmblaCarousel from "embla-carousel-react";
 import { useEffect, useState } from "react";
 
 import { useCarouselAutoplay } from "../hooks/useCarouselAutoplay";
-import { formatPickTitle } from "../model/home-format";
-import type { RecommendedPopupItem } from "../model/home-popup";
+import { PICK_TITLE } from "../model/home-format";
+import type { RecommendedPopupItem } from "../model/recommended-popup";
 import { PickCard } from "./PickCard";
 
 const CAROUSEL_OPTIONS = { align: "start", loop: true, watchFocus: false } as const;
@@ -14,11 +14,10 @@ const STOP_AUTOPLAY_LABEL = "자동 넘김 멈추기";
 const START_AUTOPLAY_LABEL = "자동 넘김 다시 시작";
 
 interface PickSectionProps {
-	nickname: string | null;
 	recommendations: RecommendedPopupItem[];
 }
 
-export function PickSection({ nickname, recommendations }: PickSectionProps) {
+export function PickSection({ recommendations }: PickSectionProps) {
 	const [expandedPopupId, setExpandedPopupId] = useState(recommendations[0]?.popup.id ?? null);
 	const [viewportRef, emblaApi] = useEmblaCarousel(CAROUSEL_OPTIONS);
 	const { isPlaying, canPlay, stopAutoplay, startAutoplay } = useCarouselAutoplay(emblaApi, AUTOPLAY_DELAY_MS);
@@ -48,7 +47,12 @@ export function PickSection({ nickname, recommendations }: PickSectionProps) {
 	};
 
 	const handleSlideFocus = (index: number) => () => {
-		emblaApi?.scrollTo(index);
+		if (emblaApi === undefined) {
+			return;
+		}
+
+		emblaApi.rootNode().scrollLeft = 0;
+		emblaApi.scrollTo(index);
 	};
 
 	const handleAutoplayToggle = () => {
@@ -64,7 +68,7 @@ export function PickSection({ nickname, recommendations }: PickSectionProps) {
 		<section aria-labelledby="pick-section-title" className="flex flex-col gap-5">
 			<div className="flex items-center justify-between gap-2">
 				<h2 id="pick-section-title" className="text-b1-18 text-text-1">
-					{formatPickTitle(nickname)}
+					{PICK_TITLE}
 				</h2>
 				<div className="flex items-center gap-2">
 					{canPlay && (

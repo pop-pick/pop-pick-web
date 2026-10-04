@@ -4,7 +4,6 @@ import Link from "next/link";
 import { BookmarkSlot } from "@/shared/components/BookmarkSlot";
 import { PopupImage } from "@/shared/components/PopupImage";
 import { POPUP_CATEGORY_LABELS } from "@/shared/model/popup";
-import { REGION_LABELS } from "@/shared/model/region";
 import { Badge } from "@/shared/ui/Badge";
 import { SeparatedText } from "@/shared/ui/SeparatedText";
 
@@ -27,7 +26,7 @@ interface MapPopupCardProps {
 export function MapPopupCard({ popup, href, onClose }: MapPopupCardProps) {
 	const { offsetY, dragHandleProps } = useDragToClose(onClose);
 	const metaParts = buildMapCardMetaParts(popup);
-	const hasBadgeRow = popup.category !== null || popup.region !== null;
+	const hasBadgeRow = popup.category !== null || popup.areaName !== null;
 
 	return (
 		<m.section
@@ -55,7 +54,7 @@ export function MapPopupCard({ popup, href, onClose }: MapPopupCardProps) {
 						{hasBadgeRow && (
 							<div className="flex items-center gap-1">
 								{popup.category !== null && <Badge>{POPUP_CATEGORY_LABELS[popup.category]}</Badge>}
-								{popup.region !== null && <Badge tone="region">{REGION_LABELS[popup.region]}</Badge>}
+								{popup.areaName !== null && <Badge tone="region">{popup.areaName}</Badge>}
 							</div>
 						)}
 						<div className="flex flex-col gap-0.75">

@@ -4,6 +4,7 @@ import { Suspense } from "react";
 
 import { RequireAuth } from "@/features/auth/components/RequireAuth";
 import { CourseView } from "@/features/course/components/CourseView";
+import { CourseViewSkeleton } from "@/features/course/components/CourseViewSkeleton";
 import { buildCourseSavedPath, parseCourseId } from "@/shared/model/course-path";
 
 export const metadata: Metadata = {
@@ -18,8 +19,8 @@ export default async function CourseSavedPage({ params }: PageProps<"/courses/[c
 	}
 
 	return (
-		<RequireAuth nextPath={buildCourseSavedPath(courseId)}>
-			<Suspense>
+		<RequireAuth nextPath={buildCourseSavedPath(courseId)} fallback={<CourseViewSkeleton />}>
+			<Suspense fallback={<CourseViewSkeleton />}>
 				<CourseView courseId={courseId} view="saved" />
 			</Suspense>
 		</RequireAuth>

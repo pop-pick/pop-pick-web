@@ -10,7 +10,7 @@ const NO_TOKEN_ERROR_CODE = "E1000";
 
 type QueryValue = string | number | boolean | null | undefined;
 
-export interface RequestOptions extends Omit<RequestInit, "body"> {
+interface RequestOptions extends Omit<RequestInit, "body"> {
 	query?: Record<string, QueryValue> | URLSearchParams;
 	json?: unknown;
 	timeoutMs?: number;

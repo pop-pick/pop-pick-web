@@ -17,7 +17,6 @@ export function toGenerateFailureMessage(error: unknown) {
 	return (errorCode === null ? undefined : GENERATE_FAILURE_MESSAGES[errorCode]) ?? DEFAULT_FAILURE_MESSAGE;
 }
 
-/** 조건을 고른 뒤 시간이 지나 날짜나 시작 시각이 더는 고를 수 없게 됐으면 그 이유를 돌려준다 */
 export function toExpiredConditionMessage(draft: PlannerDraft, sanitized: PlannerDraft) {
 	if (draft.date !== null && sanitized.date === null) {
 		return PAST_DATE_MESSAGE;

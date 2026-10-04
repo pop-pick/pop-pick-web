@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { DayPicker } from "react-day-picker";
 import { ko } from "react-day-picker/locale";
 
-import { DATE_ONLY_FORMAT, parseDateOnly, SEOUL_TIME_ZONE } from "@/shared/lib/date";
+import { DATE_ONLY_FORMAT, parseDateOnly, parseDateOnlyOrThrow, SEOUL_TIME_ZONE } from "@/shared/lib/date";
 
 import { CalendarChevron } from "./CalendarChevron";
 
@@ -35,17 +35,16 @@ const CALENDAR_CLASS_NAMES = {
 	button_next: NAV_BUTTON_CLASS,
 	month_grid: "mt-5.5 w-full table-fixed border-collapse",
 	weekday: "h-10 text-b2-12 text-text-5",
-	day: "group h-10 p-0 text-center text-text-1",
+	day: "group h-10 p-0 text-center text-text-1 data-disabled:text-text-6",
 	day_button:
 		"mx-auto flex size-10 items-center justify-center rounded-xl border border-transparent text-b3-14 focus-ring transition-colors not-disabled:hover:bg-bg-2 group-aria-selected:border-primary group-aria-selected:bg-primary-subtle",
-	disabled: "text-text-6",
 	outside: "invisible"
 };
 
 export function CalendarPanel({ selectedDate, minDate, maxDate, onSelect }: CalendarPanelProps) {
 	const selectedDay = selectedDate === null ? undefined : (parseDateOnly(selectedDate) ?? undefined);
-	const firstSelectableDate = parseDateOnly(minDate) ?? undefined;
-	const lastSelectableDate = parseDateOnly(maxDate) ?? undefined;
+	const firstSelectableDate = parseDateOnlyOrThrow(minDate);
+	const lastSelectableDate = parseDateOnlyOrThrow(maxDate);
 
 	const handleSelect = (date: Date) => {
 		onSelect(format(date, DATE_ONLY_FORMAT));
@@ -61,10 +60,7 @@ export function CalendarPanel({ selectedDate, minDate, maxDate, onSelect }: Cale
 			defaultMonth={selectedDay ?? firstSelectableDate}
 			startMonth={firstSelectableDate}
 			endMonth={lastSelectableDate}
-			disabled={[
-				...(firstSelectableDate === undefined ? [] : [{ before: firstSelectableDate }]),
-				...(lastSelectableDate === undefined ? [] : [{ after: lastSelectableDate }])
-			]}
+			disabled={[{ before: firstSelectableDate }, { after: lastSelectableDate }]}
 			autoFocus
 			navLayout="around"
 			formatters={CALENDAR_FORMATTERS}

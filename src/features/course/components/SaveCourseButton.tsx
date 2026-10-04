@@ -23,6 +23,7 @@ export function SaveCourseButton({ courseId }: SaveCourseButtonProps) {
 	const [failureMessage, setFailureMessage] = useState("");
 	const [isFailureOpen, setIsFailureOpen] = useState(false);
 	const isRequestInFlightRef = useRef(false);
+	const saveButtonRef = useRef<HTMLButtonElement>(null);
 
 	const handleSave = () => {
 		if (isRequestInFlightRef.current) {
@@ -43,16 +44,25 @@ export function SaveCourseButton({ courseId }: SaveCourseButtonProps) {
 		});
 	};
 
-	const handleFailureClose = () => {
+	const handleFailureConfirm = () => {
 		setIsFailureOpen(false);
+	};
+
+	const handleFailureClosed = () => {
+		saveButtonRef.current?.focus();
 	};
 
 	return (
 		<>
-			<Button size="md" disabled={isPending} aria-busy={isPending} onClick={handleSave}>
+			<Button ref={saveButtonRef} size="md" disabled={isPending} aria-busy={isPending} onClick={handleSave}>
 				내 플래너에 저장하기
 			</Button>
-			<AlertDialog open={isFailureOpen} message={failureMessage} onConfirm={handleFailureClose} />
+			<AlertDialog
+				open={isFailureOpen}
+				message={failureMessage}
+				onConfirm={handleFailureConfirm}
+				onClosed={handleFailureClosed}
+			/>
 		</>
 	);
 }

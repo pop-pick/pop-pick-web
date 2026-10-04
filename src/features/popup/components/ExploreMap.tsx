@@ -1,18 +1,16 @@
 "use client";
 
-import type { KakaoLatLngLiteral } from "@/shared/lib/kakao-map/kakao-map-utils";
+import { useState } from "react";
+
+import type { KakaoBoundsLiteral, KakaoLatLngLiteral } from "@/shared/lib/kakao-map/kakao-map-utils";
 import { Button } from "@/shared/ui/Button";
 
-import { usePopupsForMap } from "../hooks/usePopupsForMap";
-import { buildExploreEmptyMessage } from "../model/explore-empty-message";
+import { useMapPopups } from "../hooks/useMapPopups";
+import { buildMapEmptyMessage } from "../model/explore-empty-message";
 import type { PositionStatus } from "../model/position-status";
 import { PopupMap } from "./PopupMap";
 
 const LOAD_FAILURE_TITLE = "팝업을 불러오지 못했어요.";
-const NO_PIN_MESSAGE = {
-	title: "지도에 표시할 팝업이 없어요.",
-	description: "위치 정보가 없는 팝업은\n목록에서 볼 수 있어요."
-};
 
 interface ExploreMapProps {
 	keyword: string;
@@ -24,11 +22,11 @@ interface ExploreMapProps {
 }
 
 export function ExploreMap({ keyword, ...mapProps }: ExploreMapProps) {
-	const { popups, markers, isPending, isEmpty, error, retry } = usePopupsForMap(keyword);
-	const emptyMessage = buildExploreEmptyMessage(keyword);
+	const [bounds, setBounds] = useState<KakaoBoundsLiteral | null>(null);
+	const { popups, markers, isPending, isEmpty, error, retry } = useMapPopups(keyword, bounds);
+	const notice = buildMapEmptyMessage(keyword);
 	const isFailed = error !== null;
-	const hasNotice = !isFailed && (isEmpty || (!isPending && popups.length === 0));
-	const notice = isEmpty ? emptyMessage : NO_PIN_MESSAGE;
+	const hasNotice = !isFailed && isEmpty;
 
 	const buildResultAnnouncement = () => {
 		if (isFailed) {
@@ -66,7 +64,7 @@ export function ExploreMap({ keyword, ...mapProps }: ExploreMapProps) {
 					<p className="text-b3-12 whitespace-pre-line text-text-4">{notice.description}</p>
 				</div>
 			)}
-			<PopupMap popups={popups} markers={markers} {...mapProps} />
+			<PopupMap keyword={keyword} popups={popups} markers={markers} onBoundsChange={setBounds} {...mapProps} />
 		</>
 	);
 }

@@ -16,6 +16,7 @@ function buildDetailResponse(overrides: Partial<PopupDetailResponse> = {}) {
 		description: "가을 시즌 테마 팝업스토어입니다.",
 		imageUrls: null,
 		interestCategoryId: 3,
+		areaName: "성수",
 		startDate: "2026-10-01",
 		endDate: "2026-10-26",
 		openingHours: "매일 11:00 ~ 20:00",
@@ -26,6 +27,7 @@ function buildDetailResponse(overrides: Partial<PopupDetailResponse> = {}) {
 		longitude: 127.05,
 		reservationType: "BOTH",
 		reservationUrl: "https://example.com/reserve",
+		viewCount: 12_345,
 		wished: false,
 		...overrides
 	};
@@ -48,6 +50,8 @@ test("TC-011 팝업 상세에 팝업명과 기간, 위치, 운영시간, 입장�
 	renderDetail();
 
 	expect(screen.getByRole("heading", { level: 1, name: "성수 어글리 토이 팝업" })).toBeInTheDocument();
+	expect(screen.getByText("성수")).toBeInTheDocument();
+	expect(screen.getByText("조회수 1.2만")).toBeInTheDocument();
 	expect(screen.getByText("서울 성동구 연무장길 15 1층")).toBeInTheDocument();
 	expect(screen.getByText("2026.10.01 ~ 10.26 (매일 11:00 ~ 20:00)")).toBeInTheDocument();
 	expect(screen.getByText("무료 입장")).toBeInTheDocument();

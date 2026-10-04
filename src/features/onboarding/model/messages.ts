@@ -30,6 +30,7 @@ export const WELCOME_MESSAGE = "POP PICK과 시작하는 여정을 환영합니�
 export const FREE_TEXT_PLACEHOLDER = "예시) 귀여운 캐릭터 굿즈 구경하는 걸 좋아해요.";
 export const FREE_TEXT_DESCRIPTION = "좋아하는 것을 자유롭게 작성해주세요.\nAI가 팝업을 추천할 때 참고해요.";
 
+export const AUTH_CHECKING_MESSAGE = "로그인 상태를 확인하고 있습니다";
 export const ANSWERS_LOADING_MESSAGE = "입력한 답을 불러오고 있습니다";
 export const ANSWERS_STORAGE_FAILURE_MESSAGE =
 	"이 브라우저에 답을 저장하지 못했어요. 새로고침하면 고른 답이 사라질 수 있어요.";
@@ -37,6 +38,9 @@ export const OPTIONS_LOADING_MESSAGE = "선택지를 불러오고 있습니다";
 export const OPTIONS_LOAD_FAILURE_TITLE = "선택지를 불러오지 못했어요.";
 export const OPTIONS_LOAD_FAILURE_DESCRIPTION = "잠시 뒤 다시 시도해 주세요.";
 export const SAVE_FAILURE_MESSAGE = "취향을 저장하지 못했어요. 고른 답은 그대로 남아 있어요.";
+export const SAVE_REJECTED_MESSAGE = "저장할 수 없는 상태예요. 이미 취향을 저장했다면 홈에서 그대로 이용할 수 있어요.";
+export const SAVE_REJECTED_NO_COMPANION_MESSAGE =
+	"동행 유형과 인원수를 고르지 않아 저장하지 못했어요. 1단계에서 골라 주세요.";
 export const SAVE_PENDING_MESSAGE = "취향을 저장하고 있습니다";
 
 export function formatEnteredLength(length: number, maxLength: number) {

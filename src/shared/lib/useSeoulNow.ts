@@ -1,5 +1,5 @@
 import { TZDate } from "@date-fns/tz";
-import { useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 
 import { getSeoulNow, SEOUL_TIME_ZONE } from "./date";
 
@@ -34,5 +34,5 @@ function subscribeMinute(onMinuteChange: () => void) {
  */
 export function useSeoulNow() {
 	const minute = useSyncExternalStore(subscribeMinute, readMinute, readMinute);
-	return new TZDate(minute * MINUTE_MS, SEOUL_TIME_ZONE);
+	return useMemo(() => new TZDate(minute * MINUTE_MS, SEOUL_TIME_ZONE), [minute]);
 }

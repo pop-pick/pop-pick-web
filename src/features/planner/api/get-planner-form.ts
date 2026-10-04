@@ -1,6 +1,8 @@
 import { queryOptions } from "@tanstack/react-query";
+import { addHours, format } from "date-fns";
 
 import { api } from "@/shared/api/client";
+import { getSeoulNow, parseTimeOnlyOrThrow, TIME_ONLY_FORMAT } from "@/shared/lib/date";
 
 import type { PlannerFormData } from "../model/planner-form";
 
@@ -24,24 +26,13 @@ interface PlannerFormResponse {
 	startTimeRange: { min: string; max: string };
 }
 
-const MINUTES_PER_HOUR = 60;
-
-function toMinutes(time: string) {
-	const [hours = 0, minutes = 0] = time.split(":").map(Number);
-	return hours * MINUTES_PER_HOUR + minutes;
-}
-
-function toTime(totalMinutes: number) {
-	const hours = Math.floor(totalMinutes / MINUTES_PER_HOUR);
-	const minutes = totalMinutes % MINUTES_PER_HOUR;
-	return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
-}
-
 function toHourlyTimes(min: string, max: string) {
+	const baseDate = getSeoulNow();
+	const end = parseTimeOnlyOrThrow(max, baseDate);
 	const times: string[] = [];
 
-	for (let minutes = toMinutes(min); minutes <= toMinutes(max); minutes += MINUTES_PER_HOUR) {
-		times.push(toTime(minutes));
+	for (let time = parseTimeOnlyOrThrow(min, baseDate); time <= end; time = addHours(time, 1)) {
+		times.push(format(time, TIME_ONLY_FORMAT));
 	}
 
 	return times;

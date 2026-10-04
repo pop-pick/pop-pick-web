@@ -39,7 +39,7 @@ export function useKakaoMapSdk() {
 					return;
 				}
 
-				console.error("[kakao-map] KakaoMapSession.load 가 KakaoMapError 가 아닌 값으로 거절했습니다", error);
+				console.error("[kakao-map] KakaoMapSession.loadSdk 가 KakaoMapError 가 아닌 값으로 거절했습니다", error);
 
 				const unexpectedLoadError = new Error("카카오맵 SDK 로더가 KakaoMapError 가 아닌 값으로 거절했습니다.", {
 					cause: error

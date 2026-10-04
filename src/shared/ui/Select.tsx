@@ -227,13 +227,13 @@ export function Select<T>({ options, value, onChange, formatOptionLabel, label, 
 					role="listbox"
 					tabIndex={-1}
 					aria-labelledby={labelIds}
-					aria-activedescendant={`${listboxId}-${String(activeIndex)}`}
+					aria-activedescendant={activeIndex === null ? undefined : `${listboxId}-${String(activeIndex)}`}
 					onKeyDown={handleListboxKeyDown}
 					className={styles.listbox()}
 				>
 					{options.map((option, index) => (
 						<li
-							key={formatOptionLabel(option)}
+							key={index}
 							id={`${listboxId}-${String(index)}`}
 							role="option"
 							aria-selected={option === value}

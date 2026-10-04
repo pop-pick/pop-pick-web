@@ -1,4 +1,4 @@
-export type ApiErrorKind = "http" | "network" | "timeout" | "invalid-body";
+type ApiErrorKind = "http" | "network" | "timeout" | "invalid-body";
 
 interface ApiErrorInit {
 	kind: ApiErrorKind;

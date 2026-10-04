@@ -1,7 +1,7 @@
 import { ApiError } from "@/shared/api/errors";
 import { LOGIN_CONFIRM_LABEL, LOGIN_REQUIRED_MESSAGE } from "@/shared/model/login-prompt";
 
-export type BookmarkIntent = "login-required" | "add" | "remove";
+type BookmarkIntent = "login-required" | "add" | "remove";
 
 export type BookmarkDialog = BookmarkIntent | "failure";
 

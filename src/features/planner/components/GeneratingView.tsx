@@ -74,7 +74,7 @@ export function GeneratingView({ onCancel }: GeneratingViewProps) {
 		<section aria-labelledby={titleId} className="flex flex-1 flex-col">
 			<div className="flex flex-col items-center px-5 pt-30.5 text-center">
 				<GeneratingSpinner />
-				<h1 ref={titleRef} id={titleId} tabIndex={-1} className="mt-11.25 text-h1 text-text-1 outline-none">
+				<h1 ref={titleRef} id={titleId} tabIndex={-1} className="mt-11.25 text-h1 text-text-1">
 					팝업 코스를 만들고 있어요.
 				</h1>
 				<p className="mt-3 text-b2-14 text-text-4">10초 정도 소요될 수 있어요.</p>

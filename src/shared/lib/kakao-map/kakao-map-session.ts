@@ -14,7 +14,7 @@ import type {
 	KakaoMapsSdk,
 	KakaoMarkerClustererInstance
 } from "./kakao-map-sdk";
-import type { KakaoLatLngLiteral } from "./kakao-map-utils";
+import type { KakaoBoundsLiteral, KakaoLatLngLiteral } from "./kakao-map-utils";
 import { buildKakaoMapSdkUrl, isSamePosition, readKakaoMapKey, toLatLng } from "./kakao-map-utils";
 
 export type KakaoMarkerData = {
@@ -39,6 +39,7 @@ type KakaoMapViewOptions = {
 
 type MarkerClickHandler = (markerId: string) => void;
 type MapClickHandler = () => void;
+type BoundsChangeHandler = (bounds: KakaoBoundsLiteral) => void;
 
 type SyncedPin = {
 	overlay: KakaoCustomOverlayInstance;
@@ -156,11 +157,16 @@ export class KakaoMapSession {
 	private observer: ResizeObserver | null = null;
 	private onMarkerClick: MarkerClickHandler | undefined = undefined;
 	private onMapClick: MapClickHandler | undefined = undefined;
+	private onBoundsChange: BoundsChangeHandler | undefined = undefined;
 	private selectedId: string | null = null;
 	private myPosition: KakaoCustomOverlayInstance | null = null;
 
 	private readonly handleMapClick = () => {
 		this.onMapClick?.();
+	};
+
+	private readonly handleIdle = () => {
+		this.notifyBounds();
 	};
 
 	private readonly handleClustered = (clusters: KakaoClusterInstance[]) => {
@@ -203,6 +209,7 @@ export class KakaoMapSession {
 					});
 
 		this.sdk.maps.event.addListener(this.map, "click", this.handleMapClick);
+		this.sdk.maps.event.addListener(this.map, "idle", this.handleIdle);
 		if (this.clusterer !== null) {
 			this.sdk.maps.event.addListener(this.clusterer, "clustered", this.handleClustered);
 		}
@@ -243,6 +250,24 @@ export class KakaoMapSession {
 
 	public setMapClickHandler(handler: MapClickHandler | undefined) {
 		this.onMapClick = handler;
+	}
+
+	public setBoundsChangeHandler(handler: BoundsChangeHandler | undefined) {
+		this.onBoundsChange = handler;
+	}
+
+	/** 지도가 멈춘 뒤에만 이벤트가 오므로 처음 영역은 이 메서드로 한 번 알린다 */
+	public notifyBounds() {
+		const bounds = this.map.getBounds();
+		const southWest = bounds.getSouthWest();
+		const northEast = bounds.getNorthEast();
+
+		this.onBoundsChange?.({
+			swLat: southWest.getLat(),
+			swLng: southWest.getLng(),
+			neLat: northEast.getLat(),
+			neLng: northEast.getLng()
+		});
 	}
 
 	public setSelectedMarker(id: string | null) {
@@ -327,6 +352,7 @@ export class KakaoMapSession {
 
 		this.setMyPosition(null);
 		this.sdk.maps.event.removeListener(this.map, "click", this.handleMapClick);
+		this.sdk.maps.event.removeListener(this.map, "idle", this.handleIdle);
 		if (this.clusterer !== null) {
 			this.sdk.maps.event.removeListener(this.clusterer, "clustered", this.handleClustered);
 			this.clusterer.setMap(null);

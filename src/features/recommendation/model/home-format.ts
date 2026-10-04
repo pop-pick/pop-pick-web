@@ -3,7 +3,7 @@ import { format } from "date-fns";
 import { parseDateOnlyOrThrow } from "@/shared/lib/date";
 
 const MONTH_DAY_FORMAT = "MM.dd";
-const DEFAULT_NICKNAME = "회원";
+export const PICK_TITLE = "회원님의 팝업 PICK";
 
 export function formatPopupPeriod(startDate: string | null, endDate: string | null) {
 	if (startDate === null && endDate === null) {
@@ -14,8 +14,4 @@ export function formatPopupPeriod(startDate: string | null, endDate: string | nu
 	const end = endDate === null ? "" : format(parseDateOnlyOrThrow(endDate), MONTH_DAY_FORMAT);
 
 	return `${start} ~ ${end}`.trim();
-}
-
-export function formatPickTitle(nickname: string | null) {
-	return `${nickname ?? DEFAULT_NICKNAME}님의 팝업 PICK`;
 }

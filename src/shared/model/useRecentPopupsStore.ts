@@ -1,10 +1,13 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
+import { subscribeSessionEnded } from "@/shared/api/auth-token";
+
+import { ACCOUNT_STORAGE_KEYS } from "./account-storage";
 import type { PopupSummary } from "./popup";
 
-const STORAGE_KEY = "pp-recent-popups";
-const STORAGE_VERSION = 2;
+const STORAGE_KEY = ACCOUNT_STORAGE_KEYS.recentPopups;
+const STORAGE_VERSION = 3;
 const RECENT_POPUP_LIMIT = 10;
 
 export type RecentPopup = Omit<PopupSummary, "isBookmarked">;
@@ -60,6 +63,10 @@ export const useRecentPopupsStore = create<RecentPopupsState>()(
 		}
 	)
 );
+
+subscribeSessionEnded(() => {
+	useRecentPopupsStore.getState().clearRecentPopups();
+});
 
 /** zustand persist는 저장소를 얻지 못하면(사이트 데이터를 막은 브라우저) 스토어에 persist를 붙이지 않고 조용히 넘어간다. 그때 rehydrate를 부르면 TypeError로 화면이 죽으므로 불러오기 실패로 돌린다 */
 export function loadRecentPopups() {

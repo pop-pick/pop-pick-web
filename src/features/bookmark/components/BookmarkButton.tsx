@@ -81,7 +81,7 @@ export function BookmarkButton({ mode, popupId, popupTitle, isBookmarked, size =
 				size={size}
 				aria-pressed={isBookmarked === true}
 				aria-disabled={isUnavailable || undefined}
-				aria-busy={isPending || isBookmarkUnknown || undefined}
+				aria-busy={isPending || undefined}
 				onClick={handleBookmarkClick}
 			>
 				<SvgIcon icon={isBookmarked === true ? HeartFillIcon : HeartIcon} size={ICON_SIZES[size]} />

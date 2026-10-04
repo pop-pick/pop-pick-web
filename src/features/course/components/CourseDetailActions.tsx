@@ -79,7 +79,7 @@ export function CourseDetailActions({ courseId, canDelete }: CourseDetailActions
 		deleteButtonRef.current?.focus();
 	};
 
-	const handleDeleteFailureClose = () => {
+	const handleDeleteFailureConfirm = () => {
 		setIsDeleteFailed(false);
 	};
 
@@ -117,7 +117,7 @@ export function CourseDetailActions({ courseId, canDelete }: CourseDetailActions
 			<AlertDialog
 				open={isDeleteFailed}
 				message={DELETE_FAILED_MESSAGE}
-				onConfirm={handleDeleteFailureClose}
+				onConfirm={handleDeleteFailureConfirm}
 				onClosed={handleDeleteFailureClosed}
 			/>
 		</div>

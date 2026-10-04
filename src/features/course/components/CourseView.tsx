@@ -8,7 +8,6 @@ import { EmptyState } from "@/shared/components/EmptyState";
 import { LoadFailure } from "@/shared/components/LoadFailure";
 import { PLANNER_PATH } from "@/shared/model/planner-path";
 import { LinkButton } from "@/shared/ui/LinkButton";
-import { Skeleton } from "@/shared/ui/Skeleton";
 
 import { courseDetailQueryOptions } from "../api/get-planner";
 import { isCourseUnavailableError } from "../model/course-error";
@@ -16,6 +15,7 @@ import { buildRegenerateHref } from "../model/course-regenerate";
 import { CourseDetail } from "./CourseDetail";
 import { CourseRecommendation } from "./CourseRecommendation";
 import { CourseSaved } from "./CourseSaved";
+import { CourseViewSkeleton } from "./CourseViewSkeleton";
 
 interface CourseViewProps {
 	courseId: number;
@@ -37,13 +37,7 @@ export function CourseView({ courseId, view }: CourseViewProps) {
 	};
 
 	if (isPending) {
-		return (
-			<div role="status" className="flex flex-1 flex-col gap-5 px-5 pt-6">
-				<span className="sr-only">일정을 불러오고 있습니다</span>
-				<Skeleton className="h-38 rounded-2xl" />
-				<Skeleton className="h-70 rounded-2xl" />
-			</div>
-		);
+		return <CourseViewSkeleton />;
 	}
 
 	if (error !== null) {
