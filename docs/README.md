@@ -18,7 +18,7 @@
 | `docs/release/PRIVACY.md`           | 어떤 정보를 모으고 어떻게 다루는가                                                                                              |
 | `docs/harness/AI_WORKFLOW.md`       | 에이전트 하네스가 어떻게 돌고 어떻게 고치는가                                                                                   |
 
-설치와 스크립트, 기술 스택은 루트 `README.md`에, 기여 절차는 `CONTRIBUTING.md`에, 에이전트가 세션마다 지킬 것은 `AGENTS.md`에 있다.
+서비스 소개와 문서 입구는 루트 `README.md`에, 개발 환경과 명령, 기여 절차는 `CONTRIBUTING.md`에, 에이전트가 세션마다 지킬 것은 `AGENTS.md`에 있다.
 
 ## 배치 기준
 
