@@ -1,6 +1,6 @@
-export type ResultType = "SUCCESS" | "ERROR";
+type ResultType = "SUCCESS" | "ERROR";
 
-export interface ErrorMessage {
+interface ErrorMessage {
 	errorCode: string;
 	message: string;
 	data: unknown;
