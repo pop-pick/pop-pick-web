@@ -37,7 +37,7 @@ function toBookmarkedPopup(wish: WishResponse) {
 	return popup;
 }
 
-export async function getBookmarks(cursor: string | null, signal?: AbortSignal) {
+async function getBookmarks(cursor: string | null, signal?: AbortSignal) {
 	const page = await api.get<PageResponse<WishResponse>>("/api/v1/wishes", {
 		query: { cursor, limit: PAGE_SIZE },
 		signal
