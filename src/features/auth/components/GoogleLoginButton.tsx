@@ -4,9 +4,7 @@ import Image from "next/image";
 
 import { Button } from "@/shared/ui/Button";
 
-import { storeNextPath } from "../model/next-path";
-import { buildOAuthAuthorizeUrl, buildOAuthRedirectUri } from "../model/oauth-provider";
-import { createOAuthState } from "../model/oauth-state";
+import { startOAuthLogin } from "../model/oauth-provider";
 
 const GOOGLE_LOGO_SIZE = 24;
 
@@ -16,8 +14,7 @@ interface GoogleLoginButtonProps {
 
 export function GoogleLoginButton({ nextPath }: GoogleLoginButtonProps) {
 	const handleLogin = () => {
-		storeNextPath(nextPath);
-		window.location.href = buildOAuthAuthorizeUrl("GOOGLE", buildOAuthRedirectUri("GOOGLE"), createOAuthState());
+		startOAuthLogin("GOOGLE", nextPath);
 	};
 
 	return (
