@@ -23,6 +23,7 @@ const TEXT_SHADOW_TOKENS = ["on-image"];
 const SPACING_TOKENS = ["tab-bar-gap", "float-gap", "tab-bar-clearance", "tab-bar-space"];
 const CONTAINER_TOKENS = ["app"];
 const BLUR_TOKENS = ["floating"];
+const RADIUS_TOKENS = ["panel"];
 
 export const TAILWIND_MERGE_CONFIG = {
 	extend: {
@@ -32,7 +33,8 @@ export const TAILWIND_MERGE_CONFIG = {
 			"text-shadow": TEXT_SHADOW_TOKENS,
 			spacing: SPACING_TOKENS,
 			container: CONTAINER_TOKENS,
-			blur: BLUR_TOKENS
+			blur: BLUR_TOKENS,
+			radius: RADIUS_TOKENS
 		}
 	}
 };
