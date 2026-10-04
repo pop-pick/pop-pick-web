@@ -103,7 +103,7 @@ rewrite는 `/api/v1/:path*`로 좁힌다. 백엔드 API가 전부 `/api/v1/**`�
 
 마이페이지는 여러 기능을 한 화면에 조립하는 자리라 탭과 하단 메뉴, 확인 중 스켈레톤을 `shared/components`의 `MyPageTabs`와 `MyPageMenu`, `MyPageSkeleton`에 둔다. 찜(bookmark)과 최근 본 팝업(popup) 두 탭이 같이 쓰는 빈 상태는 `MyPageEmptyState`다. 각 탭의 내용과 로그아웃 행은 라우트가 기능 폴더에서 가져와 슬롯으로 넘긴다.
 
-`shared/ui`와 `shared/components`를 가르는 기준과 올리는 조건은 `.agents/rules/ui.md`에 있다. 날짜를 다루는 규칙은 `AGENTS.md`의 자주 틀리는 것 절에, 클래스 변형을 적는 방법은 `.agents/rules/tailwind.md`에 있다. 카카오맵 모듈 `shared/lib/kakao-map`이 무엇을 주는지는 그것을 쓰는 `popup.md`와 `course.md`에 있다. 플래너 홈과 마이페이지가 함께 쓰는 탭 `Tabs`와 메뉴 행 `ListRow`는 `shared/ui`에 있다. 여러 목록이 함께 쓰는 처음 불러오기 실패 블록 `LoadFailure`와 무한 목록 끝 감시 `ListMoreTrigger`, 탐색과 마이페이지의 목록 카드 `PopupListCard`는 `shared/components`에 있다. 무한 목록은 기능마다 `infiniteQueryOptions`를 바로 쓴다. `PopupImage`는 이미지 주소가 있어도 받지 못하면(`onError`) 카테고리 대체 그림으로 바꾸고 주소가 바뀌면 다시 그린다. 수집된 이미지가 여러 외부 호스트에서 오기 때문이다.
+`shared/ui`와 `shared/components`를 가르는 기준과 올리는 조건은 `.agents/rules/ui.md`에 있다. 날짜를 다루는 규칙은 `AGENTS.md`의 자주 틀리는 것 절에, 클래스 변형을 적는 방법은 `.agents/rules/tailwind.md`에 있다. 카카오맵 모듈 `shared/lib/kakao-map`이 무엇을 주는지는 그것을 쓰는 `popup.md`와 `course.md`에 있다. 플래너 홈과 마이페이지가 함께 쓰는 탭 `Tabs`와 메뉴 행 `ListRow`는 `shared/ui`에 있다. `Tabs`와 탐색의 `ViewToggle`은 방향키와 Home, End로 옮길 칸을 `shared/lib/roving-index.ts`의 `resolveRovingIndex`로 구한다. 여러 목록이 함께 쓰는 처음 불러오기 실패 블록 `LoadFailure`와 무한 목록 끝 감시 `ListMoreTrigger`, 탐색과 마이페이지의 목록 카드 `PopupListCard`는 `shared/components`에 있다. 무한 목록은 기능마다 `infiniteQueryOptions`를 바로 쓴다. `PopupImage`는 이미지 주소가 있어도 받지 못하면(`onError`) 카테고리 대체 그림으로 바꾸고 주소가 바뀌면 다시 그린다. 수집된 이미지가 여러 외부 호스트에서 오기 때문이다.
 
 ## 공통 계약
 
@@ -126,7 +126,7 @@ rewrite는 `/api/v1/:path*`로 좁힌다. 백엔드 API가 전부 `/api/v1/**`�
 ### 실패의 표면
 
 - 쿼리의 처음 불러오기 실패는 그 섹션의 `LoadFailure`로 보인다. 다시 시도 버튼이 `refetch`를 부른다. 무한 목록의 다음 페이지 실패는 `ListMoreTrigger`가 목록 끝에 다시 시도를 둔다
-- 라우트 단위로 던져진 오류는 가장 가까운 `error.tsx`가 받는다. 루트에 하나 있고 다시 시도는 Next의 `retry`라 서버 컴포넌트를 다시 받아 그린다. 생성 완료와 일정 상세처럼 지도가 있는 화면은 자기 `error.tsx`를 두는 설계이고 지금 `src/app/courses/[courseId]/`에는 없다
+- 라우트 단위로 던져진 오류는 가장 가까운 `error.tsx`가 받는다. 루트에 하나 있고 다시 시도는 Next의 `retry`라 서버 컴포넌트를 다시 받아 그린다. 루트 레이아웃이 던진 오류는 `error.tsx`가 받지 못해 `src/app/global-error.tsx`가 받는다. 이 화면은 `html`과 `body`를 직접 그리고 전역 스타일과 `Button`이 닿지 않아 스타일 없이 제목과 다시 시도 버튼만 둔다. 생성 완료와 일정 상세처럼 지도가 있는 화면은 자기 `error.tsx`를 두는 설계이고 지금 `src/app/courses/[courseId]/`에는 없다
 - `ApiError.errorCode`로 문구를 가른다. `ApiError.message`는 로그용이라 화면에 그대로 내지 않는다
 - 축소 동작은 SPEC에 적힌 하나뿐이다. 추천이 준비되기 전이나 실패했을 때의 인기순 대체이고 추천 API가 생기면 붙인다. 화면에서 구분되고 `console.warn` 로그를 남긴다
 

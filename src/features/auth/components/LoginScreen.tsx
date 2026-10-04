@@ -1,10 +1,11 @@
 import Image from "next/image";
+import { Suspense } from "react";
 
 import { BackButton } from "@/shared/components/BackButton";
 import { DEFAULT_NEXT_PATH } from "@/shared/model/login-path";
+import { Skeleton } from "@/shared/ui/Skeleton";
 
-import { GoogleLoginButton } from "./GoogleLoginButton";
-import { KakaoLoginButton } from "./KakaoLoginButton";
+import { LoginButtons } from "./LoginButtons";
 
 const LOGO_MARK_WIDTH = 51;
 const LOGO_MARK_HEIGHT = 55;
@@ -15,11 +16,7 @@ const LOGIN_NOTICES = [
 	"로그인 완료 후 개인화 홈으로 이동해 추천 결과를 확인할 수 있습니다."
 ];
 
-interface LoginScreenProps {
-	nextPath: string | null;
-}
-
-export function LoginScreen({ nextPath }: LoginScreenProps) {
+export function LoginScreen() {
 	return (
 		<main className="flex flex-1 flex-col pb-13">
 			<div className="flex h-20 items-end px-5 pb-5">
@@ -47,8 +44,16 @@ export function LoginScreen({ nextPath }: LoginScreenProps) {
 
 			<div aria-hidden className="max-h-34.5 grow" />
 			<section className="flex flex-col gap-2.5 px-5">
-				<KakaoLoginButton nextPath={nextPath} />
-				<GoogleLoginButton nextPath={nextPath} />
+				<Suspense
+					fallback={
+						<>
+							<Skeleton className="h-13 rounded-xl" />
+							<Skeleton className="h-13 rounded-xl" />
+						</>
+					}
+				>
+					<LoginButtons />
+				</Suspense>
 			</section>
 
 			<ul className="mx-5 mt-8 space-y-5 rounded-2xl bg-bg-2 py-6 pr-5 pl-12 text-b3-14 break-keep text-text-3">

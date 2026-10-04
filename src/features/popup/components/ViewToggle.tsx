@@ -1,6 +1,7 @@
 import * as m from "motion/react-m";
 import { type KeyboardEvent, useRef } from "react";
 
+import { resolveRovingIndex } from "@/shared/lib/roving-index";
 import { EXPLORE_VIEW_LABELS, EXPLORE_VIEW_MODES, type ExploreViewMode } from "@/shared/model/explore-state";
 
 interface ViewToggleProps {
@@ -8,28 +9,13 @@ interface ViewToggleProps {
 	onChange: (view: ExploreViewMode) => void;
 }
 
-const ARROW_STEPS: Record<string, number> = { ArrowRight: 1, ArrowLeft: -1 };
 const INDICATOR_TRANSITION = { type: "spring", bounce: 0.25, duration: 0.4 } as const;
-
-function resolveNextIndex(key: string, currentIndex: number, count: number) {
-	if (key === "Home") {
-		return 0;
-	}
-
-	if (key === "End") {
-		return count - 1;
-	}
-
-	const step = ARROW_STEPS[key];
-
-	return step === undefined ? null : (currentIndex + step + count) % count;
-}
 
 export function ViewToggle({ view, onChange }: ViewToggleProps) {
 	const buttonsRef = useRef<(HTMLButtonElement | null)[]>([]);
 
 	const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-		const nextIndex = resolveNextIndex(event.key, EXPLORE_VIEW_MODES.indexOf(view), EXPLORE_VIEW_MODES.length);
+		const nextIndex = resolveRovingIndex(event.key, EXPLORE_VIEW_MODES.indexOf(view), EXPLORE_VIEW_MODES.length);
 		const nextView = nextIndex === null ? undefined : EXPLORE_VIEW_MODES[nextIndex];
 
 		if (nextIndex === null || nextView === undefined) {

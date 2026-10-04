@@ -11,7 +11,7 @@ interface ApiErrorInit {
 
 function buildMessage({ kind, status, errorCode, url }: ApiErrorInit) {
 	const code = errorCode === null ? "" : ` errorCode=${errorCode}`;
-	return `API 요청 실패: kind=${kind} status=${status}${code} url=${url}`;
+	return `API 요청 실패: kind=${kind} status=${String(status)}${code} url=${url}`;
 }
 
 export class ApiError extends Error {

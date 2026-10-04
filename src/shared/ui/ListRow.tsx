@@ -6,7 +6,6 @@ import { SvgIcon } from "./SvgIcon";
 
 interface ListRowProps {
 	label: string;
-	/** 주면 행이 포커스는 받되 눌러도 아무 일이 없고 이 문구를 스크린리더에 덧붙인다 */
 	disabledReason?: string;
 	onClick?: () => void;
 }

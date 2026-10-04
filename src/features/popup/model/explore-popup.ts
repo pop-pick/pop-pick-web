@@ -7,7 +7,6 @@ export interface ExplorePopup extends Omit<PopupSummary, "isBookmarked"> {
 	position: KakaoLatLngLiteral;
 }
 
-/** `GET /api/v1/popups/map`의 한 건. 마커와 하단 카드를 이 응답만으로 그린다 */
 export interface PopupMapItemResponse {
 	popupId: number;
 	latitude: number;

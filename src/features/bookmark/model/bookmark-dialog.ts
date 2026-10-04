@@ -21,7 +21,7 @@ const NETWORK_FAILURE_MESSAGE = "인터넷 연결을 확인한 뒤\n다시 시�
 const NOT_FOUND_FAILURE_MESSAGE = "팝업 정보를 찾지 못했어요.\n새로고침한 뒤 다시 시도해 주세요.";
 const DEFAULT_FAILURE_MESSAGE = "찜 설정을 바꾸지 못했어요.\n잠시 뒤 다시 시도해 주세요.";
 
-export function resolveIntent({ isMember, isBookmarked }: { isMember: boolean; isBookmarked: boolean }) {
+export function resolveBookmarkIntent({ isMember, isBookmarked }: { isMember: boolean; isBookmarked: boolean }) {
 	const memberIntent: BookmarkIntent = isBookmarked ? "remove" : "add";
 	return isMember ? memberIntent : "login-required";
 }

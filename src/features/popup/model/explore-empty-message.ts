@@ -3,6 +3,8 @@ export interface ExploreEmptyMessage {
 	description: string;
 }
 
+export const LOAD_FAILURE_TITLE = "팝업을 불러오지 못했어요.";
+
 const SEARCH_EMPTY_TITLE = "검색 결과가 없습니다.";
 
 export function buildListEmptyMessage(query: string, selectedAreaName: string | null) {

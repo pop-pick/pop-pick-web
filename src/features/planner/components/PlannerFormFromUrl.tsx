@@ -25,8 +25,6 @@ export function PlannerFormFromUrl() {
 		void refetch();
 	};
 
-	const header = <PageHeader title={PLANNER_FORM_TITLE} fallbackPath={PLANNER_PATH} isSticky />;
-
 	if (isPending) {
 		return <PlannerFormSkeleton />;
 	}
@@ -34,7 +32,7 @@ export function PlannerFormFromUrl() {
 	if (form === undefined) {
 		return (
 			<>
-				{header}
+				<PageHeader title={PLANNER_FORM_TITLE} fallbackPath={PLANNER_PATH} isSticky />
 				<div className="flex flex-1 items-center justify-center px-5">
 					<LoadFailure title="조건 입력을 불러오지 못했어요." onRetry={handleRetry} />
 				</div>

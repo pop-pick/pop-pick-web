@@ -1,7 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/Button";
@@ -67,6 +66,9 @@ export function KakaoMap({
 		throw new Error("KakaoMap에 fitTo나 center 중 하나는 있어야 한다. fitTo가 빈 배열이면 그릴 자리를 알 수 없다");
 	}
 
+	const centerLat = center?.lat;
+	const centerLng = center?.lng;
+
 	const initialViewRef = useRef({ center: initialCenter, level, cluster: initialCluster });
 
 	const [session, setSession] = useState<KakaoMapSession | null>(null);
@@ -103,13 +105,13 @@ export function KakaoMap({
 	}, [sdk]);
 
 	useEffect(() => {
-		if (session === null || fitTo !== undefined || center === undefined) {
+		if (session === null || fitTo !== undefined || centerLat === undefined || centerLng === undefined) {
 			return;
 		}
 
-		session.setCenter({ lat: center.lat, lng: center.lng });
+		session.setCenter({ lat: centerLat, lng: centerLng });
 		session.setLevel(level);
-	}, [session, fitTo, center?.lat, center?.lng, level]);
+	}, [session, fitTo, centerLat, centerLng, level]);
 
 	useEffect(() => {
 		if (fitTo === undefined) {

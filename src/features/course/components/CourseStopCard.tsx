@@ -5,6 +5,10 @@ import { buildPopupDetailPath } from "@/shared/model/popup-path";
 
 import type { CourseStop } from "../model/course";
 
+interface CourseStopCardProps {
+	stop: CourseStop;
+}
+
 const courseStopCardVariants = tv({
 	base: "flex min-w-0 flex-1 flex-col gap-1 rounded-2xl border border-divider-2 bg-bg-1 p-4",
 	variants: {
@@ -13,10 +17,6 @@ const courseStopCardVariants = tv({
 		}
 	}
 });
-
-interface CourseStopCardProps {
-	stop: CourseStop;
-}
 
 export function CourseStopCard({ stop }: CourseStopCardProps) {
 	const content = (

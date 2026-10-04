@@ -11,6 +11,10 @@ export const metadata: Metadata = {
 	title: "플래너 등록 완료"
 };
 
+export function generateStaticParams() {
+	return [];
+}
+
 export default async function CourseSavedPage({ params }: PageProps<"/courses/[courseId]/saved">) {
 	const courseId = parseCourseId((await params).courseId);
 

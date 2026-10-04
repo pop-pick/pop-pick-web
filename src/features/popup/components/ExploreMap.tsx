@@ -6,11 +6,9 @@ import type { KakaoBoundsLiteral, KakaoLatLngLiteral } from "@/shared/lib/kakao-
 import { Button } from "@/shared/ui/Button";
 
 import { useMapPopups } from "../hooks/useMapPopups";
-import { buildMapEmptyMessage } from "../model/explore-empty-message";
+import { buildMapEmptyMessage, LOAD_FAILURE_TITLE } from "../model/explore-empty-message";
 import type { PositionStatus } from "../model/position-status";
 import { PopupMap } from "./PopupMap";
-
-const LOAD_FAILURE_TITLE = "팝업을 불러오지 못했어요.";
 
 interface ExploreMapProps {
 	keyword: string;

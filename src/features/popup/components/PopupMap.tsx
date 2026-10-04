@@ -10,8 +10,9 @@ import { Button } from "@/shared/ui/Button";
 
 import type { ExplorePopup } from "../model/explore-popup";
 import { POSITION_STATUS_NOTICES, type PositionStatus } from "../model/position-status";
+import { CARD_SLIDE_TRANSITION } from "../model/slide-motion";
 import { CurrentPositionButton } from "./CurrentPositionButton";
-import { CARD_SLIDE_TRANSITION, MapPopupCard } from "./MapPopupCard";
+import { MapPopupCard } from "./MapPopupCard";
 import { SelectedPinReveal } from "./SelectedPinReveal";
 
 const CLUSTER_MIN_LEVEL = 5;
@@ -118,11 +119,7 @@ export function PopupMap({
 		selectPopup(popups.find((popup) => String(popup.id) === markerId) ?? null);
 	};
 
-	const handleMapClick = () => {
-		selectPopup(null);
-	};
-
-	const handleCardClose = () => {
+	const handleSelectionClear = () => {
 		selectPopup(null);
 	};
 
@@ -152,7 +149,7 @@ export function PopupMap({
 				myPosition={position}
 				initialCluster={{ minLevel: CLUSTER_MIN_LEVEL }}
 				onMarkerClick={handleMarkerClick}
-				onMapClick={handleMapClick}
+				onMapClick={handleSelectionClear}
 				onBoundsChange={onBoundsChange}
 				label={`팝업 지도, ${String(markers.length)}곳`}
 				className="flex-1 rounded-none"
@@ -203,7 +200,11 @@ export function PopupMap({
 					{selectedPopup === null ? (
 						<div className="h-tab-bar-clearance" />
 					) : (
-						<MapPopupCard popup={selectedPopup} href={buildSheetHref(selectedPopup.id)} onClose={handleCardClose} />
+						<MapPopupCard
+							popup={selectedPopup}
+							href={buildSheetHref(selectedPopup.id)}
+							onClose={handleSelectionClear}
+						/>
 					)}
 				</div>
 			</KakaoMap>

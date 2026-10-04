@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 
 import { cn } from "@/shared/lib/cn";
+import { isOptimizablePopupImage } from "@/shared/lib/popup-image-hosts";
 import type { PopupCategory } from "@/shared/model/popup";
 
 import { CategoryFallbackImage } from "./CategoryFallbackImage";
@@ -18,7 +19,7 @@ interface PopupImageProps {
 	fallbackClassName?: string;
 }
 
-/** 팝업 사진은 수집 출처마다 호스트가 달라 `images.remotePatterns`에 묶지 않고 최적화 없이 원본 주소로 그린다. 받지 못한 주소는 카테고리 그림으로 바꾼다 */
+/** `images.remotePatterns`에 등록된 출처의 사진만 최적화하고 나머지는 원본 주소로 그린다. 받지 못한 주소는 카테고리 그림으로 바꾼다 */
 export function PopupImage({ src, alt, category, sizes, loading, className, fallbackClassName }: PopupImageProps) {
 	const [failedSrc, setFailedSrc] = useState<string | null>(null);
 
@@ -38,7 +39,7 @@ export function PopupImage({ src, alt, category, sizes, loading, className, fall
 				fill
 				sizes={sizes}
 				loading={loading}
-				unoptimized
+				unoptimized={!isOptimizablePopupImage(src)}
 				onError={handleError}
 				className="object-cover"
 			/>

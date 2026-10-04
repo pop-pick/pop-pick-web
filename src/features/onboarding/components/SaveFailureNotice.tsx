@@ -1,11 +1,10 @@
-import { buildOnboardingStepPath } from "@/shared/model/onboarding-path";
+import { ONBOARDING_FIRST_STEP_PATH } from "@/shared/model/onboarding-path";
 import { LinkButton } from "@/shared/ui/LinkButton";
 
 import { SAVE_FAILURE_MESSAGE, SAVE_REJECTED_MESSAGE, SAVE_REJECTED_NO_COMPANION_MESSAGE } from "../model/messages";
 import { isSaveRejected } from "../model/save-rejection";
 
 const HOME_PATH = "/";
-const FIRST_STEP_PATH = buildOnboardingStepPath(1);
 
 interface SaveFailureNoticeProps {
 	error: unknown;
@@ -22,7 +21,7 @@ export function SaveFailureNotice({ error, isRetrying, hasCompanionAnswers, onRe
 				<p className="break-keep">{hasCompanionAnswers ? SAVE_REJECTED_MESSAGE : SAVE_REJECTED_NO_COMPANION_MESSAGE}</p>
 				<div className="flex gap-2">
 					{!hasCompanionAnswers && (
-						<LinkButton href={FIRST_STEP_PATH} variant="secondary" size="sm" className="flex-1">
+						<LinkButton href={ONBOARDING_FIRST_STEP_PATH} variant="secondary" size="sm" className="flex-1">
 							1단계로
 						</LinkButton>
 					)}

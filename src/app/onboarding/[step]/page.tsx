@@ -6,8 +6,12 @@ import { OnboardingStepIntro } from "@/features/onboarding/components/Onboarding
 import { OnboardingStepScreen } from "@/features/onboarding/components/OnboardingStepScreen";
 import { OnboardingStepSkeleton } from "@/features/onboarding/components/OnboardingStepSkeleton";
 import { AUTH_CHECKING_MESSAGE } from "@/features/onboarding/model/messages";
-import { parseStep } from "@/features/onboarding/model/steps";
+import { ONBOARDING_STEPS, parseStep } from "@/features/onboarding/model/steps";
 import { buildOnboardingStepPath } from "@/shared/model/onboarding-path";
+
+export function generateStaticParams() {
+	return ONBOARDING_STEPS.map((step) => ({ step: String(step) }));
+}
 
 export default async function OnboardingStepPage({ params }: PageProps<"/onboarding/[step]">) {
 	const { step: stepParam } = await params;

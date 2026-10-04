@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+import { POPUP_IMAGE_SOURCES } from "./src/shared/lib/popup-image-hosts";
+
 function resolveApiBaseUrl(value: string | undefined) {
 	if (!value) {
 		throw new Error(
@@ -17,6 +19,13 @@ const nextConfig: NextConfig = {
 	cacheComponents: false,
 	reactCompiler: true,
 	poweredByHeader: false,
+	images: {
+		remotePatterns: POPUP_IMAGE_SOURCES.map(({ hostname, pathPrefix }) => ({
+			protocol: "https",
+			hostname,
+			pathname: `${pathPrefix}**`
+		}))
+	},
 	agentRules: false,
 	turbopack: {
 		rules: {

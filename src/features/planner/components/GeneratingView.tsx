@@ -103,7 +103,7 @@ export function GeneratingView({ onCancel }: GeneratingViewProps) {
 					))}
 				</ol>
 				<p role="status" className="sr-only">
-					{`${activeStepLabel} 진행 중`}
+					{activeStepLabel === undefined ? null : `${activeStepLabel} 진행 중`}
 				</p>
 			</section>
 			<BottomActionBar>

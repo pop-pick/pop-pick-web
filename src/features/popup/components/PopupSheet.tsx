@@ -8,10 +8,8 @@ import { canGoBackInApp } from "@/shared/lib/navigation";
 import { EXPLORE_PATH } from "@/shared/model/explore-state";
 
 import { useDragToClose } from "../hooks/useDragToClose";
+import { SLIDE_FROM, SLIDE_TO } from "../model/slide-motion";
 import { DragHandle } from "./DragHandle";
-
-const SLIDE_FROM = { y: "100%" };
-const SLIDE_TO = { y: 0 };
 
 interface PopupSheetProps {
 	labelledBy: string;

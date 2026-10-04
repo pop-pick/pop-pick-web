@@ -10,12 +10,8 @@ import { SeparatedText } from "@/shared/ui/SeparatedText";
 import { useDragToClose } from "../hooks/useDragToClose";
 import { buildMapCardMetaParts } from "../model/explore-format";
 import type { ExplorePopup } from "../model/explore-popup";
+import { CARD_SLIDE_TRANSITION, SLIDE_FROM, SLIDE_TO } from "../model/slide-motion";
 import { DragHandle } from "./DragHandle";
-
-const SLIDE_FROM = { y: "100%" };
-const SLIDE_TO = { y: 0 };
-
-export const CARD_SLIDE_TRANSITION = { type: "spring", stiffness: 500, damping: 25 } as const;
 
 interface MapPopupCardProps {
 	popup: ExplorePopup;
