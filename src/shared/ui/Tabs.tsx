@@ -3,6 +3,8 @@
 import * as m from "motion/react-m";
 import { type KeyboardEvent, useEffect, useRef, useState } from "react";
 
+import { resolveRovingIndex } from "@/shared/lib/roving-index";
+
 interface TabItem<T extends string> {
 	value: T;
 	id: string;
@@ -22,22 +24,7 @@ interface IndicatorBox {
 	width: number;
 }
 
-const ARROW_STEPS: Record<string, number> = { ArrowRight: 1, ArrowLeft: -1 };
 const INDICATOR_TRANSITION = { type: "spring", bounce: 0.2, duration: 0.35 } as const;
-
-function resolveNextIndex(key: string, currentIndex: number, count: number) {
-	if (key === "Home") {
-		return 0;
-	}
-
-	if (key === "End") {
-		return count - 1;
-	}
-
-	const step = ARROW_STEPS[key];
-
-	return step === undefined ? null : (currentIndex + step + count) % count;
-}
 
 export function Tabs<T extends string>({ items, value, panelId, ariaLabel, onChange }: TabsProps<T>) {
 	const listRef = useRef<HTMLDivElement>(null);
@@ -66,7 +53,7 @@ export function Tabs<T extends string>({ items, value, panelId, ariaLabel, onCha
 	}, [currentIndex]);
 
 	const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-		const nextIndex = resolveNextIndex(event.key, currentIndex, items.length);
+		const nextIndex = resolveRovingIndex(event.key, currentIndex, items.length);
 		const nextItem = nextIndex === null ? undefined : items[nextIndex];
 
 		if (nextIndex === null || nextItem === undefined) {
