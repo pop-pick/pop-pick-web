@@ -20,13 +20,19 @@ function buildVisitOrderText(course: Course) {
 	return course.stops.map((stop) => `${String(stop.order)}. ${stop.arriveAt} ${stop.title}`).join("\n");
 }
 
+function buildLocation(course: Course) {
+	const firstStop = course.stops.find((stop) => stop.order === 1);
+	return firstStop?.address ?? course.regionLabel;
+}
+
 export function buildGoogleCalendarUrl(course: Course) {
 	const params = new URLSearchParams({
 		action: "TEMPLATE",
 		text: course.title,
 		dates: `${toCalendarDateTime(course.date, course.startAt)}/${toCalendarDateTime(toCourseEndDate(course), course.endAt)}`,
 		ctz: SEOUL_TIME_ZONE,
-		details: buildVisitOrderText(course)
+		details: buildVisitOrderText(course),
+		location: buildLocation(course)
 	});
 
 	return `${GOOGLE_CALENDAR_TEMPLATE_URL}?${params.toString()}`;
@@ -83,7 +89,7 @@ export function buildCourseIcs(course: Course, stampedAt: Date) {
 		`DTSTART;TZID=${SEOUL_TIME_ZONE}:${toCalendarDateTime(course.date, course.startAt)}`,
 		`DTEND;TZID=${SEOUL_TIME_ZONE}:${toCalendarDateTime(toCourseEndDate(course), course.endAt)}`,
 		`SUMMARY:${escapeIcsText(course.title)}`,
-		`LOCATION:${escapeIcsText(course.regionLabel)}`,
+		`LOCATION:${escapeIcsText(buildLocation(course))}`,
 		`DESCRIPTION:${escapeIcsText(buildVisitOrderText(course))}`,
 		"END:VEVENT",
 		"END:VCALENDAR"

@@ -45,6 +45,7 @@ test("TC-021 구글 캘린더 버튼은 새 탭에서 서울 시간대의 방문
 	expect(url.searchParams.get("dates")).toBe("20261003T140000/20261003T172000");
 	expect(url.searchParams.get("ctz")).toBe("Asia/Seoul");
 	expect(url.searchParams.get("details")).toBe("1. 14:00 오래오래 함께가게\n2. 15:10 성수 향수 공방");
+	expect(url.searchParams.get("location")).toBe("서울 성동구 연무장길 1");
 	expect(link).toHaveAttribute("target", "_blank");
 });
 
@@ -77,6 +78,7 @@ test("TC-022 캘린더 파일 다운로드를 누르면 방문일과 시각, 코
 	expect(ics).toContain("DTSTART;TZID=Asia/Seoul:20261003T140000");
 	expect(ics).toContain("DTEND;TZID=Asia/Seoul:20261003T172000");
 	expect(ics).toContain("SUMMARY:성수 감성 팝업 코스");
+	expect(ics).toContain("LOCATION:서울 성동구 연무장길 1");
 });
 
 test("자정을 넘기는 코스의 끝 시각은 다음 날로 적는다", () => {
