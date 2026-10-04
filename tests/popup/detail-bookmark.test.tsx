@@ -74,7 +74,7 @@ function DetailSheetOpener() {
 	);
 }
 
-test("지도가 받아 둔 상세 캐시가 신선하면 다시 받지 않아도 그 찜 여부를 보인다(지도 카드에서 찜한 뒤 연 시트의 하트가 대기로 남던 사고)", async () => {
+test("이미 받아 둔 상세 캐시가 신선하면 다시 받지 않아도 그 찜 여부를 보인다(찜한 뒤 연 시트의 하트가 대기로 남던 사고)", async () => {
 	signInAsMember();
 	const { queryClient, user } = renderWithProviders(<DetailSheetOpener />);
 	queryClient.setQueryDefaults(["popups"], { staleTime: APP_STALE_TIME_MS });
@@ -98,5 +98,5 @@ test("서버가 토큰 없이 준 값만 있고 다시 받기가 실패하면 �
 	const heart = screen.getByRole("button", { name: HEART_NAME });
 
 	expect(heart).toHaveAttribute("aria-disabled", "true");
-	expect(heart).toHaveAttribute("aria-busy", "true");
+	expect(heart).not.toHaveAttribute("aria-busy");
 });
