@@ -34,7 +34,7 @@
 
 ## Open Graph 이미지
 
-이미지 원본은 시안 파일의 OG 프레임(1200x630)이고 `public/images/brand/og.png`에 있다. 문구와 크기는 `src/shared/model/site-metadata.ts`가 정한다. 파비콘은 시안의 심볼 로고로 만든 `src/app`의 `icon.svg`와 `favicon.ico`, `apple-icon.png`다.
+이미지 원본은 시안 파일의 OG 프레임(1200x630)이고 `public/images/brand/og.png`에 있다. 문구와 크기는 `src/shared/model/site-metadata.ts`가 정한다. 파비콘은 시안의 심볼 로고로 만든 `public`의 `favicon.ico`와 `icon.svg`, `apple-icon.png`이고 `site-metadata.ts`의 `SITE_ICONS`가 루트 레이아웃 메타데이터에 경로를 적는다. 정적 이미지는 `public`에 둔다는 저장소 규칙을 따른다.
 
 | 할 일                       | 담당     | 상태 |
 | --------------------------- | -------- | ---- |
