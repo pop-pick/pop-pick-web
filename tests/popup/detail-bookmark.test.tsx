@@ -33,6 +33,7 @@ function buildDetailResponse(wished: boolean) {
 		longitude: 127.0557,
 		reservationType: "UNKNOWN",
 		reservationUrl: null,
+		viewCount: 0,
 		wished
 	};
 

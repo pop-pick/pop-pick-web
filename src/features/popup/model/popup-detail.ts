@@ -24,6 +24,7 @@ export interface PopupDetailResponse {
 	longitude: number | null;
 	reservationType: PopupReservationType;
 	reservationUrl: string | null;
+	viewCount: number;
 	wished: boolean;
 }
 
@@ -35,6 +36,7 @@ export interface PopupDetail extends PopupSummary {
 	position: KakaoLatLngLiteral | null;
 	reservationUrl: string | null;
 	entryFee: number | null;
+	viewCount: number;
 }
 
 export const RESERVATION_DETAIL_LABELS: Record<KnownPopupReservationType, string> = {
@@ -49,7 +51,7 @@ function toPosition(latitude: number | null, longitude: number | null) {
 }
 
 export function toPopupDetail(response: PopupDetailResponse) {
-	const imageUrls = response.imageUrls ?? [];
+	const imageUrls = [...new Set(response.imageUrls ?? [])];
 	const detail: PopupDetail = {
 		id: response.popupId,
 		title: response.title,
@@ -66,7 +68,8 @@ export function toPopupDetail(response: PopupDetailResponse) {
 		address: response.addressRoad ?? response.addressJibun,
 		position: toPosition(response.latitude, response.longitude),
 		reservationUrl: response.reservationUrl,
-		entryFee: response.entryFee
+		entryFee: response.entryFee,
+		viewCount: response.viewCount
 	};
 
 	return detail;
@@ -83,8 +86,4 @@ export function pickRecentPopup(popup: PopupDetail) {
 		reservationType: popup.reservationType,
 		imageUrl: popup.imageUrl
 	} satisfies RecentPopup;
-}
-
-export function pickPopupSummary(popup: PopupDetail) {
-	return { ...pickRecentPopup(popup), isBookmarked: popup.isBookmarked } satisfies PopupSummary;
 }

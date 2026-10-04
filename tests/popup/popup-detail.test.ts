@@ -1,7 +1,12 @@
+import { http } from "msw";
 import { expect, test } from "vitest";
 
-import { formatEntryFee } from "@/features/popup/model/detail-format";
+import { findPopupDetail } from "@/features/popup/api/get-popup-detail";
+import { formatEntryFee, formatViewCount } from "@/features/popup/model/detail-format";
 import { type PopupDetailResponse, toPopupDetail } from "@/features/popup/model/popup-detail";
+import { parsePopupId } from "@/features/popup/model/popup-id";
+
+import { apiError, apiSuccess, server } from "../support/msw";
 
 function buildDetailResponse(overrides: Partial<PopupDetailResponse> = {}) {
 	const response: PopupDetailResponse = {
@@ -21,6 +26,7 @@ function buildDetailResponse(overrides: Partial<PopupDetailResponse> = {}) {
 		longitude: 126.903,
 		reservationType: "UNKNOWN",
 		reservationUrl: null,
+		viewCount: 0,
 		wished: true,
 		...overrides
 	};
@@ -56,4 +62,38 @@ test("찜 여부와 숫자 카테고리를 화면 모델로 옮긴다", () => {
 test("입장료 0은 무료 입장이고 null은 입장료 줄을 그리지 않는다", () => {
 	expect(formatEntryFee(toPopupDetail(buildDetailResponse({ entryFee: 0 })).entryFee)).toBe("무료 입장");
 	expect(formatEntryFee(toPopupDetail(buildDetailResponse({ entryFee: null })).entryFee)).toBeNull();
+});
+
+test("조회수는 만 단위부터 소수 첫째 자리까지 내려 쓴다", () => {
+	expect(formatViewCount(0)).toBe("조회수 0");
+	expect(formatViewCount(9_999)).toBe("조회수 9,999");
+	expect(formatViewCount(10_000)).toBe("조회수 1만");
+	expect(formatViewCount(12_345)).toBe("조회수 1.2만");
+	expect(formatViewCount(100_000)).toBe("조회수 10만");
+});
+
+test("상세 응답의 조회수와 지역 이름을 화면 모델로 옮긴다", () => {
+	expect(toPopupDetail(buildDetailResponse({ viewCount: 12_345, areaName: "성수" }))).toMatchObject({
+		viewCount: 12_345,
+		areaName: "성수"
+	});
+});
+
+test("팝업 id는 안전한 양의 정수 문자열만 받는다", () => {
+	expect(parsePopupId("2212")).toBe(2212);
+	expect(parsePopupId("0")).toBeNull();
+	expect(parsePopupId("abc")).toBeNull();
+	expect(parsePopupId("9223372036854775807")).toBeNull();
+});
+
+test("없는 팝업(E404)은 null이고 그 밖의 실패는 그대로 던진다", async () => {
+	server.use(
+		http.get("*/api/v1/popups/1", () => apiError(404, "E404")),
+		http.get("*/api/v1/popups/2", () => apiError(400, "E400")),
+		http.get("*/api/v1/popups/3", () => apiSuccess(buildDetailResponse({ popupId: 3 })))
+	);
+
+	expect(await findPopupDetail(1)).toBeNull();
+	await expect(findPopupDetail(2)).rejects.toMatchObject({ errorCode: "E400" });
+	expect(await findPopupDetail(3)).toMatchObject({ id: 3 });
 });

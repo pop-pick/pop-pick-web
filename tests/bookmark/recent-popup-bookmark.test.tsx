@@ -38,6 +38,7 @@ const DETAIL_RESPONSE: PopupDetailResponse = {
 	longitude: null,
 	reservationType: "UNKNOWN",
 	reservationUrl: null,
+	viewCount: 0,
 	wished: true
 };
 
