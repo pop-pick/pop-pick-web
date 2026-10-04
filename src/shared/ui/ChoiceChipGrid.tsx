@@ -24,7 +24,6 @@ interface ChoiceChipGridProps<T extends string | number> {
 	onToggle: (value: T) => void;
 	/** 주면 그리드가 radiogroup이나 group이 되어 이 id의 제목으로 불린다. fieldset 안에 둘 때는 비운다 */
 	labelledBy?: string;
-	/** 칩이 홀수 개면 마지막 칩이 두 칸을 차지한다 */
 	isOddLastWide?: boolean;
 }
 

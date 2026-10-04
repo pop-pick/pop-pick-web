@@ -1,4 +1,4 @@
-/** 라우트의 searchParams 객체를 URLSearchParams로 바꾼다. 같은 키가 여럿이면 배열로 온다 */
+/** 라우트의 searchParams는 같은 키가 여럿이면 배열로 온다 */
 export function toUrlSearchParams(record: Record<string, string | string[] | undefined>) {
 	const params = new URLSearchParams();
 
