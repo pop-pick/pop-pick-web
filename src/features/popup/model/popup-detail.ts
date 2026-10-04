@@ -13,6 +13,7 @@ export interface PopupDetailResponse {
 	description: string | null;
 	imageUrls: string[] | null;
 	interestCategoryId: number | null;
+	areaName: string | null;
 	startDate: string | null;
 	endDate: string | null;
 	openingHours: string | null;
@@ -53,7 +54,7 @@ export function toPopupDetail(response: PopupDetailResponse) {
 		id: response.popupId,
 		title: response.title,
 		category: toPopupCategory(response.interestCategoryId),
-		region: null,
+		areaName: response.areaName,
 		startDate: response.startDate,
 		endDate: response.endDate,
 		reservationType: response.reservationType,
@@ -76,7 +77,7 @@ export function pickRecentPopup(popup: PopupDetail) {
 		id: popup.id,
 		title: popup.title,
 		category: popup.category,
-		region: popup.region,
+		areaName: popup.areaName,
 		startDate: popup.startDate,
 		endDate: popup.endDate,
 		reservationType: popup.reservationType,

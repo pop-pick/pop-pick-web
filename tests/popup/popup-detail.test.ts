@@ -10,6 +10,7 @@ function buildDetailResponse(overrides: Partial<PopupDetailResponse> = {}) {
 		description: null,
 		imageUrls: ["https://example.com/a.jpg", "https://example.com/b.jpg"],
 		interestCategoryId: 3,
+		areaName: null,
 		startDate: "2026-10-01",
 		endDate: "2026-11-30",
 		openingHours: null,

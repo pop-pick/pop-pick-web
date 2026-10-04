@@ -25,7 +25,7 @@ function toBookmarkedPopup(wish: WishResponse) {
 		id: wish.popupId,
 		title: wish.title,
 		category: toPopupCategory(wish.interestCategoryId),
-		region: null,
+		areaName: null,
 		startDate: wish.startDate,
 		endDate: wish.endDate,
 		reservationType: wish.reservationType,

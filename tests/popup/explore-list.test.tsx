@@ -17,6 +17,7 @@ function buildListItem(popupId: number, title: string) {
 		popupId,
 		imageUrl: null,
 		interestCategoryId: null,
+		areaName: null,
 		title,
 		endDate: null,
 		reservationType: "UNKNOWN",

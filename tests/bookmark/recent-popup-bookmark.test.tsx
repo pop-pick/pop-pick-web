@@ -14,7 +14,7 @@ const RECENT_POPUP: RecentPopup = {
 	id: 7,
 	title: "성수 팝업",
 	category: null,
-	region: null,
+	areaName: null,
 	startDate: null,
 	endDate: null,
 	reservationType: "UNKNOWN",
@@ -27,6 +27,7 @@ const DETAIL_RESPONSE: PopupDetailResponse = {
 	description: null,
 	imageUrls: null,
 	interestCategoryId: null,
+	areaName: null,
 	startDate: null,
 	endDate: null,
 	openingHours: null,
@@ -41,7 +42,7 @@ const DETAIL_RESPONSE: PopupDetailResponse = {
 };
 
 function saveRecentPopups() {
-	sessionStorage.setItem("pp-recent-popups", JSON.stringify({ state: { items: [RECENT_POPUP] }, version: 2 }));
+	sessionStorage.setItem("pp-recent-popups", JSON.stringify({ state: { items: [RECENT_POPUP] }, version: 3 }));
 }
 
 test("최근 본 팝업 탭의 하트는 기록이 아니라 상세 조회로 받은 찜 여부를 보인다", async () => {

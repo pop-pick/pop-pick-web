@@ -16,6 +16,7 @@ function buildDetailResponse(overrides: Partial<PopupDetailResponse> = {}) {
 		description: "가을 시즌 테마 팝업스토어입니다.",
 		imageUrls: null,
 		interestCategoryId: 3,
+		areaName: null,
 		startDate: "2026-10-01",
 		endDate: "2026-10-26",
 		openingHours: "매일 11:00 ~ 20:00",

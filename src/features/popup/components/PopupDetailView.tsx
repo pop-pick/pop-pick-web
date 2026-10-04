@@ -1,7 +1,6 @@
 import { tv, type VariantProps } from "@/shared/lib/tv";
 import { POPUP_CATEGORY_LABELS } from "@/shared/model/popup";
 import { buildPopupDetailPath } from "@/shared/model/popup-path";
-import { REGION_LABELS } from "@/shared/model/region";
 import { Badge } from "@/shared/ui/Badge";
 import { LinkButton } from "@/shared/ui/LinkButton";
 
@@ -30,7 +29,7 @@ interface PopupDetailViewProps {
 }
 
 export function PopupDetailView({ popup, variant, titleId }: PopupDetailViewProps) {
-	const hasBadgeRow = popup.category !== null || popup.region !== null;
+	const hasBadgeRow = popup.category !== null || popup.areaName !== null;
 
 	return (
 		<div className={popupDetailViewVariants({ variant })}>
@@ -46,7 +45,7 @@ export function PopupDetailView({ popup, variant, titleId }: PopupDetailViewProp
 						{hasBadgeRow && (
 							<div className="flex items-center gap-1">
 								{popup.category !== null && <Badge>{POPUP_CATEGORY_LABELS[popup.category]}</Badge>}
-								{popup.region !== null && <Badge tone="region">{REGION_LABELS[popup.region]}</Badge>}
+								{popup.areaName !== null && <Badge tone="region">{popup.areaName}</Badge>}
 							</div>
 						)}
 						<h1 id={titleId} tabIndex={titleId === undefined ? undefined : -1} className="text-h2 text-text-1">

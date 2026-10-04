@@ -3,13 +3,12 @@ import Link from "next/link";
 import { PopupImage } from "@/shared/components/PopupImage";
 import { RESERVATION_SHORT_LABELS } from "@/shared/model/popup";
 import { buildPopupDetailPath } from "@/shared/model/popup-path";
-import { REGION_LABELS } from "@/shared/model/region";
 import { SeparatedText } from "@/shared/ui/SeparatedText";
 
 import type { PopularPopupItem } from "../model/home-popup";
 
 function buildLocationParts({ popup, highlight }: PopularPopupItem) {
-	const parts = [popup.region === null ? null : REGION_LABELS[popup.region], highlight];
+	const parts = [popup.areaName, highlight];
 	return parts.filter((part) => part !== null);
 }
 

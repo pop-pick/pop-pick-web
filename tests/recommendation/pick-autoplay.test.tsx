@@ -14,7 +14,7 @@ const RECOMMENDATIONS = [
 		id: index + 1,
 		title,
 		category: null,
-		region: null,
+		areaName: null,
 		startDate: null,
 		endDate: null,
 		reservationType: "UNKNOWN" as const,

@@ -4,7 +4,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import type { PopupSummary } from "./popup";
 
 const STORAGE_KEY = "pp-recent-popups";
-const STORAGE_VERSION = 2;
+const STORAGE_VERSION = 3;
 const RECENT_POPUP_LIMIT = 10;
 
 export type RecentPopup = Omit<PopupSummary, "isBookmarked">;

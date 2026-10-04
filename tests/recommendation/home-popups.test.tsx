@@ -30,6 +30,7 @@ function buildListItem(title: string, index: number) {
 		popupId: 100 + index,
 		imageUrl: null,
 		interestCategoryId: index === 0 ? null : 3,
+		areaName: null,
 		title,
 		endDate: null,
 		reservationType: "UNKNOWN",

@@ -22,6 +22,7 @@ function buildDetailResponse(wished: boolean) {
 		description: null,
 		imageUrls: null,
 		interestCategoryId: null,
+		areaName: null,
 		startDate: null,
 		endDate: null,
 		openingHours: null,

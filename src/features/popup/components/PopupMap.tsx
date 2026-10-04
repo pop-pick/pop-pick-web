@@ -6,7 +6,6 @@ import type { KakaoMarkerData } from "@/shared/lib/kakao-map/kakao-map-session";
 import type { KakaoLatLngLiteral } from "@/shared/lib/kakao-map/kakao-map-utils";
 import { KakaoMap } from "@/shared/lib/kakao-map/KakaoMap";
 import { tv } from "@/shared/lib/tv";
-import { REGION_LABELS } from "@/shared/model/region";
 import { Button } from "@/shared/ui/Button";
 
 import type { ExplorePopup } from "../model/explore-popup";
@@ -209,7 +208,7 @@ export function PopupMap({
 								onClick={handleListItemClick(popup)}
 								className="w-full rounded-lg px-3 py-2 text-left text-b3-14 text-text-2 focus-ring hover:bg-bg-2 aria-pressed:bg-primary-subtle aria-pressed:text-primary"
 							>
-								{popup.region === null ? popup.title : `${popup.title}, ${REGION_LABELS[popup.region]}`}
+								{popup.areaName === null ? popup.title : `${popup.title}, ${popup.areaName}`}
 							</button>
 						</li>
 					))}
