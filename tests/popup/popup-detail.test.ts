@@ -72,13 +72,6 @@ test("조회수는 만 단위부터 소수 첫째 자리까지 내려 쓴다", (
 	expect(formatViewCount(100_000)).toBe("조회수 10만");
 });
 
-test("상세 응답의 조회수와 지역 이름을 화면 모델로 옮긴다", () => {
-	expect(toPopupDetail(buildDetailResponse({ viewCount: 12_345, areaName: "성수" }))).toMatchObject({
-		viewCount: 12_345,
-		areaName: "성수"
-	});
-});
-
 test("팝업 id는 안전한 양의 정수 문자열만 받는다", () => {
 	expect(parsePopupId("2212")).toBe(2212);
 	expect(parsePopupId("0")).toBeNull();

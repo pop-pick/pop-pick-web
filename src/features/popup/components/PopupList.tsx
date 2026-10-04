@@ -12,10 +12,8 @@ import { Skeleton } from "@/shared/ui/Skeleton";
 
 import { areaListQueryOptions } from "../api/get-areas";
 import { popupListQueryOptions } from "../api/get-popups";
-import { buildListEmptyMessage, type ExploreEmptyMessage } from "../model/explore-empty-message";
+import { buildListEmptyMessage, type ExploreEmptyMessage, LOAD_FAILURE_TITLE } from "../model/explore-empty-message";
 import { ExploreListItem } from "./ExploreListItem";
-
-const LOAD_FAILURE_TITLE = "팝업을 불러오지 못했어요.";
 
 const UNKNOWN_AREA_NAME = "선택한 지역";
 

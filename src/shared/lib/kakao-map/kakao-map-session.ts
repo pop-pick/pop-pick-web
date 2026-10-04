@@ -106,7 +106,7 @@ export class KakaoMapSession {
 				try {
 					sdk.maps.load(() => resolve(sdk));
 				} catch (cause) {
-					console.error("[kakao-map] kakao.maps.load 가 실패했습니다", cause);
+					console.error("[kakao-map] kakao.maps.load가 실패했습니다", cause);
 					reject(new KakaoMapError("script-load-failed"));
 				}
 			};
