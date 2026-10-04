@@ -8,6 +8,7 @@ import { PopupSearchForm } from "@/shared/components/PopupSearchForm";
 import { tv } from "@/shared/lib/tv";
 import {
 	EXPLORE_PATH,
+	type ExploreSort,
 	type ExploreState,
 	type ExploreViewMode,
 	parseExploreState,
@@ -15,8 +16,10 @@ import {
 } from "@/shared/model/explore-state";
 
 import { useCurrentPosition } from "../hooks/useCurrentPosition";
+import { AreaSelect } from "./AreaSelect";
 import { ExploreMap } from "./ExploreMap";
 import { PopupList } from "./PopupList";
+import { SortToggle } from "./SortToggle";
 import { ViewToggle } from "./ViewToggle";
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -95,6 +98,14 @@ export function ExploreView() {
 		replaceExploreState({ ...state, view });
 	};
 
+	const handleAreaChange = (areaId: number | null) => {
+		replaceExploreState({ ...state, areaId });
+	};
+
+	const handleSortChange = (sort: ExploreSort) => {
+		replaceExploreState({ ...state, sort });
+	};
+
 	const handleSwitchToList = () => {
 		handleViewChange("list");
 	};
@@ -129,9 +140,13 @@ export function ExploreView() {
 					initial={LIST_ENTER_FROM}
 					animate={VIEW_SHOWN}
 					transition={VIEW_TRANSITION}
-					className="flex flex-1 flex-col px-5 pt-5"
+					className="flex flex-1 flex-col gap-4 px-5 pt-5"
 				>
-					<PopupList keyword={state.query} />
+					<div className="flex items-center justify-between">
+						<AreaSelect areaId={state.areaId} onChange={handleAreaChange} />
+						<SortToggle sort={state.sort} onChange={handleSortChange} />
+					</div>
+					<PopupList keyword={state.query} areaId={state.areaId} sort={state.sort} />
 				</m.div>
 			)}
 		</div>

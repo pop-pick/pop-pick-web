@@ -8,13 +8,14 @@ import { Button } from "@/shared/ui/Button";
 
 import { KakaoMapContext } from "./kakao-map-context";
 import { type KakaoClusterOptions, KakaoMapSession, type KakaoMarkerData } from "./kakao-map-session";
-import { KAKAO_MAP_DEFAULT_LEVEL, type KakaoLatLngLiteral } from "./kakao-map-utils";
+import { KAKAO_MAP_DEFAULT_LEVEL, type KakaoBoundsLiteral, type KakaoLatLngLiteral } from "./kakao-map-utils";
 import { useKakaoMapSdk } from "./useKakaoMapSdk";
 
 interface KakaoMapCommonProps {
 	markers?: readonly KakaoMarkerData[];
 	onMarkerClick?: (markerId: string) => void;
 	onMapClick?: () => void;
+	onBoundsChange?: (bounds: KakaoBoundsLiteral) => void;
 	selectedMarkerId?: string | null;
 	myPosition?: KakaoLatLngLiteral | null;
 	initialCluster?: KakaoClusterOptions;
@@ -49,6 +50,7 @@ export function KakaoMap({
 	markers = NO_MARKERS,
 	onMarkerClick,
 	onMapClick,
+	onBoundsChange,
 	selectedMarkerId = null,
 	myPosition = null,
 	initialCluster,
@@ -76,6 +78,14 @@ export function KakaoMap({
 	useEffect(() => {
 		session?.setMapClickHandler(onMapClick);
 	}, [session, onMapClick]);
+
+	useEffect(() => {
+		session?.setBoundsChangeHandler(onBoundsChange);
+	}, [session, onBoundsChange]);
+
+	useEffect(() => {
+		session?.notifyBounds();
+	}, [session]);
 
 	useEffect(() => {
 		const container = containerRef.current;

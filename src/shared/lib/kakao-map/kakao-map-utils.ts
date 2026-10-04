@@ -31,3 +31,10 @@ export function toLatLng(sdk: KakaoMapsSdk, position: KakaoLatLngLiteral) {
 export function isSamePosition(a: KakaoLatLngLiteral, b: KakaoLatLngLiteral) {
 	return a.lat === b.lat && a.lng === b.lng;
 }
+
+export type KakaoBoundsLiteral = {
+	swLat: number;
+	swLng: number;
+	neLat: number;
+	neLng: number;
+};
