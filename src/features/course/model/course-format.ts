@@ -18,6 +18,11 @@ function formatDuration(totalMinutes: number) {
 	return minutes === 0 ? `${String(hours)}시간` : `${String(hours)}시간 ${String(minutes)}분`;
 }
 
+/** 서버가 지역 이름을 비워 주면 지역 없이 뒷말만 쓴다 */
+export function prefixRegion(regionLabel: string, text: string, separator = " ") {
+	return regionLabel === "" ? text : `${regionLabel}${separator}${text}`;
+}
+
 export function formatCourseDate(date: string) {
 	return format(parseDateOnlyOrThrow(date), "yyyy년 M월 d일 (EEEEE)", { locale: ko });
 }

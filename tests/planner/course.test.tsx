@@ -2,6 +2,8 @@ import { screen, waitFor, within } from "@testing-library/react";
 import { http, HttpResponse } from "msw";
 import { expect, test, vi } from "vitest";
 
+import { parseCourseId } from "@/shared/model/course-path";
+
 import { signInAsMember } from "../support/auth";
 import { apiError, apiSuccess, server } from "../support/msw";
 import { renderWithProviders } from "../support/render";
@@ -248,4 +250,48 @@ test("팝업이 지워진 방문지는 팝업 상세로 가지 않고 남은 방
 	expect(within(timeline).getByText("사라진 팝업")).toBeInTheDocument();
 	expect(within(timeline).getByRole("link", { name: /성수 향수 공방/ })).toHaveAttribute("href", "/popups/1702");
 	expect(within(timeline).getByText(/12분/)).toHaveTextContent(/1\.3km/);
+});
+
+test("이미 저장된 코스를 저장하려다 E3005로 실패하면 상세를 다시 읽어 저장된 일정 화면으로 바뀐다", async () => {
+	let planner = buildPlannerResponse({ plannerId: 12, status: "DRAFT" });
+	signInAsMember();
+	server.use(
+		http.get("/api/v1/planners/12", () => apiSuccess(planner)),
+		http.post("/api/v1/planners/12/confirm", () => {
+			planner = { ...planner, status: "SCHEDULED", confirmedAt: "2026-10-01T01:30:00+09:00" };
+			return apiError(409, "E3005");
+		})
+	);
+	const { user } = renderWithProviders(<PlannerRoutes />, { url: "/courses/12" });
+
+	await user.click(await screen.findByRole("button", { name: "내 플래너에 저장하기" }));
+
+	expect(await screen.findByRole("button", { name: "삭제하기" })).toBeInTheDocument();
+	expect(screen.queryByRole("button", { name: "내 플래너에 저장하기" })).not.toBeInTheDocument();
+});
+
+test("저장이 실패해 알럿을 닫으면 저장하기 버튼으로 포커스가 돌아온다", async () => {
+	server.use(http.post("/api/v1/planners/12/confirm", () => apiError(500, "E0000")));
+	const { user } = renderCourse(buildPlannerResponse({ plannerId: 12, status: "DRAFT" }));
+
+	await user.click(await screen.findByRole("button", { name: "내 플래너에 저장하기" }));
+	await user.click(within(await screen.findByRole("alertdialog")).getByRole("button", { name: "확인" }));
+
+	await waitFor(() => {
+		expect(screen.getByRole("button", { name: "내 플래너에 저장하기" })).toHaveFocus();
+	});
+});
+
+test("지역 이름이 비어 있는 코스는 제목과 지도 이름이 공백으로 시작하지 않는다", async () => {
+	renderCourse(buildPlannerResponse({ plannerId: 12, status: "SCHEDULED", area: { id: 99, name: null } }));
+
+	const heading = await screen.findByRole("heading", { name: "맞춤 추천 동선" });
+
+	expect(heading.textContent).toBe("맞춤 추천 동선");
+	expect(screen.getByRole("img", { name: "코스 지도, 팝업 2곳" })).toBeInTheDocument();
+});
+
+test("숫자로 정확히 읽을 수 없는 길이의 코스 번호는 코스 번호로 받지 않는다", () => {
+	expect(parseCourseId("123456789012345")).toBe(123456789012345);
+	expect(parseCourseId("123456789012345678")).toBeNull();
 });
