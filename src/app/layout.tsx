@@ -7,7 +7,7 @@ import { AuthStatusSwitch } from "@/features/auth/components/AuthStatusSwitch";
 import { BottomTabBar } from "@/shared/components/BottomTabBar";
 import { cn } from "@/shared/lib/cn";
 import { buildLoginPath } from "@/shared/model/login-path";
-import { SITE_NAME, SITE_OPEN_GRAPH } from "@/shared/model/site-metadata";
+import { SITE_ICONS, SITE_NAME, SITE_OPEN_GRAPH } from "@/shared/model/site-metadata";
 import { MotionProvider } from "@/shared/providers/MotionProvider";
 import { QueryProvider } from "@/shared/providers/QueryProvider";
 import { pretendard } from "@/shared/styles/fonts";
@@ -15,6 +15,7 @@ import { pretendard } from "@/shared/styles/fonts";
 export const metadata: Metadata = {
 	title: SITE_NAME,
 	description: "취향과 시간, 지역에 맞는 서울 팝업을 추천하고 방문 동선까지 짜주는 서비스",
+	icons: SITE_ICONS,
 	openGraph: SITE_OPEN_GRAPH,
 	twitter: { card: "summary_large_image" }
 };
