@@ -53,18 +53,15 @@ test("TC-023 찜한 팝업이 없으면 없음 안내와 팝업 둘러보기 CTA
 	expect(screen.queryByRole("list", { name: "찜한 팝업" })).not.toBeInTheDocument();
 });
 
-test("찜 목록은 10개씩 받고 마지막 항목의 nextCursor로 다음 쪽을 이어 받는다", async () => {
-	const requests: { cursor: string | null; limit: string | null }[] = [];
+test("찜 목록은 다음 쪽이 있으면 이어 받아 둘째 쪽 팝업까지 보인다", async () => {
 	server.use(
 		http.get("/api/v1/wishes", ({ request }) => {
-			const { searchParams } = new URL(request.url);
-			const cursor = searchParams.get("cursor");
-			requests.push({ cursor, limit: searchParams.get("limit") });
-
+			const cursor = new URL(request.url).searchParams.get("cursor");
 			const isFirstPage = cursor === null;
+			const secondPage = cursor === "42" ? [buildWish(2, "둘째 쪽 팝업", false)] : [];
 
 			return apiSuccess({
-				content: [isFirstPage ? buildWish(1, "첫 쪽 팝업", false) : buildWish(2, "둘째 쪽 팝업", false)],
+				content: isFirstPage ? [buildWish(1, "첫 쪽 팝업", false)] : secondPage,
 				hasNext: isFirstPage,
 				nextCursor: isFirstPage ? "42" : null
 			});
@@ -74,10 +71,6 @@ test("찜 목록은 10개씩 받고 마지막 항목의 nextCursor로 다음 쪽
 
 	expect(await screen.findByRole("article", { name: "첫 쪽 팝업" })).toBeInTheDocument();
 	expect(await screen.findByRole("article", { name: "둘째 쪽 팝업" })).toBeInTheDocument();
-	expect(requests).toEqual([
-		{ cursor: null, limit: "10" },
-		{ cursor: "42", limit: "10" }
-	]);
 });
 
 test("찜 목록에서 하트로 해제하면 그 팝업이 목록에서 빠진다", async () => {

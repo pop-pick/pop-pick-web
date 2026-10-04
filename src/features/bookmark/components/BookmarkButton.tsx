@@ -12,10 +12,11 @@ import { IconButton } from "@/shared/ui/IconButton";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 import { useToggleBookmark } from "../hooks/useToggleBookmark";
-import { type BookmarkDialog, getBookmarkDialogCopy, resolveIntent } from "../model/bookmark-dialog";
+import type { BookmarkMode } from "../model/bookmark";
+import { type BookmarkDialog, getBookmarkDialogCopy, resolveBookmarkIntent } from "../model/bookmark-dialog";
 
 interface BookmarkButtonProps {
-	mode: "guest" | "member" | "pending";
+	mode: BookmarkMode;
 	popupId: number;
 	popupTitle: string;
 	isBookmarked: boolean | null;
@@ -47,7 +48,7 @@ export function BookmarkButton({ mode, popupId, popupTitle, isBookmarked, size =
 
 	const handleBookmarkClick = () => {
 		if (!isUnavailable) {
-			openDialog(resolveIntent({ isMember: mode === "member", isBookmarked: isBookmarked === true }));
+			openDialog(resolveBookmarkIntent({ isMember: mode === "member", isBookmarked: isBookmarked === true }));
 		}
 	};
 
