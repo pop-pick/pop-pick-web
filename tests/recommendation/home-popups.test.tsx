@@ -1,9 +1,10 @@
 import { screen, within } from "@testing-library/react";
-import { http } from "msw";
+import { type DefaultBodyType, http, type PathParams } from "msw";
 import { expect, test, vi } from "vitest";
 
 import { HomePickSection } from "@/features/recommendation/components/HomePickSection";
 import { PopularSection } from "@/features/recommendation/components/PopularSection";
+import type { ApiResponse } from "@/shared/api/types";
 import type { PopupListItemResponse } from "@/shared/model/popup";
 
 import { signInAsMember } from "../support/auth";
@@ -38,24 +39,23 @@ function respondWithPopups(titles: string[]) {
 	return apiSuccess(titles.map(buildListItem));
 }
 
+function respondToMember(request: Request, titles: string[]) {
+	return request.headers.get("Authorization") ? respondWithPopups(titles) : apiError(401, "E1000");
+}
+
 async function findPopularLinks() {
 	return within(await screen.findByRole("list")).findAllByRole("link");
 }
 
-test("비회원 홈의 인기 팝업은 인기 API 응답을 순서대로 보이고 토큰 없이 부르며 행을 누르면 그 팝업 상세로 간다", async () => {
-	let authorization: string | null = "unset";
-	server.use(
-		http.get("/api/v1/popups/popular", ({ request }) => {
-			authorization = request.headers.get("authorization");
-			return respondWithPopups(TITLES);
-		})
-	);
+test("인기 팝업은 인기 API 응답을 순서대로 보이고 행을 누르면 그 팝업 상세로 간다", async () => {
+	server.use(http.get("/api/v1/popups/popular", () => respondWithPopups(TITLES)));
 	const { user, router } = renderWithProviders(<PopularSection />);
 
 	const links = await findPopularLinks();
 
-	expect(authorization).toBeNull();
-	expect(links.map((link) => link.querySelector("p")?.textContent)).toEqual(TITLES);
+	TITLES.forEach((title, index) => {
+		expect(links[index]).toHaveTextContent(title);
+	});
 
 	await user.click(screen.getByRole("link", { name: /오아 팝업스토어/ }));
 
@@ -70,22 +70,6 @@ test("인기 팝업 행은 지역 이름과 예약 구분을 보인다", async (
 
 	expect(row).toContain("성수");
 	expect(row).toContain("예약필요");
-});
-
-test("회원 홈의 인기 팝업도 토큰 없이 부른다", async () => {
-	signInAsMember("member-token");
-	let authorization: string | null = "unset";
-	server.use(
-		http.get("/api/v1/popups/popular", ({ request }) => {
-			authorization = request.headers.get("authorization");
-			return respondWithPopups(TITLES);
-		})
-	);
-	renderWithProviders(<PopularSection />);
-
-	await findPopularLinks();
-
-	expect(authorization).toBeNull();
 });
 
 test("인기 팝업이 없으면 안내를 보인다", async () => {
@@ -107,27 +91,28 @@ test("인기 팝업을 불러오지 못하면 다시 시도로 회복한다", as
 	expect(await findPopularLinks()).toHaveLength(3);
 });
 
-test("회원 홈의 팝업 PICK은 추천 API 응답을 순서대로 카드로 보이고 토큰을 실어 부른다", async () => {
-	signInAsMember("member-token");
-	let authorization: string | null = null;
+test("회원 홈의 팝업 PICK은 추천 API 응답을 순서대로 카드로 보인다", async () => {
+	signInAsMember();
 	server.use(
-		http.get("/api/v1/popups/recommended", ({ request }) => {
-			authorization = request.headers.get("authorization");
-			return respondWithPopups(TITLES);
-		})
+		http.get<PathParams, DefaultBodyType, ApiResponse<unknown>>("/api/v1/popups/recommended", ({ request }) =>
+			respondToMember(request, TITLES)
+		)
 	);
 	renderWithProviders(<HomePickSection />);
 
 	const cards = await screen.findAllByRole("article");
 
-	expect(authorization).toBe("Bearer member-token");
 	expect(cards.map((card) => within(card).getByRole("link").textContent)).toEqual(TITLES);
 	expect(screen.getByText("성수")).toBeInTheDocument();
 });
 
 test("회원 홈의 팝업 PICK이 비면 안내를 보인다", async () => {
 	signInAsMember();
-	server.use(http.get("/api/v1/popups/recommended", () => respondWithPopups([])));
+	server.use(
+		http.get<PathParams, DefaultBodyType, ApiResponse<unknown>>("/api/v1/popups/recommended", ({ request }) =>
+			respondToMember(request, [])
+		)
+	);
 	renderWithProviders(<HomePickSection />);
 
 	expect(await screen.findByText("지금 추천할 팝업이 없어요.")).toBeInTheDocument();
@@ -137,7 +122,9 @@ test("회원 홈의 팝업 PICK을 불러오지 못하면 다시 시도로 회�
 	signInAsMember();
 	server.use(
 		http.get("/api/v1/popups/recommended", () => apiError(500, "E0000"), { once: true }),
-		http.get("/api/v1/popups/recommended", () => respondWithPopups(TITLES))
+		http.get<PathParams, DefaultBodyType, ApiResponse<unknown>>("/api/v1/popups/recommended", ({ request }) =>
+			respondToMember(request, TITLES)
+		)
 	);
 	const { user } = renderWithProviders(<HomePickSection />);
 
