@@ -24,8 +24,8 @@ import { Button } from "@/shared/ui/Button";
 import { ChoiceChipGrid } from "@/shared/ui/ChoiceChipGrid";
 import { Select } from "@/shared/ui/Select";
 
-import { useCourseDraftUrlSync } from "../hooks/useCourseDraftUrlSync";
 import { useGeneratePlanner } from "../hooks/useGeneratePlanner";
+import { usePlannerDraftUrlSync } from "../hooks/usePlannerDraftUrlSync";
 import {
 	getSelectableDateRange,
 	getSelectableStartTimes,
@@ -82,7 +82,7 @@ export function PlannerForm({ form, initialDraft }: PlannerFormProps) {
 		reset(sanitizePlannerDraft(urlDraft, form, getSeoulNow()));
 	};
 
-	useCourseDraftUrlSync(draft, handleUrlDraftChange);
+	usePlannerDraftUrlSync(draft, handleUrlDraftChange);
 
 	const renderMinuteMs = renderNow.getTime();
 
@@ -210,7 +210,7 @@ export function PlannerForm({ form, initialDraft }: PlannerFormProps) {
 		submitButtonRef.current?.focus();
 	};
 
-	const handleFailureClose = () => {
+	const handleFailureConfirm = () => {
 		setIsFailureOpen(false);
 		resetGeneration();
 	};
@@ -323,7 +323,7 @@ export function PlannerForm({ form, initialDraft }: PlannerFormProps) {
 			<AlertDialog
 				open={isFailureOpen}
 				message={failureMessage}
-				onConfirm={handleFailureClose}
+				onConfirm={handleFailureConfirm}
 				onClosed={handleFailureClosed}
 			/>
 		</>

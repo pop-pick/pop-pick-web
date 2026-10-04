@@ -105,7 +105,7 @@ export function fillClusterElement(element: HTMLElement, size: number, label: st
 	}
 }
 
-function buildMyPositionElement() {
+function buildMyPositionTemplate() {
 	const root = document.createElement("div");
 	root.className = "relative flex size-6 items-center justify-center";
 	root.setAttribute("aria-hidden", "true");
@@ -124,6 +124,6 @@ function buildMyPositionElement() {
 let myPositionTemplate: HTMLElement | null = null;
 
 export function createMyPositionElement() {
-	myPositionTemplate ??= buildMyPositionElement();
+	myPositionTemplate ??= buildMyPositionTemplate();
 	return myPositionTemplate.cloneNode(true) as HTMLElement;
 }

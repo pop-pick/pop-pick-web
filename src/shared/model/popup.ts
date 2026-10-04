@@ -1,5 +1,3 @@
-import type { Region } from "./region";
-
 export type PopupCategory = "character" | "fashion" | "food" | "art" | "beauty" | "game" | "lifestyle" | "etc";
 
 export const POPUP_CATEGORY_LABELS: Record<PopupCategory, string> = {
@@ -44,7 +42,7 @@ export interface PopupSummary {
 	id: number;
 	title: string;
 	category: PopupCategory | null;
-	region: Region | null;
+	areaName: string | null;
 	startDate: string | null;
 	endDate: string | null;
 	reservationType: PopupReservationType;
@@ -57,19 +55,20 @@ export interface PopupListItemResponse {
 	popupId: number;
 	imageUrl: string | null;
 	interestCategoryId: number | null;
+	areaName: string | null;
 	title: string;
 	endDate: string | null;
 	reservationType: PopupReservationType;
 	wished: boolean;
 }
 
-/** 목록 응답에 시작일과 지역이 없어 둘 다 null이다 */
+/** 목록 응답에 시작일이 없어 null이다 */
 export function toPopupSummary(item: PopupListItemResponse) {
 	const summary: PopupSummary = {
 		id: item.popupId,
 		title: item.title,
 		category: toPopupCategory(item.interestCategoryId),
-		region: null,
+		areaName: item.areaName,
 		startDate: null,
 		endDate: item.endDate,
 		reservationType: item.reservationType,

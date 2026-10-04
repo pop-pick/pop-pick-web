@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 
 type EmblaApi = UseEmblaCarouselType[1];
 
-export function useCarouselAutoplay(emblaApi: EmblaApi, delay: number) {
+export function useCarouselAutoplay(emblaApi: EmblaApi, delayMs: number) {
 	const shouldReduceMotion = useReducedMotion();
 	const [isStopped, setIsStopped] = useState(false);
 	const canPlay = shouldReduceMotion !== true;
@@ -30,7 +30,7 @@ export function useCarouselAutoplay(emblaApi: EmblaApi, delay: number) {
 
 			timerId = window.setTimeout(() => {
 				emblaApi.scrollNext();
-			}, delay);
+			}, delayMs);
 		};
 
 		const handlePointerDown = () => {
@@ -96,7 +96,7 @@ export function useCarouselAutoplay(emblaApi: EmblaApi, delay: number) {
 			emblaApi.off("pointerUp", handlePointerUp);
 			emblaApi.off("select", restartAutoplayTimer);
 		};
-	}, [emblaApi, delay, isPlaying]);
+	}, [emblaApi, delayMs, isPlaying]);
 
 	const stopAutoplay = () => {
 		setIsStopped(true);

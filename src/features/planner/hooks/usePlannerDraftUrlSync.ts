@@ -8,7 +8,7 @@ import {
 	serializePlannerDraft
 } from "@/shared/model/planner-path";
 
-export function useCourseDraftUrlSync(draft: PlannerDraft, onUrlDraftChange: (draft: PlannerDraft) => void) {
+export function usePlannerDraftUrlSync(draft: PlannerDraft, onUrlDraftChange: (draft: PlannerDraft) => void) {
 	const searchParams = useSearchParams();
 	const urlDraft = parsePlannerDraft(new URLSearchParams(searchParams.toString()));
 	const urlQuery = serializePlannerDraft(urlDraft).toString();

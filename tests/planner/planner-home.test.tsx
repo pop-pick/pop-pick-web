@@ -103,3 +103,15 @@ test("다음 페이지를 불러오지 못하면 받은 일정은 그대로 두�
 	expect(await screen.findByText("두 번째 페이지 코스")).toBeInTheDocument();
 	expect(await findCourseCards()).toHaveLength(2);
 });
+
+test("저장 직후 목록을 다시 읽다 실패하면 빈 일정 안내 대신 불러오지 못했다고 알린다", async () => {
+	server.use(http.get("/api/v1/planners", () => apiSuccess(buildPlannerPage([]))));
+	const { queryClient } = renderPlannerHome();
+	await screen.findByRole("link", { name: /나만의 코스 만들기/ });
+
+	server.use(http.get("/api/v1/planners", () => apiError(500, "E0000")));
+	await queryClient.invalidateQueries({ queryKey: ["course", "list"] });
+
+	expect(await screen.findByRole("button", { name: "다시 시도" })).toBeInTheDocument();
+	expect(screen.queryByText("아직 저장된 일정이 없어요.")).not.toBeInTheDocument();
+});

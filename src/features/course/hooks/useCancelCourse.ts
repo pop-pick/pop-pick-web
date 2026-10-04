@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { cancelPlanner } from "../api/cancel-planner";
 import { courseDetailQueryOptions } from "../api/get-planner";
+import { isStaleCourseError } from "../model/course-error";
 
 export function useCancelCourse() {
 	const queryClient = useQueryClient();
@@ -14,6 +15,11 @@ export function useCancelCourse() {
 				refetchType: "none"
 			});
 			await queryClient.invalidateQueries({ queryKey: ["course", "list"] });
+		},
+		onError: async (error, courseId) => {
+			if (isStaleCourseError(error)) {
+				await queryClient.invalidateQueries({ queryKey: courseDetailQueryOptions(courseId).queryKey });
+			}
 		}
 	});
 }

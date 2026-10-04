@@ -4,11 +4,17 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { type ReactNode, useEffect } from "react";
 
-import { refreshAccessToken, setRefreshHandler, subscribeAuthExpired } from "@/shared/api/auth-token";
+import {
+	notifySessionEnded,
+	refreshAccessToken,
+	setRefreshHandler,
+	subscribeAuthExpired
+} from "@/shared/api/auth-token";
 import { ApiError } from "@/shared/api/errors";
+import { clearAccountStorage } from "@/shared/model/account-storage";
 import { buildLoginPath } from "@/shared/model/login-path";
 
-import { refreshAuthTokens } from "../api/refresh-auth-tokens";
+import { refreshSession } from "../api/refresh-session";
 import { isTokenRejectedError } from "../model/session-rejection";
 import { useAuthStore } from "../model/useAuthStore";
 
@@ -18,12 +24,29 @@ function isNoSession(error: unknown) {
 	return error instanceof ApiError && error.errorCode === NO_SESSION_ERROR_CODE;
 }
 
+function hasLoggedInSince(hadToken: boolean) {
+	return !hadToken && useAuthStore.getState().accessToken !== null;
+}
+
 async function restoreSession() {
+	const { accessToken: tokenAtStart, endedSessionCount: endedAtStart } = useAuthStore.getState();
+	const hadToken = tokenAtStart !== null;
+
 	try {
-		const { accessToken } = await refreshAuthTokens();
+		const { accessToken } = await refreshSession();
+
+		if (useAuthStore.getState().endedSessionCount !== endedAtStart) {
+			return false;
+		}
+
 		useAuthStore.getState().setAccessToken(accessToken);
+
 		return true;
 	} catch (error) {
+		if (hasLoggedInSince(hadToken)) {
+			return true;
+		}
+
 		if (!isTokenRejectedError(error)) {
 			console.warn("[auth] 세션을 확인하지 못했습니다", error);
 			useAuthStore.getState().markSessionUnavailable();
@@ -67,6 +90,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
 			if (hasSessionStarted) {
 				void queryClient.invalidateQueries();
+			}
+		});
+	}, [queryClient]);
+
+	useEffect(() => {
+		let hasHadSession = useAuthStore.getState().status === "authenticated";
+
+		return useAuthStore.subscribe((state) => {
+			if (state.status === "authenticated") {
+				hasHadSession = true;
+			}
+
+			if (state.status === "anonymous" && hasHadSession) {
+				hasHadSession = false;
+				queryClient.removeQueries();
+				notifySessionEnded();
+				clearAccountStorage();
 			}
 		});
 	}, [queryClient]);

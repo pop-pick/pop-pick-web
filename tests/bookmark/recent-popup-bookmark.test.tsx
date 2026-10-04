@@ -14,7 +14,7 @@ const RECENT_POPUP: RecentPopup = {
 	id: 7,
 	title: "성수 팝업",
 	category: null,
-	region: null,
+	areaName: null,
 	startDate: null,
 	endDate: null,
 	reservationType: "UNKNOWN",
@@ -27,6 +27,7 @@ const DETAIL_RESPONSE: PopupDetailResponse = {
 	description: null,
 	imageUrls: null,
 	interestCategoryId: null,
+	areaName: null,
 	startDate: null,
 	endDate: null,
 	openingHours: null,
@@ -37,11 +38,12 @@ const DETAIL_RESPONSE: PopupDetailResponse = {
 	longitude: null,
 	reservationType: "UNKNOWN",
 	reservationUrl: null,
+	viewCount: 0,
 	wished: true
 };
 
 function saveRecentPopups() {
-	sessionStorage.setItem("pp-recent-popups", JSON.stringify({ state: { items: [RECENT_POPUP] }, version: 2 }));
+	sessionStorage.setItem("pp-recent-popups", JSON.stringify({ state: { items: [RECENT_POPUP] }, version: 3 }));
 }
 
 test("최근 본 팝업 탭의 하트는 기록이 아니라 상세 조회로 받은 찜 여부를 보인다", async () => {
@@ -73,5 +75,14 @@ test("찜 여부를 받지 못하면 최근 본 팝업의 하트를 찜 안 함�
 	});
 
 	expect(heart).toHaveAttribute("aria-disabled", "true");
-	expect(heart).toHaveAttribute("aria-busy", "true");
+	expect(heart).not.toHaveAttribute("aria-busy");
+});
+
+test("TC-024 최근 본 팝업이 없으면 없음 안내와 팝업 둘러보기 CTA를 보이고 CTA는 탐색으로 간다", async () => {
+	signInAsMember();
+	renderWithProviders(<MyPage />, { url: "/my?tab=recent" });
+
+	expect(await screen.findByText("최근 본 팝업이 없습니다.")).toBeInTheDocument();
+	expect(screen.getByRole("link", { name: "팝업 둘러보기" })).toHaveAttribute("href", "/explore");
+	expect(screen.queryByRole("list", { name: "최근 본 팝업" })).not.toBeInTheDocument();
 });

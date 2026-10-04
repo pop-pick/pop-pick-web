@@ -1,6 +1,7 @@
 import type { Ref } from "react";
 
 import GpsFixIcon from "@/shared/assets/icons/gps-fix.svg";
+import { cn } from "@/shared/lib/cn";
 import { IconButton } from "@/shared/ui/IconButton";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
@@ -18,7 +19,7 @@ export function CurrentPositionButton({ status, onLocate, className, ref }: Curr
 	const isBusy = status === "locating";
 
 	const handleClick = () => {
-		if (!isBusy) {
+		if (!isBusy && !isDisabled) {
 			onLocate();
 		}
 	};
@@ -30,9 +31,12 @@ export function CurrentPositionButton({ status, onLocate, className, ref }: Curr
 			variant="floating"
 			size="md"
 			aria-busy={isBusy}
-			disabled={isDisabled}
+			aria-disabled={isDisabled || undefined}
 			onClick={handleClick}
-			className={className}
+			className={cn(
+				"aria-disabled:cursor-not-allowed aria-disabled:text-icon-disabled aria-disabled:hover:bg-bg-1",
+				className
+			)}
 		>
 			<SvgIcon icon={GpsFixIcon} size={24} />
 		</IconButton>

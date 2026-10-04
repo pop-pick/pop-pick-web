@@ -3,7 +3,7 @@ import type { CompanionType, PartySize } from "@/shared/model/trip-preference";
 
 import type { OnboardingAnswers } from "../model/answers";
 
-/** 서버 OnboardingRegisterRequest. 1단계를 건너뛰면 동행 유형과 인원수를 null로 보낸다. numOfAccompany 4는 4명 이상이다 */
+/** 서버는 accompanyType과 numOfAccompany가 null이면 400(E400)으로 거절한다. numOfAccompany 4는 4명 이상이다 */
 interface OnboardingRegisterRequest {
 	accompanyType: CompanionType | null;
 	numOfAccompany: PartySize | null;

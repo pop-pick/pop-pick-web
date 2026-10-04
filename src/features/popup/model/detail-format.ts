@@ -39,3 +39,13 @@ export function formatEntryFee(entryFee: number | null) {
 
 	return entryFee === 0 ? "무료 입장" : `입장료 ${entryFee.toLocaleString("ko-KR")}원`;
 }
+
+const VIEW_COUNT_UNIT = 10_000;
+
+export function formatViewCount(viewCount: number) {
+	if (viewCount < VIEW_COUNT_UNIT) {
+		return `조회수 ${viewCount.toLocaleString("ko-KR")}`;
+	}
+
+	return `조회수 ${String(Math.floor(viewCount / (VIEW_COUNT_UNIT / 10)) / 10)}만`;
+}

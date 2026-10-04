@@ -1,10 +1,13 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
+import { subscribeSessionEnded } from "@/shared/api/auth-token";
+import { ACCOUNT_STORAGE_KEYS } from "@/shared/model/account-storage";
+
 import { EMPTY_ANSWERS, EMPTY_STEP_ANSWERS, type OnboardingAnswers, type OnboardingStepAnswers } from "./answers";
 import type { OnboardingStep } from "./steps";
 
-const STORAGE_KEY = "pp-onboarding-answers";
+const STORAGE_KEY = ACCOUNT_STORAGE_KEYS.onboardingAnswers;
 
 export type OnboardingAnswersLoadStatus = "loading" | "ready" | "failed";
 
@@ -17,13 +20,13 @@ interface OnboardingState {
 }
 
 /** 복원 전에 쓰면 persist가 빈 답 위에 쓴 값을 저장해 이전 단계의 답을 지운다. 복원이 끝나기 전의 쓰기는 호출하는 쪽의 결함이다 */
-function verifyLoaded(loadStatus: OnboardingAnswersLoadStatus) {
+function verifyAnswersLoaded(loadStatus: OnboardingAnswersLoadStatus) {
 	if (loadStatus === "loading") {
 		throw new Error("[onboarding] 입력한 답을 불러오기 전에 고치려 했다");
 	}
 }
 
-/** 탭을 닫으면 지워지도록 sessionStorage에 둔다. 같은 브라우저에서 다른 계정으로 로그인했을 때 이전 답이 보이지 않게 하려는 것이다 */
+/** 탭을 닫으면 지워지도록 sessionStorage에 둔다 */
 export const useOnboardingStore = create<OnboardingState>()(
 	persist(
 		(set, get) => ({
@@ -31,18 +34,18 @@ export const useOnboardingStore = create<OnboardingState>()(
 			loadStatus: "loading",
 			setStepAnswers: (_step, patch) => {
 				const { answers, loadStatus } = get();
-				verifyLoaded(loadStatus);
+				verifyAnswersLoaded(loadStatus);
 
 				set({ answers: { ...answers, ...patch } });
 			},
 			clearStepAnswers: (step) => {
 				const { answers, loadStatus } = get();
-				verifyLoaded(loadStatus);
+				verifyAnswersLoaded(loadStatus);
 
 				set({ answers: { ...answers, ...EMPTY_STEP_ANSWERS[step] } });
 			},
 			resetAnswers: () => {
-				verifyLoaded(get().loadStatus);
+				verifyAnswersLoaded(get().loadStatus);
 
 				set({ answers: EMPTY_ANSWERS });
 			}
@@ -64,3 +67,8 @@ export const useOnboardingStore = create<OnboardingState>()(
 		}
 	)
 );
+
+/** 복원 전에도 비워야 이전 계정의 답이 저장소에 남지 않아서 verifyAnswersLoaded를 거치지 않고 직접 쓴다 */
+subscribeSessionEnded(() => {
+	useOnboardingStore.setState({ answers: EMPTY_ANSWERS });
+});

@@ -6,14 +6,14 @@ import { ApiError } from "@/shared/api/errors";
 
 import { type PopupDetailResponse, toPopupDetail } from "../model/popup-detail";
 
-const MISSING_POPUP_ERROR_CODES: readonly string[] = ["E404", "E400"];
+const MISSING_POPUP_ERROR_CODES: readonly string[] = ["E404"];
 
 interface PopupDetailRequestOptions {
 	auth: boolean;
 	signal?: AbortSignal;
 }
 
-export function getPopupDetail(popupId: number, { auth, signal }: PopupDetailRequestOptions) {
+function getPopupDetail(popupId: number, { auth, signal }: PopupDetailRequestOptions) {
 	return api.get<PopupDetailResponse>(`/api/v1/popups/${String(popupId)}`, { auth, signal });
 }
 

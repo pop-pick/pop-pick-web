@@ -1,10 +1,10 @@
 import { tv, type VariantProps } from "@/shared/lib/tv";
 import { POPUP_CATEGORY_LABELS } from "@/shared/model/popup";
 import { buildPopupDetailPath } from "@/shared/model/popup-path";
-import { REGION_LABELS } from "@/shared/model/region";
 import { Badge } from "@/shared/ui/Badge";
 import { LinkButton } from "@/shared/ui/LinkButton";
 
+import { formatViewCount } from "../model/detail-format";
 import type { PopupDetail } from "../model/popup-detail";
 import { PopupDetailBookmark } from "./PopupDetailBookmark";
 import { PopupImageCarousel } from "./PopupImageCarousel";
@@ -30,8 +30,6 @@ interface PopupDetailViewProps {
 }
 
 export function PopupDetailView({ popup, variant, titleId }: PopupDetailViewProps) {
-	const hasBadgeRow = popup.category !== null || popup.region !== null;
-
 	return (
 		<div className={popupDetailViewVariants({ variant })}>
 			<div className="flex flex-col gap-8">
@@ -43,12 +41,11 @@ export function PopupDetailView({ popup, variant, titleId }: PopupDetailViewProp
 						variant={variant}
 					/>
 					<div className="flex flex-col gap-3">
-						{hasBadgeRow && (
-							<div className="flex items-center gap-1">
-								{popup.category !== null && <Badge>{POPUP_CATEGORY_LABELS[popup.category]}</Badge>}
-								{popup.region !== null && <Badge tone="region">{REGION_LABELS[popup.region]}</Badge>}
-							</div>
-						)}
+						<div className="flex items-center gap-1">
+							{popup.category !== null && <Badge>{POPUP_CATEGORY_LABELS[popup.category]}</Badge>}
+							{popup.areaName !== null && <Badge tone="region">{popup.areaName}</Badge>}
+							<p className="ml-auto text-b3-12 text-text-4">{formatViewCount(popup.viewCount)}</p>
+						</div>
 						<h1 id={titleId} tabIndex={titleId === undefined ? undefined : -1} className="text-h2 text-text-1">
 							{popup.title}
 						</h1>

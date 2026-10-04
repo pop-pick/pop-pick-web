@@ -22,7 +22,7 @@ function buildPopup(isBookmarked: boolean) {
 		id: POPUP_ID,
 		title: "성수 팝업",
 		category: null,
-		region: null,
+		areaName: null,
 		startDate: null,
 		endDate: null,
 		reservationType: "UNKNOWN",

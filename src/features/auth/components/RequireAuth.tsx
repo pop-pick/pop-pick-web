@@ -33,7 +33,7 @@ export function RequireAuth({ children, nextPath, fallback }: RequireAuthProps) 
 
 	if (status === "unavailable") {
 		return (
-			<div className="flex flex-1 flex-col items-center justify-center py-16">
+			<div className="flex flex-1 flex-col items-center justify-center px-5 py-16">
 				<SessionRetry />
 			</div>
 		);

@@ -6,6 +6,7 @@ import { createElement } from "react";
 import { afterAll, afterEach, beforeAll, vi } from "vitest";
 
 import { useAuthStore } from "@/features/auth/model/useAuthStore";
+import { useRecentPopupsStore } from "@/shared/model/useRecentPopupsStore";
 
 import { server } from "./support/msw";
 
@@ -77,6 +78,8 @@ afterEach(() => {
 	cleanup();
 	server.resetHandlers();
 	useAuthStore.setState(useAuthStore.getInitialState(), true);
+	useRecentPopupsStore.setState({ items: [], loadStatus: "loading" });
+	sessionStorage.clear();
 	mockRouter.setCurrentUrl("/");
 	vi.useRealTimers();
 });

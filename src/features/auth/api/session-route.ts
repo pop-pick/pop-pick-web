@@ -1,11 +1,29 @@
 import { api } from "@/shared/api/client";
-import { readBearerToken, toBackendErrorResponse, toSuccessResponse } from "@/shared/api/route-handler";
+import {
+	readBearerToken,
+	toBackendErrorResponse,
+	toErrorResponse,
+	toSuccessResponse
+} from "@/shared/api/route-handler";
 
 import type { AuthTokens, LoginBody } from "../model/auth";
 import { clearRefreshCookie, readRefreshToken, setRefreshCookie } from "../model/session-cookie";
 
+async function readLoginBodyOrNull(request: Request) {
+	try {
+		return (await request.json()) as LoginBody;
+	} catch (error) {
+		console.warn("[auth] 로그인 요청 본문을 읽지 못했습니다", error);
+		return null;
+	}
+}
+
 export async function postSession(request: Request) {
-	const body = (await request.json()) as LoginBody;
+	const body = await readLoginBodyOrNull(request);
+
+	if (body === null) {
+		return toErrorResponse({ status: 400, errorCode: "E400", message: "요청 값이 올바르지 않습니다." });
+	}
 
 	try {
 		const tokens = await api.post<AuthTokens>("/api/v1/auth/login", { json: body, auth: false });
