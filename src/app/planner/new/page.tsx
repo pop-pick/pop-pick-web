@@ -3,6 +3,7 @@ import { Suspense } from "react";
 
 import { RequireAuth } from "@/features/auth/components/RequireAuth";
 import { PlannerFormFromUrl } from "@/features/planner/components/PlannerFormFromUrl";
+import { PlannerFormSkeleton } from "@/features/planner/components/PlannerFormSkeleton";
 import { toUrlSearchParams } from "@/shared/lib/search-params";
 import { PLANNER_NEW_PATH } from "@/shared/model/planner-path";
 
@@ -15,8 +16,11 @@ export default async function PlannerNewPage({ searchParams }: PageProps<"/plann
 
 	return (
 		<main className="flex flex-1 flex-col">
-			<RequireAuth nextPath={query === "" ? PLANNER_NEW_PATH : `${PLANNER_NEW_PATH}?${query}`}>
-				<Suspense>
+			<RequireAuth
+				nextPath={query === "" ? PLANNER_NEW_PATH : `${PLANNER_NEW_PATH}?${query}`}
+				fallback={<PlannerFormSkeleton />}
+			>
+				<Suspense fallback={<PlannerFormSkeleton />}>
 					<PlannerFormFromUrl />
 				</Suspense>
 			</RequireAuth>

@@ -4,6 +4,7 @@ import { Suspense } from "react";
 
 import { RequireAuth } from "@/features/auth/components/RequireAuth";
 import { CourseView } from "@/features/course/components/CourseView";
+import { CourseViewSkeleton } from "@/features/course/components/CourseViewSkeleton";
 import { buildCoursePath, parseCourseId } from "@/shared/model/course-path";
 
 export const metadata: Metadata = {
@@ -18,8 +19,8 @@ export default async function CoursePage({ params }: PageProps<"/courses/[course
 	}
 
 	return (
-		<RequireAuth nextPath={buildCoursePath(courseId)}>
-			<Suspense>
+		<RequireAuth nextPath={buildCoursePath(courseId)} fallback={<CourseViewSkeleton />}>
+			<Suspense fallback={<CourseViewSkeleton />}>
 				<CourseView courseId={courseId} view="detail" />
 			</Suspense>
 		</RequireAuth>
