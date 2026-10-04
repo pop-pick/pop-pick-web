@@ -6,13 +6,13 @@ import { useEffect } from "react";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { LoadFailure } from "@/shared/components/LoadFailure";
 
-import { homePickQueryOptions } from "../api/get-popups";
-import { formatPickTitle } from "../model/home-format";
+import { recommendedPopupsQueryOptions } from "../api/get-recommended-popups";
+import { PICK_TITLE } from "../model/home-format";
 import { PickSection } from "./PickSection";
 import { PickSectionSkeleton } from "./PickSectionSkeleton";
 
 export function HomePickSection() {
-	const { data: recommendations, error, isPending, refetch } = useQuery(homePickQueryOptions());
+	const { data: recommendations, error, isPending, refetch } = useQuery(recommendedPopupsQueryOptions());
 
 	useEffect(() => {
 		if (error !== null) {
@@ -29,13 +29,13 @@ export function HomePickSection() {
 	}
 
 	if (recommendations !== undefined && recommendations.length > 0) {
-		return <PickSection nickname={null} recommendations={recommendations} />;
+		return <PickSection recommendations={recommendations} />;
 	}
 
 	return (
 		<section aria-labelledby="pick-section-title" className="flex flex-col gap-5">
 			<h2 id="pick-section-title" className="text-b1-18 text-text-1">
-				{formatPickTitle(null)}
+				{PICK_TITLE}
 			</h2>
 			{recommendations === undefined ? (
 				<div role="alert" className="py-6">

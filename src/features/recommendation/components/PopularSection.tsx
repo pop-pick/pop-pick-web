@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { EmptyState } from "@/shared/components/EmptyState";
 import { LoadFailure } from "@/shared/components/LoadFailure";
 
-import { popularPopupsQueryOptions } from "../api/get-popups";
+import { popularPopupsQueryOptions } from "../api/get-popular-popups";
 import { PopularPopupRow } from "./PopularPopupRow";
 import { PopularRowsSkeleton } from "./PopularRowsSkeleton";
 import { PopularSectionHeader } from "./PopularSectionHeader";
@@ -42,9 +42,9 @@ export function PopularSection() {
 			)}
 			{popularPopups !== undefined && popularPopups.length > 0 && (
 				<ul className="flex flex-col gap-4">
-					{popularPopups.map((item) => (
-						<li key={item.popup.id}>
-							<PopularPopupRow item={item} />
+					{popularPopups.map((popup) => (
+						<li key={popup.id}>
+							<PopularPopupRow popup={popup} />
 						</li>
 					))}
 				</ul>

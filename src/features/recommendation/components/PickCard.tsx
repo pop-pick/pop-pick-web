@@ -8,8 +8,8 @@ import { buildPopupDetailPath } from "@/shared/model/popup-path";
 import { SvgIcon } from "@/shared/ui/SvgIcon";
 
 import { formatPopupPeriod } from "../model/home-format";
-import type { RecommendedPopupItem } from "../model/home-popup";
-import { OnImageBadge } from "./OnImageBadge";
+import type { RecommendedPopupItem } from "../model/recommended-popup";
+import { ImageOverlayBadge } from "./ImageOverlayBadge";
 
 interface PickCardProps {
 	recommendation: RecommendedPopupItem;
@@ -19,7 +19,7 @@ interface PickCardProps {
 }
 
 export function PickCard({ recommendation, isExpanded, imageLoading, onToggle }: PickCardProps) {
-	const { popup, reason, badge } = recommendation;
+	const { popup, reason } = recommendation;
 	const period = formatPopupPeriod(popup.startDate, popup.endDate);
 	const detailsId = `pick-card-${String(popup.id)}-details`;
 
@@ -34,10 +34,14 @@ export function PickCard({ recommendation, isExpanded, imageLoading, onToggle }:
 				className="absolute inset-0 -z-10"
 				fallbackClassName="items-start pt-24"
 			/>
-			<div aria-hidden className="absolute inset-0 -z-10 bg-linear-to-b from-white/0 from-25% to-black/60 to-75%" />
+			<div aria-hidden className="absolute inset-0 -z-10 bg-linear-to-b from-transparent from-25% to-black/60 to-75%" />
 			<div className="absolute inset-x-4 top-4 flex items-start justify-between gap-2">
-				{popup.category !== null && <OnImageBadge label={POPUP_CATEGORY_LABELS[popup.category]} />}
-				{badge !== null && <OnImageBadge label={badge} />}
+				{popup.category !== null && <ImageOverlayBadge label={POPUP_CATEGORY_LABELS[popup.category]} />}
+				{popup.areaName !== null && (
+					<div className="ml-auto">
+						<ImageOverlayBadge label={popup.areaName} />
+					</div>
+				)}
 			</div>
 			<div className="flex flex-col gap-2">
 				<div className="flex flex-col gap-1">
