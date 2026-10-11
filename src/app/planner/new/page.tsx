@@ -8,7 +8,7 @@ import { toUrlSearchParams } from "@/shared/lib/search-params";
 import { PLANNER_NEW_PATH } from "@/shared/model/planner-path";
 
 export const metadata: Metadata = {
-	title: "코스 만들기"
+	title: "코스 생성"
 };
 
 export default async function PlannerNewPage({ searchParams }: PageProps<"/planner/new">) {

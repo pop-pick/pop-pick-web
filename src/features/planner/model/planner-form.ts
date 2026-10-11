@@ -18,7 +18,7 @@ export interface PlannerFormData {
 	startTimes: string[];
 }
 
-export const PLANNER_FORM_TITLE = "취향 분석 온보딩";
+export const PLANNER_FORM_TITLE = "코스 생성";
 
 export function toggleOptionId(options: PlannerOption[], selectedIds: number[], id: number) {
 	return options.filter((option) => (option.id === id) !== selectedIds.includes(option.id)).map((option) => option.id);
